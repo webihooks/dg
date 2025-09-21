@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
 {
     public static $files = array (
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '941748b3c8cae4466c827dfb5ca9602a' => __DIR__ . '/..' . '/rmccue/requests/library/Deprecated.php',
         '13906c19e3d8fcd1341b24ed4d51cf72' => __DIR__ . '/..' . '/razorpay/razorpay/Deprecated.php',
     );
@@ -39,6 +40,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         'M' => 
         array (
             'Matrix\\' => 7,
+        ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
         ),
         'E' => 
         array (
@@ -101,6 +106,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
         'Endroid\\QrCode\\' => 
         array (
             0 => __DIR__ . '/..' . '/endroid/qr-code/src',
@@ -123,6 +132,16 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'H' => 
+        array (
+            'HTMLPurifier' => 
+            array (
+                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Requests' => __DIR__ . '/..' . '/rmccue/requests/library/Requests.php',
@@ -133,6 +152,7 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$classMap;
 
         }, null, ClassLoader::class);
