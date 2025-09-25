@@ -1,25 +1,3 @@
-<?php
-// Get products from user-specific table with tags
-$table_name = "products_" . $user_id;
-
-// Check if the user-specific products table exists
-$check_table = $conn->prepare("SHOW TABLES LIKE ?");
-$check_table->execute([$table_name]);
-$table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
-
-if ($table_exists) {
-    // Fetch products from user-specific table with tags
-    $products_sql = "SELECT p.*, t.tag 
-                     FROM $table_name p 
-                     LEFT JOIN tags t ON p.tag_id = t.id 
-                     ORDER BY p.id ASC";
-    $products_stmt = $conn->prepare($products_sql);
-    $products_stmt->execute();
-    $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    $products = []; // Empty array if table doesn't exist
-}
-?>
 
 <?php if ($active_subscription): ?>
     <?php if ($active_subscription['package_id'] == 1): ?>
@@ -28,7 +6,6 @@ if ($table_exists) {
         <style>#deliveryBtn { display: none !important; }</style>
     <?php endif; ?>
 <?php endif; ?>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -41,89 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (selectedOrderType === 'dining' && dinningBtn) {
         dinningBtn.classList.add('active');
     }
-    
-    // Initialize lazy loading with fade-in effect
-    initLazyLoading();
 });
-
-// Lazy loading with fade-in effect implementation
-function initLazyLoading() {
-    const lazyImages = document.querySelectorAll('img.product-img-lazy');
-    
-    if ('IntersectionObserver' in window) {
-        // Use IntersectionObserver for modern browsers
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    preloadImage(img);
-                    imageObserver.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '0px 0px 200px 0px', // Load images 200px before they enter viewport
-            threshold: 0.01
-        });
-
-        lazyImages.forEach(img => {
-            imageObserver.observe(img);
-        });
-    } else {
-        // Fallback for older browsers - load all images at once with fade effect
-        lazyImages.forEach(img => {
-            preloadImage(img);
-        });
-    }
-}
-
-// Preload image with fade-in effect
-function preloadImage(img) {
-    // Show loading spinner
-    const spinner = img.parentElement.querySelector('.img-loading-spinner');
-    if (spinner) spinner.style.display = 'block';
-    
-    // Create new image to load in background
-    const newImg = new Image();
-    
-    newImg.onload = function() {
-        // Set the actual image source
-        img.src = img.dataset.src;
-        
-        // Remove lazy class and add loaded class for fade effect
-        img.classList.remove('product-img-lazy');
-        img.classList.add('product-img-loaded');
-        
-        // Hide loading spinner
-        if (spinner) spinner.style.display = 'none';
-        
-        // Remove placeholder if it exists
-        if (img.classList.contains('product-img-placeholder')) {
-            setTimeout(() => {
-                img.classList.remove('product-img-placeholder');
-            }, 500);
-        }
-    };
-    
-    newImg.onerror = function() {
-        // Hide image on error
-        img.style.display = 'none';
-        
-        // Hide loading spinner
-        if (spinner) spinner.style.display = 'none';
-        
-        // Adjust button position for missing image
-        const productCard = img.closest('.product-card');
-        if (productCard) {
-            const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
-            if (cartBtnGroup) {
-                cartBtnGroup.classList.add('top');
-            }
-        }
-    };
-    
-    // Start loading the image
-    newImg.src = img.dataset.src;
-}
 
 // Add this to your existing JavaScript code
 document.addEventListener('DOMContentLoaded', function() {
@@ -204,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <!-- View Cart Button -->
                 <button class="btn btn-outline-secondary mb-3 w-100" id="viewCartBtn" style="display: none;">
-                    <i class="bi bi-cart blink"></i> View Cart
+                    <i class="bi bi-cart"></i> View Cart
                 </button>
             </div>
 
@@ -213,13 +108,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="order-type-buttons mb-3">
                     <?php if ($delivery_active): ?>
                         <button class="btn btn-outline-primary w-50" id="deliveryBtn">
-                            <i class="bi bi-truck blink"></i> Delivery
+                            <i class="bi bi-truck"></i> Delivery
                         </button>
                     <?php endif; ?>
                             
                     <?php if ($dining_active): ?>
                         <button class="btn btn-outline-primary w-50" id="dinningBtn">
-                            <i class="bi bi-cup-hot blink"></i> Dining
+                            <i class="bi bi-cup-hot"></i> Dining
                         </button>
                     <?php endif; ?>
                 </div>
@@ -295,44 +190,13 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     <?php endif; ?>
 
-
-
-
-
-
-
 <div class="row" id="productsContainer">
-        <?php 
-        // Get only active products from user-specific table with active tags or no tags
-        $table_name = "products_" . $user_id;
-
-        // Check if the user-specific products table exists
-        $check_table = $conn->prepare("SHOW TABLES LIKE ?");
-        $check_table->execute([$table_name]);
-        $table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
-
-        if ($table_exists) {
-            // Fetch only active products from user-specific table with active tags or no tags
-            $products_sql = "SELECT p.*, t.tag, t.is_active 
-                             FROM $table_name p 
-                             LEFT JOIN tags t ON p.tag_id = t.id 
-                             WHERE p.is_active = 1 
-                             AND (t.is_active = 1 OR p.tag_id IS NULL)
-                             ORDER BY p.id ASC";
-            $products_stmt = $conn->prepare($products_sql);
-            $products_stmt->execute();
-            $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            $products = []; // Empty array if table doesn't exist
-        }
-        ?>
-
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
             <div class="col-sm-12 product-item" 
-                 data-name="<?= htmlspecialchars(strtolower($product['product_name'])) ?>" 
-                 data-desc="<?= htmlspecialchars(strtolower($product['description'])) ?>"
-                 data-tag="<?= isset($product['tag']) ? htmlspecialchars(strtolower($product['tag'])) : '' ?>">
+ data-name="<?= htmlspecialchars(strtolower($product['product_name'])) ?>" 
+ data-desc="<?= htmlspecialchars(strtolower($product['description'])) ?>"
+ data-tag="<?= isset($product['tag']) ? htmlspecialchars(strtolower($product['tag'])) : '' ?>">
                 <div class="card product-card">
                     <div class="card-body">
                         <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
@@ -349,13 +213,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
                         <?php endif; ?>
                         <?php if ($product['quantity'] > 0 && ($delivery_active || $dining_active) && $is_store_open): ?>
-                            <div class="mt-3 cart_btn_group https://deegeecard.com/<?= empty($product['image_path']) ? 'top' : '' ?>">
-                                <button class="btn btn-primary w-100 add-to-cart" 
-                                        data-id="<?= htmlspecialchars($product['product_name']) ?>" 
-                                        data-name="<?= htmlspecialchars($product['product_name']) ?>" 
-                                        data-price="<?= $product['price'] ?>" 
-                                        data-max="<?= $product['quantity'] ?>" 
-                                        data-image="https://deegeecard.com/<?= htmlspecialchars($product['image_path']) ?>">
+                            <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
+                                <button class="btn btn-primary w-100 add-to-cart" data-id="<?= htmlspecialchars($product['product_name']) ?>" data-name="<?= htmlspecialchars($product['product_name']) ?>" data-price="<?= $product['price'] ?>" data-max="<?= $product['quantity'] ?>" data-image="<?= htmlspecialchars($product['image_path']) ?>">
                                     <i class="bi bi-cart-plus"></i> Add
                                 </button>
                             </div>
@@ -370,35 +229,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <?php if (!empty($product['image_path'])): ?>
                         <div class="img-group">
-                            <!-- Lazy loading with fade-in effect -->
-                            <div class="aspect-ratio-box">
-                                <img 
-                                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" 
-                                    data-src="https://deegeecard.com/<?= htmlspecialchars($product['image_path']) ?>" 
-                                    class="card-img-top product-img product-img-lazy product-img-placeholder" 
-                                    alt="<?= htmlspecialchars($product['product_name']) ?>" 
-                                    onerror="handleImageError(this)">
-                                <div class="img-loading-spinner"></div>
-                            </div>
+                            <img src="<?= htmlspecialchars($product['image_path']) ?>" class="card-img-top product-img" alt="<?= htmlspecialchars($product['product_name']) ?>" onerror="this.style.display='none'">
                         </div>
                     <?php endif; ?>
 
                     <script>
-                        // Handle image errors
-                        function handleImageError(img) {
-                            img.style.display = 'none';
-                            const spinner = img.parentElement.querySelector('.img-loading-spinner');
-                            if (spinner) spinner.style.display = 'none';
-                            
+                        document.querySelectorAll('.product-img').forEach(img => {
+                          img.addEventListener('error', function() {
                             // Find the closest parent `.product-card`, then navigate to `.card-body .cart_btn_group`
-                            const productCard = img.closest('.product-card');
+                            const productCard = this.closest('.product-card');
                             if (productCard) {
-                                const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
-                                if (cartBtnGroup) {
-                                    cartBtnGroup.classList.add('top');
-                                }
+                              const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
+                              if (cartBtnGroup) {
+                                cartBtnGroup.classList.add('top'); // Add the "top" class
+                              }
                             }
-                        }
+                          });
+                        });
                     </script>
                 </div>
             </div>
@@ -410,29 +257,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
 </div>
 
-
-
-
-
-
     <!-- Move search to bottom and make it sticky -->
     <div class="sticky-search-container">
         <!-- Add tags filter above search -->
         <div class="tags-filter-container">
             <div class="tags-scroll">
-                <?php 
-                // Fetch only active tags
-                $active_tags_sql = "SELECT * FROM tags WHERE user_id = :user_id AND is_active = 1 ORDER BY position ASC";
-                $active_tags_stmt = $conn->prepare($active_tags_sql);
-                $active_tags_stmt->execute([':user_id' => $user_id]);
-                $active_tags = $active_tags_stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Only show "All" button if there are active tags
-                if (!empty($active_tags)): ?>
-                    <button class="tag-btn active" data-tag="all">All</button>
-                <?php endif; ?>
-                
-                <?php foreach ($active_tags as $tag): ?>
+                <button class="tag-btn active" data-tag="all">All</button>
+                <?php foreach ($tags as $tag): ?>
                     <button class="tag-btn" data-tag="<?= htmlspecialchars(strtolower($tag['tag'])) ?>">
                         <?= htmlspecialchars($tag['tag']) ?>
                     </button>
@@ -448,14 +279,11 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-
-
     <?php if ($delivery_active || $dining_active): ?>
         <div class="cart-button-container" style="display: none;">
             <button class="btn btn-primary cart-button" onclick="toggleCart()">
                 <span class="cart-count">0 item added</span>
                 <span class="small discount-message" style="display: none;"></span>
-                <i class="bi bi-cart blink"></i>
             </button>
         </div>
     <?php endif; ?>
@@ -674,16 +502,10 @@ function placeOrderOnWhatsApp() {
     message += `${<?= json_encode($business_info['website']) ?>}\n` +
                `OR\n`;
     <?php endif; ?>
-    
-    // At the top of your script, define the base URL
-    const baseUrl = 'https://deegeecard.com';
-    
-    // Then in your WhatsApp message:
-    message += `${baseUrl}/<?= $profile_url ?>`;
+
+    message += `${window.location.origin}/<?= $profile_url ?>`;
 
 
-    // Add your requested message
-    message += `\n\nAlso share your order with us on WhatsApp — just hit 'Send' 👉`;
 
 
     // Safari-compatible WhatsApp opening
@@ -755,7 +577,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
     applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...';
     
     // Send AJAX request to validate coupon
-    fetch('https://deegeecard.com/validate_coupon.php', {
+    fetch('validate_coupon.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1086,7 +908,7 @@ function validatePhoneNumber(input) {
     }
 }
 
-// Add to cart button click handler with image animation
+// Add to cart button click handler
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', function() {
         // Add this to adjust the sticky search container
@@ -1110,11 +932,6 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
             if (existingItem.quantity < existingItem.max) {
                 existingItem.quantity++;
                 // showToast(`${product.name} quantity increased to ${existingItem.quantity}`);
-                
-                // ADDED: Trigger animation even for existing items
-                if (product.image_path) {
-                    animateProductToCart(this, product.image_path);
-                }
             } else {
                 // showToast(`Maximum quantity reached for ${product.name}`, true);
                 return;
@@ -1122,19 +939,10 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
         } else {
             cart.push(product);
             // showToast(`${product.name} added to cart`);
-            
-            // Add image animation if product has an image
-            if (product.image_path) {
-                animateProductToCart(this, product.image_path);
-            }
-        }
-        
-        // Add pulse animation to cart button (moved outside of if/else)
-        const cartButton = document.querySelector('.cart-button');
-        if (cartButton) {
-            cartButton.classList.add('cart-item-added');
+            // Add pulse animation to cart button
+            document.querySelector('.cart-button').classList.add('cart-item-added');
             setTimeout(() => {
-                cartButton.classList.remove('cart-item-added');
+                document.querySelector('.cart-button').classList.remove('cart-item-added');
             }, 500);
         }
 
@@ -1148,57 +956,6 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
         }
     });
 });
-
-// Function to animate product image flying to cart
-function animateProductToCart(buttonElement, imageSrc) {
-    // Get the product image
-    const productCard = buttonElement.closest('.product-card');
-    const productImage = productCard ? productCard.querySelector('.product-img') : null;
-    
-    if (!productImage) return;
-    
-    // Get cart button container position
-    const cartButtonContainer = document.querySelector('.cart-button-container');
-    if (!cartButtonContainer) return;
-    
-    const cartButtonRect = cartButtonContainer.getBoundingClientRect();
-    
-    // Create flying image clone
-    const flyingImage = document.createElement('img');
-    flyingImage.src = imageSrc;
-    flyingImage.className = 'flying-image';
-    
-    // Set initial position and size
-    const imageRect = productImage.getBoundingClientRect();
-    flyingImage.style.width = `${imageRect.width}px`;
-    flyingImage.style.height = `${imageRect.height}px`;
-    flyingImage.style.left = `${imageRect.left}px`;
-    flyingImage.style.top = `${imageRect.top}px`;
-    
-    // Calculate final position (center of cart button container)
-    const finalX = (cartButtonRect.left + (cartButtonRect.width / 2)) - (imageRect.width / 2);
-    const finalY = (cartButtonRect.top + (cartButtonRect.height / 2)) - (imageRect.height / 2);
-    
-    // Calculate mid position for a curved path
-    const midX = (finalX + imageRect.left) / 2 - 50; // Curve to the left
-    const midY = (finalY + imageRect.top) / 2 - 100; // Curve upward
-    
-    // Set CSS custom properties for animation path
-    flyingImage.style.setProperty('--final-x', `${finalX - imageRect.left}px`);
-    flyingImage.style.setProperty('--final-y', `${finalY - imageRect.top}px`);
-    flyingImage.style.setProperty('--mid-x', `${midX - imageRect.left}px`);
-    flyingImage.style.setProperty('--mid-y', `${midY - imageRect.top}px`);
-    
-    // Add to document
-    document.body.appendChild(flyingImage);
-    
-    // Remove element after animation completes
-    setTimeout(() => {
-        if (flyingImage.parentNode) {
-            flyingImage.parentNode.removeChild(flyingImage);
-        }
-    }, 1000);
-}
 
 function saveCart() {
     localStorage.setItem(cartKey, JSON.stringify({
@@ -1501,7 +1258,7 @@ function updateCartUI() {
 
     document.getElementById('cartTotal').textContent = formatNumber(total);
     const itemCount = cart.filter(item => item.id).reduce((sum, item) => sum + item.quantity, 0);
-    document.querySelector('.cart-count').textContent = itemCount + (itemCount === 1 ? ' item added' : ' items added in cart');
+    document.querySelector('.cart-count').textContent = itemCount + (itemCount === 1 ? ' item added' : ' items added');
 
     // Handle delivery/dining button visibility
     <?php if ($delivery_active && $dining_active): ?>
@@ -1631,7 +1388,6 @@ function closeOrderSuccessPopup() {
   popup.classList.remove('active');
 }
 
-// Updated placeOrder function with proper error handling
 function placeOrder() {
     if (cart.length === 0) {
         alert('Your cart is empty');
@@ -1686,7 +1442,7 @@ function placeOrder() {
         }
     }
     
-    // Prepare order data
+    // Prepare order data - MAKE SURE DISCOUNT DATA IS INCLUDED
     const orderData = {
         user_id: <?= $user_id ?>,
         order_type: isDelivery ? 'delivery' : 'dining',
@@ -1700,25 +1456,24 @@ function placeOrder() {
             price: item.price,
             quantity: item.quantity
         })),
-        discount_amount: discountAmount,
-        discount_type: discountType,
+        discount_amount: discountAmount, // ADD THIS
+        discount_type: discountType,     // ADD THIS
         gst_percent: gstPercent,
         delivery_charge: deliveryCharge,
         free_delivery_min: freeDeliveryMin,
         coupon_data: cart.coupon || null
     };
     
+    // Debug: Log what's being sent to the server
+    console.log('Sending order data:', orderData);
+    
     // Show loading state
     const placeOrderBtn = document.getElementById('placeOrderBtn');
     const originalBtnText = placeOrderBtn.innerHTML;
-    placeOrderBtn.disabled = true;
-    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Order Processing...';
-    
-    // Use the correct path for place_order.php
-    const placeOrderUrl = 'https://deegeecard.com/place_order.php';
+    placeOrderBtn.disabled = false;
     
     // Send order data to server
-    fetch(placeOrderUrl, {
+    fetch('place_order.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1727,10 +1482,7 @@ function placeOrder() {
     })
     .then(response => {
         if (!response.ok) {
-            // More detailed error information
-            return response.text().then(text => {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}. Response: ${text}`);
-            });
+            throw new Error('Network response was not ok');
         }
         return response.json();
     })
@@ -1759,7 +1511,7 @@ function placeOrder() {
                 // Add 3-second delay before triggering WhatsApp
                 setTimeout(() => {
                     placeOrderOnWhatsApp();
-                }, 2000);
+                }, 3000);
             } else {
                 placeOrderBtn.innerHTML = originalBtnText;
                 placeOrderBtn.disabled = false;
@@ -1775,19 +1527,7 @@ function placeOrder() {
     })
     .catch(error => {
         console.error('Error:', error);
-        
-        // More user-friendly error message
-        let errorMessage = 'Failed to place order. ';
-        
-        if (error.message.includes('Failed to fetch')) {
-            errorMessage += 'Network error. Please check your internet connection.';
-        } else if (error.message.includes('CORS')) {
-            errorMessage += 'Cross-origin request blocked. Please contact support.';
-        } else {
-            errorMessage += error.message || 'Please try again.';
-        }
-        
-        alert(errorMessage);
+        alert(error.message || 'Failed to place order. Please try again.');
         placeOrderBtn.innerHTML = originalBtnText;
         placeOrderBtn.disabled = false;
     });
@@ -1936,11 +1676,11 @@ function createConfetti() {
 <!-- Add this to your HTML (before the closing body tag) -->
 <div class="confetti-container" id="confettiContainer"></div>
 
-<!-- Order Success Popup -->
+<!-- Order Success Popup (updated with confetti) -->
 <div class="order-success-popup" id="orderSuccessPopup">
     <div class="order-success-content">
         <div class="order-success-icon">
-            <img src="https://deegeecard.com/images/success_icon.gif">
+            <img src="images/success_icon.gif">
         </div>
         <h3 class="order-success-title">
             Order Received<br>
@@ -1951,50 +1691,6 @@ function createConfetti() {
         </p>
         <h4 class="mb-3">Also share your order with us<br>
             on WhatsApp — just hit 'Send'.</h4>
-        <button class="order-success-btn" onclick="redirectToProfile()">OK</button>
+        <button class="order-success-btn" onclick="closeOrderSuccessPopup()">OK</button>
     </div>
 </div>
-
-<script>
-// Function to redirect to profile page
-function redirectToProfile() {
-    // Get the profile URL from PHP variable
-    const profileUrl = '<?= $profile_url ?>';
-    const currentDomain = window.location.hostname;
-    
-    // Close the popup first
-    closeOrderSuccessPopup();
-    
-    // Determine the correct URL based on current domain
-    let redirectUrl;
-    
-    if (currentDomain === 'goldcoinrestaurant.in') {
-        redirectUrl = `https://goldcoinrestaurant.in`;
-    } else if (currentDomain === 'swadishtrasoi.in') {
-        redirectUrl = `https://swadishtrasoi.in`;
-    } else if (currentDomain === 'tastespecial.in') {
-        redirectUrl = `https://tastespecial.in`;
-    } else {
-        // Fallback to current domain
-        redirectUrl = `${window.location.origin}/${profileUrl}`;
-    }
-    
-    // Redirect to the profile page after a short delay for smooth UX
-    setTimeout(() => {
-        window.location.href = redirectUrl;
-    }, 300);
-}
-
-// Function to close the order success popup
-function closeOrderSuccessPopup() {
-    const popup = document.getElementById('orderSuccessPopup');
-    popup.classList.remove('active');
-}
-
-// Function to show the order success popup
-function showOrderSuccessPopup() {
-    createConfetti();
-    const popup = document.getElementById('orderSuccessPopup');
-    popup.classList.add('active');
-}
-</script>

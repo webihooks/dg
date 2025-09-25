@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                        <input type="email" id="example-email" name="email" class="form-control" placeholder="Enter your email" required>
                                                   </div>
                                                   <div class="mb-2">
-                                                       <a href="forgot-password.php" class="float-end text-muted text-unline-dashed ms-1">Reset password</a>
+                                                       <!-- <a href="forgot-password.php" class="float-end text-muted text-unline-dashed ms-1">Reset password</a> -->
                                                        <label class="form-label" for="example-password">Password</label>
                                                        <input type="password" id="example-password" name="password" class="form-control" placeholder="Enter your password" required>
                                                   </div>
