@@ -240,6 +240,18 @@ window.addEventListener('beforeunload', () => {
                <span class="nav-text">Customer Data</span>
             </a>
          </li>
+
+
+         <li class="nav-item">
+            <a class="nav-link" href="whatsapp_marketing.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+               </span>
+               <span class="nav-text">Bulk WhatsApp Marketing</span>
+            </a>
+         </li>
+
+
          <li class="menu-title">Products</li>
          <li class="nav-item">
             <a class="nav-link menu-arrow" href="#personal" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="personal">

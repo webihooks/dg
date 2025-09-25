@@ -19,13 +19,13 @@
     RewriteRule ^ /%1? [R=301,L]
 </IfModule>
 
-# Security headers
+# Security headers - ###### Commented code for iframe not loading ######
 <IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" env=HTTPS
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    # Header set X-Content-Type-Options "nosniff"
+    # Header set X-Frame-Options "SAMEORIGIN"
+    # Header set X-XSS-Protection "1; mode=block"
+    # Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" env=HTTPS
+    # Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
 # Performance optimizations

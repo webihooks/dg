@@ -257,8 +257,8 @@
             width: 100%;
               margin: 20px 0 0 0;
               border-radius: 10px;
-              font-size: 18px;
-              padding-top: 10px;
+              font-size: 12px;
+              padding-top: 17px;
         }
         
     </style>
@@ -294,6 +294,35 @@
     }
 </script>
 <?php endif; ?>
+
+<?php if (in_array($user_id, [67, 70, 71, 72, 73])): ?>
+    <a href="https://deegeecard.com/pawankoliwada" 
+       class="back-to-home-btn">
+       Back to Home
+    </a>
+
+    <style>
+        .back-to-home-btn {
+            position: fixed;
+            top: 15px;
+            right: 66px;
+            z-index: 99;
+            background: <?= $primary_color ?>;
+            color: #fff;
+            padding: 7px 18px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.3s;
+        }
+        .back-to-home-btn:hover {
+            color: #fff;
+        }
+    </style>
+<?php endif; ?>
+
 
     <div class="main">
 

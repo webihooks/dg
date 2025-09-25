@@ -90,13 +90,13 @@
                </li>
 
                <li class="nav-item">
-                    <a class="nav-link" href="https://marketing.deegeecard.com/" target="_blank">
-                         <span class="nav-icon">
-                              <iconify-icon icon="mdi:whatsapp"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> WhatsApp Marketing </span>
-                    </a>
-               </li>
+                 <a class="nav-link" href="whatsapp_marketing.php">
+                    <span class="nav-icon">
+                       <iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+                    </span>
+                    <span class="nav-text">Bulk WhatsApp Marketing</span>
+                 </a>
+              </li>
 
                <li class="nav-item">
                     <a class="nav-link" href="master_products.php">

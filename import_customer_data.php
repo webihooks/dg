@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['csv_file'])) {
                 $success_count = 0;
                 $error_count = 0;
                 $duplicate_count = 0;
+                $error_details = [];
                 
                 // Prepare SQL statement
                 $insert_sql = "INSERT INTO customer_data 
@@ -66,22 +67,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['csv_file'])) {
                 $stmt = $conn->prepare($insert_sql);
                 
                 // Process each row
+                $row_number = 1; // Start with header row + 1
                 while (($row = fgetcsv($handle)) !== false) {
-                    if (count($row) !== count($header)) continue; // Skip malformed rows
+                    $row_number++;
                     
-                    $data = array_combine($header, $row);
-                    
-                    // Basic validation
-                    if (empty($data['customer_name'])) {
+                    if (count($row) !== count($header)) {
                         $error_count++;
+                        $error_details[] = "Row $row_number: Malformed row (column count doesn't match header)";
                         continue;
                     }
                     
-                    // Clean phone number
-                    $phone = preg_replace('/[^0-9]/', '', $data['customer_phone']);
+                    $data = array_combine($header, $row);
+                    
+                    // Validate required field (only phone is required)
+                    $validation_errors = [];
+                    
+                    if (empty(trim($data['customer_phone']))) {
+                        $validation_errors[] = "Customer phone is required";
+                    } else {
+                        // Clean phone number
+                        $phone = preg_replace('/[^0-9]/', '', $data['customer_phone']);
+                        if (empty($phone)) {
+                            $validation_errors[] = "Customer phone contains no valid digits";
+                        }
+                    }
+                    
+                    // Skip row if there are validation errors
+                    if (!empty($validation_errors)) {
+                        $error_count++;
+                        $error_details[] = "Row $row_number: " . implode(", ", $validation_errors);
+                        continue;
+                    }
                     
                     try {
-                        $stmt->bind_param("isss", $user_id, $data['customer_name'], $phone, $data['delivery_address']);
+                        $phone = preg_replace('/[^0-9]/', '', $data['customer_phone']);
+                        
+                        // Set default values for empty fields
+                        $customer_name = !empty(trim($data['customer_name'])) ? trim($data['customer_name']) : "No Name";
+                        $delivery_address = !empty(trim($data['delivery_address'])) ? trim($data['delivery_address']) : "";
+                        
+                        $stmt->bind_param("isss", $user_id, $customer_name, $phone, $delivery_address);
                         $stmt->execute();
                         
                         if ($stmt->affected_rows > 0) {
@@ -91,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['csv_file'])) {
                         }
                     } catch (Exception $e) {
                         $error_count++;
+                        $error_details[] = "Row $row_number: Database error - " . $e->getMessage();
                     }
                 }
                 
@@ -103,9 +129,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['csv_file'])) {
                 }
                 if ($error_count > 0) {
                     $message .= "$error_count records failed to import.";
+                    // Add error details if there were errors
+                    if (!empty($error_details)) {
+                        $message .= "<br><br>Error details:<br>" . implode("<br>", array_slice($error_details, 0, 10));
+                        if (count($error_details) > 10) {
+                            $message .= "<br>... and " . (count($error_details) - 10) . " more errors";
+                        }
+                    }
                 }
                 $message_type = $error_count > 0 ? 'warning' : 'success';
             }
+
         }
     }
 }
@@ -170,6 +204,7 @@ $conn->close();
                                                     <div class="text-center">
                                                         <button type="submit" class="btn btn-primary">Import Data</button>
                                                         <a href="customer_data.php" class="btn btn-secondary">View Customer Data</a>
+                                                        <button type="button" id="download-template" class="btn btn-info">Download Example CSV</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -177,21 +212,6 @@ $conn->close();
                                     </div>
                                 </div>
                                 
-                                <div class="row mt-4">
-                                    <div class="col-md-8 offset-md-2">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Download Template</h5>
-                                                <p class="card-text">
-                                                    Download our CSV template to ensure proper formatting:
-                                                </p>
-                                                <a href="assets/templates/customer_import_template.csv" class="btn btn-success">
-                                                    <i class="fas fa-download me-2"></i>Download Template
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -222,6 +242,31 @@ $conn->close();
                     alert('Only CSV files are allowed.');
                     return false;
                 }
+            });
+            
+            // Download CSV template
+            $('#download-template').on('click', function() {
+                // Create CSV content
+                const csvContent = "customer_name,customer_phone,delivery_address\n" +
+                                   "John Doe,5551234567,123 Main St\n" +
+                                   "Jane Smith,5559876543,456 Oak Ave\n" +
+                                   "Robert Johnson,5554567890,789 Pine Rd";
+                
+                // Create a Blob object with the CSV content
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                
+                // Create a download link
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'customer_data_template.csv');
+                link.style.visibility = 'hidden';
+                
+                // Add to document, trigger click, then remove
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
         });
     </script>

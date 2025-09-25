@@ -106,6 +106,24 @@ if ($result) {
     }
 }
 
+// Fetch user's profile URL from profile_url_details table
+$profile_url = '';
+$profile_sql = "SELECT profile_url FROM profile_url_details WHERE user_id = ?";
+$profile_stmt = $conn->prepare($profile_sql);
+$profile_stmt->bind_param("i", $user_id);
+$profile_stmt->execute();
+$profile_stmt->bind_result($profile_url);
+$profile_stmt->fetch();
+$profile_stmt->close();
+
+// If no profile URL found or it's incomplete, construct the full URL
+if (empty($profile_url)) {
+    $profile_url = "https://deegeecard.com";
+} else if (!preg_match("/^https?:\/\//i", $profile_url)) {
+    // If the URL doesn't start with http:// or https://, add the domain
+    $profile_url = "https://deegeecard.com/" . ltrim($profile_url, '/');
+}
+
 $conn->close();
 ?>
 
@@ -179,10 +197,17 @@ $conn->close();
                                             
 <div class="table-responsive">
         <table class="table table-striped">
-             <thead>
+
+
+
+
+
+
+<thead>
                 <tr>
                     <th>Sr. No.</th>
                     <th>Customer Name</th>
+                    <th>Action</th>
                     <th>
                         Phone Number
                         <br>
@@ -197,6 +222,7 @@ $conn->close();
                             </button>
                         </div>
                     </th>
+                    
                     <th>Delivery Address</th>
                     <th>Source</th>
                     <th style="display: none;">Last Updated</th>
@@ -205,11 +231,41 @@ $conn->close();
             <tbody>
                 <?php 
                 $sr_no = $offset + 1;
-                foreach ($customer_data as $customer): ?>
+                foreach ($customer_data as $customer): 
+                    $phone = htmlspecialchars($customer['customer_phone'], ENT_QUOTES, 'UTF-8');
+                    $name = htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8');
+                    
+                    // Create WhatsApp share message
+                    $greeting = "Hello";
+                    if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
+                        $greeting .= " " . $name;
+                    } else {
+                        // Remove "No Name" from the greeting
+                        $greeting = "Hello";
+                    }
+                    
+                    $message = $greeting . "! 🍴 We're Now Online! 🎉\nEnjoy exclusive discounts & offers on all your favourite dishes.\nOrder your cravings in just a click!\n\nOrder Now: " . $profile_url;
+                    $share_text = urlencode($message);
+                ?>
                     <tr>
                         <td><?php echo $sr_no++; ?></td>
-                        <td><?php echo htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="phone-number"><?php echo htmlspecialchars($customer['customer_phone'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo $name; ?></td>
+
+<td>
+<?php if (!empty($phone) && $phone !== 'N/A'): ?>
+<a href="https://wa.me/+91<?php echo $phone; ?>?text=<?php echo $share_text; ?>" 
+target="_blank" class="btn btn-sm btn-success whatsapp-share" 
+title="Share via WhatsApp">
+<span class="nav-icon">
+<iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+</span> Share
+</a>
+<?php endif; ?>
+</td>
+
+
+                        <td class="phone-number"><?php echo $phone; ?></td>
+                        
                         <td>
                             <?php 
                             $address = trim($customer['delivery_address']);
@@ -235,6 +291,10 @@ $conn->close();
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+
+
+
+
         </table>
     </div>
 

@@ -44,6 +44,15 @@ border-left: 4px solid #0d6efd;
 }
 
 
+.whatsapp-share {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.whatsapp-share i {
+    margin-right: 0.25rem;
+}
+
 .scroll-to-top {
     position: fixed;
     bottom: 15px;

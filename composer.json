@@ -3,6 +3,7 @@
         "razorpay/razorpay": "^2.9",
         "thiagoalessio/tesseract_ocr": "^2.13",
         "phpoffice/phpspreadsheet": "^1.26",
-        "endroid/qr-code": "^5.0"
+        "endroid/qr-code": "^5.0",
+        "firebase/php-jwt": "^6.11"
     }
 }
