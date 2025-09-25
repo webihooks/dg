@@ -1,7 +1,7 @@
 <script>
 // Global polling configuration
 const POLLING_CONFIG = {
-    interval: 10000, // 10 seconds
+    interval: 1000, // 1 seconds
     active: true,
     lastOrderId: 0,
     isReloading: false,
@@ -31,7 +31,7 @@ function initOrderPolling() {
     
     // Tab visibility handling
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', () => POLLING_CONFIG.active = false);
+    window.addEventListener('blur', () => POLLING_CONFIG.active = true);
     window.addEventListener('focus', () => {
         POLLING_CONFIG.active = true; 
         checkForNewOrders();
@@ -50,7 +50,10 @@ function checkForNewOrders() {
     
     const pageLoadTime = sessionStorage.getItem('pageLoadTime') || POLLING_CONFIG.pageLoadTime;
     
-    fetch(`check_new_orders.php?last_order_id=${POLLING_CONFIG.lastOrderId}&page_load_time=${pageLoadTime}`)
+    // Add current timestamp to prevent caching issues
+    const timestamp = Date.now();
+    
+    fetch(`check_new_orders.php?last_order_id=${POLLING_CONFIG.lastOrderId}&page_load_time=${pageLoadTime}&t=${timestamp}`)
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
@@ -62,32 +65,41 @@ function checkForNewOrders() {
             }
             
             if (data.new_orders?.length > 0) {
-                POLLING_CONFIG.lastOrderId = Math.max(
+                // Update lastOrderId to the maximum value
+                const newMaxOrderId = Math.max(
                     POLLING_CONFIG.lastOrderId, 
                     ...data.new_orders.map(o => o.order_id)
                 );
                 
-                // Play notification sound
-                playNotification();
-                
-                // Show toast notification
-                const orderText = data.new_orders.length > 1 ? 
-                    `${data.new_orders.length} new orders` : 
-                    'New order';
-                showToast(`${orderText} received!`, 'success');
-                
-                // Special handling for orders page
-                if (window.location.pathname.includes('orders.php')) {
-                    setTimeout(() => {
+                if (newMaxOrderId > POLLING_CONFIG.lastOrderId) {
+                    POLLING_CONFIG.lastOrderId = newMaxOrderId;
+                    
+                    // Play notification sound
+                    playNotification();
+                    
+                    // Show toast notification
+                    const orderText = data.new_orders.length > 1 ? 
+                        `${data.new_orders.length} new orders` : 
+                        'New order';
+                    showToast(`${orderText} received!`, 'success');
+                    
+                    // Special handling for orders page - reload immediately instead of waiting
+                    if (window.location.pathname.includes('orders.php')) {
                         if (!POLLING_CONFIG.isReloading) {
                             POLLING_CONFIG.isReloading = true;
-                            window.location.reload();
+                            // Reload immediately instead of waiting 5 seconds
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 5000); // 1 second delay to show notification
                         }
-                    }, 5000);
+                    }
                 }
             }
         })
-        .catch(error => console.error('Poll failed:', error))
+        .catch(error => {
+            console.error('Poll failed:', error);
+            // Continue polling even if there's an error
+        })
         .finally(() => {
             if (POLLING_CONFIG.active && !POLLING_CONFIG.isReloading) {
                 setTimeout(checkForNewOrders, POLLING_CONFIG.interval);
@@ -95,36 +107,76 @@ function checkForNewOrders() {
         });
 }
 
-// Notification functions (same as before)
+// Enhanced notification audio with better error handling
 let notificationAudio = null;
+let audioInitialized = false;
 
 function initNotificationAudio() {
+    if (audioInitialized) return;
+    
     try {
         notificationAudio = new Audio(POLLING_CONFIG.notificationSound);
-        notificationAudio.volume = 0.5;
+        notificationAudio.volume = 0.7; // Increased volume
+        notificationAudio.preload = 'auto';
+        
+        // Handle audio loading
+        notificationAudio.addEventListener('canplaythrough', () => {
+            audioInitialized = true;
+        });
+        
+        notificationAudio.addEventListener('error', (e) => {
+            console.error('Audio loading failed:', e);
+            // Try fallback sound
+            tryFallbackAudio();
+        });
+        
+        // Load the audio
         notificationAudio.load();
     } catch (e) {
         console.error('Audio initialization failed:', e);
+        tryFallbackAudio();
+    }
+}
+
+function tryFallbackAudio() {
+    try {
+        // Try a simple beep sound as fallback
+        const fallbackSound = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hREA1LnuTyu2EcBjiR1/LMciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMc';
+        notificationAudio = new Audio(fallbackSound);
+        notificationAudio.volume = 0.7;
+        audioInitialized = true;
+    } catch (fallbackError) {
+        console.error('Fallback audio also failed:', fallbackError);
     }
 }
 
 function playNotification() {
-    if (!notificationAudio) {
+    if (!audioInitialized) {
         initNotificationAudio();
-        if (!notificationAudio) return;
+    }
+    
+    if (!notificationAudio || !audioInitialized) {
+        console.log('Audio not available for notification');
+        return;
     }
     
     try {
+        // Reset and play
         notificationAudio.currentTime = 0;
         const playPromise = notificationAudio.play();
         
         if (playPromise !== undefined) {
             playPromise.catch(e => {
-                console.log('Audio play blocked:', e);
-                document.addEventListener('click', function handler() {
-                    document.removeEventListener('click', handler);
+                console.log('Audio play blocked, requiring user interaction:', e);
+                // Set up one-time click handler to enable audio
+                const enableAudio = () => {
+                    document.removeEventListener('click', enableAudio);
+                    document.removeEventListener('keydown', enableAudio);
                     notificationAudio.play().catch(console.error);
-                }, { once: true });
+                };
+                
+                document.addEventListener('click', enableAudio, { once: true });
+                document.addEventListener('keydown', enableAudio, { once: true });
             });
         }
     } catch (e) {
@@ -168,17 +220,40 @@ function showToast(message, type = 'success') {
     });
 }
 
-// Initialize when DOM is loaded
+// Enhanced initialization with retry logic
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
-        initNotificationAudio();
-        initOrderPolling();
+    let initAttempts = 0;
+    const maxInitAttempts = 3;
+    
+    function initializePolling() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+            initNotificationAudio();
+            initOrderPolling();
+        } else if (initAttempts < maxInitAttempts) {
+            initAttempts++;
+            setTimeout(initializePolling, 1000);
+        } else {
+            console.error('Failed to initialize polling after multiple attempts');
+        }
     }
+    
+    initializePolling();
 });
 
 window.addEventListener('beforeunload', () => {
     sessionStorage.removeItem('pageLoadTime');
-});   
+});
+
+// Add periodic cleanup for sessionStorage
+setInterval(() => {
+    const storedTime = sessionStorage.getItem('pageLoadTime');
+    const currentTime = Math.floor(Date.now() / 1000);
+    
+    // If stored time is more than 24 hours old, refresh it
+    if (storedTime && (currentTime - parseInt(storedTime)) > 86400) {
+        sessionStorage.setItem('pageLoadTime', currentTime);
+    }
+}, 3600000); // Check every hour
 </script>
 
 <div class="main-nav">

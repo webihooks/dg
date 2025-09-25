@@ -2,6 +2,20 @@
 // Start the session
 session_start();
 
+// Set session to expire in 1 year (365 days)
+ini_set('session.gc_maxlifetime', 31536000); // 365 days in seconds
+
+// Set session cookie parameters for 1 year
+$sessionParams = session_get_cookie_params();
+session_set_cookie_params([
+    'lifetime' => 31536000, // 1 year in seconds
+    'path' => $sessionParams['path'],
+    'domain' => $sessionParams['domain'],
+    'secure' => $sessionParams['secure'],
+    'httponly' => $sessionParams['httponly'],
+    'samesite' => $sessionParams['samesite'] ?? 'Lax'
+]);
+
 // Database connection details
 $host = 'localhost'; // Replace with your database host
 $dbname = 'doctorie_webihooks_card'; // Replace with your database name

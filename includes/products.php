@@ -349,13 +349,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
                         <?php endif; ?>
                         <?php if ($product['quantity'] > 0 && ($delivery_active || $dining_active) && $is_store_open): ?>
-                            <div class="mt-3 cart_btn_group https://deegeecard.com/<?= empty($product['image_path']) ? 'top' : '' ?>">
+                            <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
                                 <button class="btn btn-primary w-100 add-to-cart" 
                                         data-id="<?= htmlspecialchars($product['product_name']) ?>" 
                                         data-name="<?= htmlspecialchars($product['product_name']) ?>" 
                                         data-price="<?= $product['price'] ?>" 
                                         data-max="<?= $product['quantity'] ?>" 
-                                        data-image="https://deegeecard.com/<?= htmlspecialchars($product['image_path']) ?>">
+                                        data-image="<?= htmlspecialchars($product['image_path']) ?>">
                                     <i class="bi bi-cart-plus"></i> Add
                                 </button>
                             </div>
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="aspect-ratio-box">
                                 <img 
                                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" 
-                                    data-src="https://deegeecard.com/<?= htmlspecialchars($product['image_path']) ?>" 
+                                    data-src="<?= htmlspecialchars($product['image_path']) ?>" 
                                     class="card-img-top product-img product-img-lazy product-img-placeholder" 
                                     alt="<?= htmlspecialchars($product['product_name']) ?>" 
                                     onerror="handleImageError(this)">
@@ -755,7 +755,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
     applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...';
     
     // Send AJAX request to validate coupon
-    fetch('https://deegeecard.com/validate_coupon.php', {
+    fetch('validate_coupon.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1715,7 +1715,7 @@ function placeOrder() {
     placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Order Processing...';
     
     // Use the correct path for place_order.php
-    const placeOrderUrl = 'https://deegeecard.com/place_order.php';
+    const placeOrderUrl = 'place_order.php';
     
     // Send order data to server
     fetch(placeOrderUrl, {
@@ -1940,7 +1940,7 @@ function createConfetti() {
 <div class="order-success-popup" id="orderSuccessPopup">
     <div class="order-success-content">
         <div class="order-success-icon">
-            <img src="https://deegeecard.com/images/success_icon.gif">
+            <img src="images/success_icon.gif">
         </div>
         <h3 class="order-success-title">
             Order Received<br>
