@@ -1,26 +1,25 @@
 <?php
-// Start the session
+// Start the session with extended lifetime
 session_start();
 
 // Set session to expire in 1 year (365 days)
 ini_set('session.gc_maxlifetime', 31536000); // 365 days in seconds
 
 // Set session cookie parameters for 1 year
-$sessionParams = session_get_cookie_params();
 session_set_cookie_params([
-    'lifetime' => 31536000, // 1 year in seconds
-    'path' => $sessionParams['path'],
-    'domain' => $sessionParams['domain'],
-    'secure' => $sessionParams['secure'],
-    'httponly' => $sessionParams['httponly'],
-    'samesite' => $sessionParams['samesite'] ?? 'Lax'
+    'lifetime' => 31536000,
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => isset($_SERVER['HTTPS']), // Auto-detect HTTPS
+    'httponly' => true,
+    'samesite' => 'Lax'
 ]);
 
 // Database connection details
-$host = 'localhost'; // Replace with your database host
-$dbname = 'doctorie_webihooks_card'; // Replace with your database name
-$username = 'root'; // Replace with your database username
-$password = ''; // Replace with your database password
+$host = 'localhost';
+$dbname = 'doctorie_webihooks_card';
+$username = 'root';
+$password = '';
 
 // Connect to the database
 try {
@@ -28,6 +27,21 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
+}
+
+// Check if user is already logged in
+if (isset($_SESSION['user_id'])) {
+    // Redirect based on user role
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin-dashboard.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'sales_person') {
+        header("Location: sales-dashboard.php");
+        exit();
+    } else {
+        header("Location: subscription.php");
+        exit();
+    }
 }
 
 // Handle form submission
@@ -43,14 +57,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['Password'])) {
-            // Login successful
+            // Login successful - Regenerate session ID for security
+            session_regenerate_id(true);
+            
             // Store user data in the session
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role']; // Assuming you have a 'role' column in your users table
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['email'] = $user['Email'];
+            $_SESSION['login_time'] = time();
+            
+            // Set a persistent cookie to help maintain session
+            setcookie('remember_me', $user['id'], time() + 31536000, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true);
+            
+            // Check if "Remember me" was checked
+            if (isset($_POST['remember_me'])) {
+                // Create remember token for persistent login
+                $remember_token = bin2hex(random_bytes(32));
+                $expires = time() + 31536000; // 1 year
+                
+                // Store token in database
+                $stmt = $conn->prepare("UPDATE users SET remember_token = :token, token_expires = :expires WHERE id = :id");
+                $stmt->bindParam(':token', $remember_token);
+                $stmt->bindParam(':expires', $expires);
+                $stmt->bindParam(':id', $user['id']);
+                $stmt->execute();
+                
+                // Set persistent cookie
+                setcookie('remember_token', $remember_token, $expires, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true);
+            }
             
             // Check if trial has ended
             if (isset($user['trial_end']) && strtotime($user['trial_end']) < time()) {
-                // Trial has ended, redirect to subscription page
                 header("Location: subscription.php");
                 exit();
             }
@@ -65,7 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit();
         } else {
-            // Login failed
             echo "<script>alert('Invalid email or password.');</script>";
         }
     } catch (PDOException $e) {
@@ -82,9 +118,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <meta charset="utf-8" />
      <title>Login</title>
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <meta name="description" content="A fully responsive premium admin dashboard template" />
-     <meta name="author" content="Techzaa" />
+     <meta name="description" content="Deegeecard Login Page" />
+     <meta name="author" content="" />
      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+
+     <!-- PWA Meta Tags -->
+     <link rel="manifest" href="/manifest.json">
+     <meta name="theme-color" content="#fb5b29">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+     <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+     <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+     <meta name="msapplication-TileColor" content="#fb5b29">
+     <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+     <meta name="application-name" content="DeeGeeCard">
+     <meta name="mobile-web-app-capable" content="yes">
 
      <!-- App favicon -->
      <link rel="shortcut icon" href="assets/images/favicon.ico">
@@ -215,6 +264,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
      <!-- App Javascript (Require in all Page) -->
      <script src="assets/js/app.js"></script>
+
+     <script>
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful');
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
+}
+
+// Handle Add to Home Screen prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show install button (optional)
+    showInstallPrompt();
+});
+
+function showInstallPrompt() {
+    // Your custom install button logic
+    console.log('App can be installed');
+}
+</script>
 
 </body>
 

@@ -1,7 +1,7 @@
 <?php
 // Start the session
 session_start();
-
+require_once 'session_check.php';
 // Include the database connection file
 require 'db_connection.php';
 

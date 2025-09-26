@@ -2,8 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeeGeeCard | Creating ordering app</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>DEEGEECARD | Get Orders Directly, Zero Commissions!!!</title>
+
+    <meta name="description" content="DEEDEECARD">
+    <link rel="icon" type="image/png" href="https://deegeecard.com/images/dg_logo.png">
+    <meta property="og:title" content="DEEDEECARD">
+    <meta property="og:description" content="Get Orders Directly, Zero Commissions!!!">
+    <meta property="og:image" content="https://deegeecard.com/images/dg_logo.png">
+    <meta property="og:type" content="restaurant">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DEEDEECARD">
+    <meta name="twitter:description" content="Get Orders Directly, Zero Commissions!!!">
+    <meta name="twitter:image" content="https://deegeecard.com/images/dg_logo.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#fb5b29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+
+
+
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google tag (gtag.js) -->
@@ -810,5 +833,34 @@ try {
             });
         }
     </script>
+    <script>
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful');
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
+}
+
+// Handle Add to Home Screen prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Show install button (optional)
+    showInstallPrompt();
+});
+
+function showInstallPrompt() {
+    // Your custom install button logic
+    console.log('App can be installed');
+}
+</script>
 </body>
 </html>
