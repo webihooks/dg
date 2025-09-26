@@ -30,7 +30,7 @@ try {
         // Midnight has passed - get all orders from today (new date)
         $sql = "SELECT order_id, customer_name, total_amount, status, created_at 
                 FROM orders 
-                WHERE user_id = ? AND DATE(created_at) = ? 
+                WHERE user_id = ? AND DATE(created_at) = ? AND status = 'Pending'
                 ORDER BY order_id DESC 
                 LIMIT 100";
         
@@ -40,7 +40,7 @@ try {
         // Same day - normal polling (orders after last_order_id AND after page load time)
         $sql = "SELECT order_id, customer_name, total_amount, status, created_at 
                 FROM orders 
-                WHERE user_id = ? AND order_id > ? AND created_at > FROM_UNIXTIME(?) 
+                WHERE user_id = ? AND order_id > ? AND created_at > FROM_UNIXTIME(?) AND status = 'Pending'
                 ORDER BY order_id DESC 
                 LIMIT 100";
         
