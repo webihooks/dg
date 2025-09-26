@@ -1,5 +1,8 @@
 <?php
-
+// In your server configuration or PHP file
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 // Database configuration
 $host = 'localhost'; // Replace with your database host
 $username = 'root'; // Replace with your database username

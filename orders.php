@@ -1,8 +1,4 @@
 <?php
-// In your server configuration or PHP file
-header("Cache-Control: no-cache, no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
@@ -695,14 +691,26 @@ $conn->close();
                 : order.order_type.charAt(0).toUpperCase() + order.order_type.slice(1);
         }
 
-        // function showToast(message, type) {
-        //     // Implement your toast notification system here
-        //     alert(`${type.toUpperCase()}: ${message}`);
-        // }
-
         // Initialize
         bindOrderHandlers();
     });
     </script>
+
+
+<script>
+// Simple service worker registration for orders.php
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
+}
+</script>
+
 </body>
 </html>

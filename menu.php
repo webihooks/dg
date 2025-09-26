@@ -1,121 +1,244 @@
 <script>
 // Global polling configuration
 const POLLING_CONFIG = {
-    interval: 1000, // 3 seconds for better performance
+    interval: 1000,
     active: true,
     lastOrderId: 0,
     isReloading: false,
-    notificationSound: 'assets/sounds/new_order.mp3?' + Date.now(),
     pageLoadTime: Math.floor(Date.now() / 1000),
-    soundInterval: null,
-    pendingOrders: new Set(), // Track pending orders
-    isSoundPlaying: true,
-    audioElement: null // Single audio element for continuous play
+    pendingOrders: new Map(),
+    isSoundPlaying: false,
+    audioElement: null,
+    audioRetryCount: 0,
+    maxAudioRetries: 3
 };
 
-// Initialize polling for new orders
-function initOrderPolling() {
-    sessionStorage.setItem('pageLoadTime', POLLING_CONFIG.pageLoadTime);
+// Main initialization
+async function initOrderSystem() {
+    console.log('Initializing order system with continuous MP3 playback...');
     
-    // Set initial lastOrderId from existing orders on page
+    await initAudioSystem();
+    initOrderPolling();
+    setupEventListeners();
+    
+    console.log('Order system initialized');
+}
+
+// Audio System - Focus on continuous MP3 playback
+async function initAudioSystem() {
+    console.log('Initializing audio system...');
+    
+    // Create audio element for continuous playback
+    POLLING_CONFIG.audioElement = new Audio();
+    POLLING_CONFIG.audioElement.src = 'assets/sounds/new_order.mp3?' + Date.now(); // Cache buster
+    POLLING_CONFIG.audioElement.loop = true; // Continuous looping
+    POLLING_CONFIG.audioElement.volume = 0.9; // 90% volume
+    POLLING_CONFIG.audioElement.preload = 'auto';
+    
+    // Event listeners for audio element
+    POLLING_CONFIG.audioElement.addEventListener('canplaythrough', () => {
+        console.log('Audio ready for playback');
+    });
+    
+    POLLING_CONFIG.audioElement.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+        retryAudioLoad();
+    });
+    
+    POLLING_CONFIG.audioElement.addEventListener('ended', () => {
+        // Should not happen with loop=true, but just in case
+        if (POLLING_CONFIG.isSoundPlaying) {
+            playContinuousSound();
+        }
+    });
+    
+    // Load the audio
+    POLLING_CONFIG.audioElement.load();
+}
+
+function retryAudioLoad() {
+    if (POLLING_CONFIG.audioRetryCount >= POLLING_CONFIG.maxAudioRetries) {
+        console.error('Max audio retries reached');
+        return;
+    }
+    
+    POLLING_CONFIG.audioRetryCount++;
+    console.log(`Retrying audio load (attempt ${POLLING_CONFIG.audioRetryCount})`);
+    
+    setTimeout(() => {
+        POLLING_CONFIG.audioElement.src = 'assets/sounds/new_order.mp3?' + Date.now();
+        POLLING_CONFIG.audioElement.load();
+    }, 1000);
+}
+
+// Play continuous sound with aggressive retry strategy
+function playContinuousSound() {
+    if (POLLING_CONFIG.isSoundPlaying) return;
+    
+    console.log('Starting continuous sound playback');
+    POLLING_CONFIG.isSoundPlaying = true;
+    
+    const playSound = () => {
+        if (!POLLING_CONFIG.isSoundPlaying) return;
+        
+        try {
+            POLLING_CONFIG.audioElement.currentTime = 0;
+            POLLING_CONFIG.audioElement.loop = true;
+            
+            const playPromise = POLLING_CONFIG.audioElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Continuous sound playing successfully');
+                }).catch(error => {
+                    console.log('Playback blocked, will retry:', error);
+                    
+                    // Aggressive retry strategy
+                    setTimeout(() => {
+                        if (POLLING_CONFIG.isSoundPlaying) {
+                            playSound();
+                        }
+                    }, 1000);
+                });
+            }
+        } catch (error) {
+            console.error('Playback error:', error);
+            // Retry after delay
+            setTimeout(() => {
+                if (POLLING_CONFIG.isSoundPlaying) {
+                    playSound();
+                }
+            }, 2000);
+        }
+    };
+    
+    // Initial play attempt
+    playSound();
+    
+    // Additional periodic play attempts to overcome browser restrictions
+    const keepAliveInterval = setInterval(() => {
+        if (!POLLING_CONFIG.isSoundPlaying) {
+            clearInterval(keepAliveInterval);
+            return;
+        }
+        
+        // If audio is paused (might happen in background), try to resume
+        if (POLLING_CONFIG.audioElement.paused) {
+            console.log('Audio paused, attempting to resume...');
+            playSound();
+        }
+    }, 3000);
+}
+
+function stopContinuousSound() {
+    if (!POLLING_CONFIG.isSoundPlaying) return;
+    
+    console.log('Stopping continuous sound');
+    POLLING_CONFIG.isSoundPlaying = false;
+    
+    try {
+        POLLING_CONFIG.audioElement.pause();
+        POLLING_CONFIG.audioElement.currentTime = 0;
+        POLLING_CONFIG.audioElement.loop = false;
+    } catch (error) {
+        console.error('Error stopping sound:', error);
+    }
+}
+
+// Enhanced notification function
+function notifyNewOrder() {
+    console.log('New order notification triggered');
+    
+    // Always try to play the continuous MP3 sound
+    if (!POLLING_CONFIG.isSoundPlaying) {
+        playContinuousSound();
+    }
+    
+    // Visual notifications (optional)
+    showVisualNotification();
+    showAcceptOrderButton();
+}
+
+// Visual notification (minimal - just the accept button)
+function showVisualNotification() {
+    // Simple tab title update
+    const originalTitle = document.title;
+    if (!originalTitle.includes('🔔')) {
+        document.title = '🔔 ' + originalTitle;
+        
+        // Restore title after 10 seconds
+        setTimeout(() => {
+            if (document.title.includes('🔔')) {
+                document.title = originalTitle;
+            }
+        }, 10000);
+    }
+}
+
+// Polling system
+function initOrderPolling() {
+    // Set initial lastOrderId
     const orderElements = document.querySelectorAll('[data-order-id]');
     if (orderElements.length > 0) {
         const orderIds = Array.from(orderElements)
-            .map(el => parseInt(el.dataset.orderId))
+            .map(el => parseInt(el.getAttribute('data-order-id')))
             .filter(id => !isNaN(id));
         
         if (orderIds.length > 0) {
             POLLING_CONFIG.lastOrderId = Math.max(...orderIds);
         }
     }
-
-    // Initialize audio element
-    initNotificationAudio();
     
-    // Start polling
+    console.log('Starting order polling');
     checkForNewOrders();
+}
+
+function setupEventListeners() {
+    // Resume audio on any user interaction
+    const resumeEvents = ['click', 'mousedown', 'touchstart', 'keydown', 'focus'];
     
-    // Tab visibility handling
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', () => POLLING_CONFIG.active = true);
-    window.addEventListener('focus', () => {
-        POLLING_CONFIG.active = true; 
-        checkForNewOrders();
+    resumeEvents.forEach(event => {
+        document.addEventListener(event, () => {
+            if (POLLING_CONFIG.isSoundPlaying && POLLING_CONFIG.audioElement.paused) {
+                console.log('User interaction detected, resuming audio...');
+                playContinuousSound();
+            }
+        }, { passive: true });
+    });
+    
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        const isVisible = !document.hidden;
+        console.log('Tab visibility changed:', isVisible);
+        
+        if (isVisible && POLLING_CONFIG.isSoundPlaying && POLLING_CONFIG.audioElement.paused) {
+            // Tab became visible - try to resume playback
+            setTimeout(() => {
+                playContinuousSound();
+            }, 500);
+        }
     });
 }
 
-function handleVisibilityChange() {
-    POLLING_CONFIG.active = !document.hidden;
-    if (POLLING_CONFIG.active) {
-        checkForNewOrders();
-    }
-}
-
 function checkForNewOrders() {
-    if (!POLLING_CONFIG.active || POLLING_CONFIG.isReloading) return;
+    if (POLLING_CONFIG.isReloading) return;
     
     const pageLoadTime = sessionStorage.getItem('pageLoadTime') || POLLING_CONFIG.pageLoadTime;
-    const timestamp = Date.now();
     
-    fetch(`check_new_orders.php?last_order_id=${POLLING_CONFIG.lastOrderId}&page_load_time=${pageLoadTime}&t=${timestamp}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
+    fetch(`check_new_orders.php?last_order_id=${POLLING_CONFIG.lastOrderId}&page_load_time=${pageLoadTime}&t=${Date.now()}`)
+        .then(response => response.json())
         .then(data => {
             if (data.error) {
-                console.error('Poll error:', data.error);
+                console.error('API error:', data.error);
                 return;
             }
             
-            if (data.new_orders?.length > 0) {
-                const newMaxOrderId = Math.max(
-                    POLLING_CONFIG.lastOrderId, 
-                    ...data.new_orders.map(o => o.order_id)
-                );
-                
-                if (newMaxOrderId > POLLING_CONFIG.lastOrderId) {
-                    POLLING_CONFIG.lastOrderId = newMaxOrderId;
-                    
-                    // Add new pending orders to the set
-                    data.new_orders.forEach(order => {
-                        if (order.status === 'Pending') {
-                            POLLING_CONFIG.pendingOrders.add(order.order_id);
-                        }
-                    });
-                    
-                    // Start continuous sound if there are pending orders
-                    if (POLLING_CONFIG.pendingOrders.size > 0 && !POLLING_CONFIG.isSoundPlaying) {
-                        startContinuousSound();
-                        showAcceptOrderButton();
-                    }
-                    
-                    // Show notification
-                    // const orderText = data.new_orders.length > 1 ? 
-                    //     `${data.new_orders.length} new orders` : 
-                    //     'New order';
-                    // showToast(`${orderText} received!`, 'success');
-                    
-                    // // Special handling for orders page
-                    // if (window.location.pathname.includes('orders.php')) {
-                    //     if (!POLLING_CONFIG.isReloading) {
-                    //         POLLING_CONFIG.isReloading = true;
-                    //         setTimeout(() => {
-                    //             window.location.reload();
-                    //         }, 3000);
-                    //     }
-                    // }
-                }
-            }
-            
-            // Check if there are still pending orders
-            if (POLLING_CONFIG.pendingOrders.size === 0 && POLLING_CONFIG.isSoundPlaying) {
-                stopContinuousSound();
-                hideAcceptOrderButton();
+            if (data.new_orders && data.new_orders.length > 0) {
+                handleNewOrders(data.new_orders);
             }
         })
         .catch(error => {
-            console.error('Poll failed:', error);
+            console.error('Polling error:', error);
         })
         .finally(() => {
             if (POLLING_CONFIG.active && !POLLING_CONFIG.isReloading) {
@@ -124,68 +247,57 @@ function checkForNewOrders() {
         });
 }
 
-// Continuous sound functionality - plays without interval (loops continuously)
-function startContinuousSound() {
-    if (POLLING_CONFIG.isSoundPlaying || !POLLING_CONFIG.audioElement) return;
+function handleNewOrders(newOrders) {
+    const newMaxOrderId = Math.max(POLLING_CONFIG.lastOrderId, ...newOrders.map(o => o.order_id));
     
-    POLLING_CONFIG.isSoundPlaying = true;
-    
-    try {
-        // Set audio to loop continuously
-        POLLING_CONFIG.audioElement.loop = true;
-        POLLING_CONFIG.audioElement.currentTime = 0;
+    if (newMaxOrderId > POLLING_CONFIG.lastOrderId) {
+        POLLING_CONFIG.lastOrderId = newMaxOrderId;
         
-        const playPromise = POLLING_CONFIG.audioElement.play();
+        let hasNewPending = false;
+        newOrders.forEach(order => {
+            if (order.status === 'Pending' && !POLLING_CONFIG.pendingOrders.has(order.order_id)) {
+                POLLING_CONFIG.pendingOrders.set(order.order_id, order);
+                hasNewPending = true;
+            }
+        });
         
-        if (playPromise !== undefined) {
-            playPromise.catch(e => {
-                console.log('Continuous sound play blocked:', e);
-                // If blocked, try to play on user interaction
-                enableAudioOnInteraction();
-            });
+        if (hasNewPending) {
+            console.log(`New pending orders detected: ${POLLING_CONFIG.pendingOrders.size}`);
+            
+            // Trigger continuous MP3 playback
+            notifyNewOrder();
+            
+            // Show toast notification
+            showToast(`New order received! Pending: ${POLLING_CONFIG.pendingOrders.size}`, 'success');
         }
-    } catch (e) {
-        console.error('Continuous sound error:', e);
+    }
+    
+    updateUI();
+}
+
+function updateUI() {
+    if (POLLING_CONFIG.pendingOrders.size > 0) {
+        if (!document.getElementById('floatingAcceptButton')) {
+            showAcceptOrderButton();
+        } else {
+            updateAcceptOrderButton();
+        }
+    } else {
+        hideAcceptOrderButton();
+        stopContinuousSound();
+        // Restore original title
+        document.title = document.title.replace('🔔 ', '');
     }
 }
 
-function stopContinuousSound() {
-    if (!POLLING_CONFIG.isSoundPlaying || !POLLING_CONFIG.audioElement) return;
-    
-    POLLING_CONFIG.isSoundPlaying = false;
-    
-    try {
-        POLLING_CONFIG.audioElement.loop = false;
-        POLLING_CONFIG.audioElement.pause();
-        POLLING_CONFIG.audioElement.currentTime = 0;
-    } catch (e) {
-        console.error('Error stopping sound:', e);
-    }
-}
-
-function enableAudioOnInteraction() {
-    const enableAudio = () => {
-        document.removeEventListener('click', enableAudio);
-        document.removeEventListener('keydown', enableAudio);
-        if (POLLING_CONFIG.pendingOrders.size > 0) {
-            startContinuousSound();
-        }
-    };
-    
-    document.addEventListener('click', enableAudio, { once: true });
-    document.addEventListener('keydown', enableAudio, { once: true });
-}
-
-// Accept Order Button functionality
+// Accept Order Button
 function showAcceptOrderButton() {
-    // Remove existing button if any
     hideAcceptOrderButton();
     
-    // Create floating accept order button
     const acceptButton = document.createElement('button');
     acceptButton.id = 'floatingAcceptButton';
-    acceptButton.innerHTML = '🎉 Accept Order (' + POLLING_CONFIG.pendingOrders.size + ')';
-    acceptButton.className = 'btn btn-lg';
+    acceptButton.innerHTML = `🎉 Accept Order (${POLLING_CONFIG.pendingOrders.size})`;
+    
     acceptButton.style.cssText = `
         position: fixed;
         bottom: 15px;
@@ -195,55 +307,32 @@ function showAcceptOrderButton() {
         padding: 10px 30px;
         font-size: 18px;
         font-weight: bold;
-        border-radius: 40px;
-        box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 15px;
-        animation: 2s infinite pulse;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: pulse 2s infinite;
         cursor: pointer;
-        background-color: rgb(255, 108, 47);
-        border: 2px solid rgb(255, 108, 47);
+        background-color: #ff6c2f;
+        border: 2px solid #ff6c2f;
         color: white;
         min-width: 250px;
         text-align: center;
+        transition: all 0.3s ease;
     `;
     
-    // Add hover effects
-    acceptButton.addEventListener('mouseenter', function() {
-        this.style.backgroundColor = '#ff5a1a';
-        this.style.borderColor = '#ff5a1a';
-        this.style.transform = 'translateX(-50%) scale(1.05)';
-    });
-    
-    acceptButton.addEventListener('mouseleave', function() {
-        this.style.backgroundColor = '#ff6c2f';
-        this.style.borderColor = '#ff6c2f';
-        this.style.transform = 'translateX(-50%) scale(1)';
-    });
-    
-    acceptButton.addEventListener('click', function() {
-        acceptAllPendingOrders();
-    });
-    
+    acceptButton.addEventListener('click', acceptAllPendingOrders);
     document.body.appendChild(acceptButton);
-}
-
-function hideAcceptOrderButton() {
-    const existingButton = document.getElementById('floatingAcceptButton');
-    if (existingButton) {
-        existingButton.remove();
-    }
 }
 
 function updateAcceptOrderButton() {
     const button = document.getElementById('floatingAcceptButton');
-    if (button && POLLING_CONFIG.pendingOrders.size > 0) {
-        button.innerHTML = '🎉 Accept Order (' + POLLING_CONFIG.pendingOrders.size + ')';
-        
-        // Ensure the button stays centered when content changes
-        button.style.left = '50%';
-        button.style.transform = 'translateX(-50%)';
-    } else {
-        hideAcceptOrderButton();
+    if (button) {
+        button.innerHTML = `🎉 Accept Order (${POLLING_CONFIG.pendingOrders.size})`;
     }
+}
+
+function hideAcceptOrderButton() {
+    const button = document.getElementById('floatingAcceptButton');
+    if (button) button.remove();
 }
 
 async function acceptAllPendingOrders() {
@@ -255,130 +344,45 @@ async function acceptAllPendingOrders() {
     button.disabled = true;
     
     try {
-        // Convert Set to Array for order IDs
-        const orderIds = Array.from(POLLING_CONFIG.pendingOrders);
-        
-        // Send request to update all pending orders
+        const orderIds = Array.from(POLLING_CONFIG.pendingOrders.keys());
         const response = await fetch('accept_orders.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                order_ids: orderIds,
-                new_status: 'Confirmed'
-            })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order_ids: orderIds, new_status: 'Confirmed'})
         });
         
         const result = await response.json();
         
         if (result.success) {
-            showToast(`Successfully accepted ${orderIds.length} order(s)! Redirecting to orders...`, 'success');
+            showToast(`Accepted ${orderIds.length} order(s)!`, 'success');
             
-            // Clear pending orders and stop sound immediately
-            POLLING_CONFIG.pendingOrders.clear();
+            // Stop the continuous sound
             stopContinuousSound();
+            POLLING_CONFIG.pendingOrders.clear();
             hideAcceptOrderButton();
+            document.title = document.title.replace('🔔 ', '');
             
-            // Redirect to orders.php after 1 second
+            // Redirect to orders page
             setTimeout(() => {
                 window.location.href = 'orders.php';
             }, 1000);
-            
         } else {
-            throw new Error(result.error || 'Failed to accept orders');
+            throw new Error(result.error);
         }
     } catch (error) {
-        console.error('Error accepting orders:', error);
-        showToast('Error accepting orders: ' + error.message, 'danger');
+        console.error('Error:', error);
+        showToast('Error: ' + error.message, 'danger');
         button.innerHTML = originalText;
         button.disabled = false;
     }
 }
 
-// Enhanced notification audio - single element for continuous play
-function initNotificationAudio() {
-    if (POLLING_CONFIG.audioElement) return;
-    
-    try {
-        POLLING_CONFIG.audioElement = new Audio(POLLING_CONFIG.notificationSound);
-        POLLING_CONFIG.audioElement.volume = 0.7;
-        POLLING_CONFIG.audioElement.preload = 'auto';
-        
-        // Handle audio events
-        POLLING_CONFIG.audioElement.addEventListener('canplaythrough', () => {
-            console.log('Audio ready for continuous playback');
-        });
-        
-        POLLING_CONFIG.audioElement.addEventListener('error', (e) => {
-            console.error('Audio loading failed:', e);
-            tryFallbackAudio();
-        });
-        
-        POLLING_CONFIG.audioElement.addEventListener('ended', () => {
-            // This should not happen with loop=true, but just in case
-            if (POLLING_CONFIG.isSoundPlaying) {
-                POLLING_CONFIG.audioElement.play().catch(console.error);
-            }
-        });
-        
-        // Load the audio
-        POLLING_CONFIG.audioElement.load();
-        
-    } catch (e) {
-        console.error('Audio initialization failed:', e);
-        tryFallbackAudio();
-    }
+function showToast(message, type) {
+    // Your existing toast implementation
+    console.log(`${type}: ${message}`);
 }
 
-function tryFallbackAudio() {
-    try {
-        const fallbackSound = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMc';
-        POLLING_CONFIG.audioElement = new Audio(fallbackSound);
-        POLLING_CONFIG.audioElement.volume = 0.7;
-        POLLING_CONFIG.audioElement.loop = true;
-    } catch (fallbackError) {
-        console.error('Fallback audio also failed:', fallbackError);
-    }
-}
-
-function showToast(message, type = 'success') {
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-        document.body.appendChild(toastContainer);
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type} border-0`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
-    
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    const toastInstance = new bootstrap.Toast(toast, {
-        autohide: true,
-        delay: 5000
-    });
-    toastInstance.show();
-    
-    toast.addEventListener('hidden.bs.toast', () => {
-        toast.remove();
-    });
-}
-
-// Add CSS for pulse animation and button styles
+// Add CSS
 const style = document.createElement('style');
 style.textContent = `
     @keyframes pulse {
@@ -387,120 +391,27 @@ style.textContent = `
         100% { transform: translateX(-50%) scale(1); }
     }
     
-    @keyframes glow {
-        0% { box-shadow: 0 0 20px rgba(255, 108, 47, 0.7); }
-        50% { box-shadow: 0 0 30px rgba(255, 108, 47, 0.9); }
-        100% { box-shadow: 0 0 20px rgba(255, 108, 47, 0.7); }
-    }
-    
-    #floatingAcceptButton {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        padding: 15px 30px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 50px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        animation: pulse 2s infinite, glow 2s infinite;
-        transition: all 0.3s ease;
-        background-color: #ff6c2f;
-        border: 2px solid #ff6c2f;
-        color: white;
-        min-width: 200px;
-        text-align: center;
-        cursor: pointer;
-    }
-    
     #floatingAcceptButton:hover {
-        background-color: #ff5a1a !important;
-        border-color: #ff5a1a !important;
-        transform: translateX(-50%) scale(1.05) !important;
-        animation: none; /* Disable animation on hover for smoother effect */
-        box-shadow: 0 6px 25px rgba(255, 108, 47, 0.8) !important;
-    }
-    
-    #floatingAcceptButton:active {
-        transform: translateX(-50%) scale(0.95) !important;
-        box-shadow: 0 2px 10px rgba(255, 108, 47, 0.6) !important;
-    }
-    
-    #floatingAcceptButton:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: translateX(-50%) scale(1) !important;
-        animation: none;
-    }
-    
-    #floatingAcceptButton:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(255, 108, 47, 0.3) !important;
-    }
-    
-    .toast-container {
-        z-index: 10000;
-    }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        #floatingAcceptButton {
-            bottom: 15px;
-            padding: 12px 20px;
-            font-size: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin: 0 auto;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        #floatingAcceptButton {
-            bottom: 10px;
-            padding: 10px 15px;
-            font-size: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+        background-color: #ff5a1a;
+        transform: translateX(-50%) scale(1.05);
     }
 `;
 document.head.appendChild(style);
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    let initAttempts = 0;
-    const maxInitAttempts = 3;
-    
-    function initializePolling() {
-        if (typeof bootstrap !== 'undefined') {
-            initOrderPolling();
-        } else if (initAttempts < maxInitAttempts) {
-            initAttempts++;
-            setTimeout(initializePolling, 1000);
-        } else {
-            console.error('Failed to initialize polling after multiple attempts');
-        }
-    }
-    
-    initializePolling();
-});
+document.addEventListener('DOMContentLoaded', initOrderSystem);
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    sessionStorage.removeItem('pageLoadTime');
-    stopContinuousSound();
-});
-
-// Periodic cleanup for sessionStorage
-setInterval(() => {
-    const storedTime = sessionStorage.getItem('pageLoadTime');
-    const currentTime = Math.floor(Date.now() / 1000);
-    
-    if (storedTime && (currentTime - parseInt(storedTime)) > 86400) {
-        sessionStorage.setItem('pageLoadTime', currentTime);
+// Additional initialization for when the page becomes visible
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && POLLING_CONFIG.isSoundPlaying) {
+        // Page became visible - try to resume playback
+        setTimeout(() => {
+            if (POLLING_CONFIG.audioElement.paused) {
+                playContinuousSound();
+            }
+        }, 100);
     }
-}, 3600000);
+});
 </script>
 
 <div class="main-nav">

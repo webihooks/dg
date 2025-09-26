@@ -26,6 +26,14 @@
     # Header set X-XSS-Protection "1; mode=block"
     # Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" env=HTTPS
     # Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # ADD MP3 HEADERS HERE - Right after security headers
+    # Force MP3 files to be served with correct headers
+    <Files "*.mp3">
+        Header set Cache-Control "no-cache, must-revalidate"
+        Header set Content-Type "audio/mpeg"
+        Header set Access-Control-Allow-Origin "*"
+    </Files>
 </IfModule>
 
 # Performance optimizations
