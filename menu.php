@@ -414,6 +414,30 @@ document.addEventListener('visibilitychange', () => {
 });
 </script>
 
+<!-- Add to your main HTML file -->
+<script src="socket-manager.js"></script>
+<script>
+// Additional initialization
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+            console.log('SW registered for background websocket');
+        });
+}
+
+// Handle new orders from WebSocket
+document.addEventListener('newOrder', (event) => {
+    const order = event.detail;
+    // Update your UI here
+    displayNewOrder(order);
+});
+
+function displayNewOrder(order) {
+    // Your order display logic
+    console.log('New order received:', order);
+}
+</script>
+
 <div class="main-nav">
    <!-- Sidebar Logo -->
    <div class="logo-box">

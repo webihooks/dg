@@ -10,12 +10,37 @@
   "orientation": "portrait",
   "lang": "en",
   "dir": "ltr",
-  
-  // ADD THESE FOR BACKGROUND FUNCTIONALITY
-  "categories": ["food", "business", "productivity"],
-  "permissions": ["notifications", "background-sync"],
-  
   "icons": [
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "https://deegeecard.com/images/dg_logo.png",
       "sizes": "192x192",
@@ -24,12 +49,17 @@
     },
     {
       "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  
   "screenshots": [
     {
       "src": "https://deegeecard.com/images/dg_logo.png",
@@ -37,15 +67,47 @@
       "type": "image/png",
       "form_factor": "wide",
       "label": "DeeGeeCard Restaurant Dashboard"
+    },
+    {
+      "src": "https://deegeecard.com/images/dg_logo.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "DeeGeeCard Mobile View"
     }
   ],
-  
   "shortcuts": [
+    {
+      "name": "Login",
+      "short_name": "Login",
+      "description": "Sign in to your account",
+      "url": "/login.php",
+      "icons": [
+        {
+          "src": "https://deegeecard.com/images/dg_logo.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Access your restaurant dashboard",
-      "url": "/dashboard.php",
+      "url": "/admin-dashboard.php",
+      "icons": [
+        {
+          "src": "https://deegeecard.com/images/dg_logo.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Register",
+      "short_name": "Register",
+      "description": "Create new account",
+      "url": "/register.php",
       "icons": [
         {
           "src": "https://deegeecard.com/images/dg_logo.png",
@@ -55,6 +117,12 @@
       ]
     }
   ],
-  
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://deegeecard.com"
+    }
+  ],
+  "iarc_rating_id": "e84b912d-6e20-4b66-8e00-3de90a08b7c9"
 }
