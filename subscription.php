@@ -544,5 +544,24 @@ function processAddonPayment(response, addonId, btn) {
 
     });
     </script>
+
+
+<!-- Floating Action Buttons -->
+<div class="floating-buttons">
+<a href="tel:9004998995" class="floating-btn call-btn" data-tooltip="Call Us: 9004998995">
+<span class="nav-icon">
+<iconify-icon icon="material-symbols:add-call-sharp"></iconify-icon>
+</span>
+
+</a>
+<a href="https://wa.me/919004998995?text=Hello!%20I%20have%20a%20question%20about%20your%20services" 
+target="_blank" 
+class="floating-btn whatsapp-btn" 
+data-tooltip="WhatsApp: 9004998995">
+<span class="nav-icon">
+<iconify-icon icon="mingcute:whatsapp-line"></iconify-icon>
+</span>
+</a>
+</div>
 </body>
 </html>

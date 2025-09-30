@@ -5,8 +5,8 @@
   "start_url": "/login.php",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffebe4",
-  "theme_color": "#fb5b29",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "lang": "en",
   "dir": "ltr",
@@ -94,7 +94,7 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Access your restaurant dashboard",
-      "url": "/admin-dashboard.php",
+      "url": "/dashboard.php",
       "icons": [
         {
           "src": "https://deegeecard.com/images/dg_logo.png",

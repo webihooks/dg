@@ -19,6 +19,90 @@ font-size: 1.2rem;
 display: none;
 }
 
+.floating-buttons {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.floating-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.floating-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.floating-btn:active {
+    transform: translateY(-1px);
+}
+
+.call-btn {
+    background:linear-gradient(135deg, orange, #ff6c2f);
+}
+
+.whatsapp-btn {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+}
+.floating-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 15px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.floating-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+.floating-buttons .nav-icon {
+      margin-top: 5px;
+      font-size: 25px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .rating-input .form-check-label {
 cursor: pointer;
 padding: 5px 10px;
@@ -55,7 +139,7 @@ border-left: 4px solid #0d6efd;
 
 .scroll-to-top {
     position: fixed;
-    bottom: 15px;
+    bottom: 135px;
     right: 15px;
     width: 50px;
     height: 50px;

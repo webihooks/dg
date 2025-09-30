@@ -28,20 +28,55 @@ try {
     // we need to get orders from the new date regardless of page_load_time
     if ($page_load_date !== $current_date) {
         // Midnight has passed - get all orders from today (new date)
-        $sql = "SELECT order_id, customer_name, total_amount, status, created_at 
-                FROM orders 
-                WHERE user_id = ? AND DATE(created_at) = ? AND status = 'Pending'
-                ORDER BY order_id DESC 
+        $sql = "SELECT 
+                    o.order_id, 
+                    o.customer_name, 
+                    o.customer_phone, 
+                    o.order_type, 
+                    o.delivery_address, 
+                    o.table_number, 
+                    o.status, 
+                    o.subtotal, 
+                    o.discount_amount, 
+                    o.discount_type, 
+                    o.gst_amount, 
+                    o.delivery_charge, 
+                    o.total_amount, 
+                    o.created_at,
+                    o.order_notes
+                FROM orders o
+                WHERE o.user_id = ? 
+                AND DATE(o.created_at) = ? 
+                AND o.status = 'Pending'
+                ORDER BY o.order_id DESC 
                 LIMIT 100";
         
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("is", $user_id, $current_date);
     } else {
         // Same day - normal polling (orders after last_order_id AND after page load time)
-        $sql = "SELECT order_id, customer_name, total_amount, status, created_at 
-                FROM orders 
-                WHERE user_id = ? AND order_id > ? AND created_at > FROM_UNIXTIME(?) AND status = 'Pending'
-                ORDER BY order_id DESC 
+        $sql = "SELECT 
+                    o.order_id, 
+                    o.customer_name, 
+                    o.customer_phone, 
+                    o.order_type, 
+                    o.delivery_address, 
+                    o.table_number, 
+                    o.status, 
+                    o.subtotal, 
+                    o.discount_amount, 
+                    o.discount_type, 
+                    o.gst_amount, 
+                    o.delivery_charge, 
+                    o.total_amount, 
+                    o.created_at,
+                    o.order_notes
+                FROM orders o
+                WHERE o.user_id = ? 
+                AND o.order_id > ? 
+                AND o.created_at > FROM_UNIXTIME(?) 
+                AND o.status = 'Pending'
+                ORDER BY o.order_id DESC 
                 LIMIT 100";
         
         $stmt = $conn->prepare($sql);
@@ -53,12 +88,32 @@ try {
 
     $new_orders = [];
     while ($row = $result->fetch_assoc()) {
+        // Fetch order items for each order
+        $items_sql = "SELECT 
+                        product_name, 
+                        price, 
+                        quantity 
+                      FROM order_items 
+                      WHERE order_id = ?";
+        $items_stmt = $conn->prepare($items_sql);
+        $items_stmt->bind_param("i", $row['order_id']);
+        $items_stmt->execute();
+        $items_result = $items_stmt->get_result();
+        
+        $items = [];
+        while ($item = $items_result->fetch_assoc()) {
+            $items[] = $item;
+        }
+        
+        $row['items'] = $items;
+        $items_stmt->close();
+        
         $new_orders[] = $row;
     }
     
     $stmt->close();
     
-    // Return additional debug info for troubleshooting
+    // Return the complete order data with items
     echo json_encode([
         'success' => true,
         'new_orders' => $new_orders,
@@ -69,7 +124,12 @@ try {
             'current_date' => $current_date,
             'current_time' => $current_time,
             'orders_found' => count($new_orders),
-            'query_type' => ($page_load_date !== $current_date) ? 'date_based' : 'normal'
+            'query_type' => ($page_load_date !== $current_date) ? 'date_based' : 'normal',
+            'sample_order' => count($new_orders) > 0 ? [
+                'order_id' => $new_orders[0]['order_id'],
+                'items_count' => count($new_orders[0]['items']),
+                'has_items' => !empty($new_orders[0]['items'])
+            ] : null
         ]
     ]);
 

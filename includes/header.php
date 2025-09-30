@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title><?= htmlspecialchars($user['name']) ?> | <?= htmlspecialchars($business_info['business_name'] ?? '') ?></title>
+    <title><?= htmlspecialchars($business_info['business_name'] ?? '') ?></title>
 
     <meta name="description" content="<?= htmlspecialchars($business_info['business_description']) ?>">
     <link rel="icon" type="image/png" href="https://deegeecard.com/uploads/profile/<?= htmlspecialchars($photos['profile_photo']) ?>">
@@ -156,14 +156,14 @@
         .social_networks li a {
             background: var(--primary-color) !important;
         }
-        .btn-success {
+        /*.btn-success {
             background: var(--primary-color) !important;
             height: 50px;
           font-size: 20px;
           font-weight: 700;
           text-shadow: 2px 1px 3px #151515;
           letter-spacing: 0.03em;
-        }
+        }*/
         body {
             background-color: var(--secondary-color);
         }
@@ -261,6 +261,43 @@
               padding-top: 17px;
         }
         
+
+#deliveryBtn, #dinningBtn, #placeOrderBtn {
+    cursor: pointer;
+    background-color: <?php echo $primary_color; ?>;
+    border: 2px solid <?php echo $primary_color; ?>;
+    text-align: center;
+    transition: 0.3s;
+    color: #fff;
+    transform: scale(1);
+    animation: borderPulse 2s infinite;
+    float: left;
+    font-size: 15px;
+}
+
+.order-type-buttons .w-50 {
+  width: 45.5% !important;
+  margin: 0px 2.2%;
+}
+
+@keyframes borderPulse {
+    0% {
+        box-shadow: 0 0 0 0 <?php echo $primary_color; ?>b3;
+    }
+    70% {
+        box-shadow: 0 0 0 10px <?php echo $primary_color; ?>00;
+    }
+    100% {
+        box-shadow: 0 0 0 0 <?php echo $primary_color; ?>00;
+    }
+}
+.choose_order_type {
+  text-align: center;
+  font-size: 15px;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
     </style>
 </head>
 <body class="restaurant">

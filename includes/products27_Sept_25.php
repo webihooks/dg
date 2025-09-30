@@ -23,15 +23,9 @@ if ($table_exists) {
 
 <?php if ($active_subscription): ?>
     <?php if ($active_subscription['package_id'] == 1): ?>
-        <style>
-            #dinningBtn { display: none !important; }
-            #deliveryBtn { width: 100% !important; margin: 0 !important; }
-        </style>
+        <style>#dinningBtn { display: none !important; }</style>
     <?php elseif ($active_subscription['package_id'] == 2): ?>
-        <style>
-            #deliveryBtn { display: none !important; }
-            #dinningBtn { width: 100% !important; margin: 0 !important; }
-        </style>
+        <style>#deliveryBtn { display: none !important; }</style>
     <?php endif; ?>
 <?php endif; ?>
 
@@ -217,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- Order Type Buttons -->
             <?php if ($delivery_active || $dining_active): ?>
                 <div class="order-type-buttons mb-3">
-                    <div class="choose_order_type">Choose your order type</div>
                     <?php if ($delivery_active): ?>
                         <button class="btn btn-outline-primary w-50" id="deliveryBtn">
                             <i class="bi bi-truck blink"></i> Delivery
@@ -231,8 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
-
-            <div style="clear: both;"></div>
 
             <!-- Customer Details Section (hidden initially) -->
             <div id="customerDetailsSection" style="display: none;">
@@ -1104,12 +1095,6 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
             stickySearchContainer.style.bottom = '65px';
         }
 
-        // Add this to adjust the sticky search container
-        const vieworderContainer = document.querySelector('.view-order-container');
-        if (vieworderContainer) {
-            vieworderContainer.style.bottom = '180px';
-        }
-
         const product = {
             id: this.dataset.id,
             name: this.dataset.name,
@@ -1591,12 +1576,6 @@ function removeFromCart(index) {
             if (stickySearchContainer) {
                 stickySearchContainer.style.bottom = ''; // Reset to original value
             }
-
-            // Reset sticky search container position
-            const vieworderContainer = document.querySelector('.view-order-container');
-            if (vieworderContainer) {
-                vieworderContainer.style.bottom = ''; // Reset to original value
-            }
         }
     }
 }
@@ -1618,11 +1597,6 @@ function closeCart() {
 const stickySearchContainer = document.querySelector('.sticky-search-container');
 if (stickySearchContainer) {
     stickySearchContainer.style.bottom = ''; // Reset to original value
-}
-
-const vieworderContainer = document.querySelector('.view-order-container');
-if (vieworderContainer) {
-    vieworderContainer.style.bottom = ''; // Reset to original value
 }
 
 // Order type toggle functionality
@@ -1657,8 +1631,7 @@ function closeOrderSuccessPopup() {
   popup.classList.remove('active');
 }
 
-
-// Combined placeOrder function that saves to database AND sends to WhatsApp
+// Updated placeOrder function with proper error handling
 function placeOrder() {
     if (cart.length === 0) {
         alert('Your cart is empty');
@@ -1744,18 +1717,6 @@ function placeOrder() {
     // Use the correct path for place_order.php
     const placeOrderUrl = 'place_order.php';
     
-    // Store order details for WhatsApp (needed later)
-    const whatsappOrderDetails = {
-        isDelivery: isDelivery,
-        customerName: customerName,
-        customerPhone: customerPhone,
-        deliveryAddress: isDelivery ? deliveryAddress : null,
-        tableNumber: !isDelivery ? tableNumber : null,
-        orderNotes: orderNotes || null,
-        discountAmount: discountAmount,
-        discountType: discountType
-    };
-    
     // Send order data to server
     fetch(placeOrderUrl, {
         method: 'POST',
@@ -1766,6 +1727,7 @@ function placeOrder() {
     })
     .then(response => {
         if (!response.ok) {
+            // More detailed error information
             return response.text().then(text => {
                 throw new Error(`Server returned ${response.status}: ${response.statusText}. Response: ${text}`);
             });
@@ -1774,9 +1736,6 @@ function placeOrder() {
     })
     .then(data => {
         if (data.success) {
-            // Store order ID for redirect
-            const orderId = data.order_id;
-            
             // Reset coupon fields
             if (cart.coupon) {
                 delete cart.coupon;
@@ -1790,29 +1749,26 @@ function placeOrder() {
             if (stickySearchContainer) {
                 stickySearchContainer.style.bottom = ''; // Reset to original value
             }
+            
+            // Show success popup
+            showOrderSuccessPopup();
 
-            const vieworderContainer = document.querySelector('.view-order-container');
-            if (vieworderContainer) {
-                vieworderContainer.style.bottom = ''; // Reset to original value
+            closeCart();
+            
+            if (data.trigger_whatsapp) {
+                // Add 3-second delay before triggering WhatsApp
+                setTimeout(() => {
+                    placeOrderOnWhatsApp();
+                }, 2000);
+            } else {
+                placeOrderBtn.innerHTML = originalBtnText;
+                placeOrderBtn.disabled = false;
+                
+                cart = [];
+                saveCart();
+                updateCartUI();
+                closeCart();
             }
-            
-            // Show success message
-            showToast('Order placed successfully! Redirecting to order status...', 'success');
-            
-            // Prepare WhatsApp message (but don't send immediately)
-            prepareWhatsAppMessage(whatsappOrderDetails, orderId);
-            
-            // Wait 3 seconds, then redirect to order status page
-            setTimeout(() => {
-                const profileUrl = '<?= $profile_url ?>';
-                if (orderId) {
-                    window.location.href = `order_status.php?order_id=${orderId}&profile_url=${profileUrl}`;
-                } else {
-                    // Fallback if no order ID returned
-                    window.location.href = `order_status.php?profile_url=${profileUrl}`;
-                }
-            }, 3000);
-            
         } else {
             throw new Error(data.message || 'Failed to place order');
         }
@@ -1820,6 +1776,7 @@ function placeOrder() {
     .catch(error => {
         console.error('Error:', error);
         
+        // More user-friendly error message
         let errorMessage = 'Failed to place order. ';
         
         if (error.message.includes('Failed to fetch')) {
@@ -1835,180 +1792,6 @@ function placeOrder() {
         placeOrderBtn.disabled = false;
     });
 }
-
-// Function to prepare and schedule WhatsApp message
-function prepareWhatsAppMessage(orderDetails, orderId) {
-    // Calculate order totals for WhatsApp message
-    let subtotal = 0;
-    cart.forEach(item => {
-        if (item.id) { // Only count actual products, not coupon objects
-            subtotal += item.price * item.quantity;
-        }
-    });
-
-    const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
-    const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
-    const gstPercent = <?= $gst_percent ?? 0 ?>;
-    
-    // Calculate amount after discount
-    let amountAfterDiscount = subtotal - orderDetails.discountAmount;
-    if (amountAfterDiscount < 0) amountAfterDiscount = 0;
-
-    // Calculate GST on amount after discount
-    let gstAmount = 0;
-    if (gstPercent > 0) {
-        gstAmount = (amountAfterDiscount * gstPercent) / 100;
-    }
-
-    // Calculate delivery charge
-    let actualDeliveryCharge = 0;
-    let deliveryText = '';
-    
-    if (orderDetails.isDelivery) {
-        if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
-            actualDeliveryCharge = 0;
-            deliveryText = `Delivery:       FREE\n(Order above ₹${freeDeliveryMin.toFixed(2)})\n`;
-        } else if (freeDeliveryMin > 0) {
-            actualDeliveryCharge = deliveryCharge;
-            const neededForFree = freeDeliveryMin - amountAfterDiscount;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n(Add ₹${neededForFree.toFixed(2)} more for FREE delivery)\n`;
-        } else {
-            actualDeliveryCharge = deliveryCharge;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n`;
-        }
-    }
-
-    // Calculate total
-    let total = amountAfterDiscount + gstAmount + actualDeliveryCharge;
-
-    // Business details
-    const businessName = <?= json_encode(htmlspecialchars($business_info['business_name'] ?? '')) ?>;
-    const businessAddress = <?= json_encode(htmlspecialchars($business_info['business_address'] ?? '')) ?>;
-    const businessPhone = <?= json_encode($user['phone'] ?? '') ?>;
-
-    // Format order date
-    const orderDate = new Date().toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    // Build order details section
-    let customerDetails;
-    if (orderDetails.isDelivery) {
-        customerDetails = `*Delivery Order*\nName: ${orderDetails.customerName}\nPhone: ${orderDetails.customerPhone}\nAddress: ${orderDetails.deliveryAddress}`;
-        if (orderDetails.orderNotes) customerDetails += `\nNotes: ${orderDetails.orderNotes}`;
-    } else {
-        customerDetails = `*Dining Order*\nName: ${orderDetails.customerName}\nPhone: ${orderDetails.customerPhone}\nTable No.: ${orderDetails.tableNumber}`;
-        if (orderDetails.orderNotes) customerDetails += `\nNotes: ${orderDetails.orderNotes}`;
-    }
-
-    // Build WhatsApp message
-    let message = `*${businessName.toUpperCase()}*\n` +
-                  `${businessAddress}\n` +
-                  `Phone: ${businessPhone}\n\n` +
-                  `Date: ${orderDate}\n` +
-                  `Order ID: ${orderId}\n` +
-                  `Order Type: ${orderDetails.isDelivery ? 'DELIVERY' : 'DINING'}\n` +
-                  `--------------------------------------------------\n` +
-                  `*ITEMS ORDERED*\n` +
-                  `--------------------------------------------------\n`;
-
-    // Add cart items
-    cart.forEach(item => {
-        if (item.id) { // Only show actual products, not coupon objects
-            const itemTotal = (item.price * item.quantity).toFixed(2);
-            message += `${item.name} x ${item.quantity}\n` +
-                      `₹${item.price.toFixed(2)} x ${item.quantity} = ₹${itemTotal}\n\n`;
-        }
-    });
-
-    // Add pricing summary
-    message += `--------------------------------------------------\n` +
-               `Subtotal:        ₹${subtotal.toFixed(2)}\n`;
-    
-    if (orderDetails.discountAmount > 0) {
-        message += `Discount:       -₹${orderDetails.discountAmount.toFixed(2)}\n`;
-        if (orderDetails.discountType) {
-            message += `(${orderDetails.discountType})\n`;
-        }
-    }
-    
-    if (gstPercent > 0) {
-        message += `GST (${gstPercent}%):    ₹${gstAmount.toFixed(2)}\n`;
-    }
-    
-    // Add delivery information
-    if (orderDetails.isDelivery) {
-        message += deliveryText;
-    }
-
-    message += `--------------------------------------------------\n` +
-               `*TOTAL:          ₹${total.toFixed(2)}*\n\n` +
-               `*CUSTOMER DETAILS*\n` +
-               `--------------------------------------------------\n` +
-               `${customerDetails}\n\n` +
-               `Thank you for your order. We'll process it shortly.\n\n`;
-
-    // Add profile URL (unchanged placement)
-    message += `Next time, place your order easily through this link 👉`;
-
-    // Add website if available
-    <?php if (!empty($business_info['website'])): ?>
-    message += `${<?= json_encode($business_info['website']) ?>}\n` +
-               `OR\n`;
-    <?php endif; ?>
-    
-    const baseUrl = 'https://deegeecard.com';
-    message += `${baseUrl}/<?= $profile_url ?>`;
-
-    // Add Track Your Order URL after the profile URL
-    message += `\n\n📱 *Track your order here:*\n`;
-    message += `${baseUrl}/order_status.php?order_id=${orderId}&profile_url=<?= $profile_url ?>`;
-
-    // Add your requested message
-    message += `\n\nAlso share your order with us on WhatsApp — just hit 'Send' 👉`;
-
-    // Store message for later use (after redirect)
-    localStorage.setItem('pendingWhatsAppMessage', message);
-    localStorage.setItem('pendingWhatsAppOrderId', orderId);
-}
-
-
-// Function to send WhatsApp message (to be called after redirect)
-function sendPendingWhatsAppMessage() {
-    const message = localStorage.getItem('pendingWhatsAppMessage');
-    const orderId = localStorage.getItem('pendingWhatsAppOrderId');
-    
-    if (message && orderId) {
-        // Get WhatsApp number
-        const whatsappLink = <?= json_encode($social_link['whatsapp'] ?? '') ?>;
-        let phoneNumber = whatsappLink.match(/wa\.me\/(\d+)/)?.[1] || <?= json_encode($user['phone'] ?? '') ?>;
-        
-        if (phoneNumber) {
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            
-            // Open WhatsApp in new tab after a short delay
-            setTimeout(() => {
-                window.open(whatsappUrl, '_blank');
-            }, 1000);
-        }
-        
-        // Clean up
-        localStorage.removeItem('pendingWhatsAppMessage');
-        localStorage.removeItem('pendingWhatsAppOrderId');
-    }
-}
-
-// Call this function on order_status.php page load
-// Add this to your order_status.php page:
-
-
-
-
-
 
 // Toast notification function (add this to your code if you don't have it already)
 function showToast(message, type = 'success') {
@@ -2153,7 +1936,24 @@ function createConfetti() {
 <!-- Add this to your HTML (before the closing body tag) -->
 <div class="confetti-container" id="confettiContainer"></div>
 
-
+<!-- Order Success Popup -->
+<div class="order-success-popup" id="orderSuccessPopup">
+    <div class="order-success-content">
+        <div class="order-success-icon">
+            <img src="images/success_icon.gif">
+        </div>
+        <h3 class="order-success-title">
+            Order Received<br>
+            Your food is being prepared!
+        </h3>
+        <p class="order-success-message">
+            Thank you for your order.<br>
+        </p>
+        <h4 class="mb-3">Also share your order with us<br>
+            on WhatsApp — just hit 'Send'.</h4>
+        <button class="order-success-btn" onclick="redirectToProfile()">OK</button>
+    </div>
+</div>
 
 <script>
 // Function to redirect to profile page
@@ -2196,107 +1996,5 @@ function showOrderSuccessPopup() {
     createConfetti();
     const popup = document.getElementById('orderSuccessPopup');
     popup.classList.add('active');
-}
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- View Order Button -->
-<?php
-// Check if there's a recent order for this user
-$lastOrderId = null;
-if (isset($_COOKIE['lastOrderId']) && isset($_COOKIE['lastOrderUserId']) && $_COOKIE['lastOrderUserId'] == $user_id) {
-    $lastOrderId = $_COOKIE['lastOrderId'];
-}
-?>
-
-<div id="viewOrderBtnContainer" class="view-order-container" style="display: none;">
-    <button class="btn btn-success view-order-btn enhanced-blink" onclick="viewLastOrder()">
-        <i class="bi bi-eye-fill"></i> View Order
-    </button>
-</div>
-
-<script>
-// Function to show/hide View Order button
-function checkAndShowViewOrderButton() {
-    const lastOrderId = localStorage.getItem('lastOrderId');
-    const lastOrderUserId = localStorage.getItem('lastOrderUserId');
-    const currentUserId = <?= $user_id ?>;
-    
-    const viewOrderContainer = document.getElementById('viewOrderBtnContainer');
-    
-    if (lastOrderId && lastOrderUserId && lastOrderUserId == currentUserId) {
-        viewOrderContainer.style.display = 'block';
-    } else {
-        viewOrderContainer.style.display = 'none';
-    }
-}
-
-// Function to redirect to order status page
-function viewLastOrder() {
-    const lastOrderId = localStorage.getItem('lastOrderId');
-    const profileUrl = '<?= $profile_url ?>';
-    
-    if (lastOrderId) {
-        window.location.href = `order_status.php?order_id=${lastOrderId}&profile_url=${profileUrl}`;
-    }
-}
-
-// Check on page load
-document.addEventListener('DOMContentLoaded', function() {
-    checkAndShowViewOrderButton();
-    
-    // Also check when cart is updated (in case it affects the button)
-    const originalUpdateCartUI = updateCartUI;
-    updateCartUI = function() {
-        originalUpdateCartUI.apply(this, arguments);
-        checkAndShowViewOrderButton();
-    };
-});
-
-// Clear last order when placing a new order
-const originalPlaceOrder = placeOrder;
-placeOrder = function() {
-    // Clear the last order before placing new one
-    localStorage.removeItem('lastOrderId');
-    localStorage.removeItem('lastOrderUserId');
-    checkAndShowViewOrderButton();
-    
-    // Call original function
-    originalPlaceOrder.apply(this, arguments);
-};
-</script>
-
-
-
-<script>
-function goBackToMenu(orderId) {
-    // Set cookie that expires in 24 hours
-    const expires = new Date();
-    expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
-    document.cookie = `lastOrderId=${orderId}; expires=${expires.toUTCString()}; path=/`;
-    document.cookie = `lastOrderUserId=<?= $user_id ?>; expires=${expires.toUTCString()}; path=/`;
-    
-    // Also store in localStorage for immediate access
-    localStorage.setItem('lastOrderId', orderId);
-    localStorage.setItem('lastOrderUserId', '<?= $user_id ?>');
-    
-    // Redirect to profile page
-    window.location.href = '/deegeecard<?= htmlspecialchars($back_url) ?>';
 }
 </script>

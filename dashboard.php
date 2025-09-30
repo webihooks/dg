@@ -164,10 +164,10 @@ $conn->close();
                                         <div class="card card-summary bg-primary text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Today's Sales</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales']) : '0.00'; ?></h3>
                                                 <p class="card-text mb-0"><?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?> orders</p>
                                                 <?php if (isset($summary_data['avg_order_value']) && $summary_data['total_orders'] > 0): ?>
-                                                    <p class="card-text">Avg: ₹<?php echo number_format($summary_data['avg_order_value'], 2); ?></p>
+                                                    <p class="card-text">Avg: ₹<?php echo number_format($summary_data['avg_order_value']); ?></p>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -176,7 +176,7 @@ $conn->close();
                                         <div class="card card-summary bg-success text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Subtotal</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal']) : '0.00'; ?></h3>
                                                 <p class="card-text mb-0">Before discounts & taxes</p>
                                             </div>
                                         </div>
@@ -185,9 +185,9 @@ $conn->close();
                                         <div class="card card-summary bg-info text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Taxes & Charges</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0), 2) : '0.00'; ?></h3>
-                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'], 2) : '0.00'; ?></p>
-                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery'], 2) : '0.00'; ?></p>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0)) : '0.00'; ?></h3>
+                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax']) : '0.00'; ?></p>
+                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery']) : '0.00'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -195,7 +195,7 @@ $conn->close();
                                         <div class="card card-summary bg-warning text-dark">
                                             <div class="card-body">
                                                 <h5 class="card-title">Discounts</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts']) : '0.00'; ?></h3>
                                                 <p class="card-text">Applied to orders</p>
                                             </div>
                                         </div>
@@ -421,6 +421,27 @@ $conn->close();
             });
         });
     </script>
+
+
+
+
+<!-- Floating Action Buttons -->
+<div class="floating-buttons">
+<a href="tel:9004998995" class="floating-btn call-btn" data-tooltip="Call Us: 9004998995">
+<span class="nav-icon">
+<iconify-icon icon="material-symbols:add-call-sharp"></iconify-icon>
+</span>
+
+</a>
+<a href="https://wa.me/919004998995?text=Hello!%20I%20have%20a%20question%20about%20your%20services" 
+target="_blank" 
+class="floating-btn whatsapp-btn" 
+data-tooltip="WhatsApp: 9004998995">
+<span class="nav-icon">
+<iconify-icon icon="mingcute:whatsapp-line"></iconify-icon>
+</span>
+</a>
+</div>    
 
 </body>
 </html>

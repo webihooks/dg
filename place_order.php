@@ -1,5 +1,4 @@
 <?php
-// deegeecard.com/place_order.php
 
 // List of allowed domains
 $allowedDomains = [
@@ -197,11 +196,10 @@ try {
     // Log successful order
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
+    // Return success with order ID (REMOVED trigger_whatsapp and clear_cart)
     echo json_encode([
         'success' => true,
         'order_id' => $orderId,
-        'trigger_whatsapp' => true,
-        'clear_cart' => true,
         'message' => 'Order placed successfully'
     ]);
 
