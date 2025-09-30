@@ -68,6 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $affected_rows = $update_stmt->affected_rows;
         $update_stmt->close();
         
+        // ✅ ADD REAL-TIME LOGGING HERE - After successful update
+        // Log order update for real-time notifications
+        $log_sql = "INSERT INTO order_updates (order_id, user_id, old_status, new_status, updated_by_session) 
+                    VALUES (?, ?, 'Pending', ?, ?)";
+        $log_stmt = $conn->prepare($log_sql);
+        $current_session_id = session_id();
+
+        foreach ($order_ids as $order_id) {
+            $log_stmt->bind_param("iiss", $order_id, $user_id, $new_status, $current_session_id);
+            $log_stmt->execute();
+        }
+        $log_stmt->close();
+        // ✅ END OF REAL-TIME LOGGING
+        
         // Get business info for WhatsApp messages
         $business_info = [];
         $business_sql = "SELECT business_name, business_address FROM business_info WHERE user_id = ?";

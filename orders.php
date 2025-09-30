@@ -124,6 +124,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
     }
 }
 
+// Handle AJAX status updates
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_update_status'])) {
+    header('Content-Type: application/json');
+    
+    $order_id = $_POST['order_id'];
+    $new_status = $_POST['new_status'];
+    
+    $allowed_statuses = ['Pending', 'Confirmed', 'Preparing', 'Ready', 'Completed', 'Cancelled'];
+    if (!in_array($new_status, $allowed_statuses)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid status']);
+        exit();
+    }
+    
+    $check_sql = "SELECT user_id FROM orders WHERE order_id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $order_id);
+    $check_stmt->execute();
+    $check_stmt->bind_result($order_user_id);
+    $check_stmt->fetch();
+    $check_stmt->close();
+    
+    if ($order_user_id == $user_id) {
+        $update_sql = "UPDATE orders SET status = ?, updated_at = NOW() WHERE order_id = ?";
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("si", $new_status, $order_id);
+        
+        if ($update_stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Order status updated successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error updating order status']);
+        }
+        $update_stmt->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Permission denied']);
+    }
+    exit();
+}
+
+// Handle AJAX order cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_cancel_order'])) {
+    header('Content-Type: application/json');
+    
+    $order_id = $_POST['order_id'];
+    
+    $check_sql = "SELECT user_id, status FROM orders WHERE order_id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $order_id);
+    $check_stmt->execute();
+    $check_stmt->bind_result($order_user_id, $current_status);
+    $check_stmt->fetch();
+    $check_stmt->close();
+    
+    if ($order_user_id == $user_id) {
+        if (in_array($current_status, ['Pending', 'Confirmed', 'Preparing'])) {
+            $update_sql = "UPDATE orders SET status = 'Cancelled', updated_at = NOW() WHERE order_id = ?";
+            $update_stmt = $conn->prepare($update_sql);
+            $update_stmt->bind_param("i", $order_id);
+            
+            if ($update_stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Order cancelled successfully!']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Error cancelling order']);
+            }
+            $update_stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Order cannot be cancelled at this stage']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Permission denied']);
+    }
+    exit();
+}
+
 // Pagination setup
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 200;
@@ -212,7 +285,6 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
-
 
 <style>
     .bg-warning {
@@ -304,6 +376,15 @@ $conn->close();
         border-color: #ff6c2f;
     }
 
+    /* Toast notifications */
+    .custom-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+    }
+
     @media (max-width: 768px) {
         .mobile_table .update-status-btn[data-new-status="Ready"],
         .mobile_table .update-status-btn[data-new-status="Completed"] {
@@ -323,47 +404,45 @@ $conn->close();
             min-width: 100px;
         }
 
-    .mobile_table tr {
-        position: relative;
+        .mobile_table tr {
+            position: relative;
+        }
+
+        .mobile_table .table td.timer-column:before {
+            display: none;
+        }
+
+        .mobile_table .table td.timer-column {
+            border-bottom:0;
+        }
+
+        .clountdown_group {
+            position: absolute;
+            top: 72px;
+            z-index: 99;
+            right: 28px;
+        }
     }
 
-    .mobile_table .table td.timer-column:before {
-        display: none;
+    /* WhatsApp notification styles */
+    .whatsapp-fallback-link {
+        background: #25D366;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        margin: 5px;
+        display: inline-block;
+        animation: pulse-green 2s infinite;
     }
 
-    .mobile_table .table td.timer-column {
-        border-bottom:0;
+    @keyframes pulse-green {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
     }
-
-    .clountdown_group {
-        position: absolute;
-          top: 72px;
-          z-index: 99;
-          right: 28px;
-    }
-
-}
-
-/* WhatsApp notification styles */
-.whatsapp-fallback-link {
-    background: #25D366;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    margin: 5px;
-    display: inline-block;
-    animation: pulse-green 2s infinite;
-}
-
-@keyframes pulse-green {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-}
 </style>
-
 
 </head>
 
@@ -443,9 +522,9 @@ $conn->close();
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="ordersTableBody">
         <?php foreach ($orders as $index => $order): ?>
-            <tr>
+            <tr id="order-<?php echo $order['order_id']; ?>" data-order-id="<?php echo $order['order_id']; ?>">
                 <td data-label="Sr. No."><?php echo $index + 1 + $offset; ?></td>
                 <td data-label="Order ID">#<?php echo htmlspecialchars($order['order_id']); ?></td>
                 <td data-label="Date & Time">
@@ -487,7 +566,6 @@ $conn->close();
                 </div>
             </td>
                 <td data-label="Actions">
-                    <!-- Your existing action buttons here -->
                     <button class="btn btn-sm btn-primary view-order" 
                             data-order-id="<?php echo $order['order_id']; ?>"
                             data-bs-toggle="modal" 
@@ -560,12 +638,6 @@ $conn->close();
             <?php include 'footer.php'; ?>
         </div>
     </div>
-
-    
-
-
-
-
 
     <!-- Order Details Modal -->
 <div class="modal fade order-modal" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
@@ -740,7 +812,6 @@ $(document).ready(function() {
     // Initial timer update
     updateTimers();
 
-
     // Initialize Data
     let ordersData = <?php echo json_encode($orders); ?>;
 
@@ -774,53 +845,52 @@ $(document).ready(function() {
             url: 'orders.php',
             type: 'POST',
             data: {
-                update_status: true,
+                ajax_update_status: true,
                 order_id: orderId,
                 new_status: newStatus
             },
             success: function(response) {
-                // Simple success handling
-                if (response.includes('successfully') || response.includes('Order status updated')) {
-                    showToast(`Order marked as ${newStatus}!`, 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    throw new Error('Update failed');
+                try {
+                    const result = typeof response === 'string' ? JSON.parse(response) : response;
+                    if (result.success) {
+                        showToast(result.message || `Order marked as ${newStatus}!`, 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(result.message || 'Update failed');
+                    }
+                } catch (e) {
+                    showToast(e.message || 'Error updating order status', 'danger');
+                    button.html(originalText).prop('disabled', false);
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Status update error:', error);
-                alert('Error updating order status. Please try again.');
+                showToast('Error updating order status. Please try again.', 'danger');
                 button.html(originalText).prop('disabled', false);
             }
         });
     }
 
     function showToast(message, type) {
+        // Remove existing toasts
+        $('.custom-toast').remove();
+        
         // Create toast element
-        const toast = document.createElement('div');
-        toast.className = `alert alert-${type} alert-dismissible fade show`;
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 250px;
-        `;
-        toast.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+        const toast = $(`
+            <div class="alert alert-${type} alert-dismissible fade show custom-toast" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
         
-        document.body.appendChild(toast);
+        $('body').append(toast);
         
-        // Auto remove after 3 seconds
+        // Auto remove after 5 seconds
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 3000);
+            toast.alert('close');
+        }, 5000);
     }
 
     function viewOrderHandler() {
@@ -829,7 +899,7 @@ $(document).ready(function() {
         
         if (!order) {
             console.error('Order not found:', orderId);
-            alert('Order not loaded. Please refresh the page.');
+            showToast('Order not loaded. Please refresh the page.', 'danger');
             return;
         }
         
@@ -939,54 +1009,55 @@ $(document).ready(function() {
         const orderId = $(this).data('order-id');
         
         if (confirm('Are you sure you want to cancel this order?')) {
-            processOrderAction({
-                action: 'cancel_order',
-                order_id: orderId,
-                button: $(this),
-                success: () => updateOrderStatusUI(orderId, 'Cancelled')
+            const button = $(this);
+            const originalText = button.html();
+            button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
+            
+            $.ajax({
+                url: 'orders.php',
+                type: 'POST',
+                data: {
+                    ajax_cancel_order: true,
+                    order_id: orderId
+                },
+                success: function(response) {
+                    try {
+                        const result = typeof response === 'string' ? JSON.parse(response) : response;
+                        if (result.success) {
+                            showToast(result.message, 'success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            throw new Error(result.message || 'Cancellation failed');
+                        }
+                    } catch (e) {
+                        showToast(e.message, 'danger');
+                        button.html(originalText).prop('disabled', false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Cancellation error:', error);
+                    showToast('Error cancelling order. Please try again.', 'danger');
+                    button.html(originalText).prop('disabled', false);
+                }
             });
         }
     }
 
     $('#cancelOrderForm').submit(function(e) {
         e.preventDefault();
-        cancelOrderHandler(e);
+        const orderId = $('#modalCancelOrderId').val();
+        $(`.cancel-order[data-order-id="${orderId}"]`).click();
     });
 
     $('#statusUpdateForm').submit(function(e) {
         e.preventDefault();
-        processOrderAction({
-            action: 'update_status',
-            order_id: $('#modalFormOrderId').val(),
-            new_status: $('#modalStatusSelect').val(),
-            button: $(this).find('button[type="submit"]'),
-            success: () => updateOrderStatusUI($('#modalFormOrderId').val(), $('#modalStatusSelect').val())
-        });
-    });
-
-    function processOrderAction({action, order_id, new_status, button, success}) {
-        const originalText = button.html();
-        button.html('<i class="bi bi-arrow-repeat spin"></i> Processing...').prop('disabled', true);
+        const orderId = $('#modalFormOrderId').val();
+        const newStatus = $('#modalStatusSelect').val();
         
-        $.ajax({
-            url: 'orders.php',
-            type: 'POST',
-            data: { 
-                [action]: true,
-                order_id,
-                ...(new_status && {new_status})
-            },
-            success: function() {
-                success();
-                $('#orderModal').modal('hide');
-                setTimeout(() => location.reload(), 1000);
-            },
-            error: function(xhr) {
-                alert(`Action failed: ${xhr.responseText || 'Unknown error'}`);
-                button.html(originalText).prop('disabled', false);
-            }
-        });
-    }
+        updateOrderStatusDirect(orderId, newStatus, $(this).find('button[type="submit"]'));
+    });
 
     function updateOrderStatusUI(orderId, newStatus) {
         const $badge = $(`tr:has(button[data-order-id="${orderId}"]) .status-badge`);
@@ -1013,10 +1084,8 @@ $(document).ready(function() {
         handleStatusUpdateButtons();
     }
 });
-</script>
 
-
-<script>
+// Copy functionality
 $(document).on('click', '.copy-btn', function() {
     const targetId = $(this).data('target');
     const textToCopy = $(`#${targetId}`).text().trim();
@@ -1073,7 +1142,6 @@ function showCopyFeedback(button) {
     }, 2000);
 }
 </script>
-
 
 </body>
 </html>

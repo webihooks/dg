@@ -1,5 +1,4 @@
 <style>
-
 /* Rejection dialog styles */
 .rejection-dialog {
     animation: slideInUp 0.3s ease-out;
@@ -35,7 +34,6 @@
     border-color: #dc3545;
     color: #dc3545;
 }
-
 
 /* Additional styles for the enhanced order popup */
 @keyframes slideInUp {
@@ -100,7 +98,6 @@
     border-top: 2px solid #dee2e6;
 }
 </style>
-
 
 <script>
 // Global polling configuration
@@ -792,7 +789,6 @@ async function fetchBusinessData() {
     }
 }
 
-
 async function rejectAllPendingOrders() {
     if (POLLING_CONFIG.pendingOrders.size === 0) return;
     
@@ -1115,46 +1111,6 @@ document.addEventListener('visibilitychange', () => {
         }, 100);
     }
 });
-</script>
-
-<!-- Add to your main HTML file -->
-<script src="socket-manager.js"></script>
-<script>
-// Additional initialization
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-            console.log('SW registered for background websocket');
-        });
-}
-
-// Handle new orders from WebSocket
-document.addEventListener('newOrder', (event) => {
-    const order = event.detail;
-    // Update your UI here
-    displayNewOrder(order);
-});
-
-function displayNewOrder(order) {
-    // Your order display logic
-    console.log('New order received:', order);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // WhatsApp notification function formatted as per sample
 function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, businessInfo, businessPhone, profileUrl) {
@@ -1223,13 +1179,6 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
     }
 }
 
-
-
-
-
-
-
-
 // WhatsApp notification function for order rejection
 function sendOrderRejection(orderId, customerPhone, customerName, orderType, totalAmount, businessInfo, businessPhone, profileUrl, rejectionReason) {
     try {
@@ -1276,7 +1225,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         message += `❤️ *We apologize for any inconvenience.*\n`;
         message += `Thank you for considering ${businessName}!\n\n`;
 
-
         // Create WhatsApp URL
         const whatsappUrl = `https://wa.me/${formattedCustomerPhone}?text=${encodeURIComponent(message)}`;
         
@@ -1294,7 +1242,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         return false;
     }
 }
-
 </script>
 
 <div class="main-nav">
@@ -1357,7 +1304,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
             </a>
          </li>
 
-
          <li class="nav-item">
             <a class="nav-link" href="whatsapp_marketing.php">
                <span class="nav-icon">
@@ -1366,7 +1312,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                <span class="nav-text">Bulk WhatsApp Marketing</span>
             </a>
          </li>
-
 
          <li class="menu-title">Products</li>
          <li class="nav-item">
@@ -1423,9 +1368,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="coupon.php">Coupon Code</a>
                   </li>
-                  <!-- <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="loyalty.php">Loyalty Card</a>
-                  </li> -->
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="products.php">Products</a>
                   </li>
@@ -1471,49 +1413,25 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
             </a>
          </li>
 
-
-
-
-
-
-
-
-<li class="nav-item">
-   <a class="nav-link menu-arrow" href="#ticket" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="ticket">
-      <span class="nav-icon">
-         <iconify-icon icon="material-symbols:help-outline"></iconify-icon>
-      </span>
-      <span class="nav-text"> Ticket </span>
-   </a>
-   <div class="collapse" id="ticket">
-      <ul class="nav sub-navbar-nav">
-         <li class="sub-nav-item">
-            <a class="sub-nav-link" href="create_ticket.php">Create Ticket</a>
-         </li>
-         <li class="sub-nav-item">
-            <a class="sub-nav-link" href="view_tickets.php">View Tickets</a>
-         </li>
-      </ul>
-   </div>
-</li>
-
-
-
-
-
-
-
-
-
-         <!-- <li class="menu-title">Services</li>
          <li class="nav-item">
-            <a class="nav-link" href="services.php">
+            <a class="nav-link menu-arrow" href="#ticket" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="ticket">
                <span class="nav-icon">
-                  <iconify-icon icon="solar:clipboard-list-bold-duotone"></iconify-icon>
+                  <iconify-icon icon="material-symbols:help-outline"></iconify-icon>
                </span>
-               <span class="nav-text">Services</span>
+               <span class="nav-text"> Ticket </span>
             </a>
-         </li> -->
+            <div class="collapse" id="ticket">
+               <ul class="nav sub-navbar-nav">
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="create_ticket.php">Create Ticket</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="view_tickets.php">View Tickets</a>
+                  </li>
+               </ul>
+            </div>
+         </li>
+
          <li class="nav-item">
             <a class="nav-link" href="subscription.php">
                <span class="nav-icon">

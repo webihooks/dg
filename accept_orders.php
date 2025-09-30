@@ -123,9 +123,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $profile_url = 'restaurant';
             }
         }
+
+        // Log order update for real-time notifications
+        $log_sql = "INSERT INTO order_updates (order_id, user_id, old_status, new_status, updated_by_session) 
+                    VALUES (?, ?, 'Pending', ?, ?)";
+        $log_stmt = $conn->prepare($log_sql);
+        $current_session_id = session_id();
+
+        foreach ($order_ids as $order_id) {
+            $log_stmt->bind_param("iiss", $order_id, $user_id, $new_status, $current_session_id);
+            $log_stmt->execute();
+        }
+        $log_stmt->close();
+
+        
         
         // Commit transaction
         $conn->commit();
+
+
         
         echo json_encode([
             'success' => true,

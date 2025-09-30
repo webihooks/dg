@@ -24,6 +24,7 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         'W' => 
         array (
             'WpOrg\\Requests\\' => 15,
+            'WebSocket\\' => 10,
         ),
         'R' => 
         array (
@@ -33,6 +34,7 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         'P' => 
         array (
             'Psr\\SimpleCache\\' => 16,
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
@@ -77,6 +79,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             0 => __DIR__ . '/..' . '/rmccue/requests/src',
         ),
+        'WebSocket\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/textalk/websocket/lib',
+        ),
         'Razorpay\\Tests\\' => 
         array (
             0 => __DIR__ . '/..' . '/razorpay/razorpay/tests',
@@ -88,6 +94,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         'Psr\\SimpleCache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/src',
         ),
         'Psr\\Http\\Message\\' => 
         array (
