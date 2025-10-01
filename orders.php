@@ -819,25 +819,41 @@ $(document).ready(function() {
     initializeAllHandlers();
 
     // Order Management Functions
-    function bindOrderHandlers() {
-        $('.view-order').off('click').on('click', viewOrderHandler);
-        $('.cancel-order').off('click').on('click', cancelOrderHandler);
-    }
+function bindOrderHandlers() {
+    $('.view-order').off('click').on('click', viewOrderHandler);
+    $('.cancel-order').off('click').on('click', cancelOrderHandler);
+}
 
-    // Handle direct status update buttons
-    function handleStatusUpdateButtons() {
-        $('.update-status-btn').off('click').on('click', function(e) {
-            e.preventDefault();
-            
-            const orderId = $(this).data('order-id');
-            const newStatus = $(this).data('new-status');
-            
-            // Remove confirmation and directly update status
-            updateOrderStatusDirect(orderId, newStatus, $(this));
-        });
-    }
+function handleStatusUpdateButtons() {
+    $('.update-status-btn').off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        const orderId = $(this).data('order-id');
+        const newStatus = $(this).data('new-status');
+        
+        updateOrderStatusDirect(orderId, newStatus, $(this));
+    });
+}
 
-    function updateOrderStatusDirect(orderId, newStatus, button) {
+function viewOrderHandler() {
+    const orderId = $(this).data('order-id');
+    const order = ordersData.find(o => o.order_id == orderId);
+    
+    if (!order) {
+        console.error('Order not found:', orderId);
+        showToast('Order not loaded. Please refresh the page.', 'danger');
+        return;
+    }
+    
+    updateOrderModal(order);
+}
+
+function cancelOrderHandler(e) {
+    e.preventDefault();
+    const orderId = $(this).data('order-id');
+    
+    if (confirm('Are you sure you want to cancel this order?')) {
+        const button = $(this);
         const originalText = button.html();
         button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
         
@@ -845,53 +861,89 @@ $(document).ready(function() {
             url: 'orders.php',
             type: 'POST',
             data: {
-                ajax_update_status: true,
-                order_id: orderId,
-                new_status: newStatus
+                ajax_cancel_order: true,
+                order_id: orderId
             },
             success: function(response) {
                 try {
                     const result = typeof response === 'string' ? JSON.parse(response) : response;
                     if (result.success) {
-                        showToast(result.message || `Order marked as ${newStatus}!`, 'success');
+                        showToast(result.message, 'success');
                         setTimeout(() => {
                             location.reload();
                         }, 1000);
                     } else {
-                        throw new Error(result.message || 'Update failed');
+                        throw new Error(result.message || 'Cancellation failed');
                     }
                 } catch (e) {
-                    showToast(e.message || 'Error updating order status', 'danger');
+                    showToast(e.message, 'danger');
                     button.html(originalText).prop('disabled', false);
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Status update error:', error);
-                showToast('Error updating order status. Please try again.', 'danger');
+                console.error('Cancellation error:', error);
+                showToast('Error cancelling order. Please try again.', 'danger');
                 button.html(originalText).prop('disabled', false);
             }
         });
     }
+}
 
-    function showToast(message, type) {
-        // Remove existing toasts
-        $('.custom-toast').remove();
-        
-        // Create toast element
-        const toast = $(`
-            <div class="alert alert-${type} alert-dismissible fade show custom-toast" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `);
-        
-        $('body').append(toast);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            toast.alert('close');
-        }, 5000);
-    }
+function updateOrderStatusDirect(orderId, newStatus, button) {
+    const originalText = button.html();
+    button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
+    
+    $.ajax({
+        url: 'orders.php',
+        type: 'POST',
+        data: {
+            ajax_update_status: true,
+            order_id: orderId,
+            new_status: newStatus
+        },
+        success: function(response) {
+            try {
+                const result = typeof response === 'string' ? JSON.parse(response) : response;
+                if (result.success) {
+                    showToast(result.message || `Order marked as ${newStatus}!`, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(result.message || 'Update failed');
+                }
+            } catch (e) {
+                showToast(e.message || 'Error updating order status', 'danger');
+                button.html(originalText).prop('disabled', false);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Status update error:', error);
+            showToast('Error updating order status. Please try again.', 'danger');
+            button.html(originalText).prop('disabled', false);
+        }
+    });
+}
+
+function showToast(message, type) {
+    // Remove existing toasts
+    $('.custom-toast').remove();
+    
+    // Create toast element
+    const toast = $(`
+        <div class="alert alert-${type} alert-dismissible fade show custom-toast" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.alert('close');
+    }, 5000);
+}
 
     function viewOrderHandler() {
         const orderId = $(this).data('order-id');
@@ -1288,14 +1340,70 @@ function updateActionButtons(row, status, orderId) {
     
     actionsCell.innerHTML = buttonsHtml;
     
-    // Re-bind event handlers for the new buttons
-    bindOrderHandlers();
-    handleStatusUpdateButtons();
+    // Always use manual event binding for the updated row
+    bindEventsManually(row);
 }
 
-// Initialize when page loads
+// Fallback event binding function
+function bindEventsManually(row) {
+    // Bind view order button
+    const viewButton = row.querySelector('.view-order');
+    if (viewButton) {
+        viewButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const order = ordersData.find(o => o.order_id == orderId);
+            if (order) {
+                updateOrderModal(order);
+            }
+        });
+    }
+    
+    // Bind cancel order button
+    const cancelButton = row.querySelector('.cancel-order');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            if (confirm('Are you sure you want to cancel this order?')) {
+                // Implement cancel logic here or reload page
+                location.reload();
+            }
+        });
+    }
+    
+    // Bind status update buttons
+    const statusButtons = row.querySelectorAll('.update-status-btn');
+    statusButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            const newStatus = this.getAttribute('data-new-status');
+            // Implement status update logic here or reload page
+            location.reload();
+        });
+    });
+}
+
+// Initialize all handlers
+function initializeAllHandlers() {
+    try {
+        if (typeof bindOrderHandlers === 'function') {
+            bindOrderHandlers();
+        }
+        if (typeof handleStatusUpdateButtons === 'function') {
+            handleStatusUpdateButtons();
+        }
+    } catch (error) {
+        console.error('Error initializing handlers:', error);
+    }
+}
+
+// Call this after your page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for the page to fully load
+    initializeAllHandlers();
+    
+    // Wait a bit for the page to fully load then initialize order status updates
     setTimeout(() => {
         initOrderStatusUpdates();
     }, 2000);
