@@ -1141,6 +1141,172 @@ function showCopyFeedback(button) {
         button.html(originalHtml).prop('disabled', false);
     }, 2000);
 }
+
+
+
+
+
+
+
+
+
+// Real-time order status updates
+let orderUpdateInterval;
+
+function initOrderStatusUpdates() {
+    // Get all current order IDs on the page
+    const currentOrderIds = Array.from(document.querySelectorAll('tr[data-order-id]'))
+        .map(el => parseInt(el.getAttribute('data-order-id')))
+        .filter(id => !isNaN(id));
+    
+    if (currentOrderIds.length === 0) return;
+    
+    // Start checking for updates every 10 seconds
+    orderUpdateInterval = setInterval(() => {
+        checkForOrderUpdates(currentOrderIds);
+    }, 10000);
+    
+    console.log(`🔄 Order status updates initialized for ${currentOrderIds.length} orders`);
+}
+
+function checkForOrderUpdates(orderIds) {
+    if (orderIds.length === 0) return;
+    
+    fetch(`check_order_updates.php?order_ids=${orderIds.join(',')}&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.updated_orders && data.updated_orders.length > 0) {
+                data.updated_orders.forEach(order => {
+                    updateOrderRow(order);
+                });
+            }
+        })
+        .catch(error => console.error('Order update check failed:', error));
+}
+
+function updateOrderRow(order) {
+    const row = document.querySelector(`tr[data-order-id="${order.order_id}"]`);
+    if (!row) return;
+    
+    // Update status badge
+    const statusBadge = row.querySelector('.status-badge');
+    if (statusBadge) {
+        statusBadge.textContent = order.status;
+        statusBadge.className = `status-badge status-${order.status}`;
+    }
+    
+    // Update timer display based on new status
+    const timerCell = row.querySelector('.timer-column');
+    if (timerCell) {
+        if (['Completed', 'Cancelled'].includes(order.status)) {
+            // Remove timer for completed/cancelled orders
+            timerCell.innerHTML = '';
+        } else {
+            // Update timer with current data
+            updateTimerDisplay(timerCell, order.created_at, order.order_id);
+        }
+    }
+    
+    // Update action buttons based on new status
+    updateActionButtons(row, order.status, order.order_id);
+    
+    console.log(`✅ Updated order #${order.order_id} to status: ${order.status}`);
+}
+
+function updateTimerDisplay(timerCell, createdAt, orderId) {
+    const createdTime = new Date(createdAt).getTime();
+    const currentTime = new Date().getTime();
+    const timeElapsed = Math.floor((currentTime - createdTime) / 1000);
+    const timeLimit = 30 * 60; // 30 minutes in seconds
+    const timeRemaining = timeLimit - timeElapsed;
+    
+    let timerHtml = '';
+    if (timeRemaining > 0) {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        const timerClass = timeRemaining <= 600 ? 'danger' : (timeRemaining <= 900 ? 'warning' : '');
+        
+        timerHtml = `
+            <div class="clountdown_group">
+                <div class="timer ${timerClass}" 
+                     data-created-at="${createdAt}"
+                     data-order-id="${orderId}">
+                    <i class="bi bi-clock"></i>
+                    <span class="timer-display">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    timerCell.innerHTML = timerHtml;
+}
+
+function updateActionButtons(row, status, orderId) {
+    const actionsCell = row.querySelector('td[data-label="Actions"]');
+    if (!actionsCell) return;
+    
+    let buttonsHtml = `
+        <button class="btn btn-sm btn-primary view-order" 
+                data-order-id="${orderId}"
+                data-bs-toggle="modal" 
+                data-bs-target="#orderModal">
+            <i class="bi bi-eye"></i> View
+        </button>
+    `;
+    
+    // Add cancel button for pending, confirmed, preparing orders
+    if (['Pending', 'Confirmed', 'Preparing'].includes(status)) {
+        buttonsHtml += `
+            <button class="btn btn-sm btn-danger cancel-order" 
+                    data-order-id="${orderId}">
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+        `;
+    }
+    
+    // Add ready button for pending, confirmed, preparing orders
+    if (['Pending', 'Confirmed', 'Preparing'].includes(status)) {
+        buttonsHtml += `
+            <button class="btn btn-sm btn-success update-status-btn" 
+                    data-order-id="${orderId}"
+                    data-new-status="Ready">
+                <i class="bi bi-check-circle"></i> Ready
+            </button>
+        `;
+    }
+    
+    // Add complete button for ready orders
+    if (status === 'Ready') {
+        buttonsHtml += `
+            <button class="btn btn-sm btn-info update-status-btn" 
+                    data-order-id="${orderId}"
+                    data-new-status="Completed">
+                <i class="bi bi-check-all"></i> Complete
+            </button>
+        `;
+    }
+    
+    actionsCell.innerHTML = buttonsHtml;
+    
+    // Re-bind event handlers for the new buttons
+    bindOrderHandlers();
+    handleStatusUpdateButtons();
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for the page to fully load
+    setTimeout(() => {
+        initOrderStatusUpdates();
+    }, 2000);
+});
+
+// Clean up when leaving the page
+window.addEventListener('beforeunload', function() {
+    if (orderUpdateInterval) {
+        clearInterval(orderUpdateInterval);
+    }
+});
 </script>
 
 </body>

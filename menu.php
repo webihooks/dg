@@ -111,7 +111,10 @@ const POLLING_CONFIG = {
     isSoundPlaying: false,
     audioElement: null,
     audioRetryCount: 0,
-    maxAudioRetries: 3
+    maxAudioRetries: 3,
+    refreshInterval: 5000, // Refresh pending orders every 5 seconds
+    lastRefreshTime: Date.now(),
+    autoRefreshEnabled: true // Enable auto page refresh
 };
 
 // Main initialization
@@ -292,6 +295,9 @@ function initOrderPolling() {
     
     console.log('Starting order polling');
     checkForNewOrders();
+    
+    // Start periodic refresh of pending orders
+    setInterval(refreshPendingOrders, POLLING_CONFIG.refreshInterval);
 }
 
 function setupEventListeners() {
@@ -346,6 +352,60 @@ function checkForNewOrders() {
                 setTimeout(checkForNewOrders, POLLING_CONFIG.interval);
             }
         });
+}
+
+// Refresh pending orders to remove orders that were processed by other devices
+function refreshPendingOrders() {
+    if (POLLING_CONFIG.pendingOrders.size === 0) return;
+    
+    fetch(`check_new_orders.php?last_order_id=0&page_load_time=${POLLING_CONFIG.pageLoadTime}&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.new_orders) {
+                updatePendingOrdersList(data.new_orders);
+            }
+        })
+        .catch(error => console.error('Refresh error:', error));
+}
+
+function updatePendingOrdersList(newOrders) {
+    const currentPendingIds = new Set(POLLING_CONFIG.pendingOrders.keys());
+    const newPendingIds = new Set(newOrders.map(order => order.order_id));
+    
+    let ordersWereRemoved = false;
+    
+    // Remove orders that are no longer pending
+    currentPendingIds.forEach(orderId => {
+        if (!newPendingIds.has(orderId)) {
+            POLLING_CONFIG.pendingOrders.delete(orderId);
+            console.log(`Order #${orderId} removed from pending list (processed by another device)`);
+            ordersWereRemoved = true;
+        }
+    });
+    
+    // Update UI if orders were removed
+    if (currentPendingIds.size !== POLLING_CONFIG.pendingOrders.size) {
+        updateUI();
+    }
+    
+    // Auto-refresh page if orders were processed by another device
+    if (ordersWereRemoved && POLLING_CONFIG.autoRefreshEnabled) {
+        autoRefreshPage();
+    }
+}
+
+// Auto refresh page when orders are processed by other devices
+function autoRefreshPage() {
+    console.log('Orders were processed by another device - refreshing page...');
+    
+    // Show refresh notification
+    showToast('Orders updated by another device. Refreshing page...', 'info');
+    
+    // Refresh after a short delay to show the notification
+    setTimeout(() => {
+        POLLING_CONFIG.isReloading = true;
+        window.location.reload();
+    }, 2000);
 }
 
 function handleNewOrders(newOrders) {
@@ -720,16 +780,20 @@ async function acceptAllPendingOrders() {
         const result = await response.json();
         
         if (result.success) {
-            showToast(`Accepted ${orderIds.length} order(s)!`, 'success');
+            showToast(`Accepted ${result.affected_rows} order(s)!`, 'success');
+            
+            // Remove accepted orders from pending list
+            result.orders_data.forEach(order => {
+                POLLING_CONFIG.pendingOrders.delete(order.order_id);
+            });
             
             // Send WhatsApp confirmation for each accepted order
-            orderIds.forEach(orderId => {
-                const order = POLLING_CONFIG.pendingOrders.get(orderId);
-                if (order && order.customer_phone) {
+            result.orders_data.forEach(order => {
+                if (order.customer_phone) {
                     // Send WhatsApp message with slight delay to avoid rate limiting
                     setTimeout(() => {
                         sendOrderConfirmation(
-                            orderId,
+                            order.order_id,
                             order.customer_phone,
                             order.customer_name || 'Customer',
                             order.order_type || 'delivery',
@@ -737,13 +801,12 @@ async function acceptAllPendingOrders() {
                             businessData.userPhone,
                             businessData.profileUrl
                         );
-                    }, orderIds.indexOf(orderId) * 1000); // Stagger messages by 1 second
+                    }, 1000);
                 }
             });
             
             // Stop the continuous sound
             stopContinuousSound();
-            POLLING_CONFIG.pendingOrders.clear();
             hideOrderActionButtons();
             document.title = document.title.replace('🔔 ', '');
             
@@ -752,7 +815,19 @@ async function acceptAllPendingOrders() {
                 window.location.href = 'orders.php';
             }, 2000);
         } else {
-            throw new Error(result.error);
+            // Handle case where orders were already processed
+            if (result.error === 'No pending orders available') {
+                showToast('Orders were already processed by another device', 'warning');
+                // Clear all pending orders since they're already processed
+                POLLING_CONFIG.pendingOrders.clear();
+                updateUI();
+                // Refresh page to show updated status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(result.error);
+            }
         }
     } catch (error) {
         console.error('Error:', error);
@@ -832,6 +907,11 @@ async function rejectAllPendingOrders() {
         if (result.success) {
             showToast(result.message || `Rejected ${result.affected_rows} order(s)!`, 'warning');
             
+            // Remove rejected orders from pending list
+            result.orders_data.forEach(order => {
+                POLLING_CONFIG.pendingOrders.delete(order.order_id);
+            });
+            
             // Send rejection notifications for each rejected order
             if (result.orders_data && result.orders_data.length > 0) {
                 console.log('Sending rejection notifications for', result.orders_data.length, 'orders');
@@ -851,43 +931,31 @@ async function rejectAllPendingOrders() {
                         );
                     }, index * 2000);
                 });
-            } else {
-                console.log('No orders_data in response, using pending orders data');
-                
-                // Fallback: Use the pending orders data
-                orderIds.forEach((orderId, index) => {
-                    const order = POLLING_CONFIG.pendingOrders.get(orderId);
-                    if (order && order.customer_phone) {
-                        setTimeout(() => {
-                            sendOrderRejection(
-                                orderId,
-                                order.customer_phone,
-                                order.customer_name || 'Customer',
-                                order.order_type || 'delivery',
-                                order.total_amount || 0,
-                                result.business_info || { business_name: 'Our Restaurant' },
-                                result.user_phone || '',
-                                result.profile_url || '',
-                                result.rejection_reason || rejectionReason
-                            );
-                        }, index * 2000);
-                    }
-                });
             }
             
             // Stop the continuous sound
             stopContinuousSound();
-            POLLING_CONFIG.pendingOrders.clear();
             hideOrderActionButtons();
             document.title = document.title.replace('🔔 ', '');
             
             // Refresh the page to show updated order status
             setTimeout(() => {
                 window.location.reload();
-            }, 5000);
+            }, 2000);
             
         } else {
-            throw new Error(result.error || 'Failed to reject orders');
+            // Handle case where orders were already processed
+            if (result.error === 'No pending orders available') {
+                showToast('Orders were already processed by another device', 'warning');
+                POLLING_CONFIG.pendingOrders.clear();
+                updateUI();
+                // Refresh page to show updated status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(result.error || 'Failed to reject orders');
+            }
         }
         
     } catch (error) {
@@ -1041,27 +1109,33 @@ function showRejectionReasonDialog() {
 }
 
 function showToast(message, type) {
-    // Your existing toast implementation
-    console.log(`${type}: ${message}`);
-    // You can add your toast UI here
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.custom-toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    // Create toast element
     const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show custom-toast`;
     toast.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        padding: 15px 20px;
-        border-radius: 5px;
-        color: white;
-        font-weight: bold;
-        z-index: 10000;
-        background-color: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545'};
+        z-index: 9999;
+        min-width: 300px;
     `;
-    toast.textContent = message;
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
     document.body.appendChild(toast);
     
+    // Auto remove after 5 seconds
     setTimeout(() => {
-        toast.remove();
-    }, 3000);
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
 }
 
 // Add CSS
@@ -1093,6 +1167,14 @@ style.textContent = `
     #rejectOrderButton:hover {
         background-color: #c82333 !important;
         transform: scale(1.05);
+    }
+    
+    .custom-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
     }
 `;
 document.head.appendChild(style);
