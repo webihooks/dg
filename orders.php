@@ -813,7 +813,7 @@ $(document).ready(function() {
     updateTimers();
 
     // Initialize Data
-    let ordersData = <?php echo json_encode($orders); ?>;
+    window.ordersData = <?php echo json_encode($orders); ?>;
 
     // Initialize all handlers
     initializeAllHandlers();
@@ -1201,6 +1201,55 @@ function showCopyFeedback(button) {
 
 
 
+// Global orders data management
+window.ordersData = <?php echo json_encode($orders); ?>;
+
+// Update global ordersData with fresh data
+function updateOrdersData(updatedOrder) {
+    if (!window.ordersData) {
+        console.warn('ordersData not initialized');
+        window.ordersData = [];
+    }
+    
+    const index = window.ordersData.findIndex(order => order.order_id == updatedOrder.order_id);
+    if (index !== -1) {
+        // Replace entire order object to ensure all fields are updated
+        window.ordersData[index] = updatedOrder;
+        console.log(`🔄 Updated ordersData for order #${updatedOrder.order_id}`, updatedOrder);
+    } else {
+        // Add new order
+        window.ordersData.push(updatedOrder);
+        console.log(`➕ Added order #${updatedOrder.order_id} to ordersData`);
+    }
+}
+
+// Force refresh of specific order data
+function refreshOrderData(orderId) {
+    console.log(`🔄 Force refreshing data for order #${orderId}`);
+    
+    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.order) {
+                updateOrdersData(data.order);
+                console.log(`✅ Refreshed order #${orderId} data`);
+            } else {
+                console.warn(`❌ Failed to refresh order #${orderId} data`);
+            }
+        })
+        .catch(error => {
+            console.error(`❌ Error refreshing order #${orderId}:`, error);
+        });
+}
+
+
+
+
+
+
+
+
+
 
 // Real-time order status updates
 let orderUpdateInterval;
@@ -1236,9 +1285,27 @@ function checkForOrderUpdates(orderIds) {
         .catch(error => console.error('Order update check failed:', error));
 }
 
+
+
+
 function updateOrderRow(order) {
     const row = document.querySelector(`tr[data-order-id="${order.order_id}"]`);
-    if (!row) return;
+    if (!row) {
+        console.warn(`❌ Row not found for order #${order.order_id}`);
+        return;
+    }
+    
+    // Get current status before update
+    const currentStatusBadge = row.querySelector('.status-badge');
+    const currentStatus = currentStatusBadge ? currentStatusBadge.textContent : '';
+    
+    // Update global data FIRST - this ensures modal has fresh data
+    updateOrdersData(order);
+    
+    // Only log if status actually changed
+    if (currentStatus !== order.status) {
+        console.log(`✅ Updated order #${order.order_id} from ${currentStatus} to ${order.status}`);
+    }
     
     // Update status badge
     const statusBadge = row.querySelector('.status-badge');
@@ -1248,22 +1315,28 @@ function updateOrderRow(order) {
     }
     
     // Update timer display based on new status
-    const timerCell = row.querySelector('.timer-column');
-    if (timerCell) {
-        if (['Completed', 'Cancelled'].includes(order.status)) {
-            // Remove timer for completed/cancelled orders
-            timerCell.innerHTML = '';
-        } else {
-            // Update timer with current data
-            updateTimerDisplay(timerCell, order.created_at, order.order_id);
-        }
-    }
+    updateTimerForOrder(row, order);
     
     // Update action buttons based on new status
     updateActionButtons(row, order.status, order.order_id);
-    
-    console.log(`✅ Updated order #${order.order_id} to status: ${order.status}`);
 }
+
+function updateTimerForOrder(row, order) {
+    const timerCell = row.querySelector('.timer-column');
+    if (!timerCell) return;
+    
+    if (['Completed', 'Cancelled'].includes(order.status)) {
+        // Remove timer for completed/cancelled orders
+        timerCell.innerHTML = '';
+    } else {
+        // Update timer with current data
+        updateTimerDisplay(timerCell, order.created_at, order.order_id);
+    }
+}
+
+
+
+
 
 function updateTimerDisplay(timerCell, createdAt, orderId) {
     const createdTime = new Date(createdAt).getTime();
@@ -1344,46 +1417,205 @@ function updateActionButtons(row, status, orderId) {
     bindEventsManually(row);
 }
 
+
+// Fallback: Fetch fresh order details from server
+function fetchOrderDetails(orderId) {
+    console.log(`🔄 Fetching fresh details for order #${orderId}`);
+    
+    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.order) {
+                // Update global data
+                updateOrdersData(data.order);
+                // Show modal with fresh data
+                updateOrderModal(data.order);
+            } else {
+                showToast('Failed to load order details', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            showToast('Error loading order details', 'danger');
+        });
+}
+
+
+
+
+
+
+
+
+
+
+
+// Enhanced modal handling
+function setupModalHandlers() {
+    // Use event delegation for dynamic buttons
+    document.addEventListener('click', function(e) {
+        // Handle view order buttons
+        if (e.target.closest('.view-order')) {
+            e.preventDefault();
+            const button = e.target.closest('.view-order');
+            const orderId = button.getAttribute('data-order-id');
+            openOrderModal(orderId);
+        }
+        
+        // Handle status update buttons (Ready, Complete, Cancel)
+        if (e.target.closest('.update-status-btn')) {
+            e.preventDefault();
+            const button = e.target.closest('.update-status-btn');
+            const orderId = button.getAttribute('data-order-id');
+            const newStatus = button.getAttribute('data-new-status');
+            
+            // After status update, force refresh data on all devices
+            handleStatusUpdateWithRefresh(orderId, newStatus, button);
+        }
+    });
+}
+
+function openOrderModal(orderId) {
+    console.log(`📋 Opening modal for order #${orderId}`);
+    
+    // First try to use existing data
+    const order = window.ordersData?.find(o => o.order_id == orderId);
+    
+    if (order && hasCompleteOrderData(order)) {
+        updateOrderModal(order);
+    } else {
+        // Data is incomplete, fetch fresh data
+        console.log(`🔄 Fetching fresh data for modal - order #${orderId}`);
+        fetchOrderDetailsForModal(orderId);
+    }
+}
+
+function hasCompleteOrderData(order) {
+    // Check if order has all necessary data for modal
+    return order && 
+           order.items !== undefined && 
+           order.customer_name !== undefined &&
+           order.total_amount !== undefined;
+}
+
+function fetchOrderDetailsForModal(orderId) {
+    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.order) {
+                updateOrdersData(data.order);
+                updateOrderModal(data.order);
+            } else {
+                showToast('Failed to load order details', 'danger');
+                console.error('Failed to fetch order details:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            showToast('Error loading order details', 'danger');
+        });
+}
+
+
+
+
+
+// Enhanced status update with data refresh
+function handleStatusUpdateWithRefresh(orderId, newStatus, button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
+    button.disabled = true;
+    
+    console.log(`🔄 Updating order #${orderId} to ${newStatus}`);
+    
+    $.ajax({
+        url: 'orders.php',
+        type: 'POST',
+        data: {
+            ajax_update_status: true,
+            order_id: orderId,
+            new_status: newStatus
+        },
+        success: function(response) {
+            try {
+                const result = typeof response === 'string' ? JSON.parse(response) : response;
+                if (result.success) {
+                    showToast(result.message || `Order marked as ${newStatus}!`, 'success');
+                    
+                    // Force refresh this order's data on ALL devices
+                    setTimeout(() => {
+                        // This will trigger the real-time update system
+                        console.log(`🔄 Status update completed - order #${orderId} is now ${newStatus}`);
+                    }, 500);
+                    
+                    // Reload page after short delay to ensure consistency
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(result.message || 'Update failed');
+                }
+            } catch (e) {
+                showToast(e.message || 'Error updating order status', 'danger');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Status update error:', error);
+            showToast('Error updating order status. Please try again.', 'danger');
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
+}
+
+
+
+
+
+
+
 // Fallback event binding function
 function bindEventsManually(row) {
-    // Bind view order button
+    // View order button
     const viewButton = row.querySelector('.view-order');
     if (viewButton) {
         viewButton.addEventListener('click', function(e) {
             e.preventDefault();
             const orderId = this.getAttribute('data-order-id');
-            const order = ordersData.find(o => o.order_id == orderId);
-            if (order) {
-                updateOrderModal(order);
-            }
+            openOrderModal(orderId);
         });
     }
     
-    // Bind cancel order button
-    const cancelButton = row.querySelector('.cancel-order');
-    if (cancelButton) {
-        cancelButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const orderId = this.getAttribute('data-order-id');
-            if (confirm('Are you sure you want to cancel this order?')) {
-                // Implement cancel logic here or reload page
-                location.reload();
-            }
-        });
-    }
-    
-    // Bind status update buttons
+    // Status update buttons (Ready, Complete)
     const statusButtons = row.querySelectorAll('.update-status-btn');
     statusButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const orderId = this.getAttribute('data-order-id');
             const newStatus = this.getAttribute('data-new-status');
-            // Implement status update logic here or reload page
-            location.reload();
+            handleStatusUpdateWithRefresh(orderId, newStatus, this);
         });
     });
+    
+    // Cancel order button
+    const cancelButton = row.querySelector('.cancel-order');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.getAttribute('data-order-id');
+            
+            if (confirm('Are you sure you want to cancel this order?')) {
+                handleStatusUpdateWithRefresh(orderId, 'Cancelled', this);
+            }
+        });
+    }
 }
+
+
+
+
 
 // Initialize all handlers
 function initializeAllHandlers() {
@@ -1399,14 +1631,20 @@ function initializeAllHandlers() {
     }
 }
 
-// Call this after your page loads
+// Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    initializeAllHandlers();
+    console.log('🚀 Initializing order management system');
     
-    // Wait a bit for the page to fully load then initialize order status updates
+    // Initialize modal handlers
+    setupModalHandlers();
+    
+    // Initialize real-time updates
     setTimeout(() => {
         initOrderStatusUpdates();
     }, 2000);
+    
+    // Log initial state
+    console.log(`📊 Initial orders data: ${window.ordersData?.length || 0} orders loaded`);
 });
 
 // Clean up when leaving the page

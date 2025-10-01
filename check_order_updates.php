@@ -26,25 +26,26 @@ if (isset($_GET['order_ids'])) {
 
     try {
         $placeholders = str_repeat('?,', count($order_ids) - 1) . '?';
-        $sql = "SELECT 
-                    o.order_id, 
-                    o.customer_name, 
-                    o.customer_phone, 
-                    o.order_type, 
-                    o.delivery_address, 
-                    o.table_number, 
-                    o.status, 
-                    o.subtotal, 
-                    o.discount_amount, 
-                    o.discount_type, 
-                    o.gst_amount, 
-                    o.delivery_charge, 
-                    o.total_amount, 
-                    o.created_at,
-                    o.order_notes,
-                    o.updated_at
-                FROM orders o 
-                WHERE o.order_id IN ($placeholders) AND o.user_id = ?";
+        // In check_order_updates.php, make sure you're fetching ALL necessary fields:
+		$sql = "SELECT 
+		            o.order_id, 
+		            o.customer_name, 
+		            o.customer_phone, 
+		            o.order_type, 
+		            o.delivery_address, 
+		            o.table_number, 
+		            o.status, 
+		            o.subtotal, 
+		            o.discount_amount, 
+		            o.discount_type, 
+		            o.gst_amount, 
+		            o.delivery_charge, 
+		            o.total_amount, 
+		            o.created_at,
+		            o.order_notes,
+		            o.updated_at
+		        FROM orders o 
+		        WHERE o.order_id IN ($placeholders) AND o.user_id = ?";
         $stmt = $conn->prepare($sql);
         
         if (!$stmt) {
