@@ -287,161 +287,16 @@ $conn->close();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 
 <style>
-    .bg-warning {
-        background: red !important;
+    .table tbody tr:last-child td {
+        border-bottom: 1px solid #dee2e6 !important;
     }
-    .status-badge {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 0.8em;
-    }
-    .status-Pending {
-        background-color: #ffc107;
-        color: #000;
-    }
-    .status-Confirmed {
-        background-color: #17a2b8;
-        color: #fff;
-    }
-    .status-Preparing {
-        background-color: #fd7e14;
-        color: #fff;
-    }
-    .status-Ready {
-        background-color: #28a745;
-        color: #fff;
-    }
-    .status-Completed {
-        background-color: orange;
-        color: #fff;
-    }
-    .status-Cancelled {
-        background-color: #dc3545;
-        color: #fff;
-    }
-    
-    .bi-arrow-repeat.spin {
-        animation: spin 1s linear infinite;
-    }
+    .btn-info.update-status-btn,.btn-info.update-status-btn.wave-pulse,.btn-success.update-status-btn{position:relative;overflow:hidden}.bg-warning{background:red!important}.status-badge{padding:5px 10px;border-radius:20px;font-weight:700;font-size:.8em}.status-Pending{background-color:#ffc107;color:#000}.status-Confirmed{background-color:#17a2b8;color:#fff}.status-Preparing{background-color:#fd7e14;color:#fff}.status-Ready{background-color:#28a745;color:#fff}.status-Completed{background-color:orange;color:#fff}.status-Cancelled{background-color:#dc3545;color:#fff}.bi-arrow-repeat.spin{animation:1s linear infinite spin}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}.timer{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;background-color:#000;font-weight:700;color:#fff}.timer.warning{background-color:orange;color:#000}.timer.danger{background-color:red;color:#fff;animation:1s infinite blink}@keyframes blink{0%,50%{opacity:1}100%,51%{opacity:.5}}.timer-column{min-width:120px}.table.order th:last-child{width:310px}.btn-info,.btn-info:hover{background:orange;border-color:orange}.custom-toast{position:fixed;top:20px;right:20px;z-index:9999;min-width:300px}.btn-success.update-status-btn{border:2px solid #198754}.btn-success.update-status-btn.pulse-border{animation:2s infinite borderPulse}@keyframes borderPulse{0%{box-shadow:0 0 0 0 rgba(25,135,84,.7);border-color:#198754}70%{box-shadow:0 0 0 10px rgba(25,135,84,0);border-color:#20c997}100%{box-shadow:0 0 0 0 rgba(25,135,84,0);border-color:#198754}}.btn-success.update-status-btn.glow-border{animation:1.5s ease-in-out infinite alternate borderGlow}@keyframes borderGlow{from{box-shadow:0 0 5px #198754,0 0 10px #198754,0 0 15px #198754;border-color:#198754}to{box-shadow:0 0 10px #20c997,0 0 20px #20c997,0 0 30px #20c997;border-color:#20c997}}.btn-info.update-status-btn.ring-pulse,.btn-success.update-status-btn.ring-pulse{position:relative}.btn-success.update-status-btn.ring-pulse::before{content:'';position:absolute;top:-4px;left:-4px;right:-4px;bottom:-4px;border:2px solid #198754;border-radius:.375rem;animation:2s linear infinite ringPulse;opacity:0}@keyframes ringPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}.btn-success.update-status-btn.double-pulse{animation:2s infinite doublePulse}@keyframes doublePulse{0%{box-shadow:0 0 0 0 rgba(25,135,84,.4),0 0 0 0 rgba(32,201,151,.4)}50%{box-shadow:0 0 0 8px rgba(25,135,84,.2),0 0 0 16px rgba(32,201,151,.1)}100%{box-shadow:0 0 0 0 rgba(25,135,84,0),0 0 0 0 rgba(32,201,151,0)}}.btn-success.update-status-btn.heartbeat{animation:1.5s ease-in-out infinite both heartbeat}@keyframes heartbeat{from{transform:scale(1);box-shadow:0 0 0 0 rgba(25,135,84,.7)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(25,135,84,0)}to{transform:scale(1);box-shadow:0 0 0 0 rgba(25,135,84,0)}}.btn-info.update-status-btn{border:2px solid #ff6c2f}.btn-info.update-status-btn.pulse-border{animation:2s infinite borderPulseOrange}@keyframes borderPulseOrange{0%{box-shadow:0 0 0 0 rgba(255,108,47,.7);border-color:#ff6c2f}70%{box-shadow:0 0 0 10px rgba(255,108,47,0);border-color:#ff8c5a}100%{box-shadow:0 0 0 0 rgba(255,108,47,0);border-color:#ff6c2f}}.btn-info.update-status-btn.glow-border{animation:1.5s ease-in-out infinite alternate borderGlowOrange}@keyframes borderGlowOrange{from{box-shadow:0 0 5px #ff6c2f,0 0 10px #ff6c2f,0 0 15px #ff6c2f;border-color:#ff6c2f}to{box-shadow:0 0 10px #ff8c5a,0 0 20px #ff8c5a,0 0 30px #ff8c5a;border-color:#ff8c5a}}.btn-info.update-status-btn.ring-pulse::before{content:'';position:absolute;top:-4px;left:-4px;right:-4px;bottom:-4px;border:2px solid #ff6c2f;border-radius:.375rem;animation:2s linear infinite ringPulseOrange;opacity:0}@keyframes ringPulseOrange{0%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}.btn-info.update-status-btn.double-pulse{animation:2s infinite doublePulseOrange}@keyframes doublePulseOrange{0%{box-shadow:0 0 0 0 rgba(255,108,47,.4),0 0 0 0 rgba(255,140,90,.4)}50%{box-shadow:0 0 0 8px rgba(255,108,47,.2),0 0 0 16px rgba(255,140,90,.1)}100%{box-shadow:0 0 0 0 rgba(255,108,47,0),0 0 0 0 rgba(255,140,90,0)}}.btn-info.update-status-btn.heartbeat{animation:1.5s ease-in-out infinite both heartbeatOrange}@keyframes heartbeatOrange{from{transform:scale(1);box-shadow:0 0 0 0 rgba(255,108,47,.7)}50%{transform:scale(1.03);box-shadow:0 0 0 8px rgba(255,108,47,0)}to{transform:scale(1);box-shadow:0 0 0 0 rgba(255,108,47,0)}}.btn-info.update-status-btn.fire-pulse{animation:2s ease-in-out infinite firePulse}@keyframes firePulse{0%,100%{box-shadow:0 0 5px #ff6c2f,0 0 10px #ff6c2f;border-color:#ff6c2f}50%{box-shadow:0 0 15px #ff8c5a,0 0 25px #ff8c5a,0 0 35px #ff8c5a;border-color:#ff8c5a}}.btn-info.update-status-btn.wave-pulse::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:2s infinite wavePulse}@keyframes wavePulse{0%{left:-100%}100%{left:100%}}@media (max-width:768px){.mobile_table .update-status-btn[data-new-status=Completed],.mobile_table .update-status-btn[data-new-status=Ready]{width:100%;margin:5px 0;display:block;padding:10px 20px;font-size:15px;text-align:left}.mobile_table td[data-label=Actions]{text-align:center}.timer-column{min-width:100px}.mobile_table tr{position:relative}.mobile_table .table td.timer-column:before{display:none}.mobile_table .table td.timer-column{border-bottom:0}.clountdown_group{position:absolute;top:76px;z-index:99;right:28px}}.whatsapp-fallback-link{background:#25d366;color:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:700;margin:5px;display:inline-block;animation:2s infinite pulse-green}@keyframes pulse-green{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,.7)}70%{transform:scale(1.05);box-shadow:0 0 0 10px rgba(37,211,102,0)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(37,211,102,0)}}
 
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    /* Timer styles */
-    .timer {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 8px;
-        border-radius: 6px;
-        background-color: #000;
-        font-weight: bold;
-        color: #fff;
-    }
-    
-    .timer.warning {
-        background-color: orange;
-        color: #000;
-    }
-    
-    .timer.danger {
-        background-color: red;
-        color: #fff;
-        animation: blink 1s infinite;
-    }
-    
-    @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0.5; }
-    }
-    
-    .timer-column {
-        min-width: 120px;
-    }
-
-    .table.order th:last-child {
-        width: 310px;
-    }
-
-    .btn-primary {
-        background: #606060;
-        border-color: #606060;
-    }
-   
-    .btn-info {
-        background: #ff6c2f;
-        border-color: #ff6c2f;
-    }
-
-    /* Toast notifications */
-    .custom-toast {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-    }
-
-    @media (max-width: 768px) {
-        .mobile_table .update-status-btn[data-new-status="Ready"],
-        .mobile_table .update-status-btn[data-new-status="Completed"] {
-            width: 100%;    
-            margin: 5px 0;
-            display: block;
-            padding: 10px 20px;
-            font-size: 15px;
-            text-align: left;
-        }
-        
-        .mobile_table td[data-label="Actions"] {
-            text-align: center;
-        }
-        
-        .timer-column {
-            min-width: 100px;
-        }
-
-        .mobile_table tr {
-            position: relative;
-        }
-
-        .mobile_table .table td.timer-column:before {
-            display: none;
-        }
-
-        .mobile_table .table td.timer-column {
-            border-bottom:0;
-        }
-
-        .clountdown_group {
-            position: absolute;
-            top: 72px;
-            z-index: 99;
-            right: 28px;
-        }
-    }
-
-    /* WhatsApp notification styles */
-    .whatsapp-fallback-link {
-        background: #25D366;
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: bold;
-        margin: 5px;
-        display: inline-block;
-        animation: pulse-green 2s infinite;
-    }
-
-    @keyframes pulse-green {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-    }
+@media (max-width: 768px) {
+  .mobile_table td[data-label="Actions"] {
+    min-height: 70px;
+  }
+}
 </style>
 
 </head>
@@ -548,23 +403,23 @@ $conn->close();
                     </span>
                 </td>
                 <td data-label="Timer" class="timer-column">
-                <div class="clountdown_group">
-                    <?php if (in_array($order['status'], ['Pending', 'Confirmed', 'Preparing', 'Ready'])): ?>
-                        <div class="timer" 
-                             data-created-at="<?php echo $order['created_at']; ?>"
-                             data-order-id="<?php echo $order['order_id']; ?>">
-                            <i class="bi bi-clock"></i>
-                            <span class="timer-display">
-                                <?php
-                                $minutes = floor($order['timer_remaining'] / 60);
-                                $seconds = $order['timer_remaining'] % 60;
-                                echo sprintf('%02d:%02d', $minutes, $seconds);
-                                ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </td>
+                    <div class="clountdown_group">
+                        <?php if (in_array($order['status'], ['Pending', 'Confirmed', 'Preparing', 'Ready'])): ?>
+                            <div class="timer" 
+                                 data-created-at="<?php echo $order['created_at']; ?>"
+                                 data-order-id="<?php echo $order['order_id']; ?>">
+                                <i class="bi bi-clock"></i>
+                                <span class="timer-display">
+                                    <?php
+                                    $minutes = floor($order['timer_remaining'] / 60);
+                                    $seconds = $order['timer_remaining'] % 60;
+                                    echo sprintf('%02d:%02d', $minutes, $seconds);
+                                    ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </td>
                 <td data-label="Actions">
                     <button class="btn btn-sm btn-primary view-order" 
                             data-order-id="<?php echo $order['order_id']; ?>"
@@ -769,8 +624,90 @@ $conn->close();
     <script src="assets/js/app.js"></script>
     
 <script>
+/**
+ * Apply border pulse animation to Complete buttons
+ * Adds visual emphasis to the action button
+ */
+function applyCompleteButtonAnimations() {
+    // Apply pulse animation to all Complete buttons
+    $('.update-status-btn[data-new-status="Completed"]').addClass('pulse-border');
+    
+    // Optional: Apply different animations based on conditions
+    $('.update-status-btn[data-new-status="Completed"]').each(function() {
+        const $btn = $(this);
+        const orderId = $btn.data('order-id');
+        
+        // Example: Apply different animations based on order age
+        const $createdAt = $btn.closest('tr').find('td[data-label="Date & Time"]').text();
+        
+        // You can add custom logic here based on your requirements
+        if (orderId % 2 === 0) { // Example condition
+            $btn.addClass('fire-pulse');
+        } else {
+            $btn.addClass('pulse-border');
+        }
+    });
+}
+
+// Call this function after page load and after any DOM updates
 $(document).ready(function() {
-    // Timer countdown functionality
+    applyCompleteButtonAnimations();
+});
+
+// Re-apply animations after status updates
+function reapplyCompleteAnimations() {
+    $('.update-status-btn[data-new-status="Completed"]').removeClass('pulse-border glow-border ring-pulse double-pulse heartbeat fire-pulse wave-pulse');
+    applyCompleteButtonAnimations();
+}
+
+
+
+/**
+ * Apply border pulse animation to Ready buttons
+ * Adds visual emphasis to the action button
+ */
+function applyButtonAnimations() {
+    // Apply pulse animation to all Ready buttons
+    $('.update-status-btn[data-new-status="Ready"]').addClass('pulse-border');
+    
+    // Optional: Apply different animations based on order status or other conditions
+    $('.update-status-btn[data-new-status="Ready"]').each(function() {
+        const $btn = $(this);
+        const orderId = $btn.data('order-id');
+        
+        // Example: Apply different animations based on timer status
+        const $timer = $btn.closest('tr').find('.timer');
+        if ($timer.hasClass('danger')) {
+            // If timer is in danger state, use heartbeat animation
+            $btn.addClass('heartbeat');
+        } else if ($timer.hasClass('warning')) {
+            // If timer is in warning state, use double pulse
+            $btn.addClass('double-pulse');
+        } else {
+            // Default pulse animation
+            $btn.addClass('pulse-border');
+        }
+    });
+}
+
+// Call this function after page load and after any DOM updates
+$(document).ready(function() {
+    applyButtonAnimations();
+});
+
+// Re-apply animations after status updates
+function reapplyAnimations() {
+    $('.update-status-btn').removeClass('pulse-border glow-border ring-pulse double-pulse heartbeat');
+    applyButtonAnimations();
+}
+
+$(document).ready(function() {
+    /**
+     * Timer countdown functionality
+     * Updates all visible timers every second
+     * Shows warning/danger states based on time remaining
+     * Completely hides timer for completed orders
+     */
     function updateTimers() {
         $('.timer').each(function() {
             const $timer = $(this);
@@ -778,29 +715,63 @@ $(document).ready(function() {
             const createdAt = $timer.data('created-at');
             const orderId = $timer.data('order-id');
             
+            // Get the order status from multiple possible sources
+            let orderStatus = '';
+            
+            // Try to get status from status badge
+            const $statusBadge = $timer.closest('tr').find('.status-badge');
+            if ($statusBadge.length) {
+                orderStatus = $statusBadge.text();
+            }
+            
+            // If status badge not found, try to get from global ordersData
+            if (!orderStatus && window.ordersData) {
+                const order = window.ordersData.find(o => o.order_id == orderId);
+                if (order) {
+                    orderStatus = order.status;
+                }
+            }
+            
+            // Remove timer completely for completed orders
+            if (orderStatus === 'Completed') {
+                $timer.closest('.clountdown_group').html('');
+                return;
+            }
+            
+            // Also remove timer for cancelled orders if needed
+            if (orderStatus === 'Cancelled') {
+                $timer.closest('.clountdown_group').html('');
+                return;
+            }
+            
             const createdTime = new Date(createdAt).getTime();
             const currentTime = new Date().getTime();
-            const timeElapsed = Math.floor((currentTime - createdTime) / 1000); // in seconds
-            const timeLimit = 30 * 60; // 30 minutes in seconds
+            
+            // Check if createdTime is valid
+            if (isNaN(createdTime)) {
+                console.warn('Invalid created time for order:', orderId);
+                $display.text('00:00');
+                return;
+            }
+            
+            const timeElapsed = Math.floor((currentTime - createdTime) / 1000);
+            const timeLimit = 30 * 60;
             const timeRemaining = timeLimit - timeElapsed;
             
             if (timeRemaining <= 0) {
-                // Timer expired - show 00:00 in red
                 $display.text('00:00');
                 $timer.removeClass('warning').addClass('danger');
                 return;
             }
             
-            // Update timer display
             const minutes = Math.floor(timeRemaining / 60);
             const seconds = timeRemaining % 60;
             $display.text(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
             
-            // Update styling based on time remaining
             $timer.removeClass('warning danger');
-            if (timeRemaining <= 10 * 60) { // 10 minutes or less
+            if (timeRemaining <= 10 * 60) {
                 $timer.addClass('danger');
-            } else if (timeRemaining <= 15 * 60) { // 15 minutes or less
+            } else if (timeRemaining <= 15 * 60) {
                 $timer.addClass('warning');
             }
         });
@@ -812,250 +783,53 @@ $(document).ready(function() {
     // Initial timer update
     updateTimers();
 
-    // Initialize Data
+    // Initialize Data - store orders data globally for fallback use
     window.ordersData = <?php echo json_encode($orders); ?>;
 
     // Initialize all handlers
     initializeAllHandlers();
 
-    // Order Management Functions
-function bindOrderHandlers() {
-    $('.view-order').off('click').on('click', viewOrderHandler);
-    $('.cancel-order').off('click').on('click', cancelOrderHandler);
-}
-
-function handleStatusUpdateButtons() {
-    $('.update-status-btn').off('click').on('click', function(e) {
-        e.preventDefault();
-        
-        const orderId = $(this).data('order-id');
-        const newStatus = $(this).data('new-status');
-        
-        updateOrderStatusDirect(orderId, newStatus, $(this));
-    });
-}
-
-function viewOrderHandler() {
-    const orderId = $(this).data('order-id');
-    const order = ordersData.find(o => o.order_id == orderId);
-    
-    if (!order) {
-        console.error('Order not found:', orderId);
-        showToast('Order not loaded. Please refresh the page.', 'danger');
-        return;
+    /**
+     * Bind order handlers for view and cancel buttons
+     * Uses event delegation to handle dynamically created elements
+     */
+    function bindOrderHandlers() {
+        $('.view-order').off('click').on('click', viewOrderHandler);
+        $('.cancel-order').off('click').on('click', cancelOrderHandler);
     }
-    
-    updateOrderModal(order);
-}
 
-function cancelOrderHandler(e) {
-    e.preventDefault();
-    const orderId = $(this).data('order-id');
-    
-    if (confirm('Are you sure you want to cancel this order?')) {
-        const button = $(this);
-        const originalText = button.html();
-        button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
-        
-        $.ajax({
-            url: 'orders.php',
-            type: 'POST',
-            data: {
-                ajax_cancel_order: true,
-                order_id: orderId
-            },
-            success: function(response) {
-                try {
-                    const result = typeof response === 'string' ? JSON.parse(response) : response;
-                    if (result.success) {
-                        showToast(result.message, 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        throw new Error(result.message || 'Cancellation failed');
-                    }
-                } catch (e) {
-                    showToast(e.message, 'danger');
-                    button.html(originalText).prop('disabled', false);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Cancellation error:', error);
-                showToast('Error cancelling order. Please try again.', 'danger');
-                button.html(originalText).prop('disabled', false);
-            }
+    /**
+     * Handle status update buttons (Ready, Complete)
+     * Binds click events to status update buttons
+     */
+    function handleStatusUpdateButtons() {
+        $('.update-status-btn').off('click').on('click', function(e) {
+            e.preventDefault();
+            
+            const orderId = $(this).data('order-id');
+            const newStatus = $(this).data('new-status');
+            
+            updateOrderStatusDirect(orderId, newStatus, $(this));
         });
     }
-}
 
-function updateOrderStatusDirect(orderId, newStatus, button) {
-    const originalText = button.html();
-    button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
-    
-    $.ajax({
-        url: 'orders.php',
-        type: 'POST',
-        data: {
-            ajax_update_status: true,
-            order_id: orderId,
-            new_status: newStatus
-        },
-        success: function(response) {
-            try {
-                const result = typeof response === 'string' ? JSON.parse(response) : response;
-                if (result.success) {
-                    showToast(result.message || `Order marked as ${newStatus}!`, 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    throw new Error(result.message || 'Update failed');
-                }
-            } catch (e) {
-                showToast(e.message || 'Error updating order status', 'danger');
-                button.html(originalText).prop('disabled', false);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Status update error:', error);
-            showToast('Error updating order status. Please try again.', 'danger');
-            button.html(originalText).prop('disabled', false);
-        }
-    });
-}
-
-function showToast(message, type) {
-    // Remove existing toasts
-    $('.custom-toast').remove();
-    
-    // Create toast element
-    const toast = $(`
-        <div class="alert alert-${type} alert-dismissible fade show custom-toast" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `);
-    
-    $('body').append(toast);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        toast.alert('close');
-    }, 5000);
-}
-
+    /**
+     * View order handler - opens modal with order details
+     * Always fetches fresh data from server to ensure accuracy
+     * @param {Event} e - Click event
+     */
     function viewOrderHandler() {
         const orderId = $(this).data('order-id');
-        const order = ordersData.find(o => o.order_id == orderId);
+        console.log('🔍 Opening modal for order:', orderId);
         
-        if (!order) {
-            console.error('Order not found:', orderId);
-            showToast('Order not loaded. Please refresh the page.', 'danger');
-            return;
-        }
-        
-        updateOrderModal(order);
+        // Always fetch fresh data from server for modal to ensure accuracy
+        fetchOrderDetailsForModal(orderId);
     }
 
-    function updateOrderModal(order) {
-        // Basic info
-        $('#modalOrderId').text(order.order_id);
-        $('#modalCustomerName').text(order.customer_name || 'Not specified');
-        $('#modalCustomerPhone').text(order.customer_phone || 'Not specified');
-        
-        // Order type specifics
-        if (order.order_type === 'delivery') {
-            $('#modalDeliveryAddress').show().find('#modalAddressText').text(order.delivery_address || 'Not specified');
-            $('#modalTableNumber').hide();
-        } else {
-            $('#modalDeliveryAddress').hide();
-            $('#modalTableNumber').show().find('#modalTableText').text(order.table_number || 'Not specified');
-        }
-        
-        // Order summary
-        $('#modalOrderType').text(formatOrderType(order));
-        $('#modalOrderDate').text(new Date(order.created_at).toLocaleString());
-        
-        // Status
-        const statusBadge = $('#modalOrderStatus');
-        statusBadge.text(order.status)
-            .removeClass().addClass('status-badge status-' + order.status);
-        
-        // Items
-        renderOrderItems(order.items || []);
-
-        // Order notes
-        const $notesContainer = $('#modalOrderNotesContainer');
-        const $notesText = $('#modalOrderNotes');
-        
-        if (order.order_notes) {
-            $notesContainer.show();
-            $notesText.text(order.order_notes);
-        } else {
-            $notesContainer.hide();
-        }
-        
-        // Financials
-        updateFinancials(order);
-        
-        // Form fields
-        $('#modalFormOrderId').val(order.order_id);
-        $('#modalCancelOrderId').val(order.order_id);
-        $('#modalStatusSelect').val(order.status);
-        
-        // Action buttons
-        const showActions = ['Pending', 'Confirmed', 'Preparing'].includes(order.status);
-        $('#statusUpdateForm, #cancelOrderForm').toggle(showActions);
-    }
-
-    function renderOrderItems(items) {
-        const $container = $('#modalOrderItems').empty();
-        
-        if (items.length === 0) {
-            $container.append('<tr><td colspan="4" class="text-center">No items found</td></tr>');
-            return;
-        }
-        
-        items.forEach(item => {
-            const total = (parseFloat(item.price || 0) * parseInt(item.quantity || 0));
-            $container.append(`
-                <tr>
-                    <td>${item.product_name || 'Unnamed'}</td>
-                    <td>₹${parseFloat(item.price || 0)}</td>
-                    <td>${item.quantity}</td>
-                    <td>₹${total}</td>
-                </tr>
-            `);
-        });
-    }
-
-    function updateFinancials(order) {
-        $('#modalSubtotal').text(parseFloat(order.subtotal || 0));
-        
-        // Toggle and set discount
-        const discountAmount = parseFloat(order.discount_amount || 0);
-        $('#modalDiscountRow').toggle(discountAmount > 0);
-        if (discountAmount > 0) {
-            $('#modalDiscountAmount').text(discountAmount);
-            $('#modalDiscountType').text(order.discount_type || 'Discount');
-        }
-        
-        // Toggle and set GST
-        const gstAmount = parseFloat(order.gst_amount || 0);
-        $('#modalGstRow').toggle(gstAmount > 0);
-        if (gstAmount > 0) $('#modalGstAmount').text(gstAmount);
-        
-        // Toggle and set delivery
-        const deliveryCharge = parseFloat(order.delivery_charge || 0);
-        $('#modalDeliveryRow').toggle(deliveryCharge > 0);
-        if (deliveryCharge > 0) $('#modalDeliveryCharge').text(deliveryCharge);
-        
-        // Total
-        $('#modalTotalAmount').text(parseFloat(order.total_amount || 0));
-    }
-
-    // Order Actions
+    /**
+     * Cancel order handler - confirms and cancels order via AJAX
+     * @param {Event} e - Click event
+     */
     function cancelOrderHandler(e) {
         e.preventDefault();
         const orderId = $(this).data('order-id');
@@ -1097,12 +871,252 @@ function showToast(message, type) {
         }
     }
 
+    /**
+     * Update order status directly via AJAX
+     * Handles status updates for Ready and Complete buttons
+     * @param {number} orderId - ID of the order to update
+     * @param {string} newStatus - New status to set
+     * @param {jQuery} button - Button element that triggered the update
+     */
+    function updateOrderStatusDirect(orderId, newStatus, button) {
+        const originalText = button.html();
+        button.html('<i class="bi bi-arrow-repeat spin"></i>').prop('disabled', true);
+        
+        $.ajax({
+            url: 'orders.php',
+            type: 'POST',
+            data: {
+                ajax_update_status: true,
+                order_id: orderId,
+                new_status: newStatus
+            },
+            success: function(response) {
+                try {
+                    const result = typeof response === 'string' ? JSON.parse(response) : response;
+                    if (result.success) {
+                        showToast(result.message || `Order marked as ${newStatus}!`, 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(result.message || 'Update failed');
+                    }
+                } catch (e) {
+                    showToast(e.message || 'Error updating order status', 'danger');
+                    button.html(originalText).prop('disabled', false);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Status update error:', error);
+                showToast('Error updating order status. Please try again.', 'danger');
+                button.html(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    /**
+     * Show toast notification
+     * Displays temporary notification messages to user
+     * @param {string} message - Message to display
+     * @param {string} type - Bootstrap alert type (success, danger, warning, info)
+     */
+    function showToast(message, type) {
+        $('.custom-toast').remove();
+        
+        const toast = $(`
+            <div class="alert alert-${type} alert-dismissible fade show custom-toast" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+        
+        $('body').append(toast);
+        
+        setTimeout(() => {
+            toast.alert('close');
+        }, 5000);
+    }
+
+    /**
+     * Fetch fresh order details from server for modal
+     * Always gets latest data from server to ensure accuracy
+     * @param {number} orderId - ID of the order to fetch details for
+     */
+    function fetchOrderDetailsForModal(orderId) {
+        console.log('🔄 Fetching fresh order details for modal - order #' + orderId);
+        
+        // Show loading state
+        $('#modalOrderId').text('Loading...');
+        $('#modalCustomerName').text('Loading...');
+        $('#modalCustomerPhone').text('Loading...');
+        
+        fetch(`get_restaurant_order_details.php?order_id=${orderId}&t=${Date.now()}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.order) {
+                    console.log('✅ Fresh order data loaded for order #' + orderId, data.order);
+                    updateOrderModal(data.order);
+                } else {
+                    throw new Error(data.error || 'Failed to load order details');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+                showToast('Error loading order details. Please try again.', 'danger');
+                
+                // Fallback: Try to use existing data if server fetch fails
+                const order = window.ordersData?.find(o => o.order_id == orderId);
+                if (order) {
+                    console.log('🔄 Using fallback data for order #' + orderId);
+                    updateOrderModal(order);
+                } else {
+                    showToast('Could not load order details.', 'danger');
+                }
+            });
+    }
+
+    /**
+     * Update order modal with order data
+     * Populates all modal fields with order information
+     * @param {Object} order - Order data object
+     */
+    function updateOrderModal(order) {
+        console.log('📋 Updating modal with order data for order #' + order.order_id, order);
+        
+        // Reset modal first to avoid stale data
+        $('#modalOrderId').text('');
+        $('#modalCustomerName').text('');
+        $('#modalCustomerPhone').text('');
+        $('#modalOrderItems').empty();
+        
+        // Basic info
+        $('#modalOrderId').text(order.order_id || 'N/A');
+        $('#modalCustomerName').text(order.customer_name || 'Not specified');
+        $('#modalCustomerPhone').text(order.customer_phone || 'Not specified');
+        
+        // Order type specifics
+        if (order.order_type === 'delivery') {
+            $('#modalDeliveryAddress').show().find('#modalAddressText').text(order.delivery_address || 'Not specified');
+            $('#modalTableNumber').hide();
+        } else if (order.order_type === 'dining') {
+            $('#modalDeliveryAddress').hide();
+            $('#modalTableNumber').show().find('#modalTableText').text(order.table_number || 'Not specified');
+        } else {
+            $('#modalDeliveryAddress').hide();
+            $('#modalTableNumber').hide();
+        }
+        
+        // Order summary
+        $('#modalOrderType').text(formatOrderType(order));
+        $('#modalOrderDate').text(new Date(order.created_at).toLocaleString());
+        
+        // Status
+        const statusBadge = $('#modalOrderStatus');
+        statusBadge.text(order.status || 'Unknown')
+            .removeClass().addClass('status-badge status-' + (order.status || 'Pending'));
+        
+        // Items
+        renderOrderItems(order.items || []);
+        
+        // Order notes
+        const $notesContainer = $('#modalOrderNotesContainer');
+        const $notesText = $('#modalOrderNotes');
+        
+        if (order.order_notes) {
+            $notesContainer.show();
+            $notesText.text(order.order_notes);
+        } else {
+            $notesContainer.hide();
+        }
+        
+        // Financials
+        updateFinancials(order);
+        
+        // Form fields
+        $('#modalFormOrderId').val(order.order_id);
+        $('#modalCancelOrderId').val(order.order_id);
+        $('#modalStatusSelect').val(order.status);
+        
+        // Action buttons
+        const showActions = ['Pending', 'Confirmed', 'Preparing'].includes(order.status);
+        $('#statusUpdateForm, #cancelOrderForm').toggle(showActions);
+    }
+
+    /**
+     * Render order items in modal table
+     * Creates table rows for each order item
+     * @param {Array} items - Array of order items
+     */
+    function renderOrderItems(items) {
+        const $container = $('#modalOrderItems').empty();
+        
+        if (!items || items.length === 0) {
+            $container.append('<tr><td colspan="4" class="text-center">No items found</td></tr>');
+            return;
+        }
+        
+        items.forEach(item => {
+            const total = (parseFloat(item.price || 0) * parseInt(item.quantity || 0));
+            $container.append(`
+                <tr>
+                    <td>${item.product_name || 'Unnamed Item'}</td>
+                    <td>₹${parseFloat(item.price || 0).toFixed(2)}</td>
+                    <td>${item.quantity || 1}</td>
+                    <td>₹${total.toFixed(2)}</td>
+                </tr>
+            `);
+        });
+    }
+
+    /**
+     * Update financial information in modal
+     * Displays subtotal, discounts, GST, delivery charges, and total
+     * @param {Object} order - Order data object
+     */
+    function updateFinancials(order) {
+        $('#modalSubtotal').text(parseFloat(order.subtotal || 0).toFixed(2));
+        
+        // Toggle and set discount
+        const discountAmount = parseFloat(order.discount_amount || 0);
+        $('#modalDiscountRow').toggle(discountAmount > 0);
+        if (discountAmount > 0) {
+            $('#modalDiscountAmount').text(discountAmount.toFixed(2));
+            $('#modalDiscountType').text(order.discount_type || 'Discount');
+        }
+        
+        // Toggle and set GST
+        const gstAmount = parseFloat(order.gst_amount || 0);
+        $('#modalGstRow').toggle(gstAmount > 0);
+        if (gstAmount > 0) $('#modalGstAmount').text(gstAmount.toFixed(2));
+        
+        // Toggle and set delivery
+        const deliveryCharge = parseFloat(order.delivery_charge || 0);
+        $('#modalDeliveryRow').toggle(deliveryCharge > 0);
+        if (deliveryCharge > 0) $('#modalDeliveryCharge').text(deliveryCharge.toFixed(2));
+        
+        // Total
+        $('#modalTotalAmount').text(parseFloat(order.total_amount || 0).toFixed(2));
+    }
+
+    /**
+     * Cancel order form submission handler
+     * Prevents default form submission and triggers cancel order via button click
+     */
     $('#cancelOrderForm').submit(function(e) {
         e.preventDefault();
         const orderId = $('#modalCancelOrderId').val();
         $(`.cancel-order[data-order-id="${orderId}"]`).click();
     });
 
+    /**
+     * Status update form submission handler
+     * Prevents default form submission and triggers status update
+     */
     $('#statusUpdateForm').submit(function(e) {
         e.preventDefault();
         const orderId = $('#modalFormOrderId').val();
@@ -1111,18 +1125,12 @@ function showToast(message, type) {
         updateOrderStatusDirect(orderId, newStatus, $(this).find('button[type="submit"]'));
     });
 
-    function updateOrderStatusUI(orderId, newStatus) {
-        const $badge = $(`tr:has(button[data-order-id="${orderId}"]) .status-badge`);
-        
-        $badge.text(newStatus)
-            .removeClass()
-            .addClass(`status-badge status-${newStatus}`);
-        
-        $(`.cancel-order[data-order-id="${orderId}"]`)
-            .toggle(['Pending', 'Confirmed', 'Preparing'].includes(newStatus));
-    }
-
-    // UI Helpers
+    /**
+     * Format order type for display
+     * Converts order type to user-friendly display text
+     * @param {Object} order - Order data object
+     * @returns {string} Formatted order type string
+     */
     function formatOrderType(order) {
         if (!order.order_type) return 'Unknown type';
         return order.order_type === 'dining' 
@@ -1130,528 +1138,90 @@ function showToast(message, type) {
             : order.order_type.charAt(0).toUpperCase() + order.order_type.slice(1);
     }
 
-    // Initialize all handlers
+    /**
+     * Initialize all event handlers
+     * Sets up click handlers for view, cancel, and status update buttons
+     */
     function initializeAllHandlers() {
         bindOrderHandlers();
         handleStatusUpdateButtons();
     }
-});
 
-// Copy functionality
-$(document).on('click', '.copy-btn', function() {
-    const targetId = $(this).data('target');
-    const textToCopy = $(`#${targetId}`).text().trim();
-    
-    // Use the modern Clipboard API
-    if (navigator.clipboard && window.isSecureContext) {
-        // Use the Clipboard API for secure contexts (HTTPS)
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            showCopyFeedback($(this));
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            fallbackCopyText(textToCopy, $(this));
-        });
-    } else {
-        // Fallback for non-secure contexts (HTTP)
-        fallbackCopyText(textToCopy, $(this));
-    }
-});
-
-function fallbackCopyText(text, button) {
-    // Create a temporary textarea for fallback method
-    const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = text;
-    tempTextArea.style.position = 'fixed';
-    tempTextArea.style.left = '-999999px';
-    tempTextArea.style.top = '-999999px';
-    document.body.appendChild(tempTextArea);
-    tempTextArea.focus();
-    tempTextArea.select();
-    
-    try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            showCopyFeedback(button);
+    /**
+     * Copy functionality for text elements
+     * Allows copying of customer name, phone, and address to clipboard
+     */
+    $(document).on('click', '.copy-btn', function() {
+        const targetId = $(this).data('target');
+        const textToCopy = $(`#${targetId}`).text().trim();
+        
+        // Use the modern Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            // Use the Clipboard API for secure contexts (HTTPS)
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showCopyFeedback($(this));
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                fallbackCopyText(textToCopy, $(this));
+            });
         } else {
-            throw new Error('Fallback copy failed');
+            // Fallback for non-secure contexts (HTTP)
+            fallbackCopyText(textToCopy, $(this));
         }
-    } catch (err) {
-        console.error('Fallback copy failed: ', err);
-        // Last resort - show text for manual copy
-        alert('Please copy manually: ' + text);
-    } finally {
-        document.body.removeChild(tempTextArea);
-    }
-}
+    });
 
-function showCopyFeedback(button) {
-    const originalHtml = button.html();
-    button.html('<i class="bi bi-check"></i> Copied!').prop('disabled', true);
-    
-    // Revert button text after 2 seconds
-    setTimeout(() => {
-        button.html(originalHtml).prop('disabled', false);
-    }, 2000);
-}
-
-
-
-
-
-
-
-
-// Global orders data management
-window.ordersData = <?php echo json_encode($orders); ?>;
-
-// Update global ordersData with fresh data
-function updateOrdersData(updatedOrder) {
-    if (!window.ordersData) {
-        console.warn('ordersData not initialized');
-        window.ordersData = [];
-    }
-    
-    const index = window.ordersData.findIndex(order => order.order_id == updatedOrder.order_id);
-    if (index !== -1) {
-        // Replace entire order object to ensure all fields are updated
-        window.ordersData[index] = updatedOrder;
-        console.log(`🔄 Updated ordersData for order #${updatedOrder.order_id}`, updatedOrder);
-    } else {
-        // Add new order
-        window.ordersData.push(updatedOrder);
-        console.log(`➕ Added order #${updatedOrder.order_id} to ordersData`);
-    }
-}
-
-// Force refresh of specific order data
-function refreshOrderData(orderId) {
-    console.log(`🔄 Force refreshing data for order #${orderId}`);
-    
-    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.order) {
-                updateOrdersData(data.order);
-                console.log(`✅ Refreshed order #${orderId} data`);
-            } else {
-                console.warn(`❌ Failed to refresh order #${orderId} data`);
-            }
-        })
-        .catch(error => {
-            console.error(`❌ Error refreshing order #${orderId}:`, error);
-        });
-}
-
-
-
-
-
-
-
-
-
-
-// Real-time order status updates
-let orderUpdateInterval;
-
-function initOrderStatusUpdates() {
-    // Get all current order IDs on the page
-    const currentOrderIds = Array.from(document.querySelectorAll('tr[data-order-id]'))
-        .map(el => parseInt(el.getAttribute('data-order-id')))
-        .filter(id => !isNaN(id));
-    
-    if (currentOrderIds.length === 0) return;
-    
-    // Start checking for updates every 10 seconds
-    orderUpdateInterval = setInterval(() => {
-        checkForOrderUpdates(currentOrderIds);
-    }, 10000);
-    
-    console.log(`🔄 Order status updates initialized for ${currentOrderIds.length} orders`);
-}
-
-function checkForOrderUpdates(orderIds) {
-    if (orderIds.length === 0) return;
-    
-    fetch(`check_order_updates.php?order_ids=${orderIds.join(',')}&t=${Date.now()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.updated_orders && data.updated_orders.length > 0) {
-                data.updated_orders.forEach(order => {
-                    updateOrderRow(order);
-                });
-            }
-        })
-        .catch(error => console.error('Order update check failed:', error));
-}
-
-
-
-
-function updateOrderRow(order) {
-    const row = document.querySelector(`tr[data-order-id="${order.order_id}"]`);
-    if (!row) {
-        console.warn(`❌ Row not found for order #${order.order_id}`);
-        return;
-    }
-    
-    // Get current status before update
-    const currentStatusBadge = row.querySelector('.status-badge');
-    const currentStatus = currentStatusBadge ? currentStatusBadge.textContent : '';
-    
-    // Update global data FIRST - this ensures modal has fresh data
-    updateOrdersData(order);
-    
-    // Only log if status actually changed
-    if (currentStatus !== order.status) {
-        console.log(`✅ Updated order #${order.order_id} from ${currentStatus} to ${order.status}`);
-    }
-    
-    // Update status badge
-    const statusBadge = row.querySelector('.status-badge');
-    if (statusBadge) {
-        statusBadge.textContent = order.status;
-        statusBadge.className = `status-badge status-${order.status}`;
-    }
-    
-    // Update timer display based on new status
-    updateTimerForOrder(row, order);
-    
-    // Update action buttons based on new status
-    updateActionButtons(row, order.status, order.order_id);
-}
-
-function updateTimerForOrder(row, order) {
-    const timerCell = row.querySelector('.timer-column');
-    if (!timerCell) return;
-    
-    if (['Completed', 'Cancelled'].includes(order.status)) {
-        // Remove timer for completed/cancelled orders
-        timerCell.innerHTML = '';
-    } else {
-        // Update timer with current data
-        updateTimerDisplay(timerCell, order.created_at, order.order_id);
-    }
-}
-
-
-
-
-
-function updateTimerDisplay(timerCell, createdAt, orderId) {
-    const createdTime = new Date(createdAt).getTime();
-    const currentTime = new Date().getTime();
-    const timeElapsed = Math.floor((currentTime - createdTime) / 1000);
-    const timeLimit = 30 * 60; // 30 minutes in seconds
-    const timeRemaining = timeLimit - timeElapsed;
-    
-    let timerHtml = '';
-    if (timeRemaining > 0) {
-        const minutes = Math.floor(timeRemaining / 60);
-        const seconds = timeRemaining % 60;
-        const timerClass = timeRemaining <= 600 ? 'danger' : (timeRemaining <= 900 ? 'warning' : '');
+    /**
+     * Fallback copy text method for older browsers
+     * Uses deprecated execCommand for clipboard operations
+     * @param {string} text - Text to copy
+     * @param {jQuery} button - Button element that triggered copy
+     */
+    function fallbackCopyText(text, button) {
+        // Create a temporary textarea for fallback method
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = text;
+        tempTextArea.style.position = 'fixed';
+        tempTextArea.style.left = '-999999px';
+        tempTextArea.style.top = '-999999px';
+        document.body.appendChild(tempTextArea);
+        tempTextArea.focus();
+        tempTextArea.select();
         
-        timerHtml = `
-            <div class="clountdown_group">
-                <div class="timer ${timerClass}" 
-                     data-created-at="${createdAt}"
-                     data-order-id="${orderId}">
-                    <i class="bi bi-clock"></i>
-                    <span class="timer-display">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</span>
-                </div>
-            </div>
-        `;
-    }
-    
-    timerCell.innerHTML = timerHtml;
-}
-
-function updateActionButtons(row, status, orderId) {
-    const actionsCell = row.querySelector('td[data-label="Actions"]');
-    if (!actionsCell) return;
-    
-    let buttonsHtml = `
-        <button class="btn btn-sm btn-primary view-order" 
-                data-order-id="${orderId}"
-                data-bs-toggle="modal" 
-                data-bs-target="#orderModal">
-            <i class="bi bi-eye"></i> View
-        </button>
-    `;
-    
-    // Add cancel button for pending, confirmed, preparing orders
-    if (['Pending', 'Confirmed', 'Preparing'].includes(status)) {
-        buttonsHtml += `
-            <button class="btn btn-sm btn-danger cancel-order" 
-                    data-order-id="${orderId}">
-                <i class="bi bi-x-circle"></i> Cancel
-            </button>
-        `;
-    }
-    
-    // Add ready button for pending, confirmed, preparing orders
-    if (['Pending', 'Confirmed', 'Preparing'].includes(status)) {
-        buttonsHtml += `
-            <button class="btn btn-sm btn-success update-status-btn" 
-                    data-order-id="${orderId}"
-                    data-new-status="Ready">
-                <i class="bi bi-check-circle"></i> Ready
-            </button>
-        `;
-    }
-    
-    // Add complete button for ready orders
-    if (status === 'Ready') {
-        buttonsHtml += `
-            <button class="btn btn-sm btn-info update-status-btn" 
-                    data-order-id="${orderId}"
-                    data-new-status="Completed">
-                <i class="bi bi-check-all"></i> Complete
-            </button>
-        `;
-    }
-    
-    actionsCell.innerHTML = buttonsHtml;
-    
-    // Always use manual event binding for the updated row
-    bindEventsManually(row);
-}
-
-
-// Fallback: Fetch fresh order details from server
-function fetchOrderDetails(orderId) {
-    console.log(`🔄 Fetching fresh details for order #${orderId}`);
-    
-    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.order) {
-                // Update global data
-                updateOrdersData(data.order);
-                // Show modal with fresh data
-                updateOrderModal(data.order);
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCopyFeedback(button);
             } else {
-                showToast('Failed to load order details', 'danger');
+                throw new Error('Fallback copy failed');
             }
-        })
-        .catch(error => {
-            console.error('Error fetching order details:', error);
-            showToast('Error loading order details', 'danger');
-        });
-}
-
-
-
-
-
-
-
-
-
-
-
-// Enhanced modal handling
-function setupModalHandlers() {
-    // Use event delegation for dynamic buttons
-    document.addEventListener('click', function(e) {
-        // Handle view order buttons
-        if (e.target.closest('.view-order')) {
-            e.preventDefault();
-            const button = e.target.closest('.view-order');
-            const orderId = button.getAttribute('data-order-id');
-            openOrderModal(orderId);
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+            // Last resort - show text for manual copy
+            alert('Please copy manually: ' + text);
+        } finally {
+            document.body.removeChild(tempTextArea);
         }
+    }
+
+    /**
+     * Show copy feedback on button
+     * Temporarily changes button text to indicate successful copy
+     * @param {jQuery} button - Button element to show feedback on
+     */
+    function showCopyFeedback(button) {
+        const originalHtml = button.html();
+        button.html('<i class="bi bi-check"></i> Copied!').prop('disabled', true);
         
-        // Handle status update buttons (Ready, Complete, Cancel)
-        if (e.target.closest('.update-status-btn')) {
-            e.preventDefault();
-            const button = e.target.closest('.update-status-btn');
-            const orderId = button.getAttribute('data-order-id');
-            const newStatus = button.getAttribute('data-new-status');
-            
-            // After status update, force refresh data on all devices
-            handleStatusUpdateWithRefresh(orderId, newStatus, button);
-        }
-    });
-}
-
-function openOrderModal(orderId) {
-    console.log(`📋 Opening modal for order #${orderId}`);
-    
-    // First try to use existing data
-    const order = window.ordersData?.find(o => o.order_id == orderId);
-    
-    if (order && hasCompleteOrderData(order)) {
-        updateOrderModal(order);
-    } else {
-        // Data is incomplete, fetch fresh data
-        console.log(`🔄 Fetching fresh data for modal - order #${orderId}`);
-        fetchOrderDetailsForModal(orderId);
+        // Revert button text after 2 seconds
+        setTimeout(() => {
+            button.html(originalHtml).prop('disabled', false);
+        }, 2000);
     }
-}
-
-function hasCompleteOrderData(order) {
-    // Check if order has all necessary data for modal
-    return order && 
-           order.items !== undefined && 
-           order.customer_name !== undefined &&
-           order.total_amount !== undefined;
-}
-
-function fetchOrderDetailsForModal(orderId) {
-    fetch(`get_order_details.php?order_id=${orderId}&t=${Date.now()}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.order) {
-                updateOrdersData(data.order);
-                updateOrderModal(data.order);
-            } else {
-                showToast('Failed to load order details', 'danger');
-                console.error('Failed to fetch order details:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching order details:', error);
-            showToast('Error loading order details', 'danger');
-        });
-}
-
-
-
-
-
-// Enhanced status update with data refresh
-function handleStatusUpdateWithRefresh(orderId, newStatus, button) {
-    const originalText = button.innerHTML;
-    button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
-    button.disabled = true;
-    
-    console.log(`🔄 Updating order #${orderId} to ${newStatus}`);
-    
-    $.ajax({
-        url: 'orders.php',
-        type: 'POST',
-        data: {
-            ajax_update_status: true,
-            order_id: orderId,
-            new_status: newStatus
-        },
-        success: function(response) {
-            try {
-                const result = typeof response === 'string' ? JSON.parse(response) : response;
-                if (result.success) {
-                    showToast(result.message || `Order marked as ${newStatus}!`, 'success');
-                    
-                    // Force refresh this order's data on ALL devices
-                    setTimeout(() => {
-                        // This will trigger the real-time update system
-                        console.log(`🔄 Status update completed - order #${orderId} is now ${newStatus}`);
-                    }, 500);
-                    
-                    // Reload page after short delay to ensure consistency
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    throw new Error(result.message || 'Update failed');
-                }
-            } catch (e) {
-                showToast(e.message || 'Error updating order status', 'danger');
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Status update error:', error);
-            showToast('Error updating order status. Please try again.', 'danger');
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }
-    });
-}
-
-
-
-
-
-
-
-// Fallback event binding function
-function bindEventsManually(row) {
-    // View order button
-    const viewButton = row.querySelector('.view-order');
-    if (viewButton) {
-        viewButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const orderId = this.getAttribute('data-order-id');
-            openOrderModal(orderId);
-        });
-    }
-    
-    // Status update buttons (Ready, Complete)
-    const statusButtons = row.querySelectorAll('.update-status-btn');
-    statusButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const orderId = this.getAttribute('data-order-id');
-            const newStatus = this.getAttribute('data-new-status');
-            handleStatusUpdateWithRefresh(orderId, newStatus, this);
-        });
-    });
-    
-    // Cancel order button
-    const cancelButton = row.querySelector('.cancel-order');
-    if (cancelButton) {
-        cancelButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            const orderId = this.getAttribute('data-order-id');
-            
-            if (confirm('Are you sure you want to cancel this order?')) {
-                handleStatusUpdateWithRefresh(orderId, 'Cancelled', this);
-            }
-        });
-    }
-}
-
-
-
-
-
-// Initialize all handlers
-function initializeAllHandlers() {
-    try {
-        if (typeof bindOrderHandlers === 'function') {
-            bindOrderHandlers();
-        }
-        if (typeof handleStatusUpdateButtons === 'function') {
-            handleStatusUpdateButtons();
-        }
-    } catch (error) {
-        console.error('Error initializing handlers:', error);
-    }
-}
+});
 
 // Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing order management system');
-    
-    // Initialize modal handlers
-    setupModalHandlers();
-    
-    // Initialize real-time updates
-    setTimeout(() => {
-        initOrderStatusUpdates();
-    }, 2000);
-    
-    // Log initial state
-    console.log(`📊 Initial orders data: ${window.ordersData?.length || 0} orders loaded`);
-});
-
-// Clean up when leaving the page
-window.addEventListener('beforeunload', function() {
-    if (orderUpdateInterval) {
-        clearInterval(orderUpdateInterval);
-    }
+    console.log('🚀 Order management system initialized');
 });
 </script>
 

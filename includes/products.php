@@ -1797,7 +1797,7 @@ function placeOrder() {
             }
             
             // Show success message
-            showToast('Order placed successfully! Redirecting to order status...', 'success');
+            // showToast('Order placed successfully! Redirecting to order status...', 'success');
             
             // Prepare WhatsApp message (but don't send immediately)
             prepareWhatsAppMessage(whatsappOrderDetails, orderId);
