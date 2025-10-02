@@ -255,10 +255,13 @@
         }
         .download_btn {
             width: 100%;
-              margin: 20px 0 0 0;
-              border-radius: 10px;
-              font-size: 12px;
-              padding-top: 17px;
+            margin: 20px 0 0 0;
+            border-radius: 10px;
+            font-size: 12px;
+            background-color: <?php echo $primary_color; ?>;
+            color: #fff;
+            padding: 12px 0;
+            text-shadow: 2px 2px 2px #3E3E3E;
         }
         
 
@@ -272,7 +275,17 @@
     transform: scale(1);
     animation: borderPulse 2s infinite;
     float: left;
+}
+
+#deliveryBtn, #dinningBtn {
     font-size: 15px;
+}
+
+#placeOrderBtn {
+  height: 50px;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 2px 2px 2px #3E3E3E;
 }
 
 .order-type-buttons .w-50 {

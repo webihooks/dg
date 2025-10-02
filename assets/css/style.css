@@ -751,6 +751,11 @@ box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         max-height: 200px;
         overflow-y: auto;
     }
+
+    .btn.btn-sm.btn-primary.view-order, .btn.btn-sm.btn-danger.cancel-order {
+        float: right;
+        margin : 0 0 10px 10px;
+    }
 }
 
 

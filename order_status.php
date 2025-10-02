@@ -1089,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Then the existing Back to Menu button -->
 <div class="p-6 text-center">
     <button onclick="goBackToMenu('<?= htmlspecialchars($order_id) ?>')"
-            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+            class="backtomenu bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
         <i class="bi bi-arrow-left mr-2"></i> Back to Menu
     </button>
 </div>

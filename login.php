@@ -20,10 +20,10 @@ session_set_cookie_params([
 ]);
 
 // Database connection details
-$host = 'localhost';
-$dbname = 'doctorie_webihooks_card';
-$username = 'root';
-$password = '';
+$host = 'localhost'; // Replace with your database host
+$dbname = 'doctorie_webihooks_card'; // Replace with your database name
+$username = 'doctorie_webihooks'; // Replace with your database username
+$password = 'S@g@r4834'; // Replace with your database password
 
 // Connect to the database
 try {
@@ -158,6 +158,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-81W5S4MMGY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-81W5S4MMGY');
+</script>
+
+<!-- ADD SOLUTION 2 SCRIPT HERE -->
+<script>
+// Enhanced session management for Chrome desktop app
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're in a Chrome desktop app environment
+    const isChromeDesktopApp = /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
+    
+    if (isChromeDesktopApp) {
+        console.log('Chrome desktop app detected - enabling enhanced session management');
+        
+        // Periodically ping server to keep session alive
+        setInterval(() => {
+            fetch('session-keepalive.php', {
+                method: 'HEAD',
+                credentials: 'include' // Important: include cookies
+            }).then(response => {
+                console.log('Session keep-alive ping successful');
+            }).catch(err => {
+                console.log('Keep-alive request failed:', err);
+            });
+        }, 300000); // Ping every 5 minutes
+        
+        // Store session info in localStorage as backup
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem('lastActivity', Date.now());
+            console.log('Session backup stored in localStorage');
+        }
+    }
+});
+
+// Handle beforeunload to preserve session
+window.addEventListener('beforeunload', function() {
+    if (typeof(Storage) !== "undefined") {
+        localStorage.setItem('sessionPreserved', 'true');
+        localStorage.setItem('preserveTime', Date.now());
+    }
+});
+</script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
