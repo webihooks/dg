@@ -39,11 +39,19 @@ $items_stmt = $conn->prepare($items_sql);
 $items_stmt->execute([$order_id]);
 $order_items = $items_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch QR code details for payment
-$qr_sql = "SELECT * FROM qrcode_details WHERE user_id = ? AND is_default = 1 LIMIT 1";
+// Fetch QR code details for payment - MODIFIED QUERY
+$qr_sql = "SELECT * FROM qrcode_details WHERE user_id = ? ORDER BY is_default DESC, id DESC LIMIT 1";
 $qr_stmt = $conn->prepare($qr_sql);
 $qr_stmt->execute([$order['user_id']]);
 $qr_code = $qr_stmt->fetch(PDO::FETCH_ASSOC);
+
+// If no default QR code found, try to get any QR code
+if (!$qr_code) {
+    $qr_sql = "SELECT * FROM qrcode_details WHERE user_id = ? LIMIT 1";
+    $qr_stmt = $conn->prepare($qr_sql);
+    $qr_stmt->execute([$order['user_id']]);
+    $qr_code = $qr_stmt->fetch(PDO::FETCH_ASSOC);
+}
 
 // Get restaurant name from business_info table
 $business_sql = "SELECT business_name FROM business_info WHERE user_id = ? LIMIT 1";
@@ -262,6 +270,11 @@ $back_url = '/' . $profile_url;
             background-color: #e55a2e !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        @media only screen and (max-width: 768px) {
+          .main {
+            padding:20px 0 !important;
+          }
         }
     </style>
 </head>

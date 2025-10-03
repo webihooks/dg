@@ -168,7 +168,7 @@ $conn->close();
                                         <div class="card card-summary bg-primary text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Today's Sales</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales']) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales']) : '0'; ?></h3>
                                                 <p class="card-text mb-0"><?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?> orders</p>
                                                 <?php if (isset($summary_data['avg_order_value']) && $summary_data['total_orders'] > 0): ?>
                                                     <p class="card-text">Avg: ₹<?php echo number_format($summary_data['avg_order_value']); ?></p>
@@ -180,7 +180,7 @@ $conn->close();
                                         <div class="card card-summary bg-success text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Subtotal</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal']) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal']) : '0'; ?></h3>
                                                 <p class="card-text mb-0">Before discounts & taxes</p>
                                             </div>
                                         </div>
@@ -189,9 +189,9 @@ $conn->close();
                                         <div class="card card-summary bg-info text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Taxes & Charges</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0)) : '0.00'; ?></h3>
-                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax']) : '0.00'; ?></p>
-                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery']) : '0.00'; ?></p>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0)) : '0'; ?></h3>
+                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax']) : '0'; ?></p>
+                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery']) : '0'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -199,7 +199,7 @@ $conn->close();
                                         <div class="card card-summary bg-warning text-dark">
                                             <div class="card-body">
                                                 <h5 class="card-title">Discounts</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts']) : '0.00'; ?></h3>
+                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts']) : '0'; ?></h3>
                                                 <p class="card-text">Applied to orders</p>
                                             </div>
                                         </div>
