@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async'; // Add this import for Timer
 import '../../api/services/orders_service.dart';
 import '../../api/services/api_service.dart';
 import '../../api/models/order_model.dart';
-import '../../constants/colors.dart'; // Import colors file
+import '../../constants/colors.dart';
 
 // Helper method for status colors
 Color getStatusColor(String status) {
@@ -42,6 +43,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
   DateTime _fromDate = DateTime.now();
   DateTime _toDate = DateTime.now();
   Order? _selectedOrder;
+  
+  // Auto-refresh variables
+  Timer? _refreshTimer;
+  bool _isRefreshing = false;
+  final int _refreshInterval = 30; // seconds
+
+  // Timer for countdown updates
+  Timer? _countdownTimer;
 
   // Primary color
   final Color primaryColor = AppColors.primary;
@@ -51,6 +60,36 @@ class _OrdersScreenState extends State<OrdersScreen> {
     super.initState();
     _checkSession();
     _loadOrders();
+    _startAutoRefresh();
+    _startCountdownTimer();
+  }
+
+  @override
+  void dispose() {
+    // Cancel all timers when the widget is disposed
+    _refreshTimer?.cancel();
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  // Start countdown timer for real-time updates
+  void _startCountdownTimer() {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          // This will trigger a rebuild of all order cards with timers
+        });
+      }
+    });
+  }
+
+  // Calculate real-time remaining seconds for an order
+  int _calculateRemainingSeconds(Order order) {
+    final now = DateTime.now();
+    final orderTime = order.createdAt;
+    final elapsedSeconds = now.difference(orderTime).inSeconds;
+    final remainingSeconds = order.timerRemaining - elapsedSeconds;
+    return remainingSeconds > 0 ? remainingSeconds : 0;
   }
 
   Future<void> _checkSession() async {
@@ -78,6 +117,46 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
+  // Start automatic refresh timer
+  void _startAutoRefresh() {
+    _refreshTimer = Timer.periodic(Duration(seconds: _refreshInterval), (timer) {
+      if (mounted && !_isRefreshing) {
+        _refreshOrdersSilently();
+      }
+    });
+  }
+
+  // Silent refresh without loading indicator
+  Future<void> _refreshOrdersSilently() async {
+    try {
+      if (_isRefreshing) return;
+      
+      setState(() {
+        _isRefreshing = true;
+      });
+
+      final orders = await _ordersService.getOrders(
+        fromDate: _formatDate(_fromDate),
+        toDate: _formatDate(_toDate),
+      );
+
+      if (mounted) {
+        setState(() {
+          _orders = orders;
+          _isRefreshing = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Silent refresh error: $e');
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
+  }
+
+  // Manual refresh with loading indicator
   Future<void> _loadOrders() async {
     try {
       debugPrint('🔄 Starting to load orders...');
@@ -139,7 +218,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Order marked as $newStatus!')),
         );
-        _loadOrders();
+        _loadOrders(); // Refresh after status update
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to update order status')),
@@ -178,7 +257,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Order cancelled successfully!')),
           );
-          _loadOrders();
+          _loadOrders(); // Refresh after cancellation
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to cancel order')),
@@ -223,10 +302,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildOrderCard(Order order) {
+    // Calculate real-time remaining seconds
+    final remainingSeconds = _calculateRemainingSeconds(order);
+    final hasActiveTimer = remainingSeconds > 0 && order.canUpdateStatus;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white, // White background #ffffff
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -307,14 +390,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total: ₹${order.totalAmount.toStringAsFixed(2)}',
+                  'Total: ₹${order.totalAmount.toStringAsFixed(0)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  _formatDateTime12Hour(order.createdAt), // 12-hour format with AM/PM
+                  _formatDateTime12Hour(order.createdAt),
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -326,8 +409,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
             const SizedBox(height: 12),
 
             // Real-time countdown timer
-            if (order.timerRemaining > 0 && order.canUpdateStatus)
-              _buildRealTimeTimer(order),
+            if (hasActiveTimer)
+              _buildRealTimeTimer(remainingSeconds),
 
             const SizedBox(height: 8),
 
@@ -339,8 +422,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     icon: const Icon(Icons.remove_red_eye, size: 16),
                     label: const Text('View Details'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: primaryColor, // Primary color instead of blue
-                      side: BorderSide(color: primaryColor), // Primary color instead of blue
+                      foregroundColor: primaryColor,
+                      side: BorderSide(color: primaryColor),
                     ),
                   ),
                 ),
@@ -372,12 +455,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     ),
                   if (order.canCancel) const SizedBox(width: 8),
                   if (order.canCancel)
-                    SizedBox( // Bigger cancel button
-                      width: 48, // Increased width
-                      height: 48, // Increased height
+                    SizedBox(
+                      width: 48,
+                      height: 48,
                       child: IconButton(
                         onPressed: () => _cancelOrder(order.orderId),
-                        icon: const Icon(Icons.cancel, color: Colors.red, size: 24), // Increased icon size
+                        icon: const Icon(Icons.cancel, color: Colors.red, size: 24),
                         tooltip: 'Cancel Order',
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.red.withOpacity(0.1),
@@ -397,45 +480,40 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   // Real-time countdown timer widget
-  Widget _buildRealTimeTimer(Order order) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        // Initialize with current remaining time
-        int currentRemaining = order.timerRemaining;
-        
-        // Set up a timer to update every second
-        if (currentRemaining > 0) {
-          Future.delayed(const Duration(seconds: 1), () {
-            if (currentRemaining > 0) {
-              setState(() {
-                currentRemaining--;
-              });
-            }
-          });
-        }
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: currentRemaining <= 0 ? Colors.red : Colors.orange,
-            borderRadius: BorderRadius.circular(6),
+  Widget _buildRealTimeTimer(int remainingSeconds) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: remainingSeconds <= 0 ? Colors.red : 
+               remainingSeconds <= 30 ? Colors.orange : Colors.green,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.timer,
+            color: Colors.white,
+            size: 16,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.timer, color: Colors.white, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                _formatTimer(currentRemaining),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          const SizedBox(width: 4),
+          Text(
+            _formatTimer(remainingSeconds),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        );
-      },
+          const SizedBox(width: 4),
+          Text(
+            _getTimerLabel(remainingSeconds),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -444,6 +522,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  String _getTimerLabel(int seconds) {
+    if (seconds <= 0) return 'Time Up!';
+    if (seconds <= 30) return 'Hurry!';
+    if (seconds <= 60) return 'Almost Up';
+    return 'Remaining';
   }
 
   Widget _buildDateRangeSelector() {
@@ -485,7 +570,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 IconButton(
                   onPressed: _selectDateRange,
-                  icon: Icon(Icons.calendar_today, color: primaryColor), // Primary color
+                  icon: Icon(Icons.calendar_today, color: primaryColor),
                   tooltip: 'Select Date Range',
                 ),
               ],
@@ -507,6 +592,34 @@ class _OrdersScreenState extends State<OrdersScreen> {
       body: Column(
         children: [
           _buildDateRangeSelector(),
+          // Auto-refresh indicator
+          if (_isRefreshing)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              color: Colors.blue.withOpacity(0.1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Checking for new orders...',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: _isLoading
                 ? Center(
@@ -514,13 +627,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(primaryColor), // Primary color
+                          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Loading orders...',
                           style: TextStyle(
-                            color: primaryColor, // Primary color
+                            color: primaryColor,
                           ),
                         ),
                       ],
@@ -531,7 +644,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.error, size: 64, color: primaryColor), // Primary color
+                            Icon(Icons.error, size: 64, color: primaryColor),
                             const SizedBox(height: 16),
                             Text(
                               _errorMessage,
@@ -542,7 +655,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             ElevatedButton(
                               onPressed: _loadOrders,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColor, // Primary color
+                                backgroundColor: primaryColor,
                                 foregroundColor: Colors.white,
                               ),
                               child: const Text('Retry'),
@@ -576,11 +689,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         ],
       ),
+      // Floating action button for manual refresh
+      floatingActionButton: FloatingActionButton(
+        onPressed: _loadOrders,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.refresh),
+        tooltip: 'Refresh Orders',
+      ),
     );
   }
 }
 
-// Order Details Modal
+// Order Details Modal (keep the same as before)
 class OrderDetailsModal extends StatelessWidget {
   final Order order;
   final Color primaryColor;
@@ -603,7 +724,7 @@ class OrderDetailsModal extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: primaryColor, // Primary color instead of blue
+              color: primaryColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -706,7 +827,7 @@ class OrderDetailsModal extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: primaryColor, // Primary color instead of blue
+            color: primaryColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -743,7 +864,7 @@ class OrderDetailsModal extends StatelessWidget {
             label,
             style: TextStyle(
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? primaryColor : Colors.grey[700], // Primary color for total
+              color: isTotal ? primaryColor : Colors.grey[700],
             ),
           ),
           if (isStatus)
@@ -768,7 +889,7 @@ class OrderDetailsModal extends StatelessWidget {
               style: TextStyle(
                 fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
                 fontSize: isTotal ? 16 : 14,
-                color: isTotal ? primaryColor : Colors.black, // Primary color for total
+                color: isTotal ? primaryColor : Colors.black,
               ),
             ),
         ],
@@ -819,7 +940,7 @@ class OrderDetailsModal extends StatelessWidget {
               '₹${item.total.toStringAsFixed(2)}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: primaryColor, // Primary color instead of blue
+                color: primaryColor,
               ),
             ),
           ],
