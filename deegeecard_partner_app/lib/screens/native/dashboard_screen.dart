@@ -19,7 +19,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _salesSummary = {};
   bool _isLoading = true;
   String _errorMessage = '';
-  DateTime _lastUpdate = DateTime.now(); // ADD THIS LINE
+  DateTime _lastUpdate = DateTime.now();
+
+  // Primary color
+  final Color primaryColor = const Color(0xffff6c2f);
 
   // WebView URLs for More menu
   final Map<String, Map<String, String>> _moreMenuItems = {
@@ -192,7 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error, size: 64, color: Colors.red),
+            Icon(Icons.error, size: 64, color: primaryColor),
             const SizedBox(height: 16),
             Text(
               _errorMessage,
@@ -202,6 +205,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _loadDashboardData(forceRefresh: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Retry'),
             ),
           ],
@@ -220,34 +227,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section
-            Card(
+            // Welcome Section - Full Width
+            Container(
+              width: double.infinity, // Full width
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Icon(Icons.dashboard, size: 64, color: Colors.blue),
+                    Icon(Icons.dashboard, size: 64, color: primaryColor),
                     const SizedBox(height: 16),
                     Text(
                       'Welcome, $_userName!',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
+                        color: primaryColor,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'DeeGeeCard Partner Dashboard',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
                       'Today - ${DateTime.now().toString().split(' ')[0]}',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
@@ -268,11 +281,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
 
             // Sales Summary Section
-            const Text(
+            Text(
               "Today's Sales Summary",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: primaryColor,
               ),
             ),
             const SizedBox(height: 16),
@@ -289,7 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildSummaryCard(
                   'Total Sales',
                   '₹${_formatNumber(_salesSummary['total_sales'])}',
-                  Colors.blue,
+                  primaryColor,
                   Icons.shopping_cart,
                   '${_salesSummary['total_orders'] ?? 0} orders',
                 ),
@@ -321,31 +335,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // Average Order Value
             if (_toDouble(_salesSummary['avg_order_value']) > 0)
-              Card(
-                color: Colors.indigo[50],
+              Container(
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Icon(Icons.trending_up, color: Colors.indigo),
+                      Icon(Icons.trending_up, color: primaryColor),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Average Order Value',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.indigo,
+                                color: primaryColor,
                               ),
                             ),
                             Text(
                               '₹${_formatNumber(_salesSummary['avg_order_value'])}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.indigo,
+                                color: primaryColor,
                               ),
                             ),
                           ],
@@ -370,6 +387,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ) {
     return Card(
       elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -422,11 +442,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.shopping_cart, size: 64, color: Colors.green),
+          Icon(Icons.shopping_cart, size: 64, color: primaryColor),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Orders Management',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: primaryColor),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -438,6 +458,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: () {
               // Add orders functionality
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('View Orders'),
           ),
         ],
@@ -472,10 +496,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: ListTile(
-                leading: const Icon(Icons.web, color: Colors.blue),
+                leading: Icon(Icons.web, color: primaryColor),
                 title: Text(item['title']!),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16, color: primaryColor),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -522,16 +549,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DeeGeeCard Partner'),
-        backgroundColor: Colors.blue,
+        // title: const Text('Dashboard'), // Removed "DeeGeeCard Partner"
+        backgroundColor: primaryColor, // Changed to primary color
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => _loadDashboardData(forceRefresh: true),
-            tooltip: 'Refresh Data',
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.refresh),
+        //     onPressed: () => _loadDashboardData(forceRefresh: true),
+        //     tooltip: 'Refresh Data',
+        //   ),
+        // ],
       ),
       body: _buildDashboardContent(),
       bottomNavigationBar: BottomNavigationBar(
@@ -542,6 +569,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: primaryColor, // Added selected color
+        unselectedItemColor: Colors.grey, // Added unselected color
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),

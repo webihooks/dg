@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:label="deegeecard_partner_app"
+        android:label="DEEGEECARD PARTNER APP"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
