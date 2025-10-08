@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/native/login_screen.dart';
 import 'screens/native/dashboard_screen.dart';
 import 'api/services/api_service.dart';
-import 'services/app_initializer.dart'; // Add this import
+import 'services/phase1_service.dart'; // Updated import
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,8 +11,8 @@ void main() {
 }
 
 Future<void> _initializeApp() async {
-  // Initialize app-wide services
-  await AppInitializer.initialize();
+  // Initialize Phase 1 service
+  await Phase1Service.initialize();
   
   // Initialize API service and load persistent cookies
   final apiService = ApiService();

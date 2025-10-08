@@ -6,7 +6,7 @@ import '../webview/webview_screen.dart';
 import '../../api/services/api_service.dart';
 import 'orders_screen.dart';
 import '../../constants/colors.dart';
-import '../../services/basic_monitor.dart'; // Use basic monitor
+import '../../services/phase1_service.dart'; // Updated import
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -23,7 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _errorMessage = '';
   DateTime _lastUpdate = DateTime.now();
   
-  // Add these variables for service monitoring
+  // Service monitoring variables
   bool _isMonitoringActive = false;
   bool _isServiceLoading = false;
 
@@ -86,6 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       });
 
+      // Load user data from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final storedName = prefs.getString('name');
       
@@ -95,6 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
       }
 
+      // Fetch dashboard data from API
       await _fetchDashboardData();
 
       setState(() {
@@ -113,7 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _isServiceLoading = true;
     });
     
-    final isActive = await BasicOrderMonitor.isMonitoringActive();
+    final isActive = await Phase1Service.isOrderMonitoringActive();
     
     setState(() {
       _isMonitoringActive = isActive;
@@ -128,36 +130,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       if (_isMonitoringActive) {
-        await BasicOrderMonitor.stopMonitoring();
+        await Phase1Service.stopOrderMonitoring();
       } else {
-        await BasicOrderMonitor.startMonitoring();
+        await Phase1Service.startOrderMonitoring();
       }
       
       setState(() {
         _isMonitoringActive = !_isMonitoringActive;
       });
       
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             _isMonitoringActive 
-                ? 'Order monitoring started' 
-                : 'Order monitoring stopped',
+                ? 'Foreground service started ✅\nApp will work in background with persistent notification' 
+                : 'Foreground service stopped ⏸️\nApp will no longer run in background',
           ),
           backgroundColor: _isMonitoringActive ? Colors.green : Colors.orange,
+          duration: Duration(seconds: 3),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to ${_isMonitoringActive ? 'stop' : 'start'} monitoring: $e'),
+          content: Text('Failed to ${_isMonitoringActive ? 'stop' : 'start'} service: $e'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
         ),
       );
     } finally {
       setState(() {
         _isServiceLoading = false;
       });
+    }
+  }
+
+  Future<void> _testSound() async {
+    try {
+      await Phase1Service.playTestSound();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Test sound played! Check your audio.'),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to play test sound: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -170,16 +196,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         throw Exception('User not logged in');
       }
 
+      // Use the imported ApiService from api/services/api_service.dart
       final apiService = ApiService();
       final response = await apiService.getDashboardData();
 
       setState(() {
         _salesSummary = response['summary'] ?? {};
+        // Update user name from API response if available
         if (response['user'] != null && response['user']['name'] != null) {
           _userName = response['user']['name'];
+          // Update stored name
           prefs.setString('name', _userName);
         }
-        _lastUpdate = DateTime.now();
+        _lastUpdate = DateTime.now(); // Track last update time
       });
     } catch (e) {
       throw Exception('Failed to fetch dashboard data: $e');
@@ -204,7 +233,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _logout() async {
-    await BasicOrderMonitor.stopMonitoring();
+    // Stop monitoring service on logout
+    await Phase1Service.stopOrderMonitoring();
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
@@ -213,6 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await prefs.remove('name');
     await prefs.remove('userRole');
     
+    // Navigate back to login screen
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -287,9 +318,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section
+            // Welcome Section - Full Width
             Container(
-              width: double.infinity,
+              width: double.infinity, // Full width
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -338,7 +369,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Order Monitoring Control Card
+            // Phase 1 Foreground Service Control Card
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -357,14 +388,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Status Header
                     Row(
                       children: [
-                        Icon(
-                          _isMonitoringActive ? 
-                            Icons.notifications_active : 
-                            Icons.notifications_off,
-                          size: 32,
-                          color: _isMonitoringActive ? Colors.green : Colors.grey,
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: _isMonitoringActive ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            _isMonitoringActive ? 
+                              Icons.notifications_active : 
+                              Icons.notifications_off,
+                            size: 32,
+                            color: _isMonitoringActive ? Colors.green : Colors.grey,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -373,8 +412,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               Text(
                                 _isMonitoringActive ? 
-                                  'Order Monitoring Active' : 
-                                  'Order Monitoring Inactive',
+                                  'Foreground Service Active' : 
+                                  'Foreground Service Inactive',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -384,11 +423,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 _isMonitoringActive ?
-                                  'App will monitor for new orders (Basic Mode)' :
-                                  'Start monitoring to receive order notifications',
+                                  '✓ App runs in background\n✓ Persistent notification shown\n✓ Service survives app closing' :
+                                  'Start service to keep app alive in background',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
+                                  height: 1.4,
                                 ),
                               ),
                             ],
@@ -396,7 +436,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Main Control Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -404,38 +447,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         icon: Icon(
                           _isMonitoringActive ? Icons.stop : Icons.play_arrow,
                           color: Colors.white,
+                          size: 24,
                         ),
                         label: Text(
                           _isMonitoringActive ? 
-                            'Stop Order Monitoring' : 
-                            'Start Order Monitoring',
-                          style: const TextStyle(color: Colors.white),
+                            'STOP FOREGROUND SERVICE' : 
+                            'START FOREGROUND SERVICE',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isMonitoringActive ? 
                             Colors.red : Colors.green,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 2,
                         ),
                       ),
                     ),
+                    
+                    // Loading Indicator
                     if (_isServiceLoading)
                       const Padding(
-                        padding: EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: 16),
                         child: Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                            ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Updating service...',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Test Sound Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _testSound,
+                        icon: Icon(Icons.volume_up, color: Colors.blue),
+                        label: const Text(
+                          'TEST SOUND',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          side: const BorderSide(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                    
+                    // Info Text
+                    const SizedBox(height: 12),
+                    Text(
+                      _isMonitoringActive ?
+                        'ℹ️  Close the app to test background operation. You should see a persistent notification.' :
+                        'ℹ️  Start service to keep the app alive when closed.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
@@ -443,7 +545,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Rest of your dashboard content remains the same...
+            // Sales Summary Section
             const Text(
               "Today's Sales Summary",
               style: TextStyle(
@@ -496,9 +598,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
+            // Average Order Value
             if (_toDouble(_salesSummary['avg_order_value']) > 0)
               Container(
-                width: double.infinity,
+                width: double.infinity, // Full width
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -544,6 +647,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
+              
+            const SizedBox(height: 24),
+            
+            // Last Update Info
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.update, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Last updated: ${_lastUpdate.toString().split('.')[0]}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -578,7 +707,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, size: 32, color: color),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 24, color: color),
+                ),
                 Text(
                   title,
                   style: TextStyle(
@@ -607,6 +743,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontSize: 12,
                     color: Colors.grey[600],
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -632,6 +770,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final itemKey = _moreMenuItems.keys.elementAt(index);
             final item = _moreMenuItems[itemKey]!;
             
+            // Add session parameters to URL
             String urlWithSession = item['url']!;
             if (sessionData.isNotEmpty) {
               final uri = Uri.parse(urlWithSession);
@@ -654,7 +793,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               child: ListTile(
-                leading: Icon(Icons.web, color: primaryColor),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.web, size: 20, color: primaryColor),
+                ),
                 title: Text(
                   item['title']!,
                   style: const TextStyle(
@@ -681,6 +827,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // Helper method to safely convert any value to double
   double _toDouble(dynamic value) {
     if (value == null) return 0.0;
     if (value is double) return value;
@@ -691,7 +838,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _formatNumber(dynamic number) {
     if (number == null) return '0';
+    
+    // Convert to double first
     final numValue = _toDouble(number);
+    
+    // Format the number
     if (numValue % 1 == 0) {
       return numValue.toInt().toString();
     } else {
@@ -706,31 +857,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         title: const Text('Dashboard'),
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(
-              _isMonitoringActive ? Icons.notifications_active : Icons.notifications_off,
-              color: _isMonitoringActive ? Colors.white : Colors.white70,
+          // Service status indicator in app bar
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: _isMonitoringActive ? Colors.green.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _isMonitoringActive ? Colors.green : Colors.grey,
+                width: 1,
+              ),
             ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Order Monitoring Status'),
-                  content: Text(
-                    _isMonitoringActive ?
-                    'Order monitoring is currently ACTIVE in basic mode.' :
-                    'Order monitoring is INACTIVE. Start monitoring to track orders.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('OK'),
-                    ),
-                  ],
+            child: Row(
+              children: [
+                Icon(
+                  _isMonitoringActive ? Icons.notifications_active : Icons.notifications_off,
+                  size: 16,
+                  color: _isMonitoringActive ? Colors.green : Colors.grey,
                 ),
-              );
-            },
+                const SizedBox(width: 6),
+                Text(
+                  _isMonitoringActive ? 'ACTIVE' : 'INACTIVE',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: _isMonitoringActive ? Colors.green : Colors.grey,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -745,6 +903,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: primaryColor,
         unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        elevation: 8,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),

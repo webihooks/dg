@@ -10,16 +10,21 @@ import androidx.core.app.NotificationCompat
 class OrderForegroundService : Service() {
     
     companion object {
-        const val CHANNEL_ID = "OrderServiceChannel"
+        const val CHANNEL_ID = "OrderForegroundServiceChannel"
         const val NOTIFICATION_ID = 1001
         const val ACTION_START_SERVICE = "START_FOREGROUND_SERVICE"
-        const val ACTION_STOP_SERVICE = "STOP_FOREGUND_SERVICE"
+        const val ACTION_STOP_SERVICE = "STOP_FOREGROUND_SERVICE"
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START_SERVICE -> startForegroundService()
-            ACTION_STOP_SERVICE -> stopForegroundService()
+            ACTION_START_SERVICE -> {
+                startForegroundService()
+                startOrderChecking()
+            }
+            ACTION_STOP_SERVICE -> {
+                stopForegroundService()
+            }
         }
         return START_STICKY
     }
@@ -40,6 +45,7 @@ class OrderForegroundService : Service() {
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .build()
         
         startForeground(NOTIFICATION_ID, notification)
@@ -60,6 +66,11 @@ class OrderForegroundService : Service() {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
+    }
+    
+    private fun startOrderChecking() {
+        // This is where we'll implement background order checking
+        // For Phase 1, we just keep the service running
     }
     
     private fun stopForegroundService() {
