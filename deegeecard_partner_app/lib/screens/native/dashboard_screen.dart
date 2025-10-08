@@ -6,6 +6,7 @@ import '../webview/webview_screen.dart';
 import '../../api/services/api_service.dart';
 import 'orders_screen.dart';
 import '../../constants/colors.dart';
+import '../../services/basic_monitor.dart'; // Use basic monitor
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -21,6 +22,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   DateTime _lastUpdate = DateTime.now();
+  
+  // Add these variables for service monitoring
+  bool _isMonitoringActive = false;
+  bool _isServiceLoading = false;
 
   // Primary color
   final Color primaryColor = const Color(0xffff6c2f);
@@ -69,6 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadDashboardData();
+    _loadServiceStatus();
   }
 
   Future<void> _loadDashboardData({bool forceRefresh = false}) async {
@@ -76,11 +82,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _isLoading = true;
         if (forceRefresh) {
-          _salesSummary = {}; // Clear existing data
+          _salesSummary = {};
         }
       });
 
-      // Load user data from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final storedName = prefs.getString('name');
       
@@ -90,7 +95,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
       }
 
-      // Fetch dashboard data from API
       await _fetchDashboardData();
 
       setState(() {
@@ -104,6 +108,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadServiceStatus() async {
+    setState(() {
+      _isServiceLoading = true;
+    });
+    
+    final isActive = await BasicOrderMonitor.isMonitoringActive();
+    
+    setState(() {
+      _isMonitoringActive = isActive;
+      _isServiceLoading = false;
+    });
+  }
+
+  Future<void> _toggleOrderMonitoring() async {
+    setState(() {
+      _isServiceLoading = true;
+    });
+
+    try {
+      if (_isMonitoringActive) {
+        await BasicOrderMonitor.stopMonitoring();
+      } else {
+        await BasicOrderMonitor.startMonitoring();
+      }
+      
+      setState(() {
+        _isMonitoringActive = !_isMonitoringActive;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isMonitoringActive 
+                ? 'Order monitoring started' 
+                : 'Order monitoring stopped',
+          ),
+          backgroundColor: _isMonitoringActive ? Colors.green : Colors.orange,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to ${_isMonitoringActive ? 'stop' : 'start'} monitoring: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isServiceLoading = false;
+      });
+    }
+  }
+
   Future<void> _fetchDashboardData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -113,19 +170,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         throw Exception('User not logged in');
       }
 
-      // Use the imported ApiService from api/services/api_service.dart
       final apiService = ApiService();
       final response = await apiService.getDashboardData();
 
       setState(() {
         _salesSummary = response['summary'] ?? {};
-        // Update user name from API response if available
         if (response['user'] != null && response['user']['name'] != null) {
           _userName = response['user']['name'];
-          // Update stored name
           prefs.setString('name', _userName);
         }
-        _lastUpdate = DateTime.now(); // Track last update time
+        _lastUpdate = DateTime.now();
       });
     } catch (e) {
       throw Exception('Failed to fetch dashboard data: $e');
@@ -150,6 +204,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _logout() async {
+    await BasicOrderMonitor.stopMonitoring();
+    
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('userId');
@@ -157,7 +213,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await prefs.remove('name');
     await prefs.remove('userRole');
     
-    // Navigate back to login screen
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -232,9 +287,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section - Full Width
+            // Welcome Section
             Container(
-              width: double.infinity, // Full width
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -250,12 +305,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    Icon(Icons.dashboard, size: 72, color: AppColors.primary), // Increased icon size
+                    Icon(Icons.dashboard, size: 72, color: AppColors.primary),
                     const SizedBox(height: 20),
                     Text(
                       'Welcome, $_userName!',
                       style: const TextStyle(
-                        fontSize: 26, // Increased font size
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -264,7 +319,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       'DeeGeeCard Partner Dashboard',
                       style: TextStyle(
-                        fontSize: 18, // Increased font size
+                        fontSize: 18,
                         color: Colors.grey[600],
                       ),
                     ),
@@ -272,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       'Today - ${DateTime.now().toString().split(' ')[0]}',
                       style: const TextStyle(
-                        fontSize: 16, // Increased font size
+                        fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
@@ -283,11 +338,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Sales Summary Section
+            // Order Monitoring Control Card
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          _isMonitoringActive ? 
+                            Icons.notifications_active : 
+                            Icons.notifications_off,
+                          size: 32,
+                          color: _isMonitoringActive ? Colors.green : Colors.grey,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isMonitoringActive ? 
+                                  'Order Monitoring Active' : 
+                                  'Order Monitoring Inactive',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _isMonitoringActive ?
+                                  'App will monitor for new orders (Basic Mode)' :
+                                  'Start monitoring to receive order notifications',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isServiceLoading ? null : _toggleOrderMonitoring,
+                        icon: Icon(
+                          _isMonitoringActive ? Icons.stop : Icons.play_arrow,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          _isMonitoringActive ? 
+                            'Stop Order Monitoring' : 
+                            'Start Order Monitoring',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isMonitoringActive ? 
+                            Colors.red : Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_isServiceLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Rest of your dashboard content remains the same...
             const Text(
               "Today's Sales Summary",
               style: TextStyle(
-                fontSize: 22, // Increased font size
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -336,10 +496,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Average Order Value
             if (_toDouble(_salesSummary['avg_order_value']) > 0)
               Container(
-                width: double.infinity, // Full width
+                width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -355,7 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      Icon(Icons.trending_up, size: 32, color: AppColors.primary), // Increased icon size
+                      Icon(Icons.trending_up, size: 32, color: AppColors.primary),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -364,7 +523,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               'Average Order Value',
                               style: const TextStyle(
-                                fontSize: 18, // Increased font size
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
@@ -373,7 +532,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               '₹${_formatNumber(_salesSummary['avg_order_value'])}',
                               style: TextStyle(
-                                fontSize: 22, // Increased font size
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primary,
                               ),
@@ -400,7 +559,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white, // White background as requested
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -411,7 +570,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20), // Increased padding
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -419,11 +578,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, size: 32, color: color), // Increased icon size
+                Icon(icon, size: 32, color: color),
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14, // Increased font size
+                    fontSize: 14,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.bold,
                   ),
@@ -436,7 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   amount,
                   style: TextStyle(
-                    fontSize: 22, // Increased font size
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
@@ -445,7 +604,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 12, // Slightly increased font size
+                    fontSize: 12,
                     color: Colors.grey[600],
                   ),
                 ),
@@ -453,38 +612,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildOrdersTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.shopping_cart, size: 64, color: primaryColor),
-          const SizedBox(height: 16),
-          Text(
-            'Orders Management',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: primaryColor),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'View and manage your orders here',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Add orders functionality
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('View Orders'),
-          ),
-        ],
       ),
     );
   }
@@ -505,7 +632,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final itemKey = _moreMenuItems.keys.elementAt(index);
             final item = _moreMenuItems[itemKey]!;
             
-            // Add session parameters to URL
             String urlWithSession = item['url']!;
             if (sessionData.isNotEmpty) {
               final uri = Uri.parse(urlWithSession);
@@ -517,7 +643,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white, // White background #ffffff
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
@@ -555,7 +681,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // Helper method to safely convert any value to double
   double _toDouble(dynamic value) {
     if (value == null) return 0.0;
     if (value is double) return value;
@@ -566,11 +691,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _formatNumber(dynamic number) {
     if (number == null) return '0';
-    
-    // Convert to double first
     final numValue = _toDouble(number);
-    
-    // Format the number
     if (numValue % 1 == 0) {
       return numValue.toInt().toString();
     } else {
@@ -584,6 +705,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
+        title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isMonitoringActive ? Icons.notifications_active : Icons.notifications_off,
+              color: _isMonitoringActive ? Colors.white : Colors.white70,
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Order Monitoring Status'),
+                  content: Text(
+                    _isMonitoringActive ?
+                    'Order monitoring is currently ACTIVE in basic mode.' :
+                    'Order monitoring is INACTIVE. Start monitoring to track orders.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _buildDashboardContent(),
       bottomNavigationBar: BottomNavigationBar(
