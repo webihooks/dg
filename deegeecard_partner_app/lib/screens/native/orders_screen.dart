@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async'; // Add this import for Timer
+import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import '../../api/services/orders_service.dart';
 import '../../api/services/api_service.dart';
 import '../../api/models/order_model.dart';
@@ -37,6 +38,7 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   final OrdersService _ordersService = OrdersService();
   final ApiService _apiService = ApiService();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   List<Order> _orders = [];
   bool _isLoading = true;
   String _errorMessage = '';
@@ -47,10 +49,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
   // Auto-refresh variables
   Timer? _refreshTimer;
   bool _isRefreshing = false;
-  final int _refreshInterval = 30; // seconds
+  final int _refreshInterval = 10;
 
   // Timer for countdown updates
   Timer? _countdownTimer;
+
+  // Sound notification variables
+  bool _isSoundEnabled = true;
+  int _lastOrderCount = 0;
+  bool _isPlayingSound = false;
+  
+  // Track pending orders that should ring
+  Set<int> _pendingOrderIds = {};
+  
+  // Timer for continuous sound looping
+  Timer? _soundLoopTimer;
 
   // Primary color
   final Color primaryColor = AppColors.primary;
@@ -62,23 +75,193 @@ class _OrdersScreenState extends State<OrdersScreen> {
     _loadOrders();
     _startAutoRefresh();
     _startCountdownTimer();
+    
+    // Audio setup
+    _setupAudioPlayer();
   }
 
   @override
   void dispose() {
-    // Cancel all timers when the widget is disposed
     _refreshTimer?.cancel();
     _countdownTimer?.cancel();
+    _soundLoopTimer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
+  }
+
+  // Setup audio player listeners
+  void _setupAudioPlayer() {
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      debugPrint('🔊 Player state: $state');
+    });
+    
+    _audioPlayer.onPlayerComplete.listen((event) {
+      debugPrint('🔊 Sound completed');
+    });
+
+    _audioPlayer.onLog.listen((message) {
+      debugPrint('🔊 Audio log: $message');
+    });
+  }
+
+  // Play continuous sound in loop - FIXED VERSION
+  Future<void> _playContinuousSound() async {
+    if (!_isSoundEnabled || _isPlayingSound) {
+      debugPrint('🔇 Sound not played - enabled: $_isSoundEnabled, playing: $_isPlayingSound');
+      return;
+    }
+
+    try {
+      debugPrint('🔊 STARTING CONTINUOUS SOUND LOOP');
+      
+      // Stop any current playback and timers
+      await _audioPlayer.stop();
+      _soundLoopTimer?.cancel();
+      
+      setState(() {
+        _isPlayingSound = true;
+      });
+
+      // Function to play sound
+      Future<void> playSound() async {
+        try {
+          await _audioPlayer.play(
+            AssetSource('sounds/new_order.wav'),
+            volume: 1.0,
+          );
+          debugPrint('✅ Sound played successfully');
+        } catch (e) {
+          debugPrint('❌ Error playing sound: $e');
+        }
+      }
+
+      // Play the sound first time
+      await playSound();
+      
+      debugPrint('✅ SOUND STARTED, SETTING UP LOOP');
+
+      // Set up a timer to restart the sound every 2 seconds for continuous effect
+      _soundLoopTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+        if (!_isSoundEnabled || _pendingOrderIds.isEmpty || !mounted) {
+          debugPrint('🛑 Stopping sound loop - disabled: $_isSoundEnabled, pending: ${_pendingOrderIds.isEmpty}');
+          _stopAllSounds();
+          timer.cancel();
+          return;
+        }
+        
+        debugPrint('🔄 Restarting sound in loop - pending orders: ${_pendingOrderIds.length}');
+        playSound();
+      });
+
+    } catch (e) {
+      debugPrint('❌ Sound initialization error: $e');
+      setState(() {
+        _isPlayingSound = false;
+      });
+    }
+  }
+
+  // Stop all sounds and timers
+  Future<void> _stopAllSounds() async {
+    try {
+      _soundLoopTimer?.cancel();
+      _soundLoopTimer = null;
+      await _audioPlayer.stop();
+      if (mounted) {
+        setState(() {
+          _isPlayingSound = false;
+        });
+      }
+      debugPrint('🔇 All sounds and timers stopped');
+    } catch (e) {
+      debugPrint('❌ Error stopping sounds: $e');
+    }
+  }
+
+  // Check for new orders and manage sound
+  void _checkForNewOrders(List<Order> currentOrders) {
+    if (_lastOrderCount == 0) {
+      debugPrint('📊 First load: ${currentOrders.length} orders');
+      _lastOrderCount = currentOrders.length;
+      
+      // Initialize pending orders list
+      _updatePendingOrders(currentOrders);
+      return;
+    }
+
+    if (currentOrders.length > _lastOrderCount) {
+      final newOrderCount = currentOrders.length - _lastOrderCount;
+      debugPrint('🎉 NEW ORDERS DETECTED: $newOrderCount');
+      
+      // Get previous pending count
+      final previousPendingCount = _pendingOrderIds.length;
+      
+      // Update pending orders list
+      _updatePendingOrders(currentOrders);
+      
+      // If there are NEW pending orders, start the sound
+      if (_pendingOrderIds.isNotEmpty && _pendingOrderIds.length > previousPendingCount) {
+        debugPrint('🚀 NEW PENDING ORDERS DETECTED: ${_pendingOrderIds.length} total');
+        
+        if (_isSoundEnabled) {
+          debugPrint('🔊 STARTING SOUND FOR NEW PENDING ORDERS');
+          _playContinuousSound();
+        }
+        
+        // Show notification
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('🔔 ${_pendingOrderIds.length} pending order(s) need attention!'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else if (_pendingOrderIds.isNotEmpty) {
+        debugPrint('📋 Existing pending orders: ${_pendingOrderIds.length}');
+      }
+    }
+
+    _lastOrderCount = currentOrders.length;
+  }
+
+  // Update the list of pending orders
+  void _updatePendingOrders(List<Order> orders) {
+    final newPendingOrders = orders
+        .where((order) => order.status.toLowerCase() == 'pending')
+        .map((order) => order.orderId)
+        .toSet();
+    
+    _pendingOrderIds = newPendingOrders;
+    debugPrint('📋 Pending orders updated: ${_pendingOrderIds.length} orders');
+    
+    // If no pending orders and sound is playing, stop it
+    if (_pendingOrderIds.isEmpty && _isPlayingSound) {
+      debugPrint('🛑 No pending orders left - stopping sound');
+      _stopAllSounds();
+    }
+  }
+
+  // Stop sound for specific order (when accepted/rejected)
+  void _stopSoundForOrder(int orderId) {
+    _pendingOrderIds.remove(orderId);
+    debugPrint('✅ Order #$orderId processed - removed from pending');
+    
+    // If no more pending orders, stop the sound
+    if (_pendingOrderIds.isEmpty && _isPlayingSound) {
+      _stopAllSounds();
+      debugPrint('🔇 No more pending orders - sound stopped');
+    } else {
+      debugPrint('📋 Remaining pending orders: ${_pendingOrderIds.length}');
+    }
   }
 
   // Start countdown timer for real-time updates
   void _startCountdownTimer() {
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
-        setState(() {
-          // This will trigger a rebuild of all order cards with timers
-        });
+        setState(() {});
       }
     });
   }
@@ -94,23 +277,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Future<void> _checkSession() async {
     try {
-      debugPrint('🔐 Checking session status...');
-      
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('userId');
       final email = prefs.getString('email');
       
-      debugPrint('📱 Stored User ID: $userId');
-      debugPrint('📱 Stored Email: $email');
+      debugPrint('📱 User ID: $userId, Email: $email');
       
       final dashboardData = await _apiService.getDashboardData();
-      
-      debugPrint('🎯 Dashboard API response: ${dashboardData['success']}');
-      if (dashboardData['success'] == true) {
-        debugPrint('👤 User data: ${dashboardData['user']?['name']}');
-      } else {
-        debugPrint('🚫 Dashboard API failed: ${dashboardData['message']}');
-      }
+      debugPrint('🎯 Dashboard: ${dashboardData['success']}');
       
     } catch (e) {
       debugPrint('🚫 Session check failed: $e');
@@ -121,6 +295,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   void _startAutoRefresh() {
     _refreshTimer = Timer.periodic(Duration(seconds: _refreshInterval), (timer) {
       if (mounted && !_isRefreshing) {
+        debugPrint('🔄 Auto-refresh (10s) triggered');
         _refreshOrdersSilently();
       }
     });
@@ -142,6 +317,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
       if (mounted) {
         setState(() {
+          _checkForNewOrders(orders);
           _orders = orders;
           _isRefreshing = false;
         });
@@ -159,9 +335,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
   // Manual refresh with loading indicator
   Future<void> _loadOrders() async {
     try {
-      debugPrint('🔄 Starting to load orders...');
-      debugPrint('📅 Date range: ${_formatDate(_fromDate)} to ${_formatDate(_toDate)}');
-      
       setState(() {
         _isLoading = true;
       });
@@ -171,19 +344,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
         toDate: _formatDate(_toDate),
       );
 
-      debugPrint('✅ Successfully loaded ${orders.length} orders');
-      
-      setState(() {
-        _orders = orders;
-        _isLoading = false;
-        _errorMessage = '';
-      });
+      if (mounted) {
+        setState(() {
+          _checkForNewOrders(orders);
+          _orders = orders;
+          _isLoading = false;
+          _errorMessage = '';
+        });
+      }
     } catch (e) {
       debugPrint('❌ Error loading orders: $e');
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Failed to load orders: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Failed to load orders: $e';
+        });
+      }
     }
   }
 
@@ -218,7 +394,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Order marked as $newStatus!')),
         );
-        _loadOrders(); // Refresh after status update
+        
+        // Stop sound for this order when status is changed
+        _stopSoundForOrder(orderId);
+        
+        _loadOrders();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to update order status')),
@@ -257,7 +437,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Order cancelled successfully!')),
           );
-          _loadOrders(); // Refresh after cancellation
+          
+          // Stop sound for this order when cancelled
+          _stopSoundForOrder(orderId);
+          
+          _loadOrders();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to cancel order')),
@@ -269,6 +453,47 @@ class _OrdersScreenState extends State<OrdersScreen> {
         );
       }
     }
+  }
+
+  // Toggle sound notifications - FIXED VERSION
+  void _toggleSoundNotifications() {
+    setState(() {
+      _isSoundEnabled = !_isSoundEnabled;
+    });
+    
+    if (!_isSoundEnabled) {
+      // Stop sound when disabled
+      _stopAllSounds();
+      debugPrint('🔇 Sound disabled manually');
+    } else if (_pendingOrderIds.isNotEmpty) {
+      // Start sound when enabled and there are pending orders
+      debugPrint('🔊 Sound enabled manually - starting for pending orders');
+      _playContinuousSound();
+    }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isSoundEnabled ? '🔊 Sound notifications enabled' : '🔇 Sound notifications disabled'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // Test sound function - FIXED VERSION
+  void _testSound() {
+    debugPrint('🔊 Testing sound manually');
+    
+    // Temporarily add a pending order to test sound
+    final tempOrderId = -999; // Temporary ID for testing
+    _pendingOrderIds.add(tempOrderId);
+    
+    _playContinuousSound();
+    
+    // Remove temporary order after 3 seconds
+    Future.delayed(Duration(seconds: 3), () {
+      _pendingOrderIds.remove(tempOrderId);
+      _stopAllSounds();
+    });
   }
 
   Future<void> _selectDateRange() async {
@@ -302,9 +527,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildOrderCard(Order order) {
-    // Calculate real-time remaining seconds
     final remainingSeconds = _calculateRemainingSeconds(order);
     final hasActiveTimer = remainingSeconds > 0 && order.canUpdateStatus;
+    final isPending = order.status.toLowerCase() == 'pending';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -318,6 +543,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             offset: const Offset(0, 2),
           ),
         ],
+        border: isPending ? Border.all(color: Colors.orange, width: 2) : null,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -328,12 +554,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    'Order #${order.orderId}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    children: [
+                      if (isPending)
+                        Icon(Icons.notifications_active, color: Colors.orange, size: 20),
+                      SizedBox(width: isPending ? 8 : 0),
+                      Expanded(
+                        child: Text(
+                          'Order #${order.orderId}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
@@ -408,7 +643,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
             const SizedBox(height: 12),
 
-            // Real-time countdown timer
             if (hasActiveTimer)
               _buildRealTimeTimer(remainingSeconds),
 
@@ -479,7 +713,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  // Real-time countdown timer widget
   Widget _buildRealTimeTimer(int remainingSeconds) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -550,12 +783,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Date Range',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Date Range',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
+                  children: [
+                    // Test sound button only
+                    IconButton(
+                      onPressed: _testSound,
+                      icon: const Icon(Icons.volume_up),
+                      tooltip: 'Test Sound',
+                      color: primaryColor,
+                    ),
+                    // Sound toggle button
+                    IconButton(
+                      onPressed: _toggleSoundNotifications,
+                      icon: Icon(
+                        _isSoundEnabled ? Icons.volume_up : Icons.volume_off,
+                        color: _isSoundEnabled ? primaryColor : Colors.grey,
+                      ),
+                      tooltip: _isSoundEnabled ? 'Disable sound' : 'Enable sound',
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Row(
@@ -575,6 +833,42 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
               ],
             ),
+            // Status indicators
+            if (_isPlayingSound)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications_active, color: Colors.orange, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Ringing - ${_pendingOrderIds.length} pending order(s)',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (_pendingOrderIds.isNotEmpty && !_isPlayingSound)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_pendingOrderIds.length} pending order(s) - sound off',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -592,7 +886,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       body: Column(
         children: [
           _buildDateRangeSelector(),
-          // Auto-refresh indicator
+          // Auto-refresh indicator with 10s info
           if (_isRefreshing)
             Container(
               width: double.infinity,
@@ -611,7 +905,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Checking for new orders...',
+                    'Checking for new orders (every 10s)...',
                     style: TextStyle(
                       fontSize: 12,
                       color: primaryColor,
@@ -689,7 +983,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           ),
         ],
       ),
-      // Floating action button for manual refresh
       floatingActionButton: FloatingActionButton(
         onPressed: _loadOrders,
         backgroundColor: primaryColor,
@@ -701,7 +994,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 }
 
-// Order Details Modal (keep the same as before)
+// Order Details Modal (keep your existing one)
 class OrderDetailsModal extends StatelessWidget {
   final Order order;
   final Color primaryColor;
@@ -949,7 +1242,6 @@ class OrderDetailsModal extends StatelessWidget {
     );
   }
 
-  // Format date and time in 12-hour format
   String _formatDateTime12Hour(DateTime date) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     final hour = date.hour;
