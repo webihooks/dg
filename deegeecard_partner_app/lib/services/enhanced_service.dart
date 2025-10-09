@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../api/services/api_service.dart';
+import 'package:intl/intl.dart';
 
 class EnhancedService {
   static const MethodChannel _channel = 
@@ -108,26 +109,38 @@ class EnhancedService {
     }
   }
 
-  static Future<List<dynamic>> _fetchRecentOrders() async {
+
+
+
+
+static Future<List<dynamic>> _fetchRecentOrders() async {
   try {
     // Use the new getRecentOrders method from ApiService
-    return await _apiService.getRecentOrders();
-  } catch (e) {
-    print('Error fetching orders from API: $e');
+    final orders = await _apiService.getRecentOrders();
     
-    // Fallback: try getAllOrders if getRecentOrders fails
-    try {
-      final allOrders = await _apiService.getAllOrders();
-      // Filter only recent orders (last 1 hour)
-      final oneHourAgo = DateTime.now().subtract(Duration(hours: 1)).millisecondsSinceEpoch;
-      return allOrders.where((order) {
-        final orderTime = _getOrderTimestamp(order);
-        return orderTime > oneHourAgo;
-      }).toList();
-    } catch (fallbackError) {
-      print('Fallback also failed: $fallbackError');
-      return [];
+    // Get the last check timestamp
+    final prefs = await SharedPreferences.getInstance();
+    final lastCheck = prefs.getInt('last_order_check') ?? 0;
+    
+    if (lastCheck == 0) {
+      // First time checking, return all orders
+      return orders;
     }
+    
+    // Filter orders that are newer than our last check
+    return orders.where((order) {
+      try {
+        final orderTime = _getOrderTimestamp(order);
+        return orderTime > lastCheck;
+      } catch (e) {
+        print('Error comparing order timestamp: $e');
+        // If there's an error comparing, include the order to be safe
+        return true;
+      }
+    }).toList();
+  } catch (e) {
+    print('Error fetching recent orders: $e');
+    return [];
   }
 }
 
@@ -139,7 +152,7 @@ static int _getOrderTimestamp(Map<String, dynamic> order) {
       final createdAt = order['created_at'];
       if (createdAt is int) return createdAt;
       if (createdAt is String) {
-        return DateTime.parse(createdAt).millisecondsSinceEpoch;
+        return _parseDateTimeString(createdAt);
       }
     }
     
@@ -147,16 +160,73 @@ static int _getOrderTimestamp(Map<String, dynamic> order) {
       final orderDate = order['order_date'];
       if (orderDate is int) return orderDate;
       if (orderDate is String) {
-        return DateTime.parse(orderDate).millisecondsSinceEpoch;
+        return _parseDateTimeString(orderDate);
+      }
+    }
+    
+    if (order['timestamp'] != null) {
+      final timestamp = order['timestamp'];
+      if (timestamp is int) return timestamp;
+      if (timestamp is String) {
+        return _parseDateTimeString(timestamp);
       }
     }
     
     // Default to current time if no timestamp found
     return DateTime.now().millisecondsSinceEpoch;
   } catch (e) {
+    print('Error parsing order timestamp: $e');
     return DateTime.now().millisecondsSinceEpoch;
   }
 }
+
+// Helper method to parse date strings
+static int _parseDateTimeString(String dateString) {
+  try {
+    // Remove any extra spaces and trim
+    dateString = dateString.trim();
+    
+    // Try parsing with common formats
+    try {
+      return DateTime.parse(dateString).millisecondsSinceEpoch;
+    } catch (e) {
+      // If direct parsing fails, try with DateFormat
+    }
+    
+    // Try different date formats
+    List<String> formats = [
+      'yyyy-MM-dd HH:mm:ss',
+      'yyyy-MM-dd',
+      'dd/MM/yyyy HH:mm:ss',
+      'dd/MM/yyyy',
+      'MM/dd/yyyy HH:mm:ss',
+      'MM/dd/yyyy',
+    ];
+    
+    for (String format in formats) {
+      try {
+        final date = DateFormat(format).parse(dateString);
+        return date.millisecondsSinceEpoch;
+      } catch (e) {
+        continue;
+      }
+    }
+    
+    // If all parsing fails, use current time
+    print('Could not parse date string: $dateString');
+    return DateTime.now().millisecondsSinceEpoch;
+  } catch (e) {
+    print('Error in date parsing: $e');
+    return DateTime.now().millisecondsSinceEpoch;
+  }
+}
+
+
+
+
+
+
+
 
   static List<dynamic> _filterNewOrders(List<dynamic> orders, int sinceTimestamp) {
     // Simple filtering - you might want to implement more sophisticated logic

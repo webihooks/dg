@@ -5,6 +5,7 @@ import '../constants/api_constants.dart';
 import '../models/login_response.dart';
 import '../models/user_model.dart';
 import 'session_manager.dart';
+import 'package:intl/intl.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -283,49 +284,92 @@ class ApiService {
     }
   }
 
+  
+  
+  
+  
+  
+  
   // Helper method to extract timestamp from order
-  int _getOrderTimestamp(Map<String, dynamic> order) {
-    try {
-      // Try different possible timestamp fields
-      if (order['created_at'] != null) {
-        final createdAt = order['created_at'];
-        if (createdAt is int) return createdAt;
-        if (createdAt is String) {
-          return DateTime.parse(createdAt).millisecondsSinceEpoch;
-        }
+int _getOrderTimestamp(Map<String, dynamic> order) {
+  try {
+    // Try different possible timestamp fields
+    if (order['created_at'] != null) {
+      final createdAt = order['created_at'];
+      if (createdAt is int) return createdAt;
+      if (createdAt is String) {
+        // Handle different date formats
+        return _parseDateTimeString(createdAt);
       }
-      
-      if (order['order_date'] != null) {
-        final orderDate = order['order_date'];
-        if (orderDate is int) return orderDate;
-        if (orderDate is String) {
-          return DateTime.parse(orderDate).millisecondsSinceEpoch;
-        }
-      }
-      
-      if (order['timestamp'] != null) {
-        final timestamp = order['timestamp'];
-        if (timestamp is int) return timestamp;
-        if (timestamp is String) {
-          return DateTime.parse(timestamp).millisecondsSinceEpoch;
-        }
-      }
-      
-      if (order['date_added'] != null) {
-        final dateAdded = order['date_added'];
-        if (dateAdded is int) return dateAdded;
-        if (dateAdded is String) {
-          return DateTime.parse(dateAdded).millisecondsSinceEpoch;
-        }
-      }
-      
-      // If no timestamp found, use current time (so it will be included)
-      return DateTime.now().millisecondsSinceEpoch;
-    } catch (e) {
-      print('Error parsing order timestamp: $e');
-      return DateTime.now().millisecondsSinceEpoch;
     }
+    
+    if (order['order_date'] != null) {
+      final orderDate = order['order_date'];
+      if (orderDate is int) return orderDate;
+      if (orderDate is String) {
+        return _parseDateTimeString(orderDate);
+      }
+    }
+    
+    if (order['timestamp'] != null) {
+      final timestamp = order['timestamp'];
+      if (timestamp is int) return timestamp;
+      if (timestamp is String) {
+        return _parseDateTimeString(timestamp);
+      }
+    }
+    
+    if (order['date_added'] != null) {
+      final dateAdded = order['date_added'];
+      if (dateAdded is int) return dateAdded;
+      if (dateAdded is String) {
+        return _parseDateTimeString(dateAdded);
+      }
+    }
+    
+    // If no timestamp found, use current time (so it will be included)
+    return DateTime.now().millisecondsSinceEpoch;
+  } catch (e) {
+    print('Error parsing order timestamp: $e');
+    return DateTime.now().millisecondsSinceEpoch;
   }
+}
+
+// Helper method to parse various date string formats
+int _parseDateTimeString(String dateString) {
+  try {
+    // Try common date formats
+    List<String> formats = [
+      'yyyy-MM-dd HH:mm:ss',
+      'yyyy-MM-dd',
+      'dd/MM/yyyy HH:mm:ss',
+      'dd/MM/yyyy',
+      'MM/dd/yyyy HH:mm:ss',
+      'MM/dd/yyyy',
+    ];
+    
+    for (String format in formats) {
+      try {
+        final date = DateFormat(format).parse(dateString);
+        return date.millisecondsSinceEpoch;
+      } catch (e) {
+        // Try next format
+        continue;
+      }
+    }
+    
+    // If none of the formats work, try parsing directly
+    return DateTime.parse(dateString).millisecondsSinceEpoch;
+  } catch (e) {
+    print('Failed to parse date string: $dateString, error: $e');
+    return DateTime.now().millisecondsSinceEpoch;
+  }
+}
+
+
+
+
+
 
   // Get order count for dashboard
   Future<int> getPendingOrderCount() async {
