@@ -5,6 +5,7 @@ header("Pragma: no-cache");
 header("Expires: 0");
 // Start the session
 session_start();
+date_default_timezone_set('Asia/Kolkata');
 require_once 'session_check.php';
 // Include the database connection file
 require 'db_connection.php';

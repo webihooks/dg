@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/native/login_screen.dart';
 import 'screens/native/dashboard_screen.dart';
 import 'api/services/api_service.dart';
-import 'services/phase1_service.dart'; // Updated import
+import 'services/enhanced_service.dart'; // Updated import
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,8 +11,8 @@ void main() {
 }
 
 Future<void> _initializeApp() async {
-  // Initialize Phase 1 service
-  await Phase1Service.initialize();
+  // Initialize Enhanced service
+  await EnhancedService.initialize();
   
   // Initialize API service and load persistent cookies
   final apiService = ApiService();
@@ -20,6 +20,8 @@ Future<void> _initializeApp() async {
   
   runApp(const MyApp());
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -31,14 +33,31 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'Roboto',
       ),
       home: FutureBuilder<bool>(
         future: _checkLoginStatus(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
+              backgroundColor: Colors.white,
               body: Center(
-                child: CircularProgressIndicator(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffff6c2f)),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(
+                        color: Color(0xffff6c2f),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -51,11 +70,16 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 
   Future<bool> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool('isLoggedIn') ?? false;
+    } catch (e) {
+      return false;
+    }
   }
 }

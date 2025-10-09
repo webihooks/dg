@@ -6,7 +6,7 @@ import '../webview/webview_screen.dart';
 import '../../api/services/api_service.dart';
 import 'orders_screen.dart';
 import '../../constants/colors.dart';
-import '../../services/phase1_service.dart'; // Updated import
+import '../../services/enhanced_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -110,83 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _loadServiceStatus() async {
-    setState(() {
-      _isServiceLoading = true;
-    });
-    
-    final isActive = await Phase1Service.isOrderMonitoringActive();
-    
-    setState(() {
-      _isMonitoringActive = isActive;
-      _isServiceLoading = false;
-    });
-  }
-
-  Future<void> _toggleOrderMonitoring() async {
-    setState(() {
-      _isServiceLoading = true;
-    });
-
-    try {
-      if (_isMonitoringActive) {
-        await Phase1Service.stopOrderMonitoring();
-      } else {
-        await Phase1Service.startOrderMonitoring();
-      }
-      
-      setState(() {
-        _isMonitoringActive = !_isMonitoringActive;
-      });
-      
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _isMonitoringActive 
-                ? 'Foreground service started ✅\nApp will work in background with persistent notification' 
-                : 'Foreground service stopped ⏸️\nApp will no longer run in background',
-          ),
-          backgroundColor: _isMonitoringActive ? Colors.green : Colors.orange,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to ${_isMonitoringActive ? 'stop' : 'start'} service: $e'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } finally {
-      setState(() {
-        _isServiceLoading = false;
-      });
-    }
-  }
-
-  Future<void> _testSound() async {
-    try {
-      await Phase1Service.playTestSound();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Test sound played! Check your audio.'),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to play test sound: $e'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
   Future<void> _fetchDashboardData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -215,6 +138,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadServiceStatus() async {
+    setState(() {
+      _isServiceLoading = true;
+    });
+    
+    final isActive = await EnhancedService.isOrderMonitoringActive();
+    
+    setState(() {
+      _isMonitoringActive = isActive;
+      _isServiceLoading = false;
+    });
+  }
+
+  Future<void> _toggleOrderMonitoring() async {
+    setState(() {
+      _isServiceLoading = true;
+    });
+
+    try {
+      if (_isMonitoringActive) {
+        await EnhancedService.stopOrderMonitoring();
+      } else {
+        await EnhancedService.startOrderMonitoring();
+      }
+      
+      setState(() {
+        _isMonitoringActive = !_isMonitoringActive;
+      });
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isMonitoringActive 
+                ? 'Enhanced monitoring started ✅\n• Foreground service active\n• Manual order checking available\n• Sound notifications' 
+                : 'Enhanced monitoring stopped ⏸️',
+          ),
+          backgroundColor: _isMonitoringActive ? Colors.green : Colors.orange,
+          duration: Duration(seconds: 4),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to ${_isMonitoringActive ? 'stop' : 'start'} monitoring: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isServiceLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testNotification() async {
+    try {
+      await EnhancedService.testNewOrder();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Test notification sent! Check your notifications.'),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to send test notification: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> _manualOrderCheck() async {
+    try {
+      setState(() {
+        _isServiceLoading = true;
+      });
+      
+      final result = await EnhancedService.manualOrderCheck();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Order check completed'),
+          backgroundColor: result['success'] == true ? Colors.green : Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Manual check failed: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isServiceLoading = false;
+      });
+    }
+  }
+
   Future<Map<String, String>> _getSessionData() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
@@ -234,7 +264,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _logout() async {
     // Stop monitoring service on logout
-    await Phase1Service.stopOrderMonitoring();
+    await EnhancedService.stopOrderMonitoring();
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
@@ -369,7 +399,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Phase 1 Foreground Service Control Card
+            // Enhanced Monitoring Control Card
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -412,8 +442,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               Text(
                                 _isMonitoringActive ? 
-                                  'Foreground Service Active' : 
-                                  'Foreground Service Inactive',
+                                  'Enhanced Monitoring Active' : 
+                                  'Enhanced Monitoring Inactive',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -423,8 +453,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 _isMonitoringActive ?
-                                  '✓ App runs in background\n✓ Persistent notification shown\n✓ Service survives app closing' :
-                                  'Start service to keep app alive in background',
+                                  '✓ Foreground service active\n✓ Manual order checking\n✓ Sound & native notifications' :
+                                  'Start monitoring for order notifications',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -451,8 +481,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         label: Text(
                           _isMonitoringActive ? 
-                            'STOP FOREGROUND SERVICE' : 
-                            'START FOREGROUND SERVICE',
+                            'STOP ENHANCED MONITORING' : 
+                            'START ENHANCED MONITORING',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -502,35 +532,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     
                     const SizedBox(height: 16),
                     
-                    // Test Sound Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _testSound,
-                        icon: Icon(Icons.volume_up, color: Colors.blue),
-                        label: const Text(
-                          'TEST SOUND',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w600,
+                    // Action Buttons Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _testNotification,
+                            icon: Icon(Icons.notification_important, color: Colors.blue, size: 18),
+                            label: const Text(
+                              'TEST NOTIFY',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              side: const BorderSide(color: Colors.blue),
+                            ),
                           ),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _isServiceLoading ? null : _manualOrderCheck,
+                            icon: Icon(Icons.refresh, color: Colors.orange, size: 18),
+                            label: const Text(
+                              'CHECK ORDERS',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              side: const BorderSide(color: Colors.orange),
+                            ),
                           ),
-                          side: const BorderSide(color: Colors.blue),
                         ),
-                      ),
+                      ],
                     ),
                     
                     // Info Text
                     const SizedBox(height: 12),
                     Text(
                       _isMonitoringActive ?
-                        'ℹ️  Close the app to test background operation. You should see a persistent notification.' :
-                        'ℹ️  Start service to keep the app alive when closed.',
+                        'ℹ️  Use "Check Orders" to manually search for new orders' :
+                        'ℹ️  Start monitoring to enable order checking and notifications',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],

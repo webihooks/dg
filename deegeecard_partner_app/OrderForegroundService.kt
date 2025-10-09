@@ -6,12 +6,15 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 class OrderForegroundService : Service() {
     
     companion object {
         const val CHANNEL_ID = "OrderForegroundServiceChannel"
+        const val NOTIFICATION_CHANNEL_ID = "NewOrdersChannel"
         const val NOTIFICATION_ID = 1001
+        const val ORDER_NOTIFICATION_ID = 1002
         const val ACTION_START_SERVICE = "START_FOREGROUND_SERVICE"
         const val ACTION_STOP_SERVICE = "STOP_FOREGROUND_SERVICE"
     }
@@ -52,6 +55,7 @@ class OrderForegroundService : Service() {
     }
     
     private fun createNotificationChannel() {
+        // Channel for foreground service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
@@ -63,14 +67,47 @@ class OrderForegroundService : Service() {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             
+            // Channel for order notifications
+            val orderChannel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "New Orders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications for new orders"
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
+            manager.createNotificationChannel(orderChannel)
         }
     }
     
     private fun startOrderChecking() {
-        // This is where we'll implement background order checking
-        // For Phase 1, we just keep the service running
+        // Background order checking logic will be implemented here
+        // For now, we just keep the service running
+    }
+    
+    fun showOrderNotification(orderId: String, customerName: String, totalAmount: Double) {
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle("New Order Received! 🎉")
+            .setContentText("Order #$orderId from $customerName - ₹$totalAmount")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+        
+        with(NotificationManagerCompat.from(this)) {
+            notify(ORDER_NOTIFICATION_ID, notification)
+        }
     }
     
     private fun stopForegroundService() {
