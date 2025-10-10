@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/native/login_screen.dart';
 import 'screens/native/dashboard_screen.dart';
 import 'api/services/api_service.dart';
-import 'services/enhanced_service.dart'; // Updated import
+import 'services/enhanced_service.dart';
+import 'constants/colors.dart'; // Add this import
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,17 +12,11 @@ void main() {
 }
 
 Future<void> _initializeApp() async {
-  // Initialize Enhanced service
   await EnhancedService.initialize();
-  
-  // Initialize API service and load persistent cookies
   final apiService = ApiService();
   await apiService.initialize();
-  
   runApp(const MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -31,7 +26,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DeeGeeCard Partner',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: AppColors.primary, // Set primary color
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.primary, // Set AppBar background color
+          foregroundColor: Colors.white, // Set AppBar text color
+          elevation: 0,
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Roboto',
       ),
@@ -46,22 +46,21 @@ class MyApp extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xffff6c2f)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xffff6c2f),
+                      ),
                     ),
                     SizedBox(height: 20),
                     Text(
                       'Loading...',
-                      style: TextStyle(
-                        color: Color(0xffff6c2f),
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Color(0xffff6c2f), fontSize: 16),
                     ),
                   ],
                 ),
               ),
             );
           }
-          
+
           final isLoggedIn = snapshot.data ?? false;
           return isLoggedIn ? const DashboardScreen() : const LoginScreen();
         },
