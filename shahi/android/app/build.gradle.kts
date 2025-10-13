@@ -20,8 +20,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.shahi"
-        minSdk = 21
+        applicationId = "com.yourcompany.biryanibybulk"
+        minSdk = flutter.minSdkVersion
         targetSdk = 34
         versionCode = flutter.versionCode?.toInt() ?: 1
         versionName = flutter.versionName ?: "1.0"

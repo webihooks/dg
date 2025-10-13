@@ -41,30 +41,22 @@ if (isset($_POST['submit_qr'])) {
 
     if (!empty($qrContent)) {
         try {
-            $builder = new Builder();
+            $builder = Builder::create()
+                ->data($qrContent)
+                ->errorCorrectionLevel(ErrorCorrectionLevel::High)
+                ->size(800)
+                ->margin(20)
+                ->foregroundColor(new Color(0, 0, 0))
+                ->backgroundColor(new Color(255, 255, 255));
 
-            // Prepare logo options
-            $logoPath = '';
-            $logoResizeToWidth = null;
-            $logoResizeToHeight = null;
+            // Add logo if exists
             if (file_exists('assets/images/logo.png')) {
-                $logoPath = 'assets/images/logo.png';
-                $logoResizeToWidth = 200;
-                $logoResizeToHeight = 200;
+                $builder->logoPath('assets/images/logo.png')
+                        ->logoResizeToWidth(200)
+                        ->logoResizeToHeight(200);
             }
 
-            $qrCodeResult = $builder->build(
-                data: $qrContent,
-                errorCorrectionLevel: ErrorCorrectionLevel::High,
-                size: 800,
-                margin: 20,
-                foregroundColor: new Color(0, 0, 0),
-                backgroundColor: new Color(255, 255, 255),
-                logoPath: $logoPath,
-                logoResizeToWidth: $logoResizeToWidth,
-                logoResizeToHeight: $logoResizeToHeight
-            );
-            
+            $qrCodeResult = $builder->build();
             $qrCodeImage = 'data:image/png;base64,' . base64_encode($qrCodeResult->getString());
 
         } catch (Exception $e) {

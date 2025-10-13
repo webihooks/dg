@@ -1,5 +1,5 @@
-name: shahi
-description: "Shahi WebView Application"  # More descriptive description
+name: biryani_by_bulk
+description: "Biryani By Bulk - Ab Har Din Biryani"  # More descriptive description
 
 # Version follows semantic versioning (MAJOR.MINOR.PATCH+BUILD)
 version: 1.0.0+1
@@ -9,6 +9,7 @@ environment:
   flutter: ">=3.16.0"     # Explicit Flutter version constraint
 
 dependencies:
+  http: ^1.1.0
   flutter:
     sdk: flutter
 
@@ -43,8 +44,8 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon/icon.png"
-  android_name: "Pawan Koliwada"  # Add this
-  ios_name: "Pawan Koliwada"      # Add this
+  android_name: "Biryani By Bulk"  # Add this
+  ios_name: "Biryani By Bulk"      # Add this
 
   # Add these assets if needed
   assets:
