@@ -1,3 +1,6 @@
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#007bff">
+
 <style>
 /* Rejection dialog styles */
 .rejection-dialog {

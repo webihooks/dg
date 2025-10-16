@@ -1,0 +1,53 @@
+{
+  "packageId": "com.dgcard.restaurant",
+  "host": "dgcard.online",
+  "name": "DGCard Restaurant",
+  "launcherName": "DGCard",
+  "display": "standalone",
+  "themeColor": "#007BFF",
+  "navigationColor": "#000000",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": true,
+  "startUrl": "/login.php",
+  "iconUrl": "https://dgcard.online/assets/images/logo-sm.png",
+  
+  // Backward compatibility settings
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  
+  // Multiple notification channels for different Android versions
+  "notificationChannels": [
+    {
+      "id": "high_priority_orders",
+      "name": "Order Notifications",
+      "description": "Important order notifications",
+      "importance": "high",
+      "enableVibration": true,
+      "enableLights": true,
+      "lockScreenVisibility": "public",
+      "showBadge": true,
+      "sound": "default"
+    },
+    {
+      "id": "default_channel",
+      "name": "General Notifications", 
+      "description": "General app notifications",
+      "importance": "default",
+      "enableVibration": true,
+      "lockScreenVisibility": "public",
+      "showBadge": true
+    }
+  ],
+  
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.1",
+  "appVersionCode": 2,
+  "minimumVersionCode": 1,
+  "generatorApp": "bubblewrap-cli"
+}

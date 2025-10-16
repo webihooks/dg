@@ -1,128 +1,26 @@
 {
-  "name": "DEEGEECARD - Restaurant Partner App",
-  "short_name": "DEEGEECARD",
-  "description": "Get Orders Directly, Zero Commissions!!!",
+  "name": "DGCard Restaurant",
+  "short_name": "DGCard",
+  "description": "Restaurant management and order system with real-time notifications",
   "start_url": "/login.php",
-  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#007bff",
   "orientation": "portrait",
-  "lang": "en",
-  "dir": "ltr",
+  "scope": "/",
+  "categories": ["food", "business", "productivity"],
   "icons": [
     {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
+      "src": "/assets/images/logo-sm.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
+      "src": "/assets/images/logo-lg.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "DeeGeeCard Restaurant Dashboard"
-    },
-    {
-      "src": "https://deegeecard.com/images/dg_logo.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "DeeGeeCard Mobile View"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Login",
-      "short_name": "Login",
-      "description": "Sign in to your account",
-      "url": "/login.php",
-      "icons": [
-        {
-          "src": "https://deegeecard.com/images/dg_logo.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Access your restaurant dashboard",
-      "url": "/dashboard.php",
-      "icons": [
-        {
-          "src": "https://deegeecard.com/images/dg_logo.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Register",
-      "short_name": "Register",
-      "description": "Create new account",
-      "url": "/register.php",
-      "icons": [
-        {
-          "src": "https://deegeecard.com/images/dg_logo.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "web",
-      "url": "https://deegeecard.com"
-    }
-  ],
-  "iarc_rating_id": "e84b912d-6e20-4b66-8e00-3de90a08b7c9"
+  ]
 }
