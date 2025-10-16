@@ -1,10 +1,7 @@
 {
     "require": {
-        "razorpay/razorpay": "^2.9",
-        "thiagoalessio/tesseract_ocr": "^2.13",
-        "phpoffice/phpspreadsheet": "^1.26",
-        "endroid/qr-code": "^5.0",
-        "firebase/php-jwt": "^6.11",
-        "textalk/websocket": "^1.5"
+        "google\/auth": "^1.0",
+        "firebase\/php-jwt": "^6.0",
+        "minishlink/web-push": "^9.0"
     }
 }

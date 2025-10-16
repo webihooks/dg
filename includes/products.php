@@ -37,6 +37,9 @@ if ($table_exists) {
 
 
 <script>
+// Add WhatsApp control flag at the very top
+const ENABLE_WHATSAPP_ORDER = false; // Set to true to enable WhatsApp integration
+
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryBtn = document.getElementById('deliveryBtn');
     const dinningBtn = document.getElementById('dinningBtn');
@@ -488,11 +491,6 @@ if (localStorage.getItem(cartKey)) {
         cart.coupon = savedCart.coupon;
     }
 }
-
-
-
-
-
 
 // Whatsapp Msg Start
 // Add this function to your existing code
@@ -1799,8 +1797,10 @@ function placeOrder() {
             // Show success message
             // showToast('Order placed successfully! Redirecting to order status...', 'success');
             
-            // Prepare WhatsApp message (but don't send immediately)
-            prepareWhatsAppMessage(whatsappOrderDetails, orderId);
+            // Conditionally prepare WhatsApp message based on flag
+            if (ENABLE_WHATSAPP_ORDER) {
+                prepareWhatsAppMessage(whatsappOrderDetails, orderId);
+            }
             
             // Wait 3 seconds, then redirect to order status page
             setTimeout(() => {

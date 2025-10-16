@@ -113,16 +113,6 @@
 
                     <li>
                       <div class="img">
-                        <img src="images/call_icon.webp" alt="image">
-                      </div>
-                      <div class="text">
-                        <span>Zayn Shaikh (CBO)</span>
-                        <a href="tel:917738804051"> +91 77388 04051 </a>
-                      </div>
-                    </li>
-
-                    <li>
-                      <div class="img">
                         <img src="images/mail_icon.webp" alt="image">
                       </div>
                       <div class="text">

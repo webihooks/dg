@@ -7,93 +7,54 @@ namespace Composer\Autoload;
 class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
 {
     public static $files = array (
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
-        '941748b3c8cae4466c827dfb5ca9602a' => __DIR__ . '/..' . '/rmccue/requests/library/Deprecated.php',
-        '13906c19e3d8fcd1341b24ed4d51cf72' => __DIR__ . '/..' . '/razorpay/razorpay/Deprecated.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        't' => 
+        'S' => 
         array (
-            'thiagoalessio\\TesseractOCR\\' => 27,
-        ),
-        'Z' => 
-        array (
-            'ZipStream\\' => 10,
-        ),
-        'W' => 
-        array (
-            'WpOrg\\Requests\\' => 15,
-            'WebSocket\\' => 10,
-        ),
-        'R' => 
-        array (
-            'Razorpay\\Tests\\' => 15,
-            'Razorpay\\Api\\' => 13,
+            'SpomkyLabs\\Pki\\' => 15,
         ),
         'P' => 
         array (
-            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
-            'PhpOffice\\PhpSpreadsheet\\' => 25,
+            'Psr\\Clock\\' => 10,
+            'Psr\\Cache\\' => 10,
         ),
         'M' => 
         array (
-            'Matrix\\' => 7,
+            'Minishlink\\WebPush\\' => 19,
+        ),
+        'J' => 
+        array (
+            'Jose\\Component\\' => 15,
+        ),
+        'G' => 
+        array (
+            'GuzzleHttp\\Psr7\\' => 16,
+            'GuzzleHttp\\Promise\\' => 19,
+            'GuzzleHttp\\' => 11,
+            'Google\\Auth\\' => 12,
         ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
         ),
-        'E' => 
-        array (
-            'Endroid\\QrCode\\' => 15,
-        ),
-        'D' => 
-        array (
-            'DASPRiD\\Enum\\' => 13,
-        ),
-        'C' => 
-        array (
-            'Composer\\Pcre\\' => 14,
-            'Complex\\' => 8,
-        ),
         'B' => 
         array (
-            'BaconQrCode\\' => 12,
+            'Brick\\Math\\' => 11,
+            'Base64Url\\' => 10,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'thiagoalessio\\TesseractOCR\\' => 
+        'SpomkyLabs\\Pki\\' => 
         array (
-            0 => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src',
-        ),
-        'ZipStream\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
-        ),
-        'WpOrg\\Requests\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rmccue/requests/src',
-        ),
-        'WebSocket\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/textalk/websocket/lib',
-        ),
-        'Razorpay\\Tests\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/razorpay/razorpay/tests',
-        ),
-        'Razorpay\\Api\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/razorpay/razorpay/src',
-        ),
-        'Psr\\SimpleCache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+            0 => __DIR__ . '/..' . '/spomky-labs/pki-framework/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -108,53 +69,54 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
-        'PhpOffice\\PhpSpreadsheet\\' => 
+        'Psr\\Clock\\' => 
         array (
-            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+            0 => __DIR__ . '/..' . '/psr/clock/src',
         ),
-        'Matrix\\' => 
+        'Psr\\Cache\\' => 
         array (
-            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+            0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
+        'Minishlink\\WebPush\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/minishlink/web-push/src',
+        ),
+        'Jose\\Component\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/web-token/jwt-library',
+        ),
+        'GuzzleHttp\\Psr7\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
+        ),
+        'GuzzleHttp\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
+        ),
+        'GuzzleHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+        'Google\\Auth\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/google/auth/src',
         ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
-        'Endroid\\QrCode\\' => 
+        'Brick\\Math\\' => 
         array (
-            0 => __DIR__ . '/..' . '/endroid/qr-code/src',
+            0 => __DIR__ . '/..' . '/brick/math/src',
         ),
-        'DASPRiD\\Enum\\' => 
+        'Base64Url\\' => 
         array (
-            0 => __DIR__ . '/..' . '/dasprid/enum/src',
-        ),
-        'Composer\\Pcre\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/composer/pcre/src',
-        ),
-        'Complex\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
-        ),
-        'BaconQrCode\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
-        ),
-    );
-
-    public static $prefixesPsr0 = array (
-        'H' => 
-        array (
-            'HTMLPurifier' => 
-            array (
-                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
-            ),
+            0 => __DIR__ . '/..' . '/spomky-labs/base64url/src',
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Requests' => __DIR__ . '/..' . '/rmccue/requests/library/Requests.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -162,7 +124,6 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit19dce85914a0d40ff610e42a7553729f::$classMap;
 
         }, null, ClassLoader::class);

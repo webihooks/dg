@@ -1,53 +1,48 @@
 {
-  "packageId": "com.dgcard.restaurant",
+  "packageId": "com.deegeecard.restaurant",
   "host": "dgcard.online",
-  "name": "DGCard Restaurant",
-  "launcherName": "DGCard",
+  "name": "DEEGEECARD PARTNER APP",
+  "launcherName": "DEEGEECARD PARTNER APP",
   "display": "standalone",
-  "themeColor": "#007BFF",
+  "themeColor": "#FF6C2F",
   "navigationColor": "#000000",
-  "backgroundColor": "#FFFFFF",
+  "backgroundColor": "#F9F7F7",
   "enableNotifications": true,
   "startUrl": "/login.php",
-  "iconUrl": "https://dgcard.online/assets/images/logo-sm.png",
-  
-  // Backward compatibility settings
+  "iconUrl": "https://dgcard.online/assets/images/logo-lg.png",
+  "maskableIconUrl": "https://dgcard.online/assets/images/logo-sm.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android-key.jks",
+    "alias": "deegeecard"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Orders",
+      "shortName": "Orders",
+      "url": "/orders.php",
+      "chosenIconUrl": "https://dgcard.online/assets/images/order-icon.png"
+    },
+    {
+      "name": "Dashboard", 
+      "shortName": "Dashboard",
+      "url": "/dashboard.php",
+      "chosenIconUrl": "https://dgcard.online/assets/images/dashboard-icon.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://dgcard.online/manifest.json",
   "fallbackType": "customtabs",
   "features": {},
   "alphaDependencies": {
     "enabled": false
   },
-  
-  // Multiple notification channels for different Android versions
-  "notificationChannels": [
-    {
-      "id": "high_priority_orders",
-      "name": "Order Notifications",
-      "description": "Important order notifications",
-      "importance": "high",
-      "enableVibration": true,
-      "enableLights": true,
-      "lockScreenVisibility": "public",
-      "showBadge": true,
-      "sound": "default"
-    },
-    {
-      "id": "default_channel",
-      "name": "General Notifications", 
-      "description": "General app notifications",
-      "importance": "default",
-      "enableVibration": true,
-      "lockScreenVisibility": "public",
-      "showBadge": true
-    }
-  ],
-  
-  "signingKey": {
-    "path": "./android.keystore",
-    "alias": "android"
-  },
-  "appVersionName": "1.0.1",
-  "appVersionCode": 2,
-  "minimumVersionCode": 1,
-  "generatorApp": "bubblewrap-cli"
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "appVersion": "1.0.0"
 }

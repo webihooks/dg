@@ -650,6 +650,70 @@ $conn->close();
     <script src="assets/js/app.js"></script>
     
 <script>
+// Add this to your existing JavaScript in orders.php
+
+/**
+ * Highlight specific order when coming from notification
+ * Scrolls to and highlights the order mentioned in URL
+ */
+function highlightOrderFromNotification() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightOrderId = urlParams.get('highlight_order');
+    
+    if (highlightOrderId) {
+        console.log('🔍 Highlighting order from notification:', highlightOrderId);
+        
+        // Remove the parameter from URL without page reload
+        const newUrl = window.location.pathname + window.location.search.replace(/highlight_order=[^&]*&?/, '').replace(/&$/, '').replace(/\?$/, '');
+        window.history.replaceState({}, document.title, newUrl);
+        
+        // Find and highlight the order
+        const $orderRow = $(`tr[data-order-id="${highlightOrderId}"]`);
+        if ($orderRow.length) {
+            // Scroll to the order
+            $('html, body').animate({
+                scrollTop: $orderRow.offset().top - 100
+            }, 1000);
+            
+            // Add highlight animation
+            $orderRow.addClass('table-success');
+            
+            // Pulse animation
+            let pulseCount = 0;
+            const pulseInterval = setInterval(() => {
+                $orderRow.toggleClass('table-warning');
+                pulseCount++;
+                if (pulseCount >= 6) { // 3 pulses
+                    clearInterval(pulseInterval);
+                    $orderRow.removeClass('table-warning table-success');
+                }
+            }, 500);
+            
+            // Auto-open modal after highlighting
+            setTimeout(() => {
+                $orderRow.find('.view-order').click();
+            }, 1500);
+            
+        } else {
+            console.log('Order not found in current view:', highlightOrderId);
+            showToast('Order #' + highlightOrderId + ' not found in current view', 'info');
+        }
+    }
+}
+
+// Call this function when page loads
+$(document).ready(function() {
+    highlightOrderFromNotification();
+});
+
+
+
+
+
+
+
+
+
 /**
  * Apply border pulse animation to Complete buttons
  * Adds visual emphasis to the action button

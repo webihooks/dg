@@ -250,6 +250,7 @@
                         <li>Confirm your subscription</li>
                         <li>You'll receive a confirmation email with your subscription details</li>
                     </ol>
+                    <p class="red">Note: Your subscription will automatically renew unless canceled before the renewal date.</p>
                     <p>Tip: Yearly subscriptions offer significant savings compared to monthly plans.</p>
                     <img src="images/subscription-plans.jpg" class="img-responsive">
                 </div>

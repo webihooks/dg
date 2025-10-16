@@ -1,13 +1,10 @@
 
 
-IMP : First Live uploads backup
-
 change database credential - db_connection.php
 change database credential - config/db_connection.php
 change database credential - register.php
 change database credential - login.php
 change deegeecard url - dashboard.php
-Change .htaccess - remove deegeecard
 
 
 // Database configuration

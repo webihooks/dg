@@ -1,11 +1,11 @@
 {
-  "name": "DGCard Restaurant",
-  "short_name": "DGCard",
+  "name": "DEEGEECARD PARTNER APP",
+  "short_name": "DEEGEECARD PARTNER APP",
   "description": "Restaurant management and order system with real-time notifications",
   "start_url": "/login.php",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#ff6c2f",
   "orientation": "portrait",
   "scope": "/",
   "categories": ["food", "business", "productivity"],
@@ -22,5 +22,20 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.deegeecard.restaurant"
+    }
+  ],
+  "prefer_related_applications": true
 }

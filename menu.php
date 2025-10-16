@@ -1,5 +1,351 @@
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#007bff">
+<!-- FCM START -->
+<script>
+// FCM Notification Service - Clean Working Version
+class FCMService {
+    constructor() {
+        this.vapidPublicKey = 'BA_40giep4c7wQZcDwmq_u23SFwDrgPwoCFrrPt2MR-aCMBW324yqvAsATjlzowX4cCtSbh1a7fC10rxi_3IY3U';
+        this.isSubscribed = false;
+        this.registration = null;
+        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0; ?>;
+    }
+
+    // Initialize FCM
+    async initFCM() {
+        console.log('🔄 FCM: Starting initialization...');
+        
+        if (!('serviceWorker' in navigator)) {
+            console.error('❌ FCM: Service Worker not supported');
+            return false;
+        }
+
+        if (!('PushManager' in window)) {
+            console.error('❌ FCM: Push Manager not supported');
+            return false;
+        }
+
+        if (!this.userId || this.userId === 0) {
+            console.error('❌ FCM: User ID not available');
+            return false;
+        }
+
+        console.log('✅ FCM: Browser supports push notifications');
+        console.log('👤 FCM: User ID:', this.userId);
+
+        try {
+            // Register FCM service worker
+            console.log('🔄 FCM: Registering service worker...');
+            this.registration = await navigator.serviceWorker.register('/fcm-sw.js');
+            console.log('✅ FCM: Service Worker registered successfully');
+
+            // Wait for service worker to be ready
+            await navigator.serviceWorker.ready;
+            console.log('✅ FCM: Service Worker is ready');
+
+            // Check current subscription
+            const subscription = await this.registration.pushManager.getSubscription();
+            
+            if (subscription) {
+                console.log('✅ FCM: Already subscribed to push notifications');
+                this.isSubscribed = true;
+                await this.saveSubscription(subscription);
+                return true;
+            }
+
+            // Request notification permission
+            console.log('🔄 FCM: Requesting notification permission...');
+            const permission = await Notification.requestPermission();
+            
+            if (permission !== 'granted') {
+                console.error('❌ FCM: Notification permission denied');
+                return false;
+            }
+
+            console.log('✅ FCM: Notification permission granted');
+
+            // Subscribe to push notifications
+            console.log('🔄 FCM: Subscribing to push notifications...');
+            const newSubscription = await this.subscribeToPush();
+            
+            if (newSubscription) {
+                console.log('✅ FCM: Successfully subscribed to push notifications');
+                this.isSubscribed = true;
+                await this.saveSubscription(newSubscription);
+                this.showSuccessMessage();
+                return true;
+            } else {
+                console.error('❌ FCM: Failed to subscribe to push notifications');
+                return false;
+            }
+
+        } catch (error) {
+            console.error('❌ FCM: Initialization failed:', error);
+            this.showErrorMessage(error.message);
+            return false;
+        }
+    }
+
+    // Subscribe to push notifications
+    async subscribeToPush() {
+        try {
+            console.log('🔄 FCM: Creating push subscription...');
+            
+            const subscription = await this.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey)
+            });
+            
+            console.log('✅ FCM: Push subscription created');
+            console.log('📱 FCM: Endpoint:', subscription.endpoint);
+            
+            return subscription;
+        } catch (error) {
+            console.error('❌ FCM: Subscription failed:', error);
+            return null;
+        }
+    }
+
+    // Save subscription to server
+    async saveSubscription(subscription) {
+        try {
+            console.log('🔄 FCM: Saving subscription to server...');
+            
+            const response = await fetch('save_fcm_token.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: JSON.stringify(subscription),
+                    user_id: this.userId
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('✅ FCM: Token saved successfully on server');
+                return true;
+            } else {
+                console.error('❌ FCM: Failed to save token:', result.message);
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ FCM: Error saving token:', error);
+            return false;
+        }
+    }
+
+    // Convert VAPID key
+    urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        
+        return outputArray;
+    }
+
+    // Show success message
+    showSuccessMessage() {
+        console.log('🎉 FCM: Push notifications are now enabled!');
+        if (typeof showToast === 'function') {
+            showToast('🔔 Push notifications enabled! You will receive alerts for new orders.', 'success');
+        }
+    }
+
+    // Show error message
+    showErrorMessage(error) {
+        console.error('❌ FCM: Setup failed:', error);
+    }
+
+    // Test FCM functionality
+    async testFCM() {
+        console.log('🧪 Testing FCM configuration...');
+        
+        // Check service worker
+        if (!this.registration) {
+            console.error('Service worker not registered');
+            return false;
+        }
+        
+        // Check subscription
+        const subscription = await this.registration.pushManager.getSubscription();
+        if (!subscription) {
+            console.error('No push subscription found');
+            return false;
+        }
+        
+        console.log('FCM Subscription details:', {
+            endpoint: subscription.endpoint,
+            keys: subscription.options.applicationServerKey ? 'Present' : 'Missing'
+        });
+        
+        return true;
+    }
+}
+
+// Initialize FCM when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing FCM Service...');
+    
+    // Wait a bit for the page to load completely
+    setTimeout(async function() {
+        const fcmService = new FCMService();
+        window.fcmService = fcmService;
+        
+        // Initialize FCM
+        await fcmService.initFCM();
+        
+        console.log('✅ FCM initialization completed');
+        
+        // Test FCM after initialization
+        setTimeout(async () => {
+            await fcmService.testFCM();
+        }, 1000);
+        
+    }, 3000);
+});
+
+// Manual FCM registration function
+window.manualFCMRegister = async function() {
+    if (window.fcmService) {
+        console.log('🔄 Manually triggering FCM registration...');
+        await window.fcmService.initFCM();
+    } else {
+        console.error('❌ FCM service not available');
+    }
+};
+
+// Test push notification function
+window.testPushNotification = async function() {
+    try {
+        console.log('🧪 Sending test push notification...');
+        const response = await fetch('test_push.php');
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('✅ Test push sent successfully');
+            if (typeof showToast === 'function') {
+                showToast('Test push notification sent! Check your device.', 'success');
+            }
+        } else {
+            console.error('❌ Test push failed:', result.message);
+            if (typeof showToast === 'function') {
+                showToast('Test push failed: ' + result.message, 'danger');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error sending test:', error);
+        if (typeof showToast === 'function') {
+            showToast('Test failed: ' + error.message, 'danger');
+        }
+    }
+};
+
+// Add FCM initialization to your existing order system
+const originalInitOrderSystem = initOrderSystem;
+initOrderSystem = async function() {
+    console.log('Initializing order system with FCM support...');
+    
+    await initAudioSystem();
+    initOrderPolling();
+    setupEventListeners();
+    
+    // FCM is already initialized in DOMContentLoaded
+    console.log('Order system initialized with FCM support');
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add this to your existing FCM code in menu.php
+
+// Test new order simulation function
+window.testNewOrderSimulation = async function() {
+    try {
+        console.log('🧪 Simulating new order...');
+        const response = await fetch('test_new_order.php');
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('✅ New order simulation successful!');
+            if (typeof showToast === 'function') {
+                showToast('New order simulation sent! Check your device for push notification with ring sound.', 'success');
+            }
+            
+            // Show order details in console
+            console.log('📋 Order Details:', result.order_details);
+        } else {
+            console.error('❌ New order simulation failed:', result.message);
+            if (typeof showToast === 'function') {
+                showToast('New order simulation failed: ' + result.message, 'danger');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error simulating new order:', error);
+        if (typeof showToast === 'function') {
+            showToast('Simulation failed: ' + error.message, 'danger');
+        }
+    }
+};
+
+// Add test button to debug panel (if you have one)
+function addNewOrderTestButton() {
+    if (document.getElementById('fcmDebugPanel')) {
+        const testButton = document.createElement('button');
+        testButton.innerHTML = '🧪 Test New Order';
+        testButton.onclick = testNewOrderSimulation;
+        testButton.style.cssText = `
+            padding: 10px 20px;
+            margin: 10px;
+            background: #ff6c2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        `;
+        document.getElementById('fcmDebugPanel').appendChild(testButton);
+    }
+}
+
+// Call this after FCM initialization
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(addNewOrderTestButton, 5000);
+});
+</script>
+<!-- FCM END -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <style>
 /* Rejection dialog styles */
@@ -1347,6 +1693,82 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
    </button>
    <div class="scrollbar" data-simplebar>
       <ul class="navbar-nav" id="navbar-nav">
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="test_new_order_page.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">test_new_order_page</span>
+            </a>
+         </li>
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="push_ring_test.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">push_ring_test</span>
+            </a>
+         </li>
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="quick_test.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">quick_test.php</span>
+            </a>
+         </li>
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="web_push_status.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">web_push_status</span>
+            </a>
+         </li>
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="web_push_debug.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">web_push_debug</span>
+            </a>
+         </li>
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="web_push_simple_test.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">web_push_simple_test</span>
+            </a>
+         </li>
+         
+         
+         <li class="nav-item">
+            <a class="nav-link" href="fcm_debug.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">fcm_debug.php</span>
+            </a>
+         </li>
+          
+          
+          
          <li class="nav-item">
             <a class="nav-link" href="dashboard.php">
                <span class="nav-icon">

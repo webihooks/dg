@@ -120,6 +120,25 @@
         });
 
     </script>
+    
+<script>
+// Detect Android WebView
+function isAndroidWebView() {
+    return navigator.userAgent.toLowerCase().indexOf("wv") > -1 || 
+           (navigator.userAgent.toLowerCase().indexOf("android") > -1 && 
+            navigator.userAgent.toLowerCase().indexOf("chrome") === -1);
+}
+
+// Hide download button if in Android WebView
+if (isAndroidWebView()) {
+    document.addEventListener('DOMContentLoaded', function() {
+        var downloadBtn = document.querySelector('.download_btn');
+        if (downloadBtn) {
+            downloadBtn.style.display = 'none';
+        }
+    });
+}
+</script>
 
     <style>
         :root {
@@ -310,7 +329,21 @@
   margin-bottom: 6px;
   font-weight: bold;
 }
-
+.back-to-home-btn {
+    position: fixed;
+    top: 15px;
+    right: 66px;
+    z-index: 99;
+    background: <?= $primary_color ?>;
+    color: #fff;
+    padding: 5px 18px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+}
     </style>
 </head>
 <body class="restaurant">
@@ -350,25 +383,18 @@
        class="back-to-home-btn">
        Back to Home
     </a>
+<?php endif; ?>
+
+<?php if (in_array($user_id, [77, 78, 79, 80, 81])): ?>
+    <a href="https://biryanibybulk.com" 
+       class="back-to-home-btn">
+       Back to Home
+    </a>
 
     <style>
         .back-to-home-btn {
-            position: fixed;
-            top: 15px;
-            right: 66px;
-            z-index: 99;
-            background: <?= $primary_color ?>;
-            color: #fff;
-            padding: 7px 18px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: background 0.3s;
-        }
-        .back-to-home-btn:hover {
-            color: #fff;
+            background:#ffaa53;
+            color:#000;
         }
     </style>
 <?php endif; ?>

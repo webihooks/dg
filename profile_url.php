@@ -260,7 +260,7 @@ if ($role === 'admin') {
                                     <div class="mb-3">
                                         <label for="profile_url" class="form-label">Your Profile URL</label>
                                         <div class="input-group">
-                                            <span class="input-group-text"><?php echo $_SERVER['HTTP_HOST']; ?>/deegeecard/</span>
+                                            <span class="input-group-text"><?php echo $_SERVER['HTTP_HOST']; ?>/</span>
                                             <input type="text" class="form-control" id="profile_url" name="profile_url" 
                                                    value="<?php echo htmlspecialchars($current_profile_url); ?>" 
                                                    pattern="[a-zA-Z0-9-]+" 
@@ -277,8 +277,8 @@ if ($role === 'admin') {
                                 <?php if (!empty($current_profile_url)): ?>
                                 <div class="mt-4">
                                     <h5>Your current profile link:</h5>
-                                    <a href="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/deegeecard/' . $current_profile_url; ?>" target="_blank">
-                                        <?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/deegeecard/' . $current_profile_url; ?>
+                                    <a href="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url; ?>" target="_blank">
+                                        <?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url; ?>
                                     </a>
                                 </div>
                                 <?php endif; ?>
