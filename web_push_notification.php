@@ -34,7 +34,7 @@ class WebPushNotification {
                 'body' => "From: $customerName\nAmount: ₹$totalAmount\n$displayAddress",
                 'icon' => 'https://dgcard.online/assets/images/logo-sm.png',
                 'badge' => 'https://dgcard.online/assets/images/logo-sm.png',
-                'sound' => 'https://dgcard.online/assets/sounds/new_order.mp3',
+                'sound' => 'https://dgcard.online/assets/sounds/new_order.wav',
                 'data' => [
                     'order_id' => $orderId,
                     'customer_name' => $customerName,
@@ -42,8 +42,7 @@ class WebPushNotification {
                     'total_amount' => $totalAmount,
                     'order_type' => $orderType,
                     'type' => 'new_order',
-                    'click_action' => 'https://dgcard.online/orders.php',
-                    'timestamp' => time()
+                    'click_action' => 'https://dgcard.online/orders.php'
                 ],
                 'actions' => [
                     [
