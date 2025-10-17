@@ -1,4 +1,4 @@
-#Fri Oct 17 00:13:29 IST 2025
+#Fri Oct 17 15:22:06 IST 2025
 base.0=/Applications/XAMPP/xamppfiles/htdocs/deegeecard/deegeecard_twa/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex

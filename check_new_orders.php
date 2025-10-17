@@ -14,9 +14,85 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Check if this is for order status updates
+// Check if this is for order status updates (Solution 4)
 if (isset($_GET['order_ids'])) {
-    // ... your existing code for order status updates ...
+    $order_ids = isset($_GET['order_ids']) ? explode(',', $_GET['order_ids']) : [];
+    $order_ids = array_map('intval', $order_ids);
+    
+    if (empty($order_ids)) {
+        echo json_encode(['success' => true, 'updated_orders' => []]);
+        exit;
+    }
+
+    try {
+        $placeholders = str_repeat('?,', count($order_ids) - 1) . '?';
+        $sql = "SELECT 
+                    o.order_id, 
+                    o.customer_name, 
+                    o.customer_phone, 
+                    o.order_type, 
+                    o.delivery_address, 
+                    o.table_number, 
+                    o.status, 
+                    o.subtotal, 
+                    o.discount_amount, 
+                    o.discount_type, 
+                    o.gst_amount, 
+                    o.delivery_charge, 
+                    o.total_amount, 
+                    o.created_at,
+                    o.order_notes,
+                    o.updated_at
+                FROM orders o 
+                WHERE o.order_id IN ($placeholders) AND o.user_id = ?";
+        $stmt = $conn->prepare($sql);
+        
+        $types = str_repeat('i', count($order_ids)) . 'i';
+        $params = array_merge($order_ids, [$user_id]);
+        $stmt->bind_param($types, ...$params);
+        
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $updated_orders = [];
+
+        while ($row = $result->fetch_assoc()) {
+            // Also fetch order items for complete order data
+            $items_sql = "SELECT 
+                            product_name, 
+                            price, 
+                            quantity 
+                          FROM order_items 
+                          WHERE order_id = ?";
+            $items_stmt = $conn->prepare($items_sql);
+            $items_stmt->bind_param("i", $row['order_id']);
+            $items_stmt->execute();
+            $items_result = $items_stmt->get_result();
+            
+            $items = [];
+            while ($item = $items_result->fetch_assoc()) {
+                $items[] = $item;
+            }
+            
+            $row['items'] = $items;
+            $items_stmt->close();
+            
+            $updated_orders[] = $row;
+        }
+
+        $stmt->close();
+        
+        echo json_encode([
+            'success' => true, 
+            'updated_orders' => $updated_orders,
+            'update_type' => 'status_check'
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode([
+            'error' => 'Database error: ' . $e->getMessage(),
+            'update_type' => 'status_check'
+        ]);
+    }
     
 } else {
     // Original functionality for new order polling
@@ -117,33 +193,6 @@ if (isset($_GET['order_ids'])) {
         }
         
         $stmt->close();
-        
-        // 🔔 TRIGGER WEB PUSH NOTIFICATIONS FOR NEW ORDERS
-        if (!empty($new_orders) && $last_order_id > 0) {
-            require_once 'web_push_notification.php';
-            
-            foreach ($new_orders as $order) {
-                try {
-                    // Send web push notification with ring sound
-                    $success = WebPushNotification::sendNewOrderNotification(
-                        $user_id,
-                        $order['order_id'],
-                        $order['customer_name'],
-                        $order['delivery_address'] ?? ($order['table_number'] ? "Table {$order['table_number']}" : ""),
-                        $order['total_amount'],
-                        $order['order_type']
-                    );
-                    
-                    if ($success) {
-                        error_log("✅ Web push notification sent for order #" . $order['order_id']);
-                    } else {
-                        error_log("❌ Failed to send web push for order #" . $order['order_id']);
-                    }
-                } catch (Exception $e) {
-                    error_log("❌ Error sending web push for order #{$order['order_id']}: " . $e->getMessage());
-                }
-            }
-        }
         
         // Return the complete order data with items
         echo json_encode([

@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Kolkata');
 require_once 'firebase-config.php';
 
 class FCMNotification {
@@ -93,7 +94,7 @@ class FCMNotification {
                     'notification' => [
                         'icon' => 'https://dgcard.online/assets/images/logo-sm.png',
                         'badge' => 'https://dgcard.online/assets/images/logo-sm.png',
-                        'sound' => 'https://dgcard.online/assets/sounds/new_order.mp3',
+                        'sound' => 'https://dgcard.online/assets/sounds/new_order.wav',
                         'requireInteraction' => true,
                         'actions' => [
                             [

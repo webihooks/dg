@@ -21,14 +21,17 @@
     "path": "/Applications/XAMPP/xamppfiles/htdocs/deegeecard/deegeecard_twa/android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1",
-  "appVersionCode": 1,
+  "appVersionName": "2",
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://dgcard.online/manifest.json",
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {
+      "enabled": true
+    },
+    "notifications": {
       "enabled": true
     }
   },
@@ -48,5 +51,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "1"
+  "appVersion": "2"
 }

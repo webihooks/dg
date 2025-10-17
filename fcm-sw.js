@@ -1,6 +1,12 @@
-// Service Worker for Web Push Notifications
+// Service Worker for Web Push Notifications with Continuous Ring
 const CACHE_NAME = 'dgcard-push-v1';
 const APP_SERVER = 'https://dgcard.online';
+
+// Audio management for continuous playback
+let audioContext = null;
+let audioSource = null;
+let isPlaying = true;
+let currentOrderId = null;
 
 // Install event
 self.addEventListener('install', (event) => {
@@ -13,6 +19,95 @@ self.addEventListener('activate', (event) => {
     console.log('Service Worker activated');
     event.waitUntil(self.clients.claim());
 });
+
+// Function to play continuous ring sound
+async function playContinuousRing() {
+    if (isPlaying) return;
+    
+    console.log('Starting continuous ring sound');
+    isPlaying = true;
+    
+    try {
+        // Create audio context if not exists
+        if (!audioContext) {
+            audioContext = new (self.AudioContext || self.webkitAudioContext)();
+        }
+        
+        // Fetch and play the ring sound in a loop
+        const response = await fetch('https://dgcard.online/assets/sounds/new_order.wav');
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        
+        function playLoop() {
+            if (!isPlaying) return;
+            
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(audioContext.destination);
+            audioSource.loop = false; // We'll handle looping manually
+            
+            audioSource.onended = function() {
+                if (isPlaying) {
+                    console.log('Ring sound ended, restarting...');
+                    setTimeout(playLoop, 100); // Small delay before restart
+                }
+            };
+            
+            audioSource.start();
+            console.log('Ring sound started');
+        }
+        
+        playLoop();
+        
+    } catch (error) {
+        console.error('Error playing ring sound:', error);
+        // Fallback: Try to play using simple audio element
+        playFallbackRing();
+    }
+}
+
+// Fallback method using Audio element
+function playFallbackRing() {
+    console.log('Using fallback audio method');
+    
+    // This will be handled by the client page when it receives the message
+    // Send message to all clients to play sound
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'PLAY_CONTINUOUS_RING',
+                orderId: currentOrderId
+            });
+        });
+    });
+}
+
+// Function to stop continuous ring sound
+function stopContinuousRing() {
+    console.log('Stopping continuous ring sound');
+    isPlaying = false;
+    currentOrderId = null;
+    
+    // Stop Web Audio API playback
+    if (audioSource) {
+        try {
+            audioSource.stop();
+            audioSource.disconnect();
+        } catch (e) {
+            console.log('Error stopping audio source:', e);
+        }
+        audioSource = null;
+    }
+    
+    // Also notify clients to stop sound
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'STOP_CONTINUOUS_RING'
+            });
+        });
+    });
+}
 
 // Push event listener - handles background push notifications
 self.addEventListener('push', function(event) {
@@ -41,6 +136,12 @@ self.addEventListener('push', function(event) {
         }
     }
 
+    // Store current order ID for sound management
+    currentOrderId = data.data?.order_id || 'unknown';
+    
+    // Start continuous ring sound
+    playContinuousRing();
+
     // Enhanced notification options with all order details
     const options = {
         body: data.body || 'New order received!',
@@ -52,8 +153,8 @@ self.addEventListener('push', function(event) {
         renotify: true,
         requireInteraction: true,
         silent: false,
-        sound: data.sound || '/assets/sounds/new_order.mp3',
-        vibrate: [200, 100, 200, 100, 200, 300, 200, 100, 200], // Distinct vibration pattern
+        sound: data.sound || 'https://dgcard.online/assets/sounds/new_order.wav',
+        vibrate: [200, 100, 200, 100, 200, 300, 200, 100, 200],
         actions: data.actions || [
             {
                 action: 'view',
@@ -66,7 +167,6 @@ self.addEventListener('push', function(event) {
                 icon: '/assets/images/close-icon.png'
             }
         ],
-        // Additional options for better display
         timestamp: data.data?.timestamp || Date.now(),
         dir: 'auto',
         lang: 'en-US'
@@ -80,6 +180,17 @@ self.addEventListener('push', function(event) {
             options
         ).then(() => {
             console.log('Notification shown successfully');
+            
+            // Also notify all open pages about the new order
+            return self.clients.matchAll();
+        }).then(clients => {
+            clients.forEach(client => {
+                client.postMessage({
+                    type: 'NEW_ORDER_NOTIFICATION',
+                    orderId: currentOrderId,
+                    notificationData: data
+                });
+            });
         }).catch(error => {
             console.error('Error showing notification:', error);
         })
@@ -90,6 +201,9 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
     console.log('Notification clicked:', event);
     console.log('Notification data:', event.notification.data);
+    
+    // Stop the continuous ring sound when any action is taken
+    stopContinuousRing();
     
     event.notification.close();
 
@@ -124,7 +238,7 @@ self.addEventListener('notificationclick', function(event) {
             })
         );
     } else if (event.action === 'dismiss') {
-        // Just close the notification
+        // Just close the notification (sound already stopped)
         console.log('Notification dismissed for order:', orderId);
     } else {
         // Default click behavior - open orders page
@@ -140,6 +254,23 @@ self.addEventListener('notificationclick', function(event) {
 self.addEventListener('notificationclose', function(event) {
     console.log('Notification closed:', event.notification);
     console.log('Order ID:', event.notification.data?.order_id);
+    
+    // Stop sound when notification is closed without clicking actions
+    stopContinuousRing();
+});
+
+// Message event for communication with main thread
+self.addEventListener('message', function(event) {
+    console.log('Service Worker received message:', event.data);
+    
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+    
+    // Handle sound control messages from client
+    if (event.data && event.data.type === 'STOP_RING_SOUND') {
+        stopContinuousRing();
+    }
 });
 
 // Background sync for offline support
@@ -151,23 +282,11 @@ self.addEventListener('sync', function(event) {
 });
 
 async function doBackgroundSync() {
-    // Implement background sync logic here if needed
     console.log('Performing background sync');
-    
     try {
-        // Example: Sync any pending operations
         const cache = await caches.open(CACHE_NAME);
         console.log('Background sync completed');
     } catch (error) {
         console.error('Background sync error:', error);
     }
 }
-
-// Message event for communication with main thread
-self.addEventListener('message', function(event) {
-    console.log('Service Worker received message:', event.data);
-    
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-});

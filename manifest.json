@@ -3,8 +3,8 @@
   "short_name": "DEEGEECARD PARTNER APP",
   "description": "Restaurant management and order system with real-time notifications",
   "start_url": "/login.php",
-  "display": "standalone",
-  "background_color": "#ffffff",
+  "display": "fullscreen",
+  "background_color": "#ff6c2f",
   "theme_color": "#ff6c2f",
   "orientation": "portrait",
   "scope": "/",
@@ -18,7 +18,7 @@
     },
     {
       "src": "/assets/images/logo-lg.png", 
-      "sizes": "512x512",
+      "sizes": "250x250",
       "type": "image/png",
       "purpose": "any maskable"
     }

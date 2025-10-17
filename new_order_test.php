@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -147,4 +147,4 @@ $userId = $_SESSION['user_id'];
     addLog('Click "Test New Order Notification" to simulate a real order.', 'info');
     </script>
 </body>
-</html>
+</html> -->
