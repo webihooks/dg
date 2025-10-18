@@ -1,292 +1,250 @@
-// Service Worker for Web Push Notifications with Continuous Ring
-const CACHE_NAME = 'dgcard-push-v1';
+// =============================================
+// ENHANCED FCM SERVICE WORKER - COMPATIBLE VERSION
+// =============================================
+// START Enhanced FCM Service Worker
+console.log('✅ FCM Service Worker loading...');
+
+const CACHE_NAME = 'dgcard-push-v2';
 const APP_SERVER = 'https://dgcard.online';
 
-// Audio management for continuous playback
-let audioContext = null;
-let audioSource = null;
-let isPlaying = true;
-let currentOrderId = null;
+// Simple notification configuration
+const NOTIFICATION_CONFIG = {
+    defaultIcon: '/assets/images/logo-sm.png',
+    defaultBadge: '/assets/images/logo-sm.png',
+    vibrationPattern: [300, 200, 300, 200, 300]
+};
 
-// Install event
+// =============================================
+// SERVICE WORKER INSTALLATION
+// =============================================
 self.addEventListener('install', (event) => {
-    console.log('Service Worker installed');
-    self.skipWaiting();
+    console.log('🔄 Service Worker installing...');
+    self.skipWaiting(); // Activate immediately
 });
 
-// Activate event
+// =============================================
+// SERVICE WORKER ACTIVATION
+// =============================================
 self.addEventListener('activate', (event) => {
-    console.log('Service Worker activated');
+    console.log('🎯 Service Worker activating...');
     event.waitUntil(self.clients.claim());
 });
 
-// Function to play continuous ring sound
-async function playContinuousRing() {
-    if (isPlaying) return;
-    
-    console.log('Starting continuous ring sound');
-    isPlaying = true;
-    
-    try {
-        // Create audio context if not exists
-        if (!audioContext) {
-            audioContext = new (self.AudioContext || self.webkitAudioContext)();
-        }
-        
-        // Fetch and play the ring sound in a loop
-        const response = await fetch('https://dgcard.online/assets/sounds/new_order.wav');
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        
-        function playLoop() {
-            if (!isPlaying) return;
-            
-            audioSource = audioContext.createBufferSource();
-            audioSource.buffer = audioBuffer;
-            audioSource.connect(audioContext.destination);
-            audioSource.loop = false; // We'll handle looping manually
-            
-            audioSource.onended = function() {
-                if (isPlaying) {
-                    console.log('Ring sound ended, restarting...');
-                    setTimeout(playLoop, 100); // Small delay before restart
-                }
-            };
-            
-            audioSource.start();
-            console.log('Ring sound started');
-        }
-        
-        playLoop();
-        
-    } catch (error) {
-        console.error('Error playing ring sound:', error);
-        // Fallback: Try to play using simple audio element
-        playFallbackRing();
-    }
-}
-
-// Fallback method using Audio element
-function playFallbackRing() {
-    console.log('Using fallback audio method');
-    
-    // This will be handled by the client page when it receives the message
-    // Send message to all clients to play sound
-    self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-            client.postMessage({
-                type: 'PLAY_CONTINUOUS_RING',
-                orderId: currentOrderId
-            });
-        });
-    });
-}
-
-// Function to stop continuous ring sound
-function stopContinuousRing() {
-    console.log('Stopping continuous ring sound');
-    isPlaying = false;
-    currentOrderId = null;
-    
-    // Stop Web Audio API playback
-    if (audioSource) {
-        try {
-            audioSource.stop();
-            audioSource.disconnect();
-        } catch (e) {
-            console.log('Error stopping audio source:', e);
-        }
-        audioSource = null;
-    }
-    
-    // Also notify clients to stop sound
-    self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-            client.postMessage({
-                type: 'STOP_CONTINUOUS_RING'
-            });
-        });
-    });
-}
-
-// Push event listener - handles background push notifications
+// =============================================
+// PUSH NOTIFICATION HANDLER (SIMPLIFIED)
+// =============================================
 self.addEventListener('push', function(event) {
-    console.log('Push event received:', event);
+    console.log('🔔 Push event received');
     
-    if (!event.data) return;
+    if (!event.data) {
+        console.log('⚠️ No data in push event');
+        return;
+    }
 
     let data;
     try {
+        // Parse the push data
         data = event.data.json();
-        console.log('Push data:', data);
+        console.log('📨 Push data:', data);
     } catch (e) {
-        console.log('Push data is text:', event.data.text());
+        console.log('📨 Push data is text, parsing...');
         try {
             data = JSON.parse(event.data.text());
         } catch (parseError) {
-            console.log('Push data is not JSON');
-            data = {
-                title: 'New Order!',
-                body: 'You have received a new order',
-                data: {
-                    order_id: 'unknown',
-                    type: 'new_order'
-                }
-            };
+            console.error('❌ Cannot parse push data');
+            data = createFallbackData();
         }
     }
 
-    // Store current order ID for sound management
-    currentOrderId = data.data?.order_id || 'unknown';
-    
-    // Start continuous ring sound
-    playContinuousRing();
+    // Process the notification
+    event.waitUntil(showNotification(data));
+});
 
-    // Enhanced notification options with all order details
+// =============================================
+// CREATE FALLBACK NOTIFICATION DATA
+// =============================================
+function createFallbackData() {
+    return {
+        title: 'New Order!',
+        body: 'You have received a new order',
+        data: {
+            order_id: 'unknown',
+            type: 'new_order'
+        }
+    };
+}
+
+// =============================================
+// SHOW NOTIFICATION (MAIN FUNCTION)
+// =============================================
+async function showNotification(data) {
+    console.log('🔄 Showing notification...');
+    
+    // Enhanced notification options
     const options = {
         body: data.body || 'New order received!',
-        icon: data.icon || '/assets/images/logo-sm.png',
-        badge: data.badge || '/assets/images/logo-sm.png',
+        icon: data.icon || NOTIFICATION_CONFIG.defaultIcon,
+        badge: data.badge || NOTIFICATION_CONFIG.defaultBadge,
         image: data.image,
         data: data.data || {},
         tag: data.data?.order_id ? `order-${data.data.order_id}` : 'new-order',
         renotify: true,
         requireInteraction: true,
         silent: false,
-        sound: data.sound || 'https://dgcard.online/assets/sounds/new_order.wav',
-        vibrate: [200, 100, 200, 100, 200, 300, 200, 100, 200],
-        actions: data.actions || [
+        vibrate: NOTIFICATION_CONFIG.vibrationPattern,
+        actions: [
             {
                 action: 'view',
                 title: '📋 View Order',
-                icon: '/assets/images/eye-icon.png'
+                icon: '/assets/images/view-icon.png'
             },
             {
-                action: 'dismiss',
-                title: '❌ Dismiss',
-                icon: '/assets/images/close-icon.png'
+                action: 'accept', 
+                title: '✅ Accept',
+                icon: '/assets/images/accept-icon.png'
             }
-        ],
-        timestamp: data.data?.timestamp || Date.now(),
-        dir: 'auto',
-        lang: 'en-US'
+        ]
     };
 
-    console.log('Showing notification with options:', options);
-
-    event.waitUntil(
-        self.registration.showNotification(
+    try {
+        // Show the notification
+        await self.registration.showNotification(
             data.title || 'New Order!',
             options
-        ).then(() => {
-            console.log('Notification shown successfully');
+        );
+        
+        console.log('✅ Notification shown successfully');
+        
+        // Notify all open pages
+        notifyAllClients({
+            type: 'NEW_ORDER_PUSH_NOTIFICATION',
+            orderData: data.data,
+            action: 'play_sound'
+        });
+        
+    } catch (error) {
+        console.error('❌ Notification failed:', error);
+        
+        // Fallback: Try without actions
+        try {
+            const fallbackOptions = { ...options };
+            delete fallbackOptions.actions;
             
-            // Also notify all open pages about the new order
-            return self.clients.matchAll();
-        }).then(clients => {
-            clients.forEach(client => {
-                client.postMessage({
-                    type: 'NEW_ORDER_NOTIFICATION',
-                    orderId: currentOrderId,
-                    notificationData: data
-                });
-            });
-        }).catch(error => {
-            console.error('Error showing notification:', error);
-        })
-    );
-});
+            await self.registration.showNotification(
+                data.title || 'New Order!',
+                fallbackOptions
+            );
+            console.log('✅ Fallback notification shown');
+        } catch (fallbackError) {
+            console.error('❌ Fallback notification also failed:', fallbackError);
+        }
+    }
+}
 
-// Notification click event - enhanced with order details
+// =============================================
+// NOTIFY ALL CLIENTS (TABS)
+// =============================================
+async function notifyAllClients(message) {
+    try {
+        const clients = await self.clients.matchAll();
+        console.log(`📢 Notifying ${clients.length} clients`);
+        
+        clients.forEach(client => {
+            try {
+                client.postMessage(message);
+            } catch (e) {
+                console.error('Failed to notify client:', e);
+            }
+        });
+    } catch (error) {
+        console.error('Error notifying clients:', error);
+    }
+}
+
+// =============================================
+// NOTIFICATION CLICK HANDLER
+// =============================================
 self.addEventListener('notificationclick', function(event) {
-    console.log('Notification clicked:', event);
-    console.log('Notification data:', event.notification.data);
-    
-    // Stop the continuous ring sound when any action is taken
-    stopContinuousRing();
+    console.log('🖱️ Notification clicked:', event.action);
     
     event.notification.close();
-
-    const orderId = event.notification.data?.order_id;
-    const customerName = event.notification.data?.customer_name || 'Customer';
-    const totalAmount = event.notification.data?.total_amount || '0';
     
-    let url = `${APP_SERVER}/orders.php`;
+    const data = event.notification.data;
+    const action = event.action;
     
-    // Add order ID to URL for direct navigation
-    if (orderId && orderId !== 'unknown') {
-        url += `?highlight_order=${orderId}`;
-    }
+    // Stop sounds on any click
+    notifyAllClients({
+        type: 'STOP_NOTIFICATION_SOUND'
+    });
 
-    if (event.action === 'view') {
-        console.log('View Order action clicked for order:', orderId);
-        
-        event.waitUntil(
-            clients.matchAll({type: 'window'}).then(windowClients => {
-                // Check if there's already a window/tab open with the target URL
-                for (let client of windowClients) {
-                    if (client.url.includes(APP_SERVER) && 'focus' in client) {
-                        // Navigate to specific order and focus
-                        client.navigate(url);
-                        return client.focus();
-                    }
-                }
-                // If no window/tab is open, open a new one
-                if (clients.openWindow) {
-                    return clients.openWindow(url);
-                }
-            })
-        );
-    } else if (event.action === 'dismiss') {
-        // Just close the notification (sound already stopped)
-        console.log('Notification dismissed for order:', orderId);
+    // Handle different actions
+    if (action === 'view' || action === 'accept') {
+        handleOrderAction(data, action);
     } else {
-        // Default click behavior - open orders page
-        console.log('Default notification click for order:', orderId);
-        
-        event.waitUntil(
-            clients.openWindow(url)
-        );
+        handleDefaultClick(data);
     }
 });
 
-// Handle notification close
-self.addEventListener('notificationclose', function(event) {
-    console.log('Notification closed:', event.notification);
-    console.log('Order ID:', event.notification.data?.order_id);
+// =============================================
+// HANDLE ORDER ACTIONS
+// =============================================
+function handleOrderAction(data, action) {
+    console.log(`🎯 Handling ${action} action for order:`, data.order_id);
     
-    // Stop sound when notification is closed without clicking actions
-    stopContinuousRing();
-});
+    const url = `${APP_SERVER}/orders.php`;
+    
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then(windowClients => {
+            // Check if there's already a window open
+            for (const client of windowClients) {
+                if (client.url.includes(APP_SERVER) && 'focus' in client) {
+                    client.navigate(url);
+                    return client.focus();
+                }
+            }
+            
+            // Open new window if none exists
+            if (clients.openWindow) {
+                return clients.openWindow(url);
+            }
+        }).then(() => {
+            // Notify clients about the action
+            notifyAllClients({
+                type: `NOTIFICATION_ACTION_${action.toUpperCase()}`,
+                orderId: data.order_id
+            });
+        })
+    );
+}
 
-// Message event for communication with main thread
+// =============================================
+// HANDLE DEFAULT CLICK
+// =============================================
+function handleDefaultClick(data) {
+    console.log('🖱️ Default click for order:', data.order_id);
+    
+    const url = data.order_id ? 
+        `${APP_SERVER}/orders.php?highlight_order=${data.order_id}` :
+        `${APP_SERVER}/orders.php`;
+    
+    event.waitUntil(clients.openWindow(url));
+}
+
+// =============================================
+// MESSAGE HANDLER (CLIENT COMMUNICATION)
+// =============================================
 self.addEventListener('message', function(event) {
-    console.log('Service Worker received message:', event.data);
+    console.log('📨 Service Worker received message:', event.data);
     
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
-    
-    // Handle sound control messages from client
-    if (event.data && event.data.type === 'STOP_RING_SOUND') {
-        stopContinuousRing();
-    }
 });
 
-// Background sync for offline support
-self.addEventListener('sync', function(event) {
-    if (event.tag === 'background-sync') {
-        console.log('Background sync triggered');
-        event.waitUntil(doBackgroundSync());
-    }
-});
-
-async function doBackgroundSync() {
-    console.log('Performing background sync');
-    try {
-        const cache = await caches.open(CACHE_NAME);
-        console.log('Background sync completed');
-    } catch (error) {
-        console.error('Background sync error:', error);
-    }
-}
+// =============================================
+// INITIALIZATION COMPLETE
+// =============================================
+console.log('✅ FCM Service Worker loaded successfully');
+// =============================================
+// END Enhanced FCM Service Worker
+// =============================================

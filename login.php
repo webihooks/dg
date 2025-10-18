@@ -1,29 +1,31 @@
 <?php
-// In your server configuration or PHP file
+// Enhanced session configuration for TWA app
+session_set_cookie_params([
+    'lifetime' => 31536000, // 1 year
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => isset($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'None' // Changed to None for better TWA compatibility
+]);
+
+// Start session with extended lifetime
+ini_set('session.gc_maxlifetime', 31536000); // 365 days in seconds
+session_start();
+
+// Regenerate session ID to prevent fixation
+session_regenerate_id(true);
+
+// Set cache control headers
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
-// Start the session with extended lifetime
-session_start();
-
-// Set session to expire in 1 year (365 days)
-ini_set('session.gc_maxlifetime', 31536000); // 365 days in seconds
-
-// Set session cookie parameters for 1 year
-session_set_cookie_params([
-    'lifetime' => 31536000,
-    'path' => '/',
-    'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']), // Auto-detect HTTPS
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
 
 // Database connection details
-$host = 'localhost'; // Replace with your database host
-$dbname = 'doctorie_webihooks_card'; // Replace with your database name
-$username = 'doctorie_webihooks'; // Replace with your database username
-$password = 'S@g@r4834'; // Replace with your database password
+$host = 'localhost';
+$dbname = 'doctorie_webihooks_card';
+$username = 'doctorie_webihooks';
+$password = 'S@g@r4834';
 
 // Connect to the database
 try {
@@ -35,6 +37,9 @@ try {
 
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
+    // Update session lifetime on each access
+    $_SESSION['last_activity'] = time();
+    
     // Redirect based on user role
     if ($_SESSION['role'] === 'admin') {
         header("Location: admin-dashboard.php");
@@ -45,6 +50,43 @@ if (isset($_SESSION['user_id'])) {
     } else {
         header("Location: subscription.php");
         exit();
+    }
+}
+
+// Handle remember me token auto-login
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $remember_token = $_COOKIE['remember_token'];
+    
+    try {
+        $stmt = $conn->prepare("SELECT * FROM users WHERE remember_token = :token AND token_expires > :now");
+        $stmt->bindParam(':token', $remember_token);
+        $stmt->bindValue(':now', time());
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            // Auto-login user
+            session_regenerate_id(true);
+            
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['email'] = $user['Email'];
+            $_SESSION['login_time'] = time();
+            $_SESSION['last_activity'] = time();
+            
+            // Redirect based on user role
+            if ($user['role'] === 'admin') {
+                header("Location: admin-dashboard.php");
+            } elseif ($user['role'] === 'sales_person') {
+                header("Location: sales-dashboard.php");
+            } else {
+                header("Location: subscription.php");
+            }
+            exit();
+        }
+    } catch (PDOException $e) {
+        // Log error but continue with normal login
+        error_log("Remember token error: " . $e->getMessage());
     }
 }
 
@@ -69,11 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role'] = $user['role'];
             $_SESSION['email'] = $user['Email'];
             $_SESSION['login_time'] = time();
+            $_SESSION['last_activity'] = time();
             
-            // Set a persistent cookie to help maintain session
-            setcookie('remember_me', $user['id'], time() + 31536000, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true);
-            
-            // Check if "Remember me" was checked
+            // Enhanced remember me functionality
             if (isset($_POST['remember_me'])) {
                 // Create remember token for persistent login
                 $remember_token = bin2hex(random_bytes(32));
@@ -86,8 +126,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':id', $user['id']);
                 $stmt->execute();
                 
-                // Set persistent cookie
-                setcookie('remember_token', $remember_token, $expires, '/', $_SERVER['HTTP_HOST'], isset($_SERVER['HTTPS']), true);
+                // Set persistent cookie with enhanced parameters
+                setcookie('remember_token', $remember_token, [
+                    'expires' => $expires,
+                    'path' => '/',
+                    'domain' => $_SERVER['HTTP_HOST'],
+                    'secure' => isset($_SERVER['HTTPS']),
+                    'httponly' => true,
+                    'samesite' => 'None'
+                ]);
+            } else {
+                // Clear remember token if not checked
+                $stmt = $conn->prepare("UPDATE users SET remember_token = NULL, token_expires = NULL WHERE id = :id");
+                $stmt->bindParam(':id', $user['id']);
+                $stmt->execute();
+                
+                // Clear remember cookie
+                setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST']);
             }
             
             // Check if trial has ended
@@ -113,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" class="h-100">
@@ -344,18 +400,95 @@ function showInstallPrompt() {
 }
 </script>
 
+
+
+
+
+<!-- Session Keep Alive -->
+<script>
+// Enhanced TWA Session Management
+class TWASessionManager {
+    constructor() {
+        this.keepAliveInterval = 300000; // 5 minutes
+        this.isTWA = this.detectTWA();
+        this.init();
+    }
+
+    detectTWA() {
+        // Check if running in TWA
+        return window.navigator.standalone || 
+               document.referrer.includes('android-app://') ||
+               /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
+    }
+
+    init() {
+        if (this.isTWA) {
+            console.log('TWA environment detected - enabling enhanced session management');
+            this.startKeepAlive();
+            this.setupVisibilityHandler();
+            this.setupBeforeUnload();
+        }
+    }
+
+    startKeepAlive() {
+        // Immediate keep-alive on load
+        this.keepSessionAlive();
+        
+        // Periodic keep-alive
+        setInterval(() => {
+            this.keepSessionAlive();
+        }, this.keepAliveInterval);
+    }
+
+    async keepSessionAlive() {
+        try {
+            const response = await fetch('session-keepalive.php', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            
+            if (response.ok) {
+                console.log('Session keep-alive successful');
+            } else {
+                console.warn('Session keep-alive failed');
+            }
+        } catch (error) {
+            console.error('Keep-alive request failed:', error);
+        }
+    }
+
+    setupVisibilityHandler() {
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // App became visible - refresh session
+                this.keepSessionAlive();
+            }
+        });
+    }
+
+    setupBeforeUnload() {
+        window.addEventListener('beforeunload', () => {
+            // Store session state in localStorage as backup
+            if (typeof(Storage) !== "undefined") {
+                localStorage.setItem('twaSessionPreserved', 'true');
+                localStorage.setItem('twaLastActive', Date.now());
+            }
+        });
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    new TWASessionManager();
+});    
+</script>
+<!-- Session Keep Alive -->
+
+
+
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
