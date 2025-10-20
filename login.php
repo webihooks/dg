@@ -1,33 +1,30 @@
 <?php
-// Enhanced session configuration for TWA app
+// Enhanced universal session configuration with Android app debugging
 session_set_cookie_params([
-    'lifetime' => 31536000, // 1 year
+    'lifetime' => 31536000, // 1 year for all platforms
     'path' => '/',
     'domain' => $_SERVER['HTTP_HOST'],
     'secure' => isset($_SERVER['HTTPS']),
     'httponly' => true,
-    'samesite' => 'None' // Changed to None for better TWA compatibility
+    'samesite' => 'None' // Changed back to None for Android app compatibility
 ]);
 
-// Start session with extended lifetime
-ini_set('session.gc_maxlifetime', 31536000); // 365 days in seconds
+// Start session with extended lifetime (365 days)
+ini_set('session.gc_maxlifetime', 31536000);
+ini_set('session.cookie_lifetime', 31536000);
 session_start();
-
-// Regenerate session ID to prevent fixation
-session_regenerate_id(true);
 
 // Set cache control headers
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// Database connection details
+// Database connection
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
 $username = 'doctorie_webihooks';
 $password = 'S@g@r4834';
 
-// Connect to the database
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -35,10 +32,46 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Check if user is already logged in
+// ANDROID APP DETECTION AND DEBUGGING
+$isAndroidApp = false;
+$androidDebugInfo = [];
+
+// Detect WebToNative Android App
+if (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
+    isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'com.webtonative.app') {
+    $isAndroidApp = true;
+    
+    // Store Android-specific session data
+    $_SESSION['is_android_app'] = true;
+    $_SESSION['app_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    
+    $androidDebugInfo = [
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Not set',
+        'request_method' => $_SERVER['REQUEST_METHOD'],
+        'https' => isset($_SERVER['HTTPS']) ? 'Yes' : 'No',
+        'cookies_received' => isset($_COOKIE[session_name()]) ? 'Yes' : 'No',
+        'session_id' => session_id(),
+        'timestamp' => time()
+    ];
+}
+
+// Store debug info in session for tracking
+if ($isAndroidApp) {
+    $_SESSION['android_debug_info'] = $androidDebugInfo;
+    $_SESSION['last_android_access'] = time();
+}
+
+// UNIVERSAL SESSION VALIDATION
 if (isset($_SESSION['user_id'])) {
-    // Update session lifetime on each access
+    // Update session lifetime
     $_SESSION['last_activity'] = time();
+    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    
+    // Android-specific session maintenance
+    if ($isAndroidApp) {
+        $_SESSION['android_last_activity'] = time();
+        $_SESSION['android_session_updated'] = true;
+    }
     
     // Redirect based on user role
     if ($_SESSION['role'] === 'admin') {
@@ -53,7 +86,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// Handle remember me token auto-login
+// ENHANCED REMEMBER ME TOKEN AUTO-LOGIN WITH ANDROID SUPPORT
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $remember_token = $_COOKIE['remember_token'];
     
@@ -73,6 +106,18 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             $_SESSION['email'] = $user['Email'];
             $_SESSION['login_time'] = time();
             $_SESSION['last_activity'] = time();
+            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            $_SESSION['auto_logged_in'] = true;
+            
+            // Android app specific data
+            if ($isAndroidApp) {
+                $_SESSION['is_android_app'] = true;
+                $_SESSION['android_auto_login'] = true;
+                $_SESSION['android_login_time'] = time();
+            }
+            
+            // Log auto-login success for debugging
+            error_log("Android Auto-Login Success: User {$user['id']} via token");
             
             // Redirect based on user role
             if ($user['role'] === 'admin') {
@@ -83,10 +128,13 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
                 header("Location: subscription.php");
             }
             exit();
+        } else {
+            // Clear invalid remember token
+            setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST']);
+            error_log("Android Auto-Login Failed: Invalid token");
         }
     } catch (PDOException $e) {
-        // Log error but continue with normal login
-        error_log("Remember token error: " . $e->getMessage());
+        error_log("Android Auto-Login Error: " . $e->getMessage());
     }
 }
 
@@ -95,7 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = htmlspecialchars($_POST['email']);
     $password = $_POST['password'];
 
-    // Fetch user from the database
     try {
         $stmt = $conn->prepare("SELECT * FROM users WHERE Email = :email");
         $stmt->bindParam(':email', $email);
@@ -103,19 +150,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['Password'])) {
-            // Login successful - Regenerate session ID for security
+            // Login successful
             session_regenerate_id(true);
             
-            // Store user data in the session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['email'] = $user['Email'];
             $_SESSION['login_time'] = time();
             $_SESSION['last_activity'] = time();
+            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            $_SESSION['auto_logged_in'] = false;
             
-            // Enhanced remember me functionality
+            // Android app specific session data
+            if ($isAndroidApp) {
+                $_SESSION['is_android_app'] = true;
+                $_SESSION['android_manual_login'] = true;
+                $_SESSION['android_login_time'] = time();
+                
+                // Log Android login
+                error_log("Android Manual Login Success: User {$user['id']}");
+            }
+            
+            // ENHANCED REMEMBER ME FOR ANDROID APPS
             if (isset($_POST['remember_me'])) {
-                // Create remember token for persistent login
                 $remember_token = bin2hex(random_bytes(32));
                 $expires = time() + 31536000; // 1 year
                 
@@ -126,32 +183,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':id', $user['id']);
                 $stmt->execute();
                 
-                // Set persistent cookie with enhanced parameters
+                // Set cookie with Android-compatible parameters
                 setcookie('remember_token', $remember_token, [
                     'expires' => $expires,
                     'path' => '/',
                     'domain' => $_SERVER['HTTP_HOST'],
                     'secure' => isset($_SERVER['HTTPS']),
                     'httponly' => true,
-                    'samesite' => 'None'
+                    'samesite' => 'None' // Essential for Android WebView
                 ]);
+                
+                if ($isAndroidApp) {
+                    $_SESSION['android_remember_me_set'] = true;
+                    error_log("Android Remember Me Token Set: User {$user['id']}");
+                }
             } else {
-                // Clear remember token if not checked
+                // Clear remember token
                 $stmt = $conn->prepare("UPDATE users SET remember_token = NULL, token_expires = NULL WHERE id = :id");
                 $stmt->bindParam(':id', $user['id']);
                 $stmt->execute();
                 
-                // Clear remember cookie
                 setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST']);
             }
             
-            // Check if trial has ended
+            // Check trial
             if (isset($user['trial_end']) && strtotime($user['trial_end']) < time()) {
                 header("Location: subscription.php");
                 exit();
             }
             
-            // Redirect based on user role
+            // Redirect
             if ($user['role'] === 'admin') {
                 header("Location: admin-dashboard.php");
             } elseif ($user['role'] === 'sales_person') {
@@ -210,6 +271,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <!-- Theme Config js (Require in all Page) -->
      <script src="assets/js/config.js"></script>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+
+
+
+<!-- Session Keep Alive -->
+<script>
+// Enhanced Universal Session Management
+class UniversalSessionManager {
+    constructor() {
+        this.keepAliveInterval = 300000; // 5 minutes
+        this.init();
+    }
+
+    init() {
+        this.startKeepAlive();
+        this.setupVisibilityHandler();
+    }
+
+    startKeepAlive() {
+        // IMMEDIATE keep-alive on load
+        this.keepSessionAlive();
+        
+        // Periodic keep-alive
+        setInterval(() => {
+            this.keepSessionAlive();
+        }, this.keepAliveInterval);
+    }
+
+    async keepSessionAlive() {
+        try {
+            const response = await fetch('session-keepalive.php', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            
+            if (response.ok) {
+                console.log('Session keep-alive successful');
+            } else {
+                console.warn('Session keep-alive failed');
+            }
+        } catch (error) {
+            console.error('Keep-alive request failed:', error);
+        }
+    }
+
+    setupVisibilityHandler() {
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Page became visible - refresh session
+                this.keepSessionAlive();
+            }
+        });
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    new UniversalSessionManager();
+});
+</script>
+<!-- Session Keep Alive -->
+
+
+
+
+
+
 
 
 <!-- Google tag (gtag.js) -->
@@ -399,96 +531,5 @@ function showInstallPrompt() {
     console.log('App can be installed');
 }
 </script>
-
-
-
-
-
-<!-- Session Keep Alive -->
-<script>
-// Enhanced TWA Session Management
-class TWASessionManager {
-    constructor() {
-        this.keepAliveInterval = 300000; // 5 minutes
-        this.isTWA = this.detectTWA();
-        this.init();
-    }
-
-    detectTWA() {
-        // Check if running in TWA
-        return window.navigator.standalone || 
-               document.referrer.includes('android-app://') ||
-               /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
-    }
-
-    init() {
-        if (this.isTWA) {
-            console.log('TWA environment detected - enabling enhanced session management');
-            this.startKeepAlive();
-            this.setupVisibilityHandler();
-            this.setupBeforeUnload();
-        }
-    }
-
-    startKeepAlive() {
-        // Immediate keep-alive on load
-        this.keepSessionAlive();
-        
-        // Periodic keep-alive
-        setInterval(() => {
-            this.keepSessionAlive();
-        }, this.keepAliveInterval);
-    }
-
-    async keepSessionAlive() {
-        try {
-            const response = await fetch('session-keepalive.php', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
-            });
-            
-            if (response.ok) {
-                console.log('Session keep-alive successful');
-            } else {
-                console.warn('Session keep-alive failed');
-            }
-        } catch (error) {
-            console.error('Keep-alive request failed:', error);
-        }
-    }
-
-    setupVisibilityHandler() {
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                // App became visible - refresh session
-                this.keepSessionAlive();
-            }
-        });
-    }
-
-    setupBeforeUnload() {
-        window.addEventListener('beforeunload', () => {
-            // Store session state in localStorage as backup
-            if (typeof(Storage) !== "undefined") {
-                localStorage.setItem('twaSessionPreserved', 'true');
-                localStorage.setItem('twaLastActive', Date.now());
-            }
-        });
-    }
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    new TWASessionManager();
-});    
-</script>
-<!-- Session Keep Alive -->
-
-
-
 </body>
 </html>
