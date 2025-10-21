@@ -191,53 +191,13 @@ try {
         }
     }
 
-    // After successful order commit, add Web Push notification
+    // Commit the transaction
     $conn->commit();
     
-    // Trigger Web Push notification with all order details
-    try {
-        require_once 'web_push_notification.php';
-        
-        // Get customer address based on order type
-        $customerAddress = '';
-        if ($input['order_type'] === 'delivery' && isset($input['delivery_address'])) {
-            $customerAddress = $input['delivery_address'];
-        } elseif ($input['order_type'] === 'dining' && isset($input['table_number'])) {
-            $customerAddress = 'Table: ' . $input['table_number'];
-        }
-        
-        WebPushNotification::sendNewOrderNotification(
-            $input['user_id'],
-            $orderId,
-            $input['customer_name'],
-            $customerAddress,
-            $total,
-            $input['order_type']
-        );
-        
-        error_log("Web Push notification triggered for order #$orderId");
-        
-    } catch (Exception $e) {
-        error_log("Web Push notification failed: " . $e->getMessage());
-        // Don't fail the order if notification fails
-    }
-    
     // Log successful order
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
-
-
-
-
-
-
-
-
-    
-    // Log successful order
-    error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
-    
-    // Return success with order ID (REMOVED trigger_whatsapp and clear_cart)
+    // Return success with order ID
     echo json_encode([
         'success' => true,
         'order_id' => $orderId,
