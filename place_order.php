@@ -1,4 +1,5 @@
 <?php
+// place_order.php - Complete Working Version with OneSignal
 
 // List of allowed domains
 $allowedDomains = [
@@ -197,17 +198,70 @@ try {
     // Log successful order
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
+    // =========================================================================
+    // ONE SIGNAL NOTIFICATION - SAFE INTEGRATION
+    // =========================================================================
+    // In place_order.php, after successful order creation ($orderId is set)
+    if ($orderId) {
+        // Send OneSignal notification in background
+        register_shutdown_function(function() use ($input, $orderId, $total) {
+            try {
+                // Small delay to ensure order response is sent first
+                usleep(500000); // 0.5 second
+                
+                // Prepare notification data
+                $notificationData = [
+                    'user_id' => $input['user_id'],
+                    'order_id' => $orderId,
+                    'customer_name' => $input['customer_name'],
+                    'total_amount' => $total,
+                    'order_type' => $input['order_type']
+                ];
+                
+                // Send via cURL (non-blocking)
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => 'send_onesignal_notification.php',
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => json_encode($notificationData),
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_RETURNTRANSFER => false,
+                    CURLOPT_TIMEOUT => 5,
+                    CURLOPT_SSL_VERIFYPEER => false
+                ]);
+                curl_exec($ch);
+                curl_close($ch);
+                
+                error_log("Background notification triggered for order: $orderId");
+                
+            } catch (Exception $e) {
+                error_log("Background notification error: " . $e->getMessage());
+            }
+        });
+    }
+    // =========================================================================
+    
     // Return success with order ID
     echo json_encode([
         'success' => true,
         'order_id' => $orderId,
-        'message' => 'Order placed successfully'
+        'message' => 'Order placed successfully',
+        'order_details' => [
+            'order_id' => $orderId,
+            'customer_name' => $input['customer_name'],
+            'total_amount' => $total,
+            'order_type' => $input['order_type'],
+            'status' => 'pending'
+        ]
     ]);
 
     exit();
     
 } catch (PDOException $e) {
-    $conn->rollBack();
+    if (isset($conn)) {
+        $conn->rollBack();
+    }
+    
     error_log("Order placement error: " . $e->getMessage());
     
     echo json_encode([
@@ -217,7 +271,10 @@ try {
     ]);
     exit();
 } catch (Exception $e) {
-    $conn->rollBack();
+    if (isset($conn)) {
+        $conn->rollBack();
+    }
+    
     error_log("General order placement error: " . $e->getMessage());
     
     echo json_encode([

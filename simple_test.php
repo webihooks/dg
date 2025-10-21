@@ -1,56 +1,71 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-header('Content-Type: text/plain');
-
+ob_start();
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    echo "Not authenticated\n";
-    exit();
-}
+require_once 'onesignal_config.php';
 
-require_once 'config/db_connection.php';
-require_once 'fcm_notification.php';
+$oneSignal = new OneSignalNotification();
+$userId = $_SESSION['user_id'] ?? 28;
 
-$userId = $_SESSION['user_id'];
+// Add a test device automatically
+$playerId = 'auto-test-' . time();
+require_once 'db_connection.php';
+$sql = "INSERT INTO user_devices (user_id, player_id, device_type) VALUES (?, ?, 'web') 
+        ON DUPLICATE KEY UPDATE is_active=1";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("is", $userId, $playerId);
+$stmt->execute();
+$stmt->close();
 
-echo "=== Simple FCM Test ===\n";
-echo "User ID: $userId\n\n";
+// Send test notification
+$testOrderId = rand(1000, 9999);
+$result = $oneSignal->sendNewOrderNotification($userId, $testOrderId, 'Test Customer', 199.99);
 
-// Test database connection
-try {
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM fcm_tokens WHERE user_id = ?");
-    $stmt->execute([$userId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    echo "FCM Subscriptions in database: " . $result['count'] . "\n\n";
-    
-    // Show subscription details
-    $stmt = $conn->prepare("SELECT token, subscription_data FROM fcm_tokens WHERE user_id = ?");
-    $stmt->execute([$userId]);
-    $subscriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    foreach ($subscriptions as $sub) {
-        $data = json_decode($sub['subscription_data'], true);
-        echo "Subscription ID: " . $sub['token'] . "\n";
-        echo "Endpoint: " . ($data['endpoint'] ?? 'N/A') . "\n";
-        echo "Has Keys: " . (isset($data['keys']) ? 'YES' : 'NO') . "\n";
-        echo "---\n";
-    }
-    
-} catch (Exception $e) {
-    echo "Database error: " . $e->getMessage() . "\n";
-    exit();
-}
-
-// Test FCM send
-echo "\nSending test notification...\n";
-$success = FCMNotification::sendNewOrderNotification(
-    $userId,
-    'SIMPLE-TEST-' . time(),
-    'Simple Test Customer',
-    '199.00'
-);
-
-echo "Result: " . ($success ? "SUCCESS" : "FAILED") . "\n";
-echo "Check error_log for detailed information.\n";
+ob_end_clean();
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .success { background: green; color: white; padding: 30px; border-radius: 10px; margin: 20px auto; max-width: 500px; }
+        .error { background: red; color: white; padding: 30px; border-radius: 10px; margin: 20px auto; max-width: 500px; }
+        .btn { display: inline-block; padding: 15px 30px; margin: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>🔔 OneSignal Simple Test</h1>
+    
+    <?php if ($result['success']): ?>
+    <div class="success">
+        <h2>✅ SUCCESS!</h2>
+        <p><strong>Notification Sent Successfully!</strong></p>
+        <p>Order #<?php echo $testOrderId; ?> - Test Customer - ₹199.99</p>
+        <p>Check your devices for the push notification</p>
+        <p><em>If you don't receive it, make sure push notifications are enabled for your app/browser</em></p>
+    </div>
+    <?php else: ?>
+    <div class="error">
+        <h2>❌ FAILED</h2>
+        <p><strong>Error:</strong> <?php echo $result['message']; ?></p>
+        <p><strong>Details:</strong> <?php echo $result['response'] ?? 'No details'; ?></p>
+    </div>
+    <?php endif; ?>
+    
+    <div>
+        <a href="simple_test.php" class="btn">🔄 Test Again</a>
+        <a href="test_clean.php" class="btn">📊 Detailed Test</a>
+        <a href="add_test_device.php" class="btn">📱 Manage Devices</a>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; max-width: 500px; margin: 20px auto;">
+        <h3>What should happen:</h3>
+        <p>✅ Your phone/device should receive a push notification with:</p>
+        <ul style="text-align: left;">
+            <li>Title: "🆕 New Order Received!"</li>
+            <li>Message: "Order #<?php echo $testOrderId; ?> from Test Customer - ₹199.99"</li>
+        </ul>
+    </div>
+</body>
+</html>

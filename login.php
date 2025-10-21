@@ -531,5 +531,143 @@ function showInstallPrompt() {
     console.log('App can be installed');
 }
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========================================= -->
+<!-- GUARANTEED OneSignal Device Registration -->
+<!-- ========================================= -->
+
+<!-- SIMPLIFIED OneSignal Registration -->
+<script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
+<script>
+// Minimal OneSignal Registration Script
+class SimpleOneSignalRegister {
+    constructor() {
+        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+        console.log('🚀 Simple Register - User ID:', this.userId);
+        
+        if (this.userId) {
+            this.startRegistration();
+        }
+    }
+    
+    startRegistration() {
+        console.log('🔄 Starting registration process...');
+        
+        // Try WebToNative first
+        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+            console.log('📱 Trying WebToNative...');
+            this.registerViaWebToNative();
+        } 
+        // Try manual registration with test ID
+        else {
+            console.log('🌐 Using manual registration...');
+            this.registerManualDevice();
+        }
+    }
+    
+    registerViaWebToNative() {
+        WTN.OneSignal.getPlayerId().then(playerId => {
+            if (playerId) {
+                console.log('✅ Got WebToNative Player ID:', playerId);
+                this.sendRegistration(playerId, 'android_webtonative', 'android');
+            } else {
+                console.log('❌ No Player ID from WebToNative, using fallback');
+                this.registerManualDevice();
+            }
+        }).catch(error => {
+            console.error('❌ WebToNative error:', error);
+            this.registerManualDevice();
+        });
+    }
+    
+    registerManualDevice() {
+        // Create a unique player ID for testing
+        const playerId = 'manual-' + this.userId + '-' + Date.now();
+        console.log('🛠 Using manual Player ID:', playerId);
+        this.sendRegistration(playerId, 'web_browser', 'web');
+    }
+    
+    sendRegistration(playerId, deviceType, platform) {
+        const payload = {
+            player_id: playerId,
+            device_type: deviceType,
+            platform: platform,
+            user_id: this.userId,
+            source: 'simple_script'
+        };
+        
+        console.log('📨 Sending registration:', payload);
+        
+        fetch('https://dgcard.online/register_device_unified.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            console.log('📞 Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ Registration response:', data);
+            if (data.success) {
+                console.log('🎉 DEVICE REGISTERED SUCCESSFULLY!');
+                // Show success message
+                this.showMessage('✅ Device registered successfully!', 'success');
+            } else {
+                console.error('❌ Registration failed:', data.message);
+                this.showMessage('❌ Registration failed: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Request failed:', error);
+            this.showMessage('❌ Network error: ' + error.message, 'error');
+        });
+    }
+    
+    showMessage(message, type) {
+        // Create a visible notification
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+            border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+            border-radius: 5px;
+            z-index: 10000;
+            color: ${type === 'success' ? '#155724' : '#721c24'};
+        `;
+        div.textContent = message;
+        document.body.appendChild(div);
+        
+        setTimeout(() => {
+            document.body.removeChild(div);
+        }, 5000);
+    }
+}
+
+// Start registration when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    new SimpleOneSignalRegister();
+});
+</script>
+<!-- ========================================= -->
+<!-- Enhanced OneSignal Integration for Login -->
+<!-- ========================================= -->
 </body>
 </html>

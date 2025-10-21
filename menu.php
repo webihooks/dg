@@ -1,4 +1,243 @@
-<!-- Session Keep Alive -->
+<script>
+// Debug function to check OneSignal status
+function debugOneSignal() {
+    let status = {};
+    
+    if (window.oneSignalLoginManager) {
+        status.loginManager = window.oneSignalLoginManager.getRegistrationStatus();
+    }
+    
+    if (window.oneSignalDashboardManager) {
+        status.dashboardManager = {
+            userId: window.oneSignalDashboardManager.userId,
+            initialized: true
+        };
+    }
+    
+    status.localStorage = {
+        pendingPlayerId: localStorage.getItem('pending_player_id'),
+        playerId: localStorage.getItem('player_id'),
+        userId: localStorage.getItem('user_id'),
+        registered: localStorage.getItem('onesignal_registered')
+    };
+    
+    status.session = {
+        phpUserId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
+        isAndroidApp: <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>
+    };
+    
+    console.log('🔍 OneSignal Full Debug Info:', status);
+    alert('OneSignal Debug Info:\n' + JSON.stringify(status, null, 2));
+}
+
+// Add debug button to your page (optional)
+<button onclick="debugOneSignal()" class="btn btn-info">Debug OneSignal</button>
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- OneSignal Integration for Dashboard -->
+<script>
+// Dashboard OneSignal Maintenance
+class DashboardOneSignal {
+    constructor() {
+        this.userId = <?php echo $_SESSION['user_id'] ?? 'null'; ?>;
+        if (this.userId) {
+            this.ensureDeviceRegistered();
+        }
+    }
+    
+    ensureDeviceRegistered() {
+        // Check if we have a recent registration
+        const lastReg = localStorage.getItem('last_registration');
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        if (!lastReg || (Date.now() - new Date(lastReg).getTime()) > oneDay) {
+            // Re-register device daily
+            this.registerDevice();
+        }
+    }
+    
+    registerDevice() {
+        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+            WTN.OneSignal.getPlayerId().then(playerId => {
+                if (playerId) {
+                    this.sendRegistration(playerId, 'android_webtonative');
+                }
+            });
+        }
+    }
+    
+    sendRegistration(playerId, deviceType) {
+        const payload = {
+            player_id: playerId,
+            device_type: deviceType,
+            user_id: this.userId
+        };
+        
+        fetch('register_device_unified.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.setItem('last_registration', new Date().toISOString());
+                console.log('Dashboard device maintenance: Registered');
+            }
+        });
+    }
+}
+
+// Initialize on dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    new DashboardOneSignal();
+});
+</script>
+<!-- OneSignal Integration for Dashboard -->
+
+
+
+
+<!-- SIMPLIFIED OneSignal Registration -->
+<script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
+<script>
+// Minimal OneSignal Registration Script
+class SimpleOneSignalRegister {
+    constructor() {
+        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+        console.log('🚀 Simple Register - User ID:', this.userId);
+        
+        if (this.userId) {
+            this.startRegistration();
+        }
+    }
+    
+    startRegistration() {
+        console.log('🔄 Starting registration process...');
+        
+        // Try WebToNative first
+        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+            console.log('📱 Trying WebToNative...');
+            this.registerViaWebToNative();
+        } 
+        // Try manual registration with test ID
+        else {
+            console.log('🌐 Using manual registration...');
+            this.registerManualDevice();
+        }
+    }
+    
+    registerViaWebToNative() {
+        WTN.OneSignal.getPlayerId().then(playerId => {
+            if (playerId) {
+                console.log('✅ Got WebToNative Player ID:', playerId);
+                this.sendRegistration(playerId, 'android_webtonative', 'android');
+            } else {
+                console.log('❌ No Player ID from WebToNative, using fallback');
+                this.registerManualDevice();
+            }
+        }).catch(error => {
+            console.error('❌ WebToNative error:', error);
+            this.registerManualDevice();
+        });
+    }
+    
+    registerManualDevice() {
+        // Create a unique player ID for testing
+        const playerId = 'manual-' + this.userId + '-' + Date.now();
+        console.log('🛠 Using manual Player ID:', playerId);
+        this.sendRegistration(playerId, 'web_browser', 'web');
+    }
+    
+    sendRegistration(playerId, deviceType, platform) {
+        const payload = {
+            player_id: playerId,
+            device_type: deviceType,
+            platform: platform,
+            user_id: this.userId,
+            source: 'simple_script'
+        };
+        
+        console.log('📨 Sending registration:', payload);
+        
+        fetch('https://dgcard.online/register_device_unified.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            console.log('📞 Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ Registration response:', data);
+            if (data.success) {
+                console.log('🎉 DEVICE REGISTERED SUCCESSFULLY!');
+                // Show success message
+                this.showMessage('✅ Device registered successfully!', 'success');
+            } else {
+                console.error('❌ Registration failed:', data.message);
+                this.showMessage('❌ Registration failed: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Request failed:', error);
+            this.showMessage('❌ Network error: ' + error.message, 'error');
+        });
+    }
+    
+    showMessage(message, type) {
+        // Create a visible notification
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+            border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+            border-radius: 5px;
+            z-index: 10000;
+            color: ${type === 'success' ? '#155724' : '#721c24'};
+        `;
+        div.textContent = message;
+        document.body.appendChild(div);
+        
+        setTimeout(() => {
+            document.body.removeChild(div);
+        }, 5000);
+    }
+}
+
+// Start registration when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    new SimpleOneSignalRegister();
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========================================= -->
+<!-- Session Keep Alive (Keep this as is) -->
+<!-- ========================================= -->
 <script>
 // Enhanced TWA Session Management
 class TWASessionManager {
@@ -24,7 +263,6 @@ class TWASessionManager {
         }
     }
 
-    // NEW: Restore session state from localStorage
     restoreSessionState() {
         if (typeof(Storage) !== "undefined") {
             const sessionPreserved = localStorage.getItem('twaSessionPreserved');
@@ -32,10 +270,8 @@ class TWASessionManager {
             
             if (sessionPreserved === 'true' && lastActive) {
                 const timeSinceLastActive = Date.now() - parseInt(lastActive);
-                // If app was closed less than 5 minutes ago, consider session preserved
                 if (timeSinceLastActive < 300000) {
                     console.log('TWA session restored from background');
-                    // Trigger order check immediately
                     setTimeout(() => {
                         if (window.checkExistingPendingOrders) {
                             window.checkExistingPendingOrders();
@@ -44,7 +280,6 @@ class TWASessionManager {
                 }
             }
             
-            // Clear the stored state
             localStorage.removeItem('twaSessionPreserved');
             localStorage.removeItem('twaLastActive');
         }
@@ -52,7 +287,6 @@ class TWASessionManager {
 
     startKeepAlive() {
         this.keepSessionAlive();
-        
         setInterval(() => {
             this.keepSessionAlive();
         }, this.keepAliveInterval);
@@ -82,10 +316,7 @@ class TWASessionManager {
     setupVisibilityHandler() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                // App became visible - refresh session and check orders
                 this.keepSessionAlive();
-                
-                // Check for new orders when app comes to foreground
                 setTimeout(() => {
                     if (window.checkExistingPendingOrders) {
                         window.checkExistingPendingOrders();
@@ -97,20 +328,25 @@ class TWASessionManager {
 
     setupBeforeUnload() {
         window.addEventListener('beforeunload', () => {
-            // Store session state in localStorage as backup
             if (typeof(Storage) !== "undefined") {
                 localStorage.setItem('twaSessionPreserved', 'true');
-                localStorage.setItem('twaLastActive', Date.now());
+                localStorage.setItem('twaLastActive', Date.now().toString());
             }
         });
     }
 }
 
-// Make functions globally available for TWA
-window.checkExistingPendingOrders = checkExistingPendingOrders; 
-</script>
-<!-- Session Keep Alive -->
+// Initialize TWA Manager
+document.addEventListener('DOMContentLoaded', function() {
+    window.twaManager = new TWASessionManager();
+});
 
+// Make functions globally available for TWA
+window.checkExistingPendingOrders = checkExistingPendingOrders;
+</script>
+<!-- ========================================= -->
+<!-- Session Keep Alive (Keep this as is) -->
+<!-- ========================================= -->
 
 
 
@@ -677,7 +913,7 @@ function autoRefreshPage() {
 
 
 
-// Enhanced handleNewOrders function
+// Modify your handleNewOrders function
 function handleNewOrders(newOrders) {
     const newMaxOrderId = Math.max(POLLING_CONFIG.lastOrderId, ...newOrders.map(o => o.order_id));
     
@@ -690,10 +926,9 @@ function handleNewOrders(newOrders) {
                 POLLING_CONFIG.pendingOrders.set(order.order_id, order);
                 hasNewPending = true;
                 
+                // Send OneSignal notification for new orders
                 if (POLLING_CONFIG.hasCheckedExistingOrders) {
-                    console.log(`🆕 NEW order detected: #${order.order_id}`);
-                } else {
-                    console.log(`📋 Existing pending order loaded: #${order.order_id}`);
+                    sendOneSignalNotification(order);
                 }
             }
         });
@@ -1656,9 +1891,17 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
    </button>
    <div class="scrollbar" data-simplebar>
       <ul class="navbar-nav" id="navbar-nav">
-          
-          
-          
+
+
+
+
+
+
+        <h2><a href="test_notification_simple.php">test_notification_simple.php</a></h2>
+
+        <h2><a href="test_final.php">test_final.php</a></h2>
+
+
          <li class="nav-item">
             <a class="nav-link" href="dashboard.php">
                <span class="nav-icon">

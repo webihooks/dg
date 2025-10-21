@@ -1,316 +1,155 @@
 <?php
+ob_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
+
+require_once 'onesignal_config.php';
+$oneSignal = new OneSignalNotification();
+
+$userId = $_SESSION['user_id'] ?? 28;
+
+// Handle test actions
+$action = $_POST['action'] ?? '';
+$testResult = [];
+
+if ($action === 'test_notification') {
+    $testOrderId = rand(1000, 9999);
+    $testResult = $oneSignal->sendNewOrderNotification($userId, $testOrderId, 'Test Customer', 299.99);
 }
+
+ob_end_clean();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Quick Push Test</title>
+    <title>Quick Test - OneSignal</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        button { padding: 15px 25px; margin: 10px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .test-btn { background: #007bff; color: white; }
-        .test-btn:hover { background: #0056b3; }
-        .ring-btn { background: #28a745; color: white; }
-        .ring-btn:hover { background: #1e7e34; }
-        .stop-btn { background: #dc3545; color: white; }
-        .stop-btn:hover { background: #c82333; }
-        .log { background: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #e9ecef; height: 200px; overflow-y: auto; }
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
-        .info { color: #17a2b8; }
-        .status { padding: 15px; margin: 15px 0; border-radius: 8px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #ffc107; }
+        .btn { display: inline-block; padding: 12px 24px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .btn-success { background: #28a745; }
+        .btn-test { background: #6f42c1; }
+        .log { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔔 Quick Push & Ring Test</h1>
-        <p>Test push notifications with continuous ring sound even when app is closed.</p>
+        <h1>🔔 Quick OneSignal Test</h1>
         
-        <div class="status" id="status">Ready to test...</div>
-        
-        <div>
-            <button class="test-btn" onclick="testPush()">Test Push Notification</button>
-            <button class="ring-btn" onclick="startRing()">Start Continuous Ring</button>
-            <button class="stop-btn" onclick="stopRing()">Stop Ring</button>
-            <button onclick="testBoth()">Test Both (Push + Ring)</button>
+        <div class="log" id="testLog">
+            <div>Test Log:</div>
+            <div id="logContent"></div>
         </div>
+
+        <?php
+        // Check credentials
+        $credCheck = $oneSignal->verifyCredentials();
+        $deviceCount = $oneSignal->getUserDeviceCount($userId);
+        ?>
         
-        <h3>Test Log:</h3>
-        <div id="log" class="log"></div>
-        
-        <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
-            <h4>📱 Testing Instructions:</h4>
-            <ol>
-                <li>Click "Start Continuous Ring" to test ring sound</li>
-                <li>Click "Test Push Notification" to send push notification</li>
-                <li>Minimize browser or lock phone to test background behavior</li>
-                <li>Ring should continue playing even when app is in background</li>
-            </ol>
+        <div class="success">
+            <h3>✅ System Status</h3>
+            <p><strong>Credentials:</strong> <?php echo $credCheck['message']; ?></p>
+            <p><strong>Registered Devices:</strong> <?php echo $deviceCount; ?></p>
+            <p><strong>User ID:</strong> <?php echo $userId; ?></p>
         </div>
-        
-        <!-- Audio element for continuous ring -->
-        <audio id="ringAudio" loop>
-            <source src="/assets/sounds/new_order.mp3" type="audio/mpeg">
-        </audio>
+
+        <?php if ($deviceCount === 0): ?>
+        <div class="warning">
+            <h3>⚠️ No Devices Found</h3>
+            <p>You need to register devices first. Add the JavaScript code to your website or add test devices manually.</p>
+            <a href="add_test_device.php" class="btn">📱 Add Test Devices</a>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($testResult)): ?>
+        <div class="<?php echo $testResult['success'] ? 'success' : 'error'; ?>">
+            <h3><?php echo $testResult['success'] ? '✅ Notification Sent!' : '❌ Notification Failed'; ?></h3>
+            <p><?php echo $testResult['message']; ?></p>
+            <?php if (isset($testResult['http_code'])): ?>
+                <p><strong>HTTP Code:</strong> <?php echo $testResult['http_code']; ?></p>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <form method="post" style="display: inline-block;">
+                <input type="hidden" name="action" value="test_notification">
+                <button type="submit" class="btn btn-test" <?php echo $deviceCount === 0 ? 'disabled' : ''; ?>>
+                    🚀 Test Push Notification
+                </button>
+            </form>
+            
+            <button onclick="testRingSound()" class="btn btn-success">
+                🔔 Test Ring Sound
+            </button>
+            
+            <a href="test_clean.php" class="btn">🔄 Full Test</a>
+        </div>
+
+        <?php if ($deviceCount === 0): ?>
+        <div class="warning">
+            <h3>Quick Fix: Add Test Device</h3>
+            <form method="post" action="quick_add_device.php">
+                <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
+                <input type="hidden" name="player_id" value="quick-test-<?php echo time(); ?>">
+                <input type="hidden" name="device_type" value="android">
+                <button type="submit" class="btn btn-success">➕ Add Test Device Now</button>
+            </form>
+        </div>
+        <?php endif; ?>
     </div>
 
     <script>
-    const log = document.getElementById('log');
-    const status = document.getElementById('status');
-    const ringAudio = document.getElementById('ringAudio');
-    let isRingPlaying = false;
-
-    // Set audio volume
-    ringAudio.volume = 0.8;
-
-    function addLog(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        const messageDiv = document.createElement('div');
-        messageDiv.className = type;
-        messageDiv.innerHTML = `[${timestamp}] ${message}`;
-        log.appendChild(messageDiv);
-        log.scrollTop = log.scrollHeight;
-        console.log(`[${type.toUpperCase()}] ${message}`);
-    }
-
-    function updateStatus(message, type = 'info') {
-        status.textContent = message;
-        status.className = `status ${type}`;
-        status.style.backgroundColor = type === 'success' ? '#d4edda' : 
-                                     type === 'error' ? '#f8d7da' : 
-                                     type === 'warning' ? '#fff3cd' : '#d1ecf1';
-        status.style.color = type === 'success' ? '#155724' : 
-                           type === 'error' ? '#721c24' : 
-                           type === 'warning' ? '#856404' : '#0c5460';
-    }
-
-    async function testPush() {
-        addLog('🚀 Testing push notification...', 'info');
-        updateStatus('Sending push notification...', 'info');
+        const logContent = document.getElementById('logContent');
         
-        try {
-            const response = await fetch('test_web_push_clean.php');
-            const result = await response.json();
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function testRingSound() {
+            log('🎯 Testing ring sound...');
+            log('🔔 Playing continuous ring sound...');
             
-            if (result.success) {
-                addLog('✅ Push notification sent successfully!', 'success');
-                addLog('📱 Check your device for the notification', 'success');
-                updateStatus('Push notification sent! Check your device.', 'success');
-            } else {
-                addLog('❌ Push test failed: ' + result.message, 'error');
-                updateStatus('Push test failed: ' + result.message, 'error');
-            }
-        } catch (error) {
-            addLog('❌ Push test error: ' + error.message, 'error');
-            updateStatus('Push test error: ' + error.message, 'error');
-        }
-    }
-
-    async function startRing() {
-        if (isRingPlaying) {
-            addLog('🔔 Ring is already playing', 'info');
-            return;
-        }
-
-        addLog('🔔 Starting continuous ring sound...', 'info');
-        updateStatus('Playing continuous ring...', 'info');
-        
-        try {
-            // Set up audio for continuous playback
-            ringAudio.currentTime = 0;
-            ringAudio.loop = true;
+            // Create audio context for better mobile support
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
             
-            const playPromise = ringAudio.play();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
             
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    isRingPlaying = true;
-                    addLog('✅ Continuous ring started successfully', 'success');
-                    updateStatus('Ring playing continuously...', 'success');
-                    
-                    // Set up periodic checks to keep audio playing
-                    setInterval(() => {
-                        if (isRingPlaying && ringAudio.paused) {
-                            addLog('🔄 Audio paused, resuming...', 'info');
-                            ringAudio.play().catch(e => {
-                                addLog('❌ Failed to resume audio: ' + e.message, 'error');
-                            });
-                        }
-                    }, 1000);
-                    
-                }).catch(error => {
-                    addLog('❌ Failed to play ring: ' + error.message, 'error');
-                    updateStatus('Ring play failed: ' + error.message, 'error');
-                });
-            }
-        } catch (error) {
-            addLog('❌ Ring start error: ' + error.message, 'error');
-            updateStatus('Ring start error: ' + error.message, 'error');
-        }
-    }
-
-    function stopRing() {
-        if (!isRingPlaying) {
-            addLog('🔇 Ring is not playing', 'info');
-            return;
-        }
-
-        ringAudio.pause();
-        ringAudio.currentTime = 0;
-        isRingPlaying = false;
-        
-        addLog('🔇 Ring stopped', 'success');
-        updateStatus('Ring stopped', 'info');
-    }
-
-    async function testBoth() {
-        addLog('🎯 Testing both push notification and ring...', 'info');
-        updateStatus('Testing push + ring...', 'info');
-        
-        // Start ring first
-        await startRing();
-        
-        // Wait a bit then send push
-        setTimeout(async () => {
-            await testPush();
-        }, 1000);
-    }
-
-    // Handle page visibility changes
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && isRingPlaying && ringAudio.paused) {
-            addLog('🔄 Page became visible, resuming ring...', 'info');
-            ringAudio.play().catch(e => {
-                addLog('❌ Failed to resume ring: ' + e.message, 'error');
-            });
-        }
-    });
-
-    // Handle user interactions to resume audio if needed
-    document.addEventListener('click', () => {
-        if (isRingPlaying && ringAudio.paused) {
-            ringAudio.play().catch(e => {
-                console.log('Audio resume attempt failed:', e);
-            });
-        }
-    });
-
-    // Auto-start ring when page loads (optional)
-    // setTimeout(startRing, 2000);
-
-    addLog('Quick test page loaded successfully.', 'info');
-    addLog('Click buttons to test push notifications and ring sound.', 'info');
-    addLog('Ring will continue playing even when app is in background.', 'info');
-    
-    
-    
-    
-    // Enhanced ring player for background
-class RingPlayer {
-    constructor() {
-        this.audio = new Audio('/assets/sounds/new_order.mp3');
-        this.audio.loop = true;
-        this.audio.volume = 0.9;
-        this.isPlaying = false;
-        this.retryCount = 0;
-        this.maxRetries = 10;
-        
-        this.setupEventListeners();
-    }
-    
-    setupEventListeners() {
-        // Resume on user interaction
-        const resumeEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
-        resumeEvents.forEach(event => {
-            document.addEventListener(event, () => {
-                if (this.isPlaying && this.audio.paused) {
-                    this.play();
-                }
-            }, { passive: true });
-        });
-        
-        // Handle page visibility
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && this.isPlaying && this.audio.paused) {
-                setTimeout(() => this.play(), 500);
-            }
-        });
-        
-        // Handle audio errors
-        this.audio.addEventListener('error', (e) => {
-            console.error('Audio error:', e);
-            this.retryPlay();
-        });
-        
-        this.audio.addEventListener('ended', () => {
-            if (this.isPlaying) {
-                this.play();
-            }
-        });
-    }
-    
-    async play() {
-        if (this.isPlaying && !this.audio.paused) return;
-        
-        this.isPlaying = true;
-        this.audio.currentTime = 0;
-        
-        try {
-            const playPromise = this.audio.play();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 800;
+            gainNode.gain.value = 0.1;
             
-            if (playPromise !== undefined) {
-                await playPromise;
-                console.log('Ring started successfully');
-                this.retryCount = 0;
-            }
-        } catch (error) {
-            console.log('Ring play failed, will retry:', error);
-            this.retryPlay();
+            oscillator.start();
+            
+            log('✅ Ring sound playing...');
+            
+            // Stop after 3 seconds
+            setTimeout(() => {
+                oscillator.stop();
+                log('⏹️ Ring sound stopped');
+            }, 3000);
         }
-    }
-    
-    retryPlay() {
-        if (this.retryCount >= this.maxRetries) {
-            console.error('Max retries reached for ring playback');
-            return;
-        }
-        
-        this.retryCount++;
-        console.log(`Retrying ring playback (attempt ${this.retryCount})`);
-        
-        setTimeout(() => {
-            if (this.isPlaying) {
-                this.play();
-            }
-        }, 1000 * this.retryCount);
-    }
-    
-    stop() {
-        this.isPlaying = false;
-        this.audio.pause();
-        this.audio.currentTime = 0;
-        this.retryCount = 0;
-        console.log('Ring stopped');
-    }
-    
-    // Method to play ring in background via service worker
-    playInBackground() {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-                type: 'PLAY_RING'
-            });
-        }
-        this.play();
-    }
-}
 
-// Initialize ring player
-window.ringPlayer = new RingPlayer();
+        // Initial log
+        log('Quick test page loaded successfully.');
+        log('Click buttons to test push notifications and ring sound.');
+        log('Ring will play for 3 seconds when tested.');
+        
+        <?php if ($deviceCount === 0): ?>
+            log('⚠️ No devices registered. Add test devices first.');
+        <?php else: ?>
+            log('✅ Ready to test notifications!');
+        <?php endif; ?>
     </script>
 </body>
 </html>
