@@ -913,7 +913,7 @@ function autoRefreshPage() {
 
 
 
-// Modify your handleNewOrders function
+// In your existing order system - Enhanced notification handling
 function handleNewOrders(newOrders) {
     const newMaxOrderId = Math.max(POLLING_CONFIG.lastOrderId, ...newOrders.map(o => o.order_id));
     
@@ -927,27 +927,33 @@ function handleNewOrders(newOrders) {
                 hasNewPending = true;
                 
                 // Send OneSignal notification for new orders
-                if (POLLING_CONFIG.hasCheckedExistingOrders) {
-                    sendOneSignalNotification(order);
-                }
+                console.log('🎯 Sending OneSignal notification for order:', order.order_id);
+                
+                // The notification will be automatically sent via place_order.php
+                // But we log it here for tracking
+                logNotificationEvent('new_order_detected', order);
             }
         });
         
         if (hasNewPending) {
-            console.log(`Pending orders: ${POLLING_CONFIG.pendingOrders.size}`);
-            
-            if (POLLING_CONFIG.hasCheckedExistingOrders) {
-                console.log(`🎯 Triggering notification for NEW orders`);
-                notifyNewOrder();
-                showToast(`New order received! Pending: ${POLLING_CONFIG.pendingOrders.size}`, 'success');
-            } else {
-                console.log(`ℹ️ Existing orders loaded - notification suppressed`);
-                updateUI();
-            }
+            console.log(`🔔 New pending orders detected: ${POLLING_CONFIG.pendingOrders.size}`);
+            notifyNewOrder();
+            showToast(`New order received! Pending: ${POLLING_CONFIG.pendingOrders.size}`, 'success');
         }
     }
     
     updateUI();
+}
+
+function logNotificationEvent(type, order) {
+    const event = {
+        type: type,
+        order_id: order.order_id,
+        user_id: order.user_id,
+        timestamp: new Date().toISOString(),
+        source: 'order_polling'
+    };
+    console.log('📝 Notification Event:', event);
 }
 
 
@@ -1897,9 +1903,9 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
 
 
 
-        <h2><a href="test_notification_simple.php">test_notification_simple.php</a></h2>
+        <h2><a href="notification_monitor.php">notification_monitor.php</a></h2>
 
-        <h2><a href="test_final.php">test_final.php</a></h2>
+        <h2><a href="checklist.php">checklist.php</a></h2>
 
 
          <li class="nav-item">

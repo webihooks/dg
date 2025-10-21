@@ -203,39 +203,45 @@ try {
     // =========================================================================
     // In place_order.php, after successful order creation ($orderId is set)
     if ($orderId) {
-        // Send OneSignal notification in background
+        // Log order creation
+        error_log("✅ Order #$orderId created successfully for user {$input['user_id']}");
+        
+        // Send OneSignal notification in background (non-blocking)
         register_shutdown_function(function() use ($input, $orderId, $total) {
             try {
                 // Small delay to ensure order response is sent first
-                usleep(500000); // 0.5 second
+                usleep(1000000); // 1 second delay
                 
-                // Prepare notification data
+                error_log("🚀 Triggering push notification for order #$orderId");
+                
                 $notificationData = [
                     'user_id' => $input['user_id'],
                     'order_id' => $orderId,
                     'customer_name' => $input['customer_name'],
                     'total_amount' => $total,
-                    'order_type' => $input['order_type']
+                    'order_type' => $input['order_type'],
+                    'timestamp' => time()
                 ];
-                
-                // Send via cURL (non-blocking)
+
+                // Use fast non-blocking cURL
                 $ch = curl_init();
                 curl_setopt_array($ch, [
-                    CURLOPT_URL => 'send_onesignal_notification.php',
+                    CURLOPT_URL => 'https://dgcard.online/send_onesignal_notification.php',
                     CURLOPT_POST => true,
                     CURLOPT_POSTFIELDS => json_encode($notificationData),
                     CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
                     CURLOPT_RETURNTRANSFER => false,
-                    CURLOPT_TIMEOUT => 5,
+                    CURLOPT_TIMEOUT => 3, // 3 second timeout
                     CURLOPT_SSL_VERIFYPEER => false
                 ]);
                 curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
                 
-                error_log("Background notification triggered for order: $orderId");
+                error_log("📱 Notification trigger sent for order #$orderId (HTTP: $httpCode)");
                 
             } catch (Exception $e) {
-                error_log("Background notification error: " . $e->getMessage());
+                error_log("❌ Background notification error: " . $e->getMessage());
             }
         });
     }
