@@ -199,51 +199,38 @@ try {
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
     // =========================================================================
-    // ONE SIGNAL NOTIFICATION - SAFE INTEGRATION
+    // ONE SIGNAL NOTIFICATION - WORKING VERSION
     // =========================================================================
-    // In place_order.php, after successful order creation ($orderId is set)
     if ($orderId) {
-        // Log order creation
-        error_log("✅ Order #$orderId created successfully for user {$input['user_id']}");
+        // Use fast non-blocking HTTP request instead of shell_exec
+        $notificationUrl = 'https://dgcard.online/send_onesignal_notification.php';
+        $notificationData = [
+            'user_id' => $input['user_id'],
+            'order_id' => $orderId,
+            'customer_name' => $input['customer_name'],
+            'total_amount' => $total,
+            'order_type' => $input['order_type']
+        ];
         
-        // Send OneSignal notification in background (non-blocking)
-        register_shutdown_function(function() use ($input, $orderId, $total) {
-            try {
-                // Small delay to ensure order response is sent first
-                usleep(1000000); // 1 second delay
-                
-                error_log("🚀 Triggering push notification for order #$orderId");
-                
-                $notificationData = [
-                    'user_id' => $input['user_id'],
-                    'order_id' => $orderId,
-                    'customer_name' => $input['customer_name'],
-                    'total_amount' => $total,
-                    'order_type' => $input['order_type'],
-                    'timestamp' => time()
-                ];
-
-                // Use fast non-blocking cURL
-                $ch = curl_init();
-                curl_setopt_array($ch, [
-                    CURLOPT_URL => 'https://dgcard.online/send_onesignal_notification.php',
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => json_encode($notificationData),
-                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                    CURLOPT_RETURNTRANSFER => false,
-                    CURLOPT_TIMEOUT => 3, // 3 second timeout
-                    CURLOPT_SSL_VERIFYPEER => false
-                ]);
-                curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                
-                error_log("📱 Notification trigger sent for order #$orderId (HTTP: $httpCode)");
-                
-            } catch (Exception $e) {
-                error_log("❌ Background notification error: " . $e->getMessage());
-            }
-        });
+        // Use fast async request that doesn't wait for response
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => http_build_query($notificationData),
+                'timeout' => 1, // 1 second timeout - don't wait
+                'ignore_errors' => true
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ]
+        ]);
+        
+        // Trigger without waiting for response
+        @file_get_contents($notificationUrl, false, $context);
+        
+        error_log("📱 Notification triggered for order: $orderId");
     }
     // =========================================================================
     
