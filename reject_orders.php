@@ -78,14 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($pending_orders)) {
             echo json_encode([
                 'success' => false,
-                'error' => 'No pending orders available',
-                'details' => [
-                    'total_requested' => count($order_ids),
-                    'pending_orders_found' => count($pending_orders),
-                    'already_processed' => $already_processed,
-                    'not_found_orders' => array_values($not_found_orders),
-                    'message' => 'These orders were already processed by another device or do not exist'
-                ]
+                'error' => 'redirect_to_orders',
+                'message' => 'Orders were already processed by another device',
+                'redirect_url' => 'orders.php'
             ]);
             exit;
         }

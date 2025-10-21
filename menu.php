@@ -3,13 +3,12 @@
 // Enhanced TWA Session Management
 class TWASessionManager {
     constructor() {
-        this.keepAliveInterval = 300000; // 5 minutes
+        this.keepAliveInterval = 300000; // 0.5 minutes
         this.isTWA = this.detectTWA();
         this.init();
     }
 
     detectTWA() {
-        // Check if running in TWA
         return window.navigator.standalone || 
                document.referrer.includes('android-app://') ||
                /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
@@ -21,14 +20,39 @@ class TWASessionManager {
             this.startKeepAlive();
             this.setupVisibilityHandler();
             this.setupBeforeUnload();
+            this.restoreSessionState();
+        }
+    }
+
+    // NEW: Restore session state from localStorage
+    restoreSessionState() {
+        if (typeof(Storage) !== "undefined") {
+            const sessionPreserved = localStorage.getItem('twaSessionPreserved');
+            const lastActive = localStorage.getItem('twaLastActive');
+            
+            if (sessionPreserved === 'true' && lastActive) {
+                const timeSinceLastActive = Date.now() - parseInt(lastActive);
+                // If app was closed less than 5 minutes ago, consider session preserved
+                if (timeSinceLastActive < 300000) {
+                    console.log('TWA session restored from background');
+                    // Trigger order check immediately
+                    setTimeout(() => {
+                        if (window.checkExistingPendingOrders) {
+                            window.checkExistingPendingOrders();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            // Clear the stored state
+            localStorage.removeItem('twaSessionPreserved');
+            localStorage.removeItem('twaLastActive');
         }
     }
 
     startKeepAlive() {
-        // IMMEDIATE keep-alive on load
         this.keepSessionAlive();
         
-        // Periodic keep-alive
         setInterval(() => {
             this.keepSessionAlive();
         }, this.keepAliveInterval);
@@ -58,8 +82,15 @@ class TWASessionManager {
     setupVisibilityHandler() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                // App became visible - refresh session
+                // App became visible - refresh session and check orders
                 this.keepSessionAlive();
+                
+                // Check for new orders when app comes to foreground
+                setTimeout(() => {
+                    if (window.checkExistingPendingOrders) {
+                        window.checkExistingPendingOrders();
+                    }
+                }, 500);
             }
         });
     }
@@ -75,10 +106,8 @@ class TWASessionManager {
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    new TWASessionManager();
-});    
+// Make functions globally available for TWA
+window.checkExistingPendingOrders = checkExistingPendingOrders; 
 </script>
 <!-- Session Keep Alive -->
 
@@ -634,34 +663,83 @@ const POLLING_CONFIG = {
     audioElement: null,
     audioRetryCount: 0,
     maxAudioRetries: 3,
-    refreshInterval: 5000, // Refresh pending orders every 5 seconds
+    refreshInterval: 5000,
     lastRefreshTime: Date.now(),
-    autoRefreshEnabled: true // Enable auto page refresh
+    autoRefreshEnabled: true,
+    // NEW: Track if we've checked for existing pending orders on load
+    hasCheckedExistingOrders: false
 };
 
-// Main initialization
+// Main initialization - ENHANCED to check existing pending orders
 async function initOrderSystem() {
-    console.log('Initializing order system with continuous MP3 playback...');
+    console.log('Initializing order system with existing orders check...');
     
     await initAudioSystem();
+    
+    // NEW: Check for existing pending orders immediately on page load
+    await checkExistingPendingOrders();
+    
     initOrderPolling();
     setupEventListeners();
     
-    console.log('Order system initialized');
+    console.log('Order system initialized with existing orders check');
 }
 
-// Audio System - Focus on continuous MP3 playback
+// NEW: Function to check for existing pending orders on page load
+async function checkExistingPendingOrders() {
+    if (POLLING_CONFIG.hasCheckedExistingOrders) return;
+    
+    console.log('🔄 Checking for existing pending orders...');
+    
+    try {
+        const response = await fetch(`check_existing_pending_orders.php?t=${Date.now()}`);
+        const data = await response.json();
+        
+        if (data.success && data.pending_orders && data.pending_orders.length > 0) {
+            console.log(`✅ Found ${data.pending_orders.length} existing pending orders`);
+            
+            // Add all pending orders to our tracking
+            data.pending_orders.forEach(order => {
+                if (!POLLING_CONFIG.pendingOrders.has(order.order_id)) {
+                    POLLING_CONFIG.pendingOrders.set(order.order_id, order);
+                }
+            });
+            
+            // Update last order ID
+            if (data.pending_orders.length > 0) {
+                const maxOrderId = Math.max(...data.pending_orders.map(o => o.order_id));
+                if (maxOrderId > POLLING_CONFIG.lastOrderId) {
+                    POLLING_CONFIG.lastOrderId = maxOrderId;
+                }
+            }
+            
+            // If we found pending orders, trigger the notification system
+            if (POLLING_CONFIG.pendingOrders.size > 0) {
+                console.log(`🎯 Triggering notification for ${POLLING_CONFIG.pendingOrders.size} existing pending orders`);
+                notifyNewOrder();
+                updateUI();
+            }
+        } else {
+            console.log('ℹ️ No existing pending orders found');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error checking existing orders:', error);
+    } finally {
+        POLLING_CONFIG.hasCheckedExistingOrders = true;
+    }
+}
+
+// Rest of your existing functions remain the same...
 async function initAudioSystem() {
     console.log('Initializing audio system...');
     
-    // Create audio element for continuous playback
     POLLING_CONFIG.audioElement = new Audio();
-    POLLING_CONFIG.audioElement.src = 'assets/sounds/new_order.mp3?' + Date.now(); // Cache buster
-    POLLING_CONFIG.audioElement.loop = true; // Continuous looping
-    POLLING_CONFIG.audioElement.volume = 0.9; // 90% volume
+    POLLING_CONFIG.audioElement.src = 'assets/sounds/new_order.mp3?' + Date.now();
+    POLLING_CONFIG.audioElement.loop = true;
+    POLLING_CONFIG.audioElement.volume = 0.9;
     POLLING_CONFIG.audioElement.preload = 'auto';
     
-    // Event listeners for audio element
     POLLING_CONFIG.audioElement.addEventListener('canplaythrough', () => {
         console.log('Audio ready for playback');
     });
@@ -672,13 +750,11 @@ async function initAudioSystem() {
     });
     
     POLLING_CONFIG.audioElement.addEventListener('ended', () => {
-        // Should not happen with loop=true, but just in case
         if (POLLING_CONFIG.isSoundPlaying) {
             playContinuousSound();
         }
     });
     
-    // Load the audio
     POLLING_CONFIG.audioElement.load();
 }
 
@@ -697,7 +773,6 @@ function retryAudioLoad() {
     }, 1000);
 }
 
-// Play continuous sound with aggressive retry strategy
 function playContinuousSound() {
     if (POLLING_CONFIG.isSoundPlaying) return;
     
@@ -719,7 +794,6 @@ function playContinuousSound() {
                 }).catch(error => {
                     console.log('Playback blocked, will retry:', error);
                     
-                    // Aggressive retry strategy
                     setTimeout(() => {
                         if (POLLING_CONFIG.isSoundPlaying) {
                             playSound();
@@ -729,7 +803,6 @@ function playContinuousSound() {
             }
         } catch (error) {
             console.error('Playback error:', error);
-            // Retry after delay
             setTimeout(() => {
                 if (POLLING_CONFIG.isSoundPlaying) {
                     playSound();
@@ -738,17 +811,14 @@ function playContinuousSound() {
         }
     };
     
-    // Initial play attempt
     playSound();
     
-    // Additional periodic play attempts to overcome browser restrictions
     const keepAliveInterval = setInterval(() => {
         if (!POLLING_CONFIG.isSoundPlaying) {
             clearInterval(keepAliveInterval);
             return;
         }
         
-        // If audio is paused (might happen in background), try to resume
         if (POLLING_CONFIG.audioElement.paused) {
             console.log('Audio paused, attempting to resume...');
             playSound();
@@ -771,28 +841,22 @@ function stopContinuousSound() {
     }
 }
 
-// Enhanced notification function
 function notifyNewOrder() {
     console.log('New order notification triggered');
     
-    // Always try to play the continuous MP3 sound
     if (!POLLING_CONFIG.isSoundPlaying) {
         playContinuousSound();
     }
     
-    // Visual notifications (optional)
     showVisualNotification();
     showOrderActionButtons();
 }
 
-// Visual notification (minimal - just the action buttons)
 function showVisualNotification() {
-    // Simple tab title update
     const originalTitle = document.title;
     if (!originalTitle.includes('🔔')) {
         document.title = '🔔 ' + originalTitle;
         
-        // Restore title after 10 seconds
         setTimeout(() => {
             if (document.title.includes('🔔')) {
                 document.title = originalTitle;
@@ -801,7 +865,26 @@ function showVisualNotification() {
     }
 }
 
-// Polling system
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Enhanced initOrderPolling with better visibility handling
 function initOrderPolling() {
     // Set initial lastOrderId
     const orderElements = document.querySelectorAll('[data-order-id]');
@@ -818,9 +901,21 @@ function initOrderPolling() {
     console.log('Starting order polling');
     checkForNewOrders();
     
-    // Start periodic refresh of pending orders
-    setInterval(refreshPendingOrders, POLLING_CONFIG.refreshInterval);
+    // Start periodic refresh of pending orders (with visibility check)
+    setInterval(() => {
+        const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+        if (!isFloatingButtonsVisible) {
+            refreshPendingOrders();
+        }
+    }, POLLING_CONFIG.refreshInterval);
 }
+
+
+
+
+
+
+
 
 function setupEventListeners() {
     // Resume audio on any user interaction
@@ -876,9 +971,20 @@ function checkForNewOrders() {
         });
 }
 
-// Refresh pending orders to remove orders that were processed by other devices
+
+
+
+
+
+
+// Enhanced refreshPendingOrders function with visibility check
 function refreshPendingOrders() {
-    if (POLLING_CONFIG.pendingOrders.size === 0) return;
+    // Don't refresh if floating buttons are visible
+    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    
+    if (POLLING_CONFIG.pendingOrders.size === 0 || isFloatingButtonsVisible) {
+        return;
+    }
     
     fetch(`check_new_orders.php?last_order_id=0&page_load_time=${POLLING_CONFIG.pageLoadTime}&t=${Date.now()}`)
         .then(response => response.json())
@@ -890,7 +996,16 @@ function refreshPendingOrders() {
         .catch(error => console.error('Refresh error:', error));
 }
 
+
+
+
+
+
+
+// Modified updatePendingOrdersList function - no refresh when buttons are visible
 function updatePendingOrdersList(newOrders) {
+    if (POLLING_CONFIG.pendingOrders.size === 0) return;
+    
     const currentPendingIds = new Set(POLLING_CONFIG.pendingOrders.keys());
     const newPendingIds = new Set(newOrders.map(order => order.order_id));
     
@@ -910,14 +1025,40 @@ function updatePendingOrdersList(newOrders) {
         updateUI();
     }
     
-    // Auto-refresh page if orders were processed by another device
-    if (ordersWereRemoved && POLLING_CONFIG.autoRefreshEnabled) {
+    // DON'T auto-refresh if floating action buttons are currently showing
+    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    
+    if (ordersWereRemoved && POLLING_CONFIG.autoRefreshEnabled && !isFloatingButtonsVisible) {
+        // Only auto-refresh if no buttons are showing and orders were processed elsewhere
         autoRefreshPage();
+    } else if (ordersWereRemoved && isFloatingButtonsVisible) {
+        // Just show a subtle notification without refreshing
+        console.log('Orders processed by another device - but buttons are visible, so no refresh');
+        showToast('Some orders were processed by another device', 'info');
     }
 }
 
-// Auto refresh page when orders are processed by other devices
+
+
+
+
+
+
+
+
+
+
+
+// Enhanced autoRefreshPage function with additional checks
 function autoRefreshPage() {
+    // Double-check if floating buttons are visible before refreshing
+    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    
+    if (isFloatingButtonsVisible) {
+        console.log('Auto-refresh cancelled - floating action buttons are visible');
+        return;
+    }
+    
     console.log('Orders were processed by another device - refreshing page...');
     
     // Show refresh notification
@@ -930,6 +1071,15 @@ function autoRefreshPage() {
     }, 2000);
 }
 
+
+
+
+
+
+
+
+
+// Enhanced handleNewOrders function
 function handleNewOrders(newOrders) {
     const newMaxOrderId = Math.max(POLLING_CONFIG.lastOrderId, ...newOrders.map(o => o.order_id));
     
@@ -941,37 +1091,69 @@ function handleNewOrders(newOrders) {
             if (order.status === 'Pending' && !POLLING_CONFIG.pendingOrders.has(order.order_id)) {
                 POLLING_CONFIG.pendingOrders.set(order.order_id, order);
                 hasNewPending = true;
+                
+                if (POLLING_CONFIG.hasCheckedExistingOrders) {
+                    console.log(`🆕 NEW order detected: #${order.order_id}`);
+                } else {
+                    console.log(`📋 Existing pending order loaded: #${order.order_id}`);
+                }
             }
         });
         
         if (hasNewPending) {
-            console.log(`New pending orders detected: ${POLLING_CONFIG.pendingOrders.size}`);
+            console.log(`Pending orders: ${POLLING_CONFIG.pendingOrders.size}`);
             
-            // Trigger continuous MP3 playback
-            notifyNewOrder();
-            
-            // Show toast notification
-            showToast(`New order received! Pending: ${POLLING_CONFIG.pendingOrders.size}`, 'success');
+            if (POLLING_CONFIG.hasCheckedExistingOrders) {
+                console.log(`🎯 Triggering notification for NEW orders`);
+                notifyNewOrder();
+                showToast(`New order received! Pending: ${POLLING_CONFIG.pendingOrders.size}`, 'success');
+            } else {
+                console.log(`ℹ️ Existing orders loaded - notification suppressed`);
+                updateUI();
+            }
         }
     }
     
     updateUI();
 }
 
+
+
+
+
+// Enhanced updateUI function
 function updateUI() {
+    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    
     if (POLLING_CONFIG.pendingOrders.size > 0) {
-        if (!document.getElementById('floatingActionButtons')) {
+        if (!isFloatingButtonsVisible) {
             showOrderActionButtons();
         } else {
             updateOrderActionButtons();
         }
     } else {
-        hideOrderActionButtons();
+        // Only hide buttons if they're currently visible
+        if (isFloatingButtonsVisible) {
+            hideOrderActionButtons();
+        }
         stopContinuousSound();
         // Restore original title
         document.title = document.title.replace('🔔 ', '');
     }
 }
+// Add a function to check if buttons are visible (for external use)
+function areFloatingButtonsVisible() {
+    return document.getElementById('floatingActionButtons') !== null;
+}
+
+
+
+
+
+
+
+
+
 
 // Order Action Buttons with Order Details
 function showOrderActionButtons() {
@@ -1283,14 +1465,12 @@ async function acceptAllPendingOrders() {
     button.innerHTML = '⏳ Processing...';
     button.disabled = true;
     
-    // Also disable reject button during processing
     const rejectButton = document.getElementById('rejectOrderButton');
     if (rejectButton) rejectButton.disabled = true;
     
     try {
         const orderIds = Array.from(POLLING_CONFIG.pendingOrders.keys());
         
-        // First, get business info and profile URL
         const businessData = await fetchBusinessData();
         
         const response = await fetch('accept_orders.php', {
@@ -1304,15 +1484,12 @@ async function acceptAllPendingOrders() {
         if (result.success) {
             showToast(`Accepted ${result.affected_rows} order(s)!`, 'success');
             
-            // Remove accepted orders from pending list
             result.orders_data.forEach(order => {
                 POLLING_CONFIG.pendingOrders.delete(order.order_id);
             });
             
-            // Send WhatsApp confirmation for each accepted order
             result.orders_data.forEach(order => {
                 if (order.customer_phone) {
-                    // Send WhatsApp message with slight delay to avoid rate limiting
                     setTimeout(() => {
                         sendOrderConfirmation(
                             order.order_id,
@@ -1327,26 +1504,29 @@ async function acceptAllPendingOrders() {
                 }
             });
             
-            // Stop the continuous sound
             stopContinuousSound();
             hideOrderActionButtons();
             document.title = document.title.replace('🔔 ', '');
             
-            // Redirect to orders page after a short delay
             setTimeout(() => {
                 window.location.href = 'orders.php';
             }, 2000);
+            
         } else {
-            // Handle case where orders were already processed
-            if (result.error === 'No pending orders available') {
-                showToast('Orders were already processed by another device', 'warning');
-                // Clear all pending orders since they're already processed
+            // NEW: Handle redirect case
+            if (result.error === 'redirect_to_orders') {
+                console.log('Orders already processed - redirecting to orders page');
+                showToast(result.message, 'warning');
+                
+                // Clear pending orders and redirect
                 POLLING_CONFIG.pendingOrders.clear();
-                updateUI();
-                // Refresh page to show updated status
+                stopContinuousSound();
+                hideOrderActionButtons();
+                
                 setTimeout(() => {
-                    window.location.reload();
+                    window.location.href = result.redirect_url || 'orders.php';
                 }, 1500);
+                
             } else {
                 throw new Error(result.error);
             }
@@ -1359,6 +1539,7 @@ async function acceptAllPendingOrders() {
         if (rejectButton) rejectButton.disabled = false;
     }
 }
+
 
 // Function to fetch business data
 async function fetchBusinessData() {
@@ -1386,13 +1567,18 @@ async function fetchBusinessData() {
     }
 }
 
+
+
+
+
+
+
 async function rejectAllPendingOrders() {
     if (POLLING_CONFIG.pendingOrders.size === 0) return;
     
-    // Show rejection reason dialog
     const rejectionReason = await showRejectionReasonDialog();
     if (!rejectionReason) {
-        return; // User cancelled
+        return;
     }
     
     const button = document.getElementById('rejectOrderButton');
@@ -1400,7 +1586,6 @@ async function rejectAllPendingOrders() {
     button.innerHTML = '⏳ Rejecting...';
     button.disabled = true;
     
-    // Also disable accept button during processing
     const acceptButton = document.getElementById('acceptOrderButton');
     if (acceptButton) acceptButton.disabled = true;
     
@@ -1429,12 +1614,10 @@ async function rejectAllPendingOrders() {
         if (result.success) {
             showToast(result.message || `Rejected ${result.affected_rows} order(s)!`, 'warning');
             
-            // Remove rejected orders from pending list
             result.orders_data.forEach(order => {
                 POLLING_CONFIG.pendingOrders.delete(order.order_id);
             });
             
-            // Send rejection notifications for each rejected order
             if (result.orders_data && result.orders_data.length > 0) {
                 console.log('Sending rejection notifications for', result.orders_data.length, 'orders');
                 
@@ -1455,26 +1638,29 @@ async function rejectAllPendingOrders() {
                 });
             }
             
-            // Stop the continuous sound
             stopContinuousSound();
             hideOrderActionButtons();
             document.title = document.title.replace('🔔 ', '');
             
-            // Refresh the page to show updated order status
             setTimeout(() => {
-                window.location.reload();
+                window.location.href = 'orders.php';
             }, 2000);
             
         } else {
-            // Handle case where orders were already processed
-            if (result.error === 'No pending orders available') {
-                showToast('Orders were already processed by another device', 'warning');
+            // NEW: Handle redirect case for rejection
+            if (result.error === 'redirect_to_orders') {
+                console.log('Orders already processed - redirecting to orders page');
+                showToast(result.message, 'warning');
+                
+                // Clear pending orders and redirect
                 POLLING_CONFIG.pendingOrders.clear();
-                updateUI();
-                // Refresh page to show updated status
+                stopContinuousSound();
+                hideOrderActionButtons();
+                
                 setTimeout(() => {
-                    window.location.reload();
+                    window.location.href = result.redirect_url || 'orders.php';
                 }, 1500);
+                
             } else {
                 throw new Error(result.error || 'Failed to reject orders');
             }
@@ -1484,12 +1670,18 @@ async function rejectAllPendingOrders() {
         console.error('Rejection error:', error);
         showToast('Error rejecting orders: ' + error.message, 'danger');
         
-        // Restore buttons
         button.innerHTML = originalText;
         button.disabled = false;
         if (acceptButton) acceptButton.disabled = false;
     }
 }
+
+
+
+
+
+
+
 
 // Function to show rejection reason dialog
 function showRejectionReasonDialog() {
