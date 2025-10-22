@@ -24,11 +24,11 @@ if ($role !== 'admin') {
     exit();
 }
 
-// QR Code Generation for Endroid v6.0.7
+// QR Code Generation for your current version
 require 'vendor/autoload.php';
 
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Color\Color;
 
 // Initialize variables
@@ -41,23 +41,88 @@ if (isset($_POST['submit_qr'])) {
 
     if (!empty($qrContent)) {
         try {
-            $builder = Builder::create()
-                ->data($qrContent)
-                ->errorCorrectionLevel(ErrorCorrectionLevel::High)
-                ->size(800)
-                ->margin(20)
-                ->foregroundColor(new Color(0, 0, 0))
-                ->backgroundColor(new Color(255, 255, 255));
+            // Create QR code with content
+            $qrCode = new QrCode($qrContent);
+            
+            // Set size
+            $qrCode->setSize(800);
+            
+            // Set margin
+            $qrCode->setMargin(20);
+            
+            // Set colors using Color objects
+            $qrCode->setForegroundColor(new Color(0, 0, 0));
+            $qrCode->setBackgroundColor(new Color(255, 255, 255));
 
-            // Add logo if exists
-            if (file_exists('assets/images/logo.png')) {
-                $builder->logoPath('assets/images/logo.png')
-                        ->logoResizeToWidth(200)
-                        ->logoResizeToHeight(200);
-            }
-
-            $qrCodeResult = $builder->build();
+            $writer = new PngWriter();
+            $qrCodeResult = $writer->write($qrCode);
             $qrCodeImage = 'data:image/png;base64,' . base64_encode($qrCodeResult->getString());
+
+            // Add logo to QR code if exists
+            if ($qrCodeImage && file_exists('assets/images/logo.png')) {
+                try {
+                    // Remove the data URL prefix
+                    $qrData = base64_decode(str_replace('data:image/png;base64,', '', $qrCodeImage));
+                    
+                    // Create image resources
+                    $qrImage = imagecreatefromstring($qrData);
+                    $logoImage = imagecreatefrompng('assets/images/logo.png');
+                    
+                    if ($qrImage && $logoImage) {
+                        // Get dimensions
+                        $qrWidth = imagesx($qrImage);
+                        $qrHeight = imagesy($qrImage);
+                        $logoWidth = imagesx($logoImage);
+                        $logoHeight = imagesy($logoImage);
+                        
+                        // Calculate new logo size (20% of QR code size)
+                        $newLogoWidth = intval($qrWidth * 0.2);
+                        $newLogoHeight = intval($qrHeight * 0.2);
+                        
+                        // Calculate position (center)
+                        $logoX = intval(($qrWidth - $newLogoWidth) / 2);
+                        $logoY = intval(($qrHeight - $newLogoHeight) / 2);
+                        
+                        // Create a transparent background for the resized logo
+                        $resizedLogo = imagecreatetruecolor($newLogoWidth, $newLogoHeight);
+                        imagealphablending($resizedLogo, false);
+                        imagesavealpha($resizedLogo, true);
+                        $transparent = imagecolorallocatealpha($resizedLogo, 0, 0, 0, 127);
+                        imagefill($resizedLogo, 0, 0, $transparent);
+                        
+                        // Resize logo with transparency preservation
+                        imagecopyresampled(
+                            $resizedLogo, $logoImage,
+                            0, 0, 0, 0,
+                            $newLogoWidth, $newLogoHeight,
+                            $logoWidth, $logoHeight
+                        );
+                        
+                        // Merge logo onto QR code
+                        imagecopymerge(
+                            $qrImage, $resizedLogo,
+                            $logoX, $logoY, 0, 0,
+                            $newLogoWidth, $newLogoHeight,
+                            100
+                        );
+                        
+                        // Output the final image
+                        ob_start();
+                        imagepng($qrImage);
+                        $finalImage = ob_get_clean();
+                        $qrCodeImage = 'data:image/png;base64,' . base64_encode($finalImage);
+                        
+                        // Clean up
+                        imagedestroy($qrImage);
+                        imagedestroy($logoImage);
+                        imagedestroy($resizedLogo);
+                    }
+                } catch (Exception $e) {
+                    // If logo addition fails, keep the original QR code
+                    error_log("Logo addition failed: " . $e->getMessage());
+                    // Continue with the original QR code without logo
+                }
+            }
 
         } catch (Exception $e) {
             $error = "QR Code generation failed: " . $e->getMessage();
@@ -131,6 +196,10 @@ $conn->close();
                                         </div>
                                         <div>
                                             <p class="mb-1"><strong>Content:</strong> <?php echo htmlspecialchars($qrContent); ?></p>
+                                            <p class="mb-1 text-success">
+                                                <i class="ri-checkbox-circle-line me-1"></i> 
+                                                <?php echo file_exists('assets/images/logo.png') ? 'Logo included' : 'Logo not found'; ?>
+                                            </p>
                                             <div class="mt-2">
                                                 <a href="<?php echo $qrCodeImage; ?>" download="deegeecard-qrcode.png" class="btn btn-sm btn-outline-primary">
                                                     <i class="ri-download-line me-1"></i> Download QR Code
