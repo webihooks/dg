@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 07, 2025 at 01:26 PM
+-- Generation Time: Oct 22, 2025 at 12:23 PM
 -- Server version: 5.7.23-23
 -- PHP Version: 8.1.33
 
@@ -174,7 +174,12 @@ INSERT INTO `business_info` (`id`, `user_id`, `business_name`, `business_descrip
 (51, 70, 'Pawan Koliwada - Khougali(Miraroad)', 'Pawan Koliwada Restaurant serves authentic coastal flavors, specializing in fresh seafood, traditional koli-style recipes, and vibrant spices, offering a delightful dining experience that celebrates Mumbai’s rich culinary heritage with warmth and hospitality. This outlet opens at 12 Noon and closes at 11:59 PM', 'Shop No.5/6, Jangid Complex, Opp. Akash Ganga, Near Jangid Complex, MTNL Road, Mira Road(E), Thane - 401007', 'https://maps.app.goo.gl/P6c3XY8qLiBxEDEW8', '2025-09-22 21:17:11', '2025-09-23 17:29:40', '', ''),
 (52, 71, 'Pawan Koliwada - Kanakia(Miraroad)', 'Pawan Koliwada Restaurant serves authentic coastal flavors, specializing in fresh seafood, traditional koli-style recipes, and vibrant spices, offering a delightful dining experience that celebrates Mumbai’s rich culinary heritage with warmth and hospitality. This outlet opens at 12 Noon and closes at 2 AM.', 'Bldg 4, Shelter, Shop No. 24/25, Kanakia Rd, Mira Road East, Mira Bhayandar, Maharashtra 401105', 'https://maps.app.goo.gl/z4F5TDTvM8kVaMUW7', '2025-09-22 22:43:10', '2025-09-23 17:26:58', '', ''),
 (53, 72, 'Pawan Koliwada - Bhayandar East', 'Pawan Koliwada Restaurant serves authentic coastal flavors, specializing in fresh seafood, traditional koli-style recipes, and vibrant spices, offering a delightful dining experience that celebrates Mumbai’s rich culinary heritage with warmth and hospitality. This outlet opens at 12 Noon and closes at 2 AM.', 'Shop No 3, Appartment, Ganga Chhaya Biulding, Chandan Nagar, Station Road, Bhayandar East-401105 (Chandan Nagar)', 'https://maps.app.goo.gl/y5ebj3u8MnHsypWq5', '2025-09-22 23:15:22', '2025-09-23 17:31:13', '', ''),
-(54, 73, 'Pawan Koliwada - Bhayandar West', 'Pawan Koliwada Restaurant serves authentic coastal flavors, specializing in fresh seafood, traditional koli-style recipes, and vibrant spices, offering a delightful dining experience that celebrates Mumbai’s rich culinary heritage with warmth and hospitality. This outlet opens at 5 PM and closes at 11:59 PM.', 'Shop No: 9/28, Bhayander Shopping Centre, Dr Keshav Baliram Hedgewar Rd, near Police Station, opp. Ice Factory, Bhayandar, Sripal Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 'https://maps.app.goo.gl/WYcYUM8rbJTUkvC39', '2025-09-22 23:34:29', '2025-09-23 17:32:18', '', '');
+(54, 73, 'Pawan Koliwada - Bhayandar West', 'Pawan Koliwada Restaurant serves authentic coastal flavors, specializing in fresh seafood, traditional koli-style recipes, and vibrant spices, offering a delightful dining experience that celebrates Mumbai’s rich culinary heritage with warmth and hospitality. This outlet opens at 5 PM and closes at 11:59 PM.', 'Shop No: 9/28, Bhayander Shopping Centre, Dr Keshav Baliram Hedgewar Rd, near Police Station, opp. Ice Factory, Bhayandar, Sripal Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 'https://maps.app.goo.gl/WYcYUM8rbJTUkvC39', '2025-09-22 23:34:29', '2025-09-23 17:32:18', '', ''),
+(55, 77, 'Biryani By Bulk - Pundlik nagar', 'Welcome to Biryani By Bulk – where authentic Hyderabadi dum biryanis meet unmatched freshness, premium ingredients, and rich flavors. Perfectly cooked, generously served, and crafted to delight every biryani lover', 'Pahade corner, Hindu rashtra Chowk, Pundlik Nagar Rd, Chhatrapati Sambhajinagar, Maharashtra 431001', 'https://maps.app.goo.gl/X1rr3ucByCy5iHSd7', '2025-10-11 14:36:45', '2025-10-13 07:33:41', '', 'www.biryanibybulk.com'),
+(56, 78, 'Biryani By Bulk - Satara Parisar', 'Welcome to Biryani By Bulk – where authentic Hyderabadi dum biryanis meet unmatched freshness, premium ingredients, and rich flavors. Perfectly cooked, generously served, and crafted to delight every biryani lover', 'Amdar Rd, Near Satara Police Station, Chh, Satara Deolai Parisar, Chhatrapati Sambhajinagar, Maharashtra 431009', 'https://maps.app.goo.gl/RdPVhWXnWgdK5QdA9', '2025-10-13 07:33:06', '2025-10-13 07:33:34', '', 'www.biryanibybulk.com'),
+(57, 79, 'Biryani By Bulk - Kanchanwadi', 'Welcome to Biryani By Bulk – where authentic Hyderabadi dum biryanis meet unmatched freshness, premium ingredients, and rich flavors. Perfectly cooked, generously served, and crafted to delight every biryani lover', 'Plot no. 10 C, Nath Valley School Rd, Kanchanwadi, Chhatrapati Sambhajinagar, Maharashtra 431011', 'https://maps.app.goo.gl/6JYYARuMeqxsQ5x2A', '2025-10-13 08:15:00', '2025-10-13 08:15:00', '', 'www.biryanibybulk.com'),
+(58, 80, 'Biryani By Bulk - Pahad Singh Pura', 'Welcome to Biryani By Bulk – where authentic Hyderabadi dum biryanis meet unmatched freshness, premium ingredients, and rich flavors. Perfectly cooked, generously served, and crafted to delight every biryani lover', 'Aurangabad Caves Rd, Pahadsingpura, Dr Babasaheb Ambedkar Marathwada University Campus, Chhatrapati Sambhajinagar, Maharashtra 431001', 'https://maps.app.goo.gl/t4E2HyNV7ff4epvNA', '2025-10-13 08:21:54', '2025-10-13 08:21:54', '', 'www.biryanibybulk.com'),
+(59, 81, 'Biryani By Bulk - Kat Kat Gate', 'Welcome to Biryani By Bulk – where authentic Hyderabadi dum biryanis meet unmatched freshness, premium ingredients, and rich flavors. Perfectly cooked, generously served, and crafted to delight every biryani lover', 'Aurangabad', '', '2025-10-13 08:42:25', '2025-10-13 08:42:25', '', 'www.biryanibybulk.com');
 
 -- --------------------------------------------------------
 
@@ -225,7 +230,8 @@ INSERT INTO `coupons` (`id`, `user_id`, `coupon_code`, `discount_type`, `discoun
 (26, 69, 'kh100', 'fixed', 100.00, 1000.00, '2025-09-17', '2025-09-19', 0, 1, '2025-09-17 16:25:55'),
 (27, 17, 'SWADISHT150', 'fixed', 150.00, 600.00, '2025-09-19', NULL, 0, 1, '2025-09-19 10:48:28'),
 (28, 28, 'Fs100', 'fixed', 100.00, 500.00, '2025-09-22', NULL, 0, 1, '2025-09-22 17:17:02'),
-(30, 28, 'Qahwa100', 'fixed', 150.00, 1000.00, '2025-09-25', '2025-09-27', 0, 1, '2025-09-25 12:41:15');
+(30, 28, 'Qahwa100', 'fixed', 150.00, 1000.00, '2025-09-25', '2025-09-27', 0, 1, '2025-09-25 12:41:15'),
+(31, 28, 'bbb100', 'fixed', 100.00, 800.00, '2025-10-11', '2025-10-13', 0, 1, '2025-10-10 20:07:22');
 
 -- --------------------------------------------------------
 
@@ -29293,7 +29299,7 @@ CREATE TABLE `delivery_charges` (
 INSERT INTO `delivery_charges` (`id`, `user_id`, `delivery_charge`, `free_delivery_minimum`, `created_at`, `updated_at`) VALUES
 (1, 26, 0.00, 0.00, '2025-06-24 07:57:03', '2025-06-25 06:03:03'),
 (2, 4, 50.00, 300.00, '2025-06-24 15:22:11', '2025-06-24 15:22:11'),
-(3, 28, 35.00, 300.00, '2025-06-26 08:58:38', '2025-09-25 12:37:12'),
+(3, 28, 20.00, 500.00, '2025-06-26 08:58:38', '2025-10-10 20:00:34'),
 (4, 15, 0.00, 0.00, '2025-07-02 08:01:38', '2025-07-02 08:01:49'),
 (5, 36, 50.00, 100.00, '2025-07-15 13:35:08', '2025-07-15 13:35:08'),
 (6, 44, 30.00, 400.00, '2025-07-16 08:52:37', '2025-07-16 09:41:00'),
@@ -29579,7 +29585,12 @@ INSERT INTO `dg_transactions` (`id`, `type`, `category_id`, `amount`, `descripti
 (184, 'expense', 10, 200.00, 'Cig', '2025-10-03', '2025-10-03 19:37:52', '2025-10-03 19:37:52', 18, NULL, NULL, 0, NULL),
 (185, 'expense', 3, 400.00, '', '2025-10-04', '2025-10-04 10:43:31', '2025-10-04 10:43:31', 18, NULL, NULL, 0, NULL),
 (186, 'expense', 3, 2000.00, '', '2025-10-05', '2025-10-05 12:22:04', '2025-10-05 12:22:04', 18, NULL, NULL, 0, NULL),
-(187, 'expense', 8, 100.00, '', '2025-10-06', '2025-10-06 16:27:16', '2025-10-06 16:27:16', 18, NULL, NULL, 0, NULL);
+(187, 'expense', 8, 100.00, '', '2025-10-06', '2025-10-06 16:27:16', '2025-10-06 16:27:16', 18, NULL, NULL, 0, NULL),
+(188, 'expense', 3, 1000.00, '', '2025-10-08', '2025-10-08 06:04:13', '2025-10-08 06:04:13', 18, NULL, NULL, 0, NULL),
+(189, 'expense', 3, 100.00, 'Cig', '2025-10-10', '2025-10-10 18:04:33', '2025-10-10 18:04:33', 18, NULL, NULL, 0, NULL),
+(190, 'expense', 10, 1364.00, '', '2025-10-10', '2025-10-10 22:06:22', '2025-10-10 22:06:22', 18, NULL, NULL, 0, NULL),
+(191, 'expense', 3, 200.00, '', '2025-10-11', '2025-10-11 07:24:50', '2025-10-11 07:24:50', 18, NULL, NULL, 0, NULL),
+(192, 'expense', 10, 40.00, '', '2025-10-12', '2025-10-12 16:14:38', '2025-10-12 16:14:38', 18, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -29614,7 +29625,7 @@ INSERT INTO `dining_and_delivery` (`id`, `user_id`, `dining_active`, `delivery_a
 (11, 23, 1, 1, '2025-06-18 07:35:16', '2025-06-18 07:35:16'),
 (12, 25, 1, 1, '2025-06-18 07:37:22', '2025-06-18 07:37:22'),
 (13, 26, 0, 1, '2025-06-18 07:37:55', '2025-06-24 17:18:00'),
-(14, 28, 1, 1, '2025-06-23 08:32:08', '2025-09-22 17:12:06'),
+(14, 28, 1, 1, '2025-06-23 08:32:08', '2025-10-10 20:00:08'),
 (15, 31, 0, 1, '2025-06-26 10:53:40', '2025-06-26 10:53:40'),
 (16, 30, 0, 1, '2025-06-26 10:53:56', '2025-06-26 10:53:56'),
 (17, 32, 0, 1, '2025-06-26 13:47:19', '2025-06-30 09:58:49'),
@@ -29641,11 +29652,16 @@ INSERT INTO `dining_and_delivery` (`id`, `user_id`, `dining_active`, `delivery_a
 (38, 66, 1, 1, '2025-09-09 06:56:04', '2025-09-09 06:56:04'),
 (39, 67, 1, 1, '2025-09-09 07:17:13', '2025-09-25 14:33:44'),
 (40, 68, 1, 1, '2025-09-09 08:15:14', '2025-09-09 08:15:27'),
-(41, 69, 1, 1, '2025-09-17 14:25:04', '2025-09-17 16:19:32'),
+(41, 69, 0, 0, '2025-09-17 14:25:04', '2025-10-21 06:36:19'),
 (42, 70, 1, 1, '2025-09-22 21:29:51', '2025-09-22 21:29:51'),
 (43, 71, 1, 1, '2025-09-22 22:47:01', '2025-09-22 22:47:01'),
 (44, 72, 1, 1, '2025-09-22 23:19:00', '2025-09-22 23:19:00'),
-(45, 73, 1, 1, '2025-09-22 23:38:20', '2025-09-27 09:08:49');
+(45, 73, 1, 1, '2025-09-22 23:38:20', '2025-09-27 09:08:49'),
+(46, 77, 1, 1, '2025-10-11 14:55:35', '2025-10-12 12:43:56'),
+(47, 78, 1, 1, '2025-10-13 07:34:09', '2025-10-13 07:43:50'),
+(48, 79, 1, 1, '2025-10-13 08:17:14', '2025-10-13 08:17:14'),
+(49, 80, 1, 1, '2025-10-13 08:22:09', '2025-10-13 08:28:48'),
+(50, 81, 1, 1, '2025-10-13 08:33:41', '2025-10-13 08:33:41');
 
 -- --------------------------------------------------------
 
@@ -29679,7 +29695,7 @@ INSERT INTO `dining_tables` (`id`, `user_id`, `table_count`, `created_at`, `upda
 (11, 23, 6, '2025-06-18 07:35:16', '2025-06-18 07:35:16'),
 (12, 25, 10, '2025-06-18 07:37:22', '2025-06-18 07:37:22'),
 (13, 26, 4, '2025-06-18 07:37:55', '2025-06-24 17:18:00'),
-(14, 28, 10, '2025-06-23 08:32:08', '2025-09-22 17:12:06'),
+(14, 28, 10, '2025-06-23 08:32:08', '2025-10-10 20:00:08'),
 (15, 31, 10, '2025-06-26 10:53:40', '2025-06-26 10:53:40'),
 (16, 30, 10, '2025-06-26 10:53:56', '2025-06-26 10:53:56'),
 (17, 32, 15, '2025-06-26 13:47:19', '2025-06-30 09:58:49'),
@@ -29706,7 +29722,12 @@ INSERT INTO `dining_tables` (`id`, `user_id`, `table_count`, `created_at`, `upda
 (38, 70, 0, '2025-09-22 21:29:51', '2025-09-22 21:29:51'),
 (39, 71, 0, '2025-09-22 22:47:01', '2025-09-22 22:47:01'),
 (40, 72, 0, '2025-09-22 23:19:00', '2025-09-22 23:19:00'),
-(41, 73, 0, '2025-09-22 23:38:20', '2025-09-27 09:08:49');
+(41, 73, 0, '2025-09-22 23:38:20', '2025-09-27 09:08:49'),
+(42, 77, 6, '2025-10-11 14:55:35', '2025-10-12 12:43:56'),
+(43, 78, 6, '2025-10-13 07:34:09', '2025-10-13 07:43:50'),
+(44, 79, 6, '2025-10-13 08:17:14', '2025-10-13 08:17:14'),
+(45, 80, 6, '2025-10-13 08:22:09', '2025-10-13 08:28:48'),
+(46, 81, 6, '2025-10-13 08:33:41', '2025-10-13 08:33:41');
 
 -- --------------------------------------------------------
 
@@ -29743,6 +29764,34 @@ INSERT INTO `discount` (`id`, `user_id`, `min_cart_value`, `discount_in_percent`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `fcm_tokens`
+--
+
+CREATE TABLE `fcm_tokens` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
+  `device_type` varchar(50) COLLATE utf8_unicode_ci DEFAULT 'web',
+  `subscription_data` text COLLATE utf8_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `fcm_tokens`
+--
+
+INSERT INTO `fcm_tokens` (`id`, `user_id`, `token`, `device_type`, `subscription_data`, `created_at`, `updated_at`) VALUES
+(9, 28, '163c47fad6ebf4afa87d2e2fad188a03', 'web', '{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/eRS7Pwqs0dU:APA91bFWNHGMdEnvhGUrmdue-sxRW4gouTf9nND4lbFaiolvh_w3icGqug5OSFDu6jyqt34yk0ELiQtVFl4OieIHD63cDGxpfx9U_sJBcHLvVC6JItiMJELlayu0SUXtrI-mZuUUpHyb\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BB0jytrr8djjyifaRRgx02q6rVk24ggDD1HCK7WpmB96UXodpKNRC7rEDOMJo2pXkDzZCtW5FsFBpxpSMUNh6Mo\",\"auth\":\"jmBYNTzIp_ZmiOzt_PjxLQ\"}}', '2025-10-17 06:26:00', '2025-10-17 06:44:41'),
+(11, 28, '68cd424d3d0f6499134c377b2111ba53', 'web', '{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dC9fGDtEvYk:APA91bELKFxLDECWHWmtmockcAVk5g3r0s7hnTqeuhu4ILRETbED6UXG_uHsm_bYmhvnELNqciWzQ1AL4yZf2Az9fzF3QqGzHQ1KKksP0b0RazHcOQTGKBRZLVqbsOdjG2fMTZHJBHop\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BFF_UxZAtqWcCUMG-HV-sevZlHjha7DuhcEG_UNVCjuR867iGj0BiZfQeSd7UJidwtRzDlOWBeyWiL9pSFl-gYI\",\"auth\":\"QKkIcadvjKMKXdRerRyIeQ\"}}', '2025-10-17 11:02:33', '2025-10-21 08:13:56'),
+(17, 28, 'c5c1787013a2cfcddc435474278c76ce', 'web', '{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cZO3mrNRNkc:APA91bFOoeMFl1MiNMZ7KZWkceR4zrxZpiBRMA5amN61Q6RK4r4BRnJktb-sHjnVPKPpiN7RsEIlE-5jrLjkInRvnY8jyzBWemw9WFaN9Wzt97mjb0psmJT289NPzkojLqX8ZgYSEm8R\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BNhbMuAOdZJWYPH5WMuOMgLKuEMjFGnEhmgVwqKeXgjTU9xM1obSerhZkXukE9guzCBKLCJjVdGhiJ60tCdY0kY\",\"auth\":\"FOeGp5c2sXW8jNAGdaUTCQ\"}}', '2025-10-18 09:53:59', '2025-10-18 10:39:33'),
+(19, 77, '62e74fdb27188720b1ef97d398b8b726', 'web', '{\"endpoint\":\"https://web.push.apple.com/QBzXwczrJNrQX1Q0y9A3P7MSmccv6AQtyxlX01MTuruj3_EfpYAGD8blotVBd1MlUwmhz7azEDlnNB3BWfBMe833mOtVx1XEGldTVP_bgSbdMxQ_JIKxte3rxII1qppcYx0Ks1uCxfNaee0L4dUlrrhBFIkasefvZH_JGhKF4yc\",\"keys\":{\"p256dh\":\"BCbvriZQTe7CRywQSgpJrd3H_TM4TlsVjGNB8cY-8FBB5PDlDqHPuP3LdOd5ASYEvwMJ1B5QGotfda2B36Jiqpk\",\"auth\":\"tK_p3VoH0AW3y5F-Sjfnpw\"}}', '2025-10-18 15:40:08', '2025-10-18 15:40:45'),
+(26, 28, '62acdd3fa985e6058a5eeeedc9e0c1e8', 'web', '{\"endpoint\":\"https://updates.push.services.mozilla.com/wpush/v2/gAAAAABo9f5Gypmqu2F0HNrUN1uOkFp4X1Cxeeizkm1F4HftbHWG4GZobGS7zpNgDbM6vlaXFVXIcSBDQlicO4omtenMn0fkwmSXCkh4Ogre9_8whEwqCO_7-qAvtHBsMu08MFp53E3v2VfuocD7EOXrLxtxo9vh3YkKQTiSAy1p72iGn4kMj4w\",\"expirationTime\":null,\"keys\":{\"auth\":\"-bkDbn_U_wtaUMwd1xDcrw\",\"p256dh\":\"BDSUZBQWWL3flXX0GAaG38sf8MnH7GFLO8O8r9IDdL6fatppU7-Ah2WHlRQZ22E6jvtSL6sQ0mtE3TwQnrEXVLo\"}}', '2025-10-20 09:17:58', '2025-10-20 09:25:41'),
+(28, 28, '72832d036eeb19b50c7030c98d1b102c', 'web', '{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/cYFPaS0JuWM:APA91bF7mdH6xcbcmAdI-YWxh32nqVsTNrIo5Z2aUXbZ_jYxQl1pzFcZHoZmJo--smNl6x3ipcw2AkQkbPTI5UMiACbdifjQuv8_ISx9o22lt7c6wB7aVVVmKsI9bTCzOViV3GTlopid\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BFyjTx8FqM1bJm6wFgLbqi7QzV9LLli9DnP9SUUxf2uGoPHsRJnLpfjtBZPCZDcrYolNoAwFoKPh_op9hPy2oqw\",\"auth\":\"3VkZrTV1cgQrJHYVJBNpXA\"}}', '2025-10-21 08:06:00', '2025-10-21 08:13:46');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `gst_charge`
 --
 
@@ -29763,7 +29812,7 @@ INSERT INTO `gst_charge` (`id`, `user_id`, `gst_percent`, `created_at`, `updated
 (2, 21, 5.00, '2025-06-23 10:56:27', '2025-06-23 10:56:27'),
 (3, 4, 0.00, '2025-06-24 15:23:04', '2025-06-24 15:23:38'),
 (4, 36, 5.00, '2025-06-27 13:59:53', '2025-06-27 13:59:53'),
-(5, 28, 5.00, '2025-06-28 08:16:33', '2025-08-07 15:00:10'),
+(5, 28, 5.00, '2025-06-28 08:16:33', '2025-10-10 20:01:34'),
 (6, 34, 5.00, '2025-06-30 09:17:24', '2025-06-30 09:17:48'),
 (7, 46, 5.00, '2025-07-22 14:15:06', '2025-07-22 14:15:06'),
 (8, 47, 5.00, '2025-07-26 13:24:35', '2025-07-26 13:24:35'),
@@ -30059,6 +30108,21 @@ INSERT INTO `master_products` (`id`, `user_id`, `product_name`, `description`, `
 (238, 1, 'Kheema Naan', 'Naan stuffed with spiced chicken mince, tandoor-grilled', 'uploads/master_products/KheemaNaan.jpg', 'active', '2025-05-25 08:15:01', '2025-05-25 08:15:01'),
 (239, 1, 'Bombil Chilly', 'Spicy Bombil tossed in hot chili sauce.', 'http://deegeecard.com/uploads/master_products/bombilchilly_3.jpg', 'active', '2025-05-25 14:22:55', '2025-05-25 14:22:55'),
 (240, 13, 'Egg Bhurji', 'Indian-style scrambled eggs with onions and spices.', 'http://deegeecard.com/uploads/master_products/eggbhurji_1.jpg', 'active', '2025-05-25 14:27:11', '2025-05-25 14:27:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `onesignal_users`
+--
+
+CREATE TABLE `onesignal_users` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `onesignal_user_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `device_type` varchar(20) COLLATE utf8_unicode_ci DEFAULT 'android',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -30386,16 +30450,16 @@ INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `customer_phone`, 
 (1551, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1230.00, 0.00, '', 61.50, 0.00, 1291.50, 'Confirmed', '2025-10-03 02:24:17', '2025-10-03 02:24:42', NULL),
 (1552, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 940.00, 0.00, '', 47.00, 0.00, 987.00, 'Confirmed', '2025-10-03 02:28:59', '2025-10-03 02:29:54', NULL),
 (1553, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1730.00, 0.00, '', 86.50, 0.00, 1816.50, 'Confirmed', '2025-10-03 02:29:31', '2025-10-03 02:29:54', NULL),
-(1554, 28, 'Sagar Pawar', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Ready', '2025-10-03 02:37:11', '2025-10-03 02:49:03', NULL),
+(1554, 28, 'Sagar Pawar', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Completed', '2025-10-03 02:37:11', '2025-10-07 21:41:01', NULL),
 (1555, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1170.00, 0.00, '', 58.50, 0.00, 1228.50, 'Confirmed', '2025-10-03 02:50:28', '2025-10-03 02:50:41', NULL),
 (1556, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5180.00, 0.00, '', 259.00, 0.00, 5439.00, 'Confirmed', '2025-10-03 02:57:57', '2025-10-03 02:58:03', NULL),
 (1557, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5570.00, 0.00, '', 278.50, 0.00, 5848.50, 'Confirmed', '2025-10-03 02:59:19', '2025-10-03 02:59:25', NULL),
 (1558, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1670.00, 0.00, '', 83.50, 0.00, 1753.50, 'Confirmed', '2025-10-03 03:01:14', '2025-10-03 03:02:00', NULL),
 (1559, 31, 'Vaibhav parkar', '8169308870', 'delivery', 'B2/201 sunder nagar, behind petrol pump, SK stone bus stop ', NULL, 'Call when near the society gate ,we will collect oder from there ', 280.00, 0.00, '', 0.00, 0.00, 280.00, 'Pending', '2025-10-03 09:12:53', '2025-10-03 09:12:53', NULL),
-(1560, 67, 'Yogesh chavan', '7977394293', 'delivery', 'C-205 New Nand Dham Co-Op Society,Mira-Bhayandar Road,Sahyadri Nagar,Near Ashoka Hospital Kashimira.\nMira road east\nPin-401107 ', NULL, NULL, 210.00, 0.00, '', 0.00, 0.00, 210.00, 'Pending', '2025-10-03 10:04:49', '2025-10-03 10:04:49', NULL),
+(1560, 67, 'Yogesh chavan', '7977394293', 'delivery', 'C-205 New Nand Dham Co-Op Society,Mira-Bhayandar Road,Sahyadri Nagar,Near Ashoka Hospital Kashimira.\nMira road east\nPin-401107 ', NULL, NULL, 210.00, 0.00, '', 0.00, 0.00, 210.00, 'Confirmed', '2025-10-03 10:04:49', '2025-10-16 21:50:31', NULL),
 (1561, 69, 'Testing', '9999999999', 'delivery', 'testing', NULL, NULL, 430.00, 0.00, '', 0.00, 50.00, 480.00, 'Cancelled', '2025-10-03 12:06:23', '2025-10-03 12:10:41', NULL),
 (1562, 28, 'Sagar Pawar', '9004998995', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 500.00, 0.00, '', 25.00, 0.00, 525.00, 'Pending', '2025-10-03 16:30:57', '2025-10-03 16:30:57', NULL),
-(1563, 28, 'Sagar', '9004998995', 'delivery', 'sdhkhdkg', NULL, NULL, 730.00, 0.00, '', 36.50, 0.00, 766.50, 'Pending', '2025-10-03 20:40:38', '2025-10-03 20:40:38', NULL),
+(1563, 28, 'Sagar', '9004998995', 'delivery', 'sdhkhdkg', NULL, NULL, 730.00, 0.00, '', 36.50, 0.00, 766.50, 'Completed', '2025-10-03 20:40:38', '2025-10-07 21:41:14', NULL),
 (1564, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 660.00, 0.00, '', 33.00, 0.00, 693.00, 'Pending', '2025-10-03 21:20:11', '2025-10-03 21:20:11', NULL),
 (1565, 64, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 149.00, 0.00, '', 0.00, 40.00, 189.00, 'Confirmed', '2025-10-04 13:34:10', '2025-10-04 13:34:41', NULL),
 (1566, 64, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5869.00, 0.00, '', 0.00, 0.00, 5869.00, 'Confirmed', '2025-10-04 13:35:12', '2025-10-04 13:36:09', NULL),
@@ -30413,7 +30477,495 @@ INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `customer_phone`, 
 (1578, 35, 'Jomon c j', '6238797193', 'delivery', 'Ng bliss 103.tanwar hospital opposite.deepak hospital road.', NULL, NULL, 180.00, 0.00, '', 0.00, 0.00, 180.00, 'Pending', '2025-10-06 09:51:09', '2025-10-06 09:51:09', NULL),
 (1579, 28, 'Asma', '2222222222', 'delivery', 'Yh', NULL, NULL, 1480.00, 0.00, '', 74.00, 0.00, 1554.00, 'Completed', '2025-10-06 17:32:20', '2025-10-06 17:36:46', NULL),
 (1580, 28, 'Asma', '7620645330', 'delivery', 'Rhh', NULL, NULL, 240.00, 0.00, '', 12.00, 35.00, 287.00, 'Completed', '2025-10-06 17:34:37', '2025-10-06 17:35:57', NULL),
-(1581, 28, 'Sagar', '8237826576', 'delivery', 'hdfhkg', NULL, NULL, 1460.00, 0.00, '', 73.00, 0.00, 1533.00, 'Confirmed', '2025-10-06 21:05:34', '2025-10-06 21:05:49', NULL);
+(1581, 28, 'Sagar', '8237826576', 'delivery', 'hdfhkg', NULL, NULL, 1460.00, 0.00, '', 73.00, 0.00, 1533.00, 'Completed', '2025-10-06 21:05:34', '2025-10-07 08:29:36', NULL),
+(1582, 28, 'Sagar', '9004998995', 'delivery', '1404, Vasudev Sky High, Mira Road', NULL, 'Spicy', 730.00, 0.00, '', 36.50, 0.00, 766.50, 'Completed', '2025-10-07 09:30:30', '2025-10-07 11:33:00', NULL),
+(1583, 28, 'Tanvi', '9004998995', 'delivery', 'hddsjhfds', NULL, NULL, 5910.00, 0.00, '', 295.50, 0.00, 6205.50, 'Completed', '2025-10-07 09:32:02', '2025-10-07 11:32:48', NULL),
+(1584, 28, 'Inayat', '9004998995', 'delivery', 'jhsdhsskks', NULL, NULL, 11620.00, 0.00, '', 581.00, 0.00, 12201.00, 'Completed', '2025-10-07 09:38:15', '2025-10-07 11:06:32', NULL),
+(1585, 56, 'Sabir', '8696893398', 'delivery', 'Chandresh acord shop no 90 nagori dairy silver park ', NULL, NULL, 90.00, 0.00, '', 0.00, 0.00, 90.00, 'Pending', '2025-10-07 09:52:18', '2025-10-07 09:52:18', NULL),
+(1586, 28, 'Sagar', '2386576858', 'delivery', 'hhhdhfdg', NULL, NULL, 9460.00, 0.00, '', 473.00, 0.00, 9933.00, 'Completed', '2025-10-07 13:03:37', '2025-10-07 13:05:30', NULL),
+(1587, 28, 'Sagar', '8279278547', 'delivery', 'hjdgfdg', NULL, NULL, 12460.00, 0.00, '', 623.00, 0.00, 13083.00, 'Completed', '2025-10-07 13:04:37', '2025-10-07 13:05:28', NULL),
+(1588, 28, 'Inayat', '7342748978', 'delivery', 'hkhsdgdf', NULL, NULL, 1150.00, 0.00, '', 57.50, 0.00, 1207.50, 'Completed', '2025-10-07 15:04:15', '2025-10-07 15:35:09', NULL),
+(1589, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3120.00, 0.00, '', 156.00, 0.00, 3276.00, 'Completed', '2025-10-07 15:35:51', '2025-10-07 15:41:20', NULL),
+(1590, 28, 'Sagar', '9004998995', 'delivery', 'Mira Road', NULL, NULL, 1650.00, 0.00, '', 82.50, 0.00, 1732.50, 'Completed', '2025-10-07 19:21:41', '2025-10-07 20:51:37', NULL),
+(1591, 28, 'Sagar', '2836832652', 'delivery', 'hkdshhs', NULL, NULL, 2150.00, 0.00, '', 107.50, 0.00, 2257.50, 'Completed', '2025-10-07 19:33:28', '2025-10-07 20:51:12', NULL),
+(1592, 28, 'Sagar', '7748375893', 'delivery', 'sdhsgg', NULL, NULL, 2650.00, 0.00, '', 132.50, 0.00, 2782.50, 'Completed', '2025-10-07 20:13:49', '2025-10-07 20:51:10', NULL),
+(1593, 28, 'Sagar', '2326583646', 'delivery', 'jhdkjhgkg', NULL, NULL, 4760.00, 0.00, '', 238.00, 0.00, 4998.00, 'Completed', '2025-10-07 20:44:48', '2025-10-07 21:04:48', NULL),
+(1594, 44, 'Deepak', '7275261935', 'delivery', 'Shree ganesh society  mira road', NULL, NULL, 130.00, 0.00, '', 0.00, 30.00, 160.00, 'Pending', '2025-10-08 07:15:15', '2025-10-08 07:15:15', NULL),
+(1595, 28, 'Sagar', '7864353865', 'delivery', 'kjhsdhfksd', NULL, NULL, 5260.00, 0.00, '', 263.00, 0.00, 5523.00, 'Completed', '2025-10-08 12:41:15', '2025-10-08 12:44:54', NULL),
+(1596, 28, 'Tanvi', '7957747357', 'delivery', 'sgjgdgd', NULL, NULL, 5990.00, 0.00, '', 299.50, 0.00, 6289.50, 'Completed', '2025-10-08 12:43:15', '2025-10-08 12:44:58', NULL),
+(1597, 28, 'Inayat', '5748935737', 'delivery', 'djdklfjglfdg', NULL, NULL, 1460.00, 0.00, '', 73.00, 0.00, 1533.00, 'Completed', '2025-10-08 12:43:55', '2025-10-08 12:45:00', NULL),
+(1598, 28, 'Sagar', '3638253665', 'delivery', 'jkhjddfgfd', NULL, NULL, 6490.00, 0.00, '', 324.50, 0.00, 6814.50, 'Completed', '2025-10-08 13:01:43', '2025-10-08 13:09:39', NULL),
+(1599, 28, 'Sagar', '9753475735', 'delivery', 'shkhfdg', NULL, NULL, 7220.00, 0.00, '', 361.00, 0.00, 7581.00, 'Completed', '2025-10-08 13:06:12', '2025-10-08 13:09:41', NULL),
+(1600, 28, 'Sahil', '6786753463', 'delivery', 'gfjddgd', NULL, NULL, 4000.00, 0.00, '', 200.00, 0.00, 4200.00, 'Completed', '2025-10-08 13:12:08', '2025-10-08 13:16:07', NULL),
+(1601, 28, 'OM', '8437673865', 'delivery', 'hkhhhkhdfg', NULL, NULL, 4420.00, 0.00, '', 221.00, 0.00, 4641.00, 'Completed', '2025-10-08 13:16:19', '2025-10-08 13:25:39', NULL),
+(1602, 28, 'Sagar', '7957974564', 'delivery', 'hgdfgd', NULL, NULL, 1960.00, 0.00, '', 98.00, 0.00, 2058.00, 'Completed', '2025-10-08 13:17:11', '2025-10-08 13:25:38', NULL),
+(1603, 28, 'Ganesh', '4653856365', 'delivery', 'jhkhdgdf', NULL, NULL, 4920.00, 0.00, '', 246.00, 0.00, 5166.00, 'Completed', '2025-10-08 13:28:03', '2025-10-08 14:07:00', NULL),
+(1604, 28, 'Ganesh', '9857347737', 'delivery', 'hkfdhgfg', NULL, NULL, 5420.00, 0.00, '', 271.00, 0.00, 5691.00, 'Completed', '2025-10-08 13:29:00', '2025-10-08 14:06:58', NULL),
+(1605, 28, 'Tanvi Mane', '8478758397', 'delivery', 'dhsggsg', NULL, NULL, 5810.00, 0.00, '', 290.50, 0.00, 6100.50, 'Completed', '2025-10-08 13:33:17', '2025-10-08 14:06:56', NULL),
+(1606, 28, 'Sagar', '7843753975', 'delivery', 'khshshd', NULL, NULL, 6310.00, 0.00, '', 315.50, 0.00, 6625.50, 'Completed', '2025-10-08 13:50:26', '2025-10-08 14:06:54', NULL),
+(1607, 28, 'Sagar', '3927732592', 'delivery', 'khhdf', NULL, NULL, 500.00, 0.00, '', 25.00, 0.00, 525.00, 'Completed', '2025-10-08 14:07:26', '2025-10-08 15:17:36', NULL),
+(1608, 28, 'Tanvi', '4983537537', 'delivery', 'fhgkdkgdg', NULL, NULL, 1000.00, 0.00, '', 50.00, 0.00, 1050.00, 'Completed', '2025-10-08 14:08:11', '2025-10-08 15:17:57', NULL),
+(1609, 28, 'Sagar', '7987423747', 'delivery', 'hsjhhdd', NULL, NULL, 1620.00, 0.00, '', 81.00, 0.00, 1701.00, 'Completed', '2025-10-08 14:12:47', '2025-10-08 15:17:53', NULL),
+(1610, 28, 'Sagar', '7897327747', 'delivery', 'khkhdf', NULL, NULL, 2350.00, 0.00, '', 117.50, 0.00, 2467.50, 'Completed', '2025-10-08 14:13:34', '2025-10-08 15:17:47', NULL),
+(1611, 28, 'Chamatkar', '8783757875', 'delivery', 'hgdhg', NULL, NULL, 2830.00, 0.00, '', 141.50, 0.00, 2971.50, 'Completed', '2025-10-08 14:19:45', '2025-10-08 15:17:31', NULL),
+(1612, 28, 'Shree', '7894375737', 'delivery', 'hkjfd', NULL, NULL, 3330.00, 0.00, '', 166.50, 0.00, 3496.50, 'Completed', '2025-10-08 14:24:34', '2025-10-08 15:17:42', NULL),
+(1613, 28, 'Jay', '7573475359', 'delivery', 'fjdgdf', NULL, NULL, 3830.00, 0.00, '', 191.50, 0.00, 4021.50, 'Completed', '2025-10-08 14:25:06', '2025-10-08 15:17:26', NULL),
+(1614, 28, 'Mast', '8493758738', 'delivery', 'shskd', NULL, NULL, 4220.00, 0.00, '', 211.00, 0.00, 4431.00, 'Completed', '2025-10-08 14:25:53', '2025-10-08 15:17:07', NULL),
+(1615, 28, 'Ram', '9775934759', 'delivery', 'hjhgdfhg', NULL, NULL, 4720.00, 0.00, '', 236.00, 0.00, 4956.00, 'Completed', '2025-10-08 14:27:26', '2025-10-08 14:38:24', NULL),
+(1616, 28, 'Inayat', '7289798273', 'delivery', 'fdggdd', NULL, NULL, 5220.00, 0.00, '', 261.00, 0.00, 5481.00, 'Completed', '2025-10-08 14:36:36', '2025-10-08 14:38:22', NULL),
+(1617, 28, 'Mandar', '7598734758', 'delivery', 'hkhgdfgd', NULL, NULL, 5450.00, 0.00, '', 272.50, 0.00, 5722.50, 'Completed', '2025-10-08 14:39:18', '2025-10-08 15:17:23', NULL),
+(1618, 28, 'Sagar', '3297894277', 'delivery', 'jhsdjkh', NULL, NULL, 5950.00, 0.00, '', 297.50, 0.00, 6247.50, 'Completed', '2025-10-08 14:40:28', '2025-10-08 15:17:13', NULL),
+(1619, 28, 'Sagar', '3874837492', 'delivery', 'khdhshhs', NULL, NULL, 6950.00, 0.00, '', 347.50, 0.00, 7297.50, 'Completed', '2025-10-08 15:08:43', '2025-10-08 15:17:19', NULL),
+(1620, 28, 'Sagar', '8975347738', 'delivery', 'khdgd', NULL, NULL, 7450.00, 0.00, '', 372.50, 0.00, 7822.50, 'Completed', '2025-10-08 15:09:45', '2025-10-08 15:17:11', NULL),
+(1621, 28, 'Tanvi Pawar', '7325773757', 'delivery', 'gdfhjkdhgd', NULL, NULL, 7950.00, 0.00, '', 397.50, 0.00, 8347.50, 'Completed', '2025-10-08 15:11:05', '2025-10-08 15:17:09', NULL),
+(1622, 28, 'Sagar', '3264826462', 'delivery', 'kdsssg', NULL, NULL, 8450.00, 0.00, '', 422.50, 0.00, 8872.50, 'Completed', '2025-10-08 15:15:17', '2025-10-08 15:16:58', NULL),
+(1623, 28, 'Sagar', '7893277827', 'delivery', 'kjdshskg', NULL, NULL, 8950.00, 0.00, '', 447.50, 0.00, 9397.50, 'Completed', '2025-10-08 15:16:28', '2025-10-08 15:16:59', NULL),
+(1624, 28, 'Ganesh', '8479377738', 'delivery', 'hkhgd', NULL, NULL, 480.00, 0.00, '', 24.00, 0.00, 504.00, 'Completed', '2025-10-08 15:23:01', '2025-10-08 15:23:49', NULL),
+(1625, 28, 'Sagar', '5734736873', 'delivery', 'ksdhshg', NULL, NULL, 2460.00, 0.00, '', 123.00, 0.00, 2583.00, 'Completed', '2025-10-08 15:24:46', '2025-10-08 15:25:05', NULL),
+(1626, 28, 'Sahil', '6478236664', 'dining', NULL, '3', 'jhkshsg', 980.00, 0.00, '', 49.00, 0.00, 1029.00, 'Completed', '2025-10-08 15:25:47', '2025-10-08 15:26:10', NULL),
+(1627, 28, 'Sagar', '3787287489', 'delivery', 'khdgd', NULL, NULL, 1480.00, 0.00, '', 74.00, 0.00, 1554.00, 'Completed', '2025-10-08 15:26:38', '2025-10-08 15:41:41', NULL),
+(1628, 28, 'Sheetal', '7897534973', 'delivery', 'hdfkhd', NULL, NULL, 2210.00, 0.00, '', 110.50, 0.00, 2320.50, 'Completed', '2025-10-08 15:34:53', '2025-10-08 15:41:47', NULL),
+(1629, 28, 'Sunny', '5436365636', 'delivery', 'hkjhdkgd', NULL, NULL, 2710.00, 0.00, '', 135.50, 0.00, 2845.50, 'Completed', '2025-10-08 15:35:26', '2025-10-08 15:41:44', NULL),
+(1630, 21, 'Ammu', '7776035530', 'delivery', '207 E WING MADHUVAN PARK chs Mira road NH ROAD Behind Kismat Residency Thane 401107 ', NULL, NULL, 210.00, 0.00, '', 10.50, 0.00, 220.50, 'Cancelled', '2025-10-08 15:35:56', '2025-10-08 16:06:49', NULL),
+(1631, 28, 'Sagar', '3279737537', 'delivery', 'hjkhgkjdhfg', NULL, NULL, 3440.00, 0.00, '', 172.00, 0.00, 3612.00, 'Completed', '2025-10-08 15:36:55', '2025-10-08 15:41:33', NULL),
+(1632, 28, 'Sagar', '2739879479', 'delivery', 'hkjhdfgg', NULL, NULL, 3940.00, 0.00, '', 197.00, 0.00, 4137.00, 'Completed', '2025-10-08 15:37:52', '2025-10-08 15:41:31', NULL),
+(1633, 28, 'Shree Ganesha', '8954566868', 'delivery', 'hhfhhfh', NULL, NULL, 4560.00, 0.00, '', 228.00, 0.00, 4788.00, 'Completed', '2025-10-08 15:45:55', '2025-10-08 15:46:34', NULL),
+(1634, 28, 'Sagar', '7548373857', 'delivery', 'hjkhhdfg', NULL, NULL, 5060.00, 0.00, '', 253.00, 0.00, 5313.00, 'Completed', '2025-10-08 15:46:56', '2025-10-08 15:47:13', NULL),
+(1635, 28, 'Sagar', '8789347775', 'delivery', 'hsdhkhks', NULL, NULL, 390.00, 0.00, '', 19.50, 0.00, 409.50, 'Completed', '2025-10-08 16:15:42', '2025-10-08 16:16:21', NULL),
+(1636, 28, 'Sagar', '9327777595', 'delivery', 'hdkshs', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Completed', '2025-10-08 16:16:43', '2025-10-08 16:17:39', NULL),
+(1637, 28, 'Sagar', '3927847827', 'delivery', 'kdsshkfhsf', NULL, NULL, 1620.00, 0.00, '', 81.00, 0.00, 1701.00, 'Completed', '2025-10-08 16:18:01', '2025-10-08 16:37:00', NULL),
+(1638, 28, 'Sagar', '6287658656', 'delivery', 'hkshsg', NULL, NULL, 2350.00, 0.00, '', 117.50, 0.00, 2467.50, 'Completed', '2025-10-08 16:36:28', '2025-10-08 16:36:58', NULL),
+(1639, 28, 'Sagar', '7482773474', 'delivery', 'khhkhdsf', NULL, NULL, 3080.00, 0.00, '', 154.00, 0.00, 3234.00, 'Completed', '2025-10-08 16:37:18', '2025-10-08 16:37:47', NULL),
+(1640, 28, 'Sagar', '9273772347', 'delivery', 'hkhkfhhfs', NULL, NULL, 920.00, 0.00, '', 46.00, 0.00, 966.00, 'Completed', '2025-10-08 16:49:00', '2025-10-08 16:49:45', NULL),
+(1641, 28, 'Sagar', '3732977242', 'delivery', 'kshdfs', NULL, NULL, 1420.00, 0.00, '', 71.00, 0.00, 1491.00, 'Cancelled', '2025-10-08 16:50:10', '2025-10-08 16:50:34', NULL),
+(1642, 28, 'Sahil', '7987394372', 'delivery', 'hksfhd', NULL, NULL, 1920.00, 0.00, '', 96.00, 0.00, 2016.00, 'Completed', '2025-10-08 16:55:10', '2025-10-08 16:57:16', NULL),
+(1643, 28, 'Sheetal', '3772977247', 'delivery', 'hdskhk', NULL, NULL, 2420.00, 0.00, '', 121.00, 0.00, 2541.00, 'Completed', '2025-10-08 16:56:31', '2025-10-08 16:57:15', NULL),
+(1644, 28, 'Sagar', '7957384873', 'delivery', 'hhdfjhgjdkg', NULL, NULL, 2920.00, 0.00, '', 146.00, 0.00, 3066.00, 'Completed', '2025-10-08 17:05:43', '2025-10-08 17:06:08', NULL),
+(1645, 28, 'Mandip', '5463756386', 'delivery', 'sdfsfhfs', NULL, NULL, 3420.00, 0.00, '', 171.00, 0.00, 3591.00, 'Completed', '2025-10-08 17:17:07', '2025-10-08 17:17:25', NULL),
+(1646, 28, 'Sagar', '3487656746', 'delivery', 'kdhsshfh', NULL, NULL, 3920.00, 0.00, '', 196.00, 0.00, 4116.00, 'Completed', '2025-10-08 18:04:49', '2025-10-08 18:05:19', NULL),
+(1647, 28, 'Sagar', '7394759375', 'delivery', 'hhghdfgd', NULL, NULL, 4650.00, 0.00, '', 232.50, 0.00, 4882.50, 'Ready', '2025-10-08 18:11:21', '2025-10-08 18:11:33', NULL),
+(1648, 28, 'Sagar', '6487875643', 'delivery', 'hhhgfdkj', NULL, NULL, 5150.00, 0.00, '', 257.50, 0.00, 5407.50, 'Ready', '2025-10-08 18:12:01', '2025-10-08 18:12:32', NULL),
+(1649, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 3810.00, 0.00, '', 190.50, 0.00, 4000.50, 'Ready', '2025-10-08 18:21:05', '2025-10-08 18:21:20', NULL),
+(1650, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 4310.00, 0.00, '', 215.50, 0.00, 4525.50, 'Ready', '2025-10-08 18:21:32', '2025-10-08 18:21:53', NULL),
+(1651, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 5040.00, 0.00, '', 252.00, 0.00, 5292.00, 'Ready', '2025-10-08 18:26:57', '2025-10-08 18:27:19', NULL),
+(1652, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 5670.00, 0.00, '', 283.50, 0.00, 5953.50, 'Ready', '2025-10-08 18:28:19', '2025-10-08 18:28:34', NULL),
+(1653, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 6560.00, 0.00, '', 328.00, 0.00, 6888.00, 'Completed', '2025-10-08 18:31:08', '2025-10-08 18:33:07', NULL),
+(1654, 28, 'Sahil', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 320.00, 0.00, '', 16.00, 0.00, 336.00, 'Completed', '2025-10-08 18:32:30', '2025-10-08 18:33:08', NULL),
+(1655, 28, 'Sahil', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 980.00, 0.00, '', 49.00, 0.00, 1029.00, 'Completed', '2025-10-08 18:33:51', '2025-10-08 20:23:29', NULL),
+(1656, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 12160.00, 0.00, '', 608.00, 0.00, 12768.00, 'Completed', '2025-10-08 18:35:23', '2025-10-08 20:23:35', NULL),
+(1657, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 810.00, 0.00, '', 40.50, 0.00, 850.50, 'Completed', '2025-10-08 18:37:37', '2025-10-08 20:23:25', NULL),
+(1658, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1540.00, 0.00, '', 77.00, 0.00, 1617.00, 'Completed', '2025-10-08 18:42:23', '2025-10-08 20:23:21', NULL),
+(1680, 32, 'Arpit ', '9136142401', 'delivery', '207/B Navarunodaya, near vimal deri , land mark padmaja hospital,  bhayandar east 401105', NULL, NULL, 470.00, 0.00, '', 0.00, 0.00, 470.00, 'Pending', '2025-10-09 16:03:54', '2025-10-09 16:03:54', NULL),
+(1708, 31, 'Prinston ', '9920520248', 'delivery', 'Poonam garden swayam A/9 a 1104 near sk stone Mira road East Thane 401107', NULL, NULL, 240.00, 0.00, '', 0.00, 0.00, 240.00, 'Pending', '2025-10-10 05:20:18', '2025-10-10 05:20:18', NULL),
+(1709, 28, 'Sagar', '9004998995', 'delivery', 'Vasudev Sky Hgh', NULL, NULL, 1360.00, 0.00, '', 68.00, 0.00, 1428.00, 'Completed', '2025-10-10 11:00:52', '2025-10-10 11:02:04', NULL),
+(1710, 28, 'Tanvi', '3278278279', 'delivery', 'dshhskgdsg', NULL, NULL, 1590.00, 0.00, '', 79.50, 0.00, 1669.50, 'Completed', '2025-10-10 11:02:27', '2025-10-10 11:02:52', NULL),
+(1711, 28, 'Sagar', '9785734757', 'delivery', 'kjdshhsg', NULL, NULL, 2090.00, 0.00, '', 104.50, 0.00, 2194.50, 'Completed', '2025-10-10 11:19:12', '2025-10-10 11:19:39', NULL),
+(1712, 28, 'Sagar', '7957483753', 'delivery', 'kshhsdh', NULL, NULL, 3460.00, 0.00, '', 173.00, 0.00, 3633.00, 'Completed', '2025-10-10 11:21:38', '2025-10-10 11:25:34', NULL),
+(1713, 28, 'Sagar', '3274264268', 'delivery', 'hdskfshs', NULL, NULL, 2590.00, 0.00, '', 129.50, 0.00, 2719.50, 'Completed', '2025-10-10 11:34:01', '2025-10-10 11:34:37', NULL),
+(1714, 28, 'Sagar', '9759347359', 'delivery', 'hkhgdhghfdfgd', NULL, NULL, 3320.00, 0.00, '', 166.00, 0.00, 3486.00, 'Completed', '2025-10-10 11:35:08', '2025-10-10 11:36:06', NULL),
+(1715, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 730.00, 0.00, '', 36.50, 0.00, 766.50, 'Completed', '2025-10-10 12:27:07', '2025-10-10 12:27:36', NULL),
+(1716, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 960.00, 0.00, '', 48.00, 0.00, 1008.00, 'Completed', '2025-10-10 12:36:17', '2025-10-10 12:37:00', NULL),
+(1717, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2890.00, 0.00, '', 144.50, 0.00, 3034.50, 'Completed', '2025-10-10 12:37:49', '2025-10-10 12:38:17', NULL),
+(1718, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3620.00, 0.00, '', 181.00, 0.00, 3801.00, 'Completed', '2025-10-10 13:12:19', '2025-10-10 13:30:41', NULL),
+(1719, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6397.00, 0.00, '', 319.85, 0.00, 6716.85, 'Completed', '2025-10-10 13:13:12', '2025-10-10 13:30:48', NULL),
+(1720, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6787.00, 0.00, '', 339.35, 0.00, 7126.35, 'Cancelled', '2025-10-10 13:14:00', '2025-10-10 13:14:11', NULL),
+(1721, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7017.00, 0.00, '', 350.85, 0.00, 7367.85, 'Cancelled', '2025-10-10 13:14:53', '2025-10-10 13:15:00', NULL),
+(1722, 28, 'Sagar', '8783978459', 'delivery', 'hkhhdhdg', NULL, NULL, 230.00, 0.00, '', 11.50, 35.00, 276.50, 'Completed', '2025-10-10 13:33:20', '2025-10-10 13:33:33', NULL),
+(1723, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4120.00, 0.00, '', 206.00, 0.00, 4326.00, 'Completed', '2025-10-10 13:38:32', '2025-10-10 13:39:23', NULL),
+(1724, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7407.00, 0.00, '', 370.35, 0.00, 7777.35, 'Completed', '2025-10-10 13:53:53', '2025-10-10 13:54:52', NULL),
+(1725, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7637.00, 0.00, '', 381.85, 0.00, 8018.85, 'Ready', '2025-10-10 13:55:24', '2025-10-10 20:12:53', NULL),
+(1726, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4350.00, 0.00, '', 217.50, 0.00, 4567.50, 'Cancelled', '2025-10-10 13:58:45', '2025-10-10 13:59:24', NULL),
+(1727, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2400.00, 0.00, '', 120.00, 0.00, 2520.00, 'Cancelled', '2025-10-10 13:59:37', '2025-10-10 14:00:13', NULL),
+(1728, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 500.00, 0.00, '', 25.00, 0.00, 525.00, 'Cancelled', '2025-10-10 14:23:09', '2025-10-10 14:23:55', NULL),
+(1729, 28, 'Sagar', '7982377274', 'delivery', 'khhdf', NULL, NULL, 730.00, 0.00, '', 36.50, 0.00, 766.50, 'Completed', '2025-10-10 14:49:54', '2025-10-10 14:54:28', NULL),
+(1730, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1000.00, 0.00, '', 50.00, 0.00, 1050.00, 'Completed', '2025-10-10 14:51:37', '2025-10-10 14:54:26', NULL),
+(1731, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1230.00, 0.00, '', 61.50, 0.00, 1291.50, 'Completed', '2025-10-10 14:53:25', '2025-10-10 14:54:25', NULL),
+(1732, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1460.00, 0.00, '', 73.00, 0.00, 1533.00, 'Ready', '2025-10-10 17:48:47', '2025-10-10 20:12:51', NULL),
+(1733, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2640.00, 0.00, '', 132.00, 0.00, 2772.00, 'Cancelled', '2025-10-10 17:56:57', '2025-10-10 17:58:53', NULL),
+(1734, 28, 'Sagar', '3648274626', 'delivery', 'jshfkjdsf', NULL, NULL, 12120.00, 0.00, '', 606.00, 0.00, 12726.00, 'Cancelled', '2025-10-10 17:57:36', '2025-10-10 17:58:53', NULL),
+(1735, 28, 'Sagar', '2628636566', 'delivery', 'hkfdg', NULL, NULL, 12900.00, 0.00, '', 645.00, 0.00, 13545.00, 'Ready', '2025-10-10 18:02:08', '2025-10-10 20:12:50', NULL),
+(1736, 28, 'Sagar', '8923798725', 'delivery', 'hdkshs', NULL, NULL, 13400.00, 0.00, '', 670.00, 0.00, 14070.00, 'Pending', '2025-10-10 18:19:06', '2025-10-10 18:19:06', NULL),
+(1737, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2870.00, 0.00, '', 143.50, 0.00, 3013.50, 'Pending', '2025-10-10 18:19:35', '2025-10-10 18:19:35', NULL),
+(1738, 51, 'Lathesh', '9819806613', 'delivery', 'Gaon devi', NULL, NULL, 200.00, 0.00, '', 10.00, 0.00, 210.00, 'Pending', '2025-10-10 19:13:21', '2025-10-10 19:13:21', NULL),
+(1739, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2230.00, 0.00, '', 111.50, 0.00, 2341.50, 'Completed', '2025-10-10 19:44:35', '2025-10-10 19:45:57', NULL),
+(1740, 28, 'Sagar Pawar', '9004998995', 'delivery', 'Hxhcichfoxjhhx', NULL, 'Make it spicy', 1080.00, 0.00, '', 54.00, 0.00, 1134.00, 'Confirmed', '2025-10-10 19:49:54', '2025-10-10 19:50:16', NULL),
+(1741, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2460.00, 0.00, '', 123.00, 0.00, 2583.00, 'Completed', '2025-10-10 19:51:31', '2025-10-10 19:52:14', NULL),
+(1742, 28, 'Sagar Pawar', '9004998995', 'dining', NULL, '5', 'Jjvhcpvufivudiv', 3510.00, 0.00, '', 175.50, 0.00, 3685.50, 'Confirmed', '2025-10-10 19:53:41', '2025-10-10 19:53:58', NULL),
+(1743, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3260.00, 0.00, '', 163.00, 0.00, 3423.00, 'Confirmed', '2025-10-10 19:54:56', '2025-10-10 19:55:09', NULL),
+(1744, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1730.00, 0.00, '', 86.50, 0.00, 1816.50, 'Cancelled', '2025-10-10 19:55:46', '2025-10-10 19:55:59', NULL),
+(1745, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1970.00, 0.00, '', 98.50, 0.00, 2068.50, 'Completed', '2025-10-10 19:56:21', '2025-10-10 20:13:24', NULL),
+(1746, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 3190.00, 0.00, '', 159.50, 0.00, 3349.50, 'Confirmed', '2025-10-10 20:13:39', '2025-10-10 20:13:42', NULL),
+(1747, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1960.00, 0.00, '', 98.00, 0.00, 2058.00, 'Completed', '2025-10-10 20:14:55', '2025-10-10 20:15:39', NULL),
+(1748, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2050.00, 0.00, '', 102.50, 0.00, 2152.50, 'Confirmed', '2025-10-10 20:17:00', '2025-10-10 20:17:03', NULL),
+(1749, 28, 'Inayat Shaikh', '0981941102', 'dining', NULL, '6', NULL, 5080.00, 0.00, '', 254.00, 0.00, 5334.00, 'Confirmed', '2025-10-10 20:53:15', '2025-10-10 22:31:35', NULL),
+(1750, 21, 'Adnan', '9892130222', 'delivery', '202, F WING, SILVER OAK 2, OPPOSITE KANAKIA POLICE STATION, Beverly Park, Mira Road EAST', NULL, NULL, 290.00, 0.00, '', 14.50, 0.00, 304.50, 'Completed', '2025-10-11 07:07:50', '2025-10-11 07:23:29', NULL),
+(1751, 63, 'Johan', '9324226441', 'delivery', 'Ng view complex, bldg 8, Flat 203, Geeta Nagar Phase 1, Opposite Ng rock.', NULL, NULL, 598.00, 0.00, '', 29.90, 0.00, 627.90, 'Pending', '2025-10-11 07:18:09', '2025-10-11 07:18:09', NULL),
+(1752, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 560.00, 0.00, '', 0.00, 0.00, 560.00, 'Pending', '2025-10-11 16:00:25', '2025-10-11 16:00:25', NULL),
+(1753, 77, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 90.00, 0.00, '', 0.00, 0.00, 90.00, 'Pending', '2025-10-11 16:00:45', '2025-10-11 16:00:45', NULL),
+(1754, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 620.00, 0.00, '', 0.00, 0.00, 620.00, 'Pending', '2025-10-11 16:01:22', '2025-10-11 16:01:22', NULL),
+(1755, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 80.00, 0.00, '', 0.00, 0.00, 80.00, 'Pending', '2025-10-11 16:01:55', '2025-10-11 16:01:55', NULL),
+(1756, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 80.00, 0.00, '', 0.00, 0.00, 80.00, 'Pending', '2025-10-11 16:02:30', '2025-10-11 16:02:30', NULL),
+(1757, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 3920.00, 0.00, '', 196.00, 0.00, 4116.00, 'Pending', '2025-10-11 16:02:58', '2025-10-11 16:02:58', NULL),
+(1758, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 80.00, 0.00, '', 0.00, 0.00, 80.00, 'Pending', '2025-10-11 16:04:36', '2025-10-11 16:04:36', NULL),
+(1759, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 130.00, 0.00, '', 0.00, 0.00, 130.00, 'Ready', '2025-10-11 16:18:54', '2025-10-11 16:23:18', NULL),
+(1760, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 480.00, 0.00, '', 0.00, 0.00, 480.00, 'Ready', '2025-10-11 18:34:50', '2025-10-12 12:24:19', NULL),
+(1761, 77, 'Inayat Shaikh', '9819411026', 'dining', NULL, '3', NULL, 210.00, 0.00, '', 0.00, 0.00, 210.00, 'Completed', '2025-10-11 18:36:36', '2025-10-12 12:24:09', NULL),
+(1762, 77, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 300.00, 0.00, '', 0.00, 0.00, 300.00, 'Completed', '2025-10-11 18:46:00', '2025-10-12 12:24:01', NULL),
+(1763, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 560.00, 0.00, '', 0.00, 0.00, 560.00, 'Completed', '2025-10-11 18:46:41', '2025-10-12 12:23:45', NULL),
+(1764, 77, 'Syed Imran', '7378759777', 'delivery', 'N6 Cidco ', NULL, NULL, 220.00, 0.00, '', 0.00, 0.00, 220.00, 'Cancelled', '2025-10-11 19:08:21', '2025-10-11 19:09:32', NULL),
+(1765, 77, 'Syed Imran', '7378759777', 'delivery', 'N6 Cidco ', NULL, NULL, 510.00, 0.00, '', 0.00, 0.00, 510.00, 'Cancelled', '2025-10-11 19:10:04', '2025-10-11 19:10:45', NULL);
+INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `customer_phone`, `order_type`, `delivery_address`, `table_number`, `order_notes`, `subtotal`, `discount_amount`, `discount_type`, `gst_amount`, `delivery_charge`, `total_amount`, `status`, `created_at`, `updated_at`, `updated_by_session`) VALUES
+(1766, 77, 'Syed Imran', '7378759777', 'dining', NULL, '2', NULL, 590.00, 0.00, '', 0.00, 0.00, 590.00, 'Completed', '2025-10-11 19:15:24', '2025-10-12 12:18:58', NULL),
+(1767, 32, 'Yogendra Kumavat ', '9136854515', 'delivery', 'A/203, Pratima Building Swagatam Complex, Jesal Park, Bhayandar East', NULL, 'Make sabzi spicy ', 805.00, 0.00, '', 0.00, 0.00, 805.00, 'Pending', '2025-10-12 08:24:47', '2025-10-12 08:24:47', NULL),
+(1768, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 140.00, 0.00, '', 0.00, 0.00, 140.00, 'Completed', '2025-10-12 12:18:26', '2025-10-12 12:18:58', NULL),
+(1769, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 200.00, 0.00, '', 0.00, 0.00, 200.00, 'Completed', '2025-10-12 12:19:27', '2025-10-12 12:23:30', NULL),
+(1770, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 280.00, 0.00, '', 0.00, 0.00, 280.00, 'Completed', '2025-10-12 12:20:08', '2025-10-12 12:23:24', NULL),
+(1771, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 340.00, 0.00, '', 0.00, 0.00, 340.00, 'Completed', '2025-10-12 12:21:19', '2025-10-12 12:22:28', NULL),
+(1772, 77, 'Sagar', '9004998995', 'delivery', 'Mira Road', NULL, NULL, 140.00, 0.00, '', 0.00, 0.00, 140.00, 'Completed', '2025-10-12 12:25:05', '2025-10-12 12:25:22', NULL),
+(1773, 77, 'Sagar', '9004998995', 'delivery', 'Mira Road', NULL, NULL, 60.00, 0.00, '', 0.00, 0.00, 60.00, 'Completed', '2025-10-12 12:26:28', '2025-10-12 12:27:46', NULL),
+(1774, 77, 'Sagar', '9004499899', 'delivery', 'Mira Road', NULL, NULL, 120.00, 0.00, '', 0.00, 0.00, 120.00, 'Completed', '2025-10-12 12:28:24', '2025-10-12 12:29:04', NULL),
+(1775, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 400.00, 0.00, '', 0.00, 0.00, 400.00, 'Completed', '2025-10-12 12:32:44', '2025-10-12 12:35:09', NULL),
+(1776, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 460.00, 0.00, '', 0.00, 0.00, 460.00, 'Completed', '2025-10-12 12:33:44', '2025-10-12 12:34:51', NULL),
+(1777, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 540.00, 0.00, '', 0.00, 0.00, 540.00, 'Completed', '2025-10-12 12:35:14', '2025-10-12 12:35:48', NULL),
+(1778, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2440.00, 0.00, '', 122.00, 0.00, 2562.00, 'Pending', '2025-10-12 12:41:22', '2025-10-12 12:41:22', NULL),
+(1779, 77, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 230.00, 0.00, '', 0.00, 0.00, 230.00, 'Cancelled', '2025-10-12 12:41:36', '2025-10-12 12:41:54', NULL),
+(1780, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 570.00, 0.00, '', 0.00, 0.00, 570.00, 'Completed', '2025-10-12 12:42:34', '2025-10-12 14:52:18', NULL),
+(1781, 77, 'Ankit', '9820031315', 'dining', NULL, '3', NULL, 720.00, 0.00, '', 0.00, 0.00, 720.00, 'Completed', '2025-10-12 14:53:02', '2025-10-12 14:59:23', NULL),
+(1782, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 780.00, 0.00, '', 0.00, 0.00, 780.00, 'Completed', '2025-10-12 14:58:20', '2025-10-12 14:59:21', NULL),
+(1783, 77, 'Ankit', '9820031315', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 270.00, 0.00, '', 0.00, 0.00, 270.00, 'Cancelled', '2025-10-12 15:06:04', '2025-10-12 15:06:24', NULL),
+(1784, 77, 'Ankit', '9820031315', 'delivery', 'Hdjcifjfjfigjgdkhdkhxkhdkhdkhxkh', NULL, 'Make it spicy', 220.00, 0.00, '', 0.00, 0.00, 220.00, 'Completed', '2025-10-12 15:07:35', '2025-10-12 15:08:18', NULL),
+(1785, 77, 'Inayat Shaikh', '9820031315', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 300.00, 0.00, '', 0.00, 0.00, 300.00, 'Completed', '2025-10-12 15:09:17', '2025-10-12 15:10:52', NULL),
+(1786, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2830.00, 0.00, '', 141.50, 0.00, 2971.50, 'Pending', '2025-10-12 15:11:22', '2025-10-12 15:11:22', NULL),
+(1787, 77, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 840.00, 0.00, '', 0.00, 0.00, 840.00, 'Confirmed', '2025-10-12 15:18:08', '2025-10-12 15:18:25', NULL),
+(1788, 31, 'GANESH GUPTA ', '9867113143', 'delivery', 'Bluebell C wing 211 salasar garden Mira bhyander road Mira Road east', NULL, NULL, 400.00, 0.00, '', 0.00, 0.00, 400.00, 'Pending', '2025-10-12 16:47:48', '2025-10-12 16:47:48', NULL),
+(1789, 78, 'Sagar', '9004998995', 'delivery', 'Mira Road', NULL, 'test', 190.00, 0.00, '', 0.00, 0.00, 190.00, 'Pending', '2025-10-13 07:43:04', '2025-10-13 07:43:04', NULL),
+(1790, 78, 'Sagar', '9007423842', 'dining', NULL, '5', 'jsdgfsf', 250.00, 0.00, '', 0.00, 0.00, 250.00, 'Pending', '2025-10-13 07:44:09', '2025-10-13 07:44:09', NULL),
+(1791, 79, 'Sagar', '6328426426', 'delivery', 'Test', NULL, 'Test', 30.00, 0.00, '', 0.00, 0.00, 30.00, 'Pending', '2025-10-13 08:17:48', '2025-10-13 08:17:48', NULL),
+(1792, 79, 'Sagar', '4627868563', 'dining', NULL, '5', 'test', 210.00, 0.00, '', 0.00, 0.00, 210.00, 'Pending', '2025-10-13 08:18:11', '2025-10-13 08:18:11', NULL),
+(1793, 80, 'Sagar', '8746872368', 'delivery', 'Test', NULL, NULL, 140.00, 0.00, '', 0.00, 0.00, 140.00, 'Pending', '2025-10-13 08:30:45', '2025-10-13 08:30:45', NULL),
+(1794, 80, 'Sagar', '3648726462', 'dining', NULL, '3', 'Test', 290.00, 0.00, '', 0.00, 0.00, 290.00, 'Pending', '2025-10-13 08:31:28', '2025-10-13 08:31:28', NULL),
+(1795, 77, 'Sagar Pawar', '9004998995', 'delivery', 'Test', NULL, NULL, 140.00, 0.00, '', 0.00, 0.00, 140.00, 'Pending', '2025-10-13 10:49:33', '2025-10-13 10:49:33', NULL),
+(1796, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2460.00, 0.00, '', 123.00, 0.00, 2583.00, 'Completed', '2025-10-13 13:44:19', '2025-10-13 13:47:06', NULL),
+(1797, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1150.00, 0.00, '', 57.50, 0.00, 1207.50, 'Completed', '2025-10-13 13:45:24', '2025-10-13 13:47:05', NULL),
+(1798, 28, 'Sagar', '2628568562', 'delivery', 'hkhfdgd', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Completed', '2025-10-13 14:22:17', '2025-10-13 14:23:21', NULL),
+(1799, 28, 'Sagar', '5837453563', 'delivery', 'hkdfgd', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Completed', '2025-10-13 14:23:40', '2025-10-13 14:37:31', NULL),
+(1800, 28, 'Sagar Pawar', '9878975737', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Cancelled', '2025-10-13 14:40:31', '2025-10-13 14:41:00', NULL),
+(1801, 71, 'Krishna ', '8452808548', 'delivery', 'Salasar Aangan ', NULL, NULL, 170.00, 0.00, '', 0.00, 0.00, 170.00, 'Pending', '2025-10-13 15:46:01', '2025-10-13 15:46:01', NULL),
+(1802, 21, 'Saba', '9930353203', 'delivery', 'A504, Rose Appartment, opp ratnagiri hotel, bharti park, Mira road East ', NULL, NULL, 310.00, 0.00, '', 15.50, 0.00, 325.50, 'Pending', '2025-10-13 15:51:23', '2025-10-13 15:51:23', NULL),
+(1803, 28, 'Tanvi Mane', '7045608003', 'delivery', 'Yhhj', NULL, NULL, 40.00, 0.00, '', 2.00, 20.00, 62.00, 'Completed', '2025-10-13 17:59:28', '2025-10-13 18:00:08', NULL),
+(1804, 77, 'Ateek khan', '9860871953', 'delivery', 'Roshan gate', NULL, NULL, 120.00, 0.00, '', 0.00, 0.00, 120.00, 'Pending', '2025-10-13 20:42:34', '2025-10-13 20:42:34', NULL),
+(1805, 64, 'Pavan Bhalekar', '9370938099', 'delivery', 'Flat No 101 D1 Apna Ghar Phase 2 ', NULL, NULL, 119.00, 0.00, '', 0.00, 40.00, 159.00, 'Pending', '2025-10-14 08:26:04', '2025-10-14 08:26:04', NULL),
+(1806, 28, 'Sagar', '6348726856', 'delivery', 'khsdsg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-14 09:00:34', '2025-10-14 09:00:41', NULL),
+(1807, 28, 'Sagar', '2937489237', 'delivery', 'hjfkhgdgf', NULL, NULL, 530.00, 0.00, '', 26.50, 0.00, 556.50, 'Completed', '2025-10-14 09:01:14', '2025-10-14 09:01:51', NULL),
+(1808, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-14 09:05:12', '2025-10-14 09:05:43', NULL),
+(1809, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Cancelled', '2025-10-14 09:07:58', '2025-10-14 09:08:23', NULL),
+(1810, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Pending', '2025-10-14 09:09:00', '2025-10-14 09:09:00', NULL),
+(1811, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2100.00, 0.00, '', 105.00, 0.00, 2205.00, 'Completed', '2025-10-14 09:10:03', '2025-10-14 10:17:23', NULL),
+(1812, 77, 'Atik khan ', '9860871953', 'delivery', 'Azad chowk', NULL, NULL, 240.00, 0.00, '', 0.00, 0.00, 240.00, 'Pending', '2025-10-14 10:34:00', '2025-10-14 10:34:00', NULL),
+(1813, 28, 'Sagar', '5794377537', 'delivery', 'dfhdd', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Confirmed', '2025-10-14 14:40:47', '2025-10-14 14:41:04', NULL),
+(1814, 56, 'Ashish Bhaise', '8208398274', 'delivery', 'C1, 702 Harias Dream Park, Hatkesh, Near Mahanagar Gas office', NULL, NULL, 418.00, 0.00, '', 0.00, 0.00, 418.00, 'Pending', '2025-10-14 15:16:52', '2025-10-14 15:16:52', NULL),
+(1815, 28, 'Sagar', '2684264264', 'delivery', 'hkhkdfgd', NULL, NULL, 2100.00, 0.00, '', 105.00, 0.00, 2205.00, 'Confirmed', '2025-10-15 13:01:01', '2025-10-15 13:01:15', NULL),
+(1816, 28, 'Sagar', '7598345735', 'delivery', 'hhdkdf', NULL, NULL, 3030.00, 0.00, '', 151.50, 0.00, 3181.50, 'Pending', '2025-10-15 13:02:10', '2025-10-15 13:02:10', NULL),
+(1817, 28, 'Sagar', '9237472472', 'delivery', 'khghdfgd', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Confirmed', '2025-10-15 13:07:43', '2025-10-15 13:07:58', NULL),
+(1818, 28, 'Sagar', '7894237724', 'delivery', 'hkhkdd', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Confirmed', '2025-10-15 13:15:27', '2025-10-15 13:15:34', NULL),
+(1819, 28, 'Sagar', '8239743982', 'delivery', 'hhhss', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Confirmed', '2025-10-15 13:36:28', '2025-10-15 13:36:37', NULL),
+(1820, 28, 'Sagar', '2748927482', 'delivery', 'hdkhhdhd', NULL, NULL, 2560.00, 0.00, '', 128.00, 0.00, 2688.00, 'Confirmed', '2025-10-15 13:45:21', '2025-10-15 13:45:33', NULL),
+(1821, 28, 'Sagar', '7879547394', 'delivery', 'hdjfhhdg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-15 13:46:28', '2025-10-15 13:46:40', NULL),
+(1822, 28, 'Sagar', '7327897439', 'delivery', 'hsdjhkssg', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Confirmed', '2025-10-15 13:49:10', '2025-10-15 13:49:18', NULL),
+(1823, 28, 'Sagar', '8293472974', 'delivery', 'kjsdgg', NULL, NULL, 1930.00, 0.00, '', 96.50, 0.00, 2026.50, 'Pending', '2025-10-15 13:55:03', '2025-10-15 13:55:03', NULL),
+(1824, 77, 'Khizer sk ', '9665566229', 'delivery', 'Faiheisjs\n', NULL, NULL, 60.00, 0.00, '', 0.00, 0.00, 60.00, 'Confirmed', '2025-10-15 14:26:35', '2025-10-15 14:26:51', NULL),
+(1825, 69, 'Aparna nanda', '0937229881', 'delivery', 'Shanti park mira road east', NULL, 'Gravy kam spicy chaiye..', 699.00, 0.00, '', 0.00, 0.00, 699.00, 'Completed', '2025-10-16 05:36:27', '2025-10-16 07:46:12', NULL),
+(1826, 28, 'Sagar', '7394573754', 'delivery', 'dhshfksh', NULL, NULL, 2520.00, 0.00, '', 126.00, 0.00, 2646.00, 'Confirmed', '2025-10-16 06:27:53', '2025-10-16 06:28:08', NULL),
+(1827, 28, 'FCM Test Customer', '9876543210', 'delivery', 'Test Address for FCM Notification', NULL, 'TEST: FCM Push Notification', 399.00, 0.00, '', 19.95, 30.00, 448.95, 'Confirmed', '2025-10-16 06:28:44', '2025-10-16 06:28:55', NULL),
+(1828, 28, 'FCM Test Customer', '9876543210', 'delivery', 'Test Address for FCM Notification', NULL, 'TEST: FCM Push Notification', 399.00, 0.00, '', 19.95, 30.00, 448.95, 'Confirmed', '2025-10-16 06:28:45', '2025-10-16 06:28:55', NULL),
+(1829, 28, 'FCM Test Customer', '9876543210', 'delivery', 'Test Address for FCM Notification', NULL, 'TEST: FCM Push Notification', 399.00, 0.00, '', 19.95, 30.00, 448.95, 'Confirmed', '2025-10-16 06:29:06', '2025-10-16 06:29:13', NULL),
+(1830, 28, 'FINAL FCM TEST', '9876543210', 'delivery', 'Final Test Address', NULL, 'FINAL TEST: This should trigger FCM notification with sound!', 798.00, 0.00, '', 39.90, 30.00, 867.90, 'Pending', '2025-10-16 06:40:05', '2025-10-16 06:40:05', NULL),
+(1831, 28, 'NEW TOKEN TEST', '9876543210', 'delivery', 'Test', NULL, NULL, 100.00, 0.00, '', 0.00, 0.00, 100.00, 'Pending', '2025-10-16 06:53:22', '2025-10-16 06:53:22', NULL),
+(1832, 28, 'NEW TOKEN TEST', '9876543210', 'delivery', 'Test', NULL, NULL, 100.00, 0.00, '', 0.00, 0.00, 100.00, 'Confirmed', '2025-10-16 06:53:41', '2025-10-16 06:53:53', NULL),
+(1833, 28, 'NEW TOKEN TEST', '9876543210', 'delivery', 'Test', NULL, NULL, 100.00, 0.00, '', 0.00, 0.00, 100.00, 'Pending', '2025-10-16 07:02:35', '2025-10-16 07:02:35', NULL),
+(1834, 28, 'Sagar', '2748247794', 'delivery', 'kljjdgjldfg', NULL, NULL, 3220.00, 0.00, '', 161.00, 0.00, 3381.00, 'Confirmed', '2025-10-16 07:17:50', '2025-10-16 07:18:01', NULL),
+(1835, 28, 'Sound Test Customer', '9876543210', 'delivery', 'Test Address for Sound Notification', NULL, 'TEST: Please check notification sound!', 697.00, 0.00, '', 34.85, 30.00, 761.85, 'Pending', '2025-10-16 08:09:10', '2025-10-16 08:09:10', NULL),
+(1836, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2960.00, 0.00, '', 148.00, 0.00, 3108.00, 'Confirmed', '2025-10-16 09:36:26', '2025-10-16 09:36:41', NULL),
+(1837, 28, 'Sagar', '6328764326', 'delivery', 'hfdkshfs', NULL, NULL, 3920.00, 0.00, '', 196.00, 0.00, 4116.00, 'Confirmed', '2025-10-16 14:39:19', '2025-10-16 14:39:46', NULL),
+(1838, 28, 'Sagar', '8748237498', 'delivery', 'kjhkgdf', NULL, NULL, 2630.00, 0.00, '', 131.50, 0.00, 2761.50, 'Pending', '2025-10-16 14:40:43', '2025-10-16 14:40:43', NULL),
+(1839, 28, 'Sagar', '8279577875', 'delivery', 'dkgdljflkjkgd', NULL, NULL, 4150.00, 0.00, '', 207.50, 0.00, 4357.50, 'Pending', '2025-10-16 14:42:05', '2025-10-16 14:42:05', NULL),
+(1840, 28, 'Sagar', '9273492347', 'delivery', 'kfdhshhfs', NULL, NULL, 650.00, 0.00, '', 32.50, 0.00, 682.50, 'Pending', '2025-10-16 15:33:45', '2025-10-16 15:33:45', NULL),
+(1841, 28, 'Sagar', '9004998995', 'delivery', 'Vasudev Sky High, Mira Road, East', NULL, NULL, 1350.00, 0.00, '', 67.50, 0.00, 1417.50, 'Pending', '2025-10-16 15:35:46', '2025-10-16 15:35:46', NULL),
+(1842, 28, 'Sagar', '7498273947', 'delivery', 'hfskdhfksfksh', NULL, NULL, 2050.00, 0.00, '', 102.50, 0.00, 2152.50, 'Pending', '2025-10-16 15:37:02', '2025-10-16 15:37:02', NULL),
+(1843, 28, 'Sagar', '2372784724', 'delivery', 'dhfhskdk fhskf sfjkshfksjf fkhskffssggs', NULL, NULL, 2670.00, 0.00, '', 133.50, 0.00, 2803.50, 'Pending', '2025-10-16 15:38:32', '2025-10-16 15:38:32', NULL),
+(1844, 28, 'Sagar', '3277392727', 'delivery', 'hfhdkfhshfsfs', NULL, NULL, 3370.00, 0.00, '', 168.50, 0.00, 3538.50, 'Pending', '2025-10-16 15:41:18', '2025-10-16 15:41:18', NULL),
+(1845, 28, 'Sagar', '7739874723', 'delivery', 'hdhfshkhs', NULL, NULL, 4460.00, 0.00, '', 223.00, 0.00, 4683.00, 'Completed', '2025-10-16 15:43:50', '2025-10-16 15:44:16', NULL),
+(1846, 28, 'hfhgf', '9999999999', 'dining', NULL, '3', NULL, 1450.00, 0.00, '', 72.50, 0.00, 1522.50, 'Pending', '2025-10-16 15:45:00', '2025-10-16 15:45:00', NULL),
+(1847, 28, 'andy', '7654323456', 'delivery', 'kjsakjhkasnf', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Pending', '2025-10-16 15:49:39', '2025-10-16 15:49:39', NULL),
+(1848, 28, 'Sagar', '5983759749', 'delivery', 'dskhshghg', NULL, NULL, 810.00, 0.00, '', 40.50, 0.00, 850.50, 'Pending', '2025-10-16 15:51:11', '2025-10-16 15:51:11', NULL),
+(1849, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1780.00, 0.00, '', 89.00, 0.00, 1869.00, 'Pending', '2025-10-16 15:53:48', '2025-10-16 15:53:48', NULL),
+(1850, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2020.00, 0.00, '', 101.00, 0.00, 2121.00, 'Pending', '2025-10-16 15:58:32', '2025-10-16 15:58:32', NULL),
+(1851, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2440.00, 0.00, '', 122.00, 0.00, 2562.00, 'Pending', '2025-10-16 16:08:47', '2025-10-16 16:08:47', NULL),
+(1852, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2860.00, 0.00, '', 143.00, 0.00, 3003.00, 'Pending', '2025-10-16 16:10:53', '2025-10-16 16:10:53', NULL),
+(1853, 28, 'Sagar', '8372847942', 'delivery', 'khdgddhgkdf fkdgd gfd fdgh', NULL, NULL, 1040.00, 0.00, '', 52.00, 0.00, 1092.00, 'Pending', '2025-10-16 17:33:08', '2025-10-16 17:33:08', NULL),
+(1854, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Ready', '2025-10-16 18:38:53', '2025-10-17 11:07:55', NULL),
+(1855, 28, 'Sagar', '3742384772', 'delivery', 'hdshshg', NULL, NULL, 1740.00, 0.00, '', 87.00, 0.00, 1827.00, 'Pending', '2025-10-16 18:56:40', '2025-10-16 18:56:40', NULL),
+(1856, 28, 'Sagar', '8372894782', 'delivery', 'dfskhsk', NULL, NULL, 2440.00, 0.00, '', 122.00, 0.00, 2562.00, 'Pending', '2025-10-16 18:57:22', '2025-10-16 18:57:22', NULL),
+(1857, 28, 'Sagar', '7839248274', 'delivery', 'Mira Road', NULL, NULL, 3140.00, 0.00, '', 157.00, 0.00, 3297.00, 'Pending', '2025-10-16 18:58:18', '2025-10-16 18:58:18', NULL),
+(1858, 28, 'Sagar Pawar', '9004998995', 'delivery', '1404, Vasudev Sky High, Beverly Park, Mira Road - East ', NULL, NULL, 3530.00, 0.00, '', 176.50, 0.00, 3706.50, 'Pending', '2025-10-16 19:06:49', '2025-10-16 19:06:49', NULL),
+(1859, 28, 'Sagar', '9327782387', 'delivery', 'sdjkldsg', NULL, NULL, 4230.00, 0.00, '', 211.50, 0.00, 4441.50, 'Pending', '2025-10-16 19:08:14', '2025-10-16 19:08:14', NULL),
+(1860, 28, 'Sagar', '3274892789', 'delivery', 'hkhdsgg', NULL, NULL, 4930.00, 0.00, '', 246.50, 0.00, 5176.50, 'Pending', '2025-10-16 19:13:28', '2025-10-16 19:13:28', NULL),
+(1861, 28, 'Sagar', '7923724774', 'delivery', 'dhkshgggs', NULL, NULL, 5630.00, 0.00, '', 281.50, 0.00, 5911.50, 'Pending', '2025-10-16 19:14:56', '2025-10-16 19:14:56', NULL),
+(1862, 28, 'Sagar', '9373277472', 'delivery', 'hdskhsg', NULL, NULL, 6330.00, 0.00, '', 316.50, 0.00, 6646.50, 'Pending', '2025-10-16 19:17:28', '2025-10-16 19:17:28', NULL),
+(1863, 28, 'Sagar', '3729857829', 'delivery', 'lgdfjgjdjg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Pending', '2025-10-16 19:22:23', '2025-10-16 19:22:23', NULL),
+(1864, 28, 'Sagar', '4324628648', 'delivery', 'dfhskhsg', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Pending', '2025-10-16 19:23:41', '2025-10-16 19:23:41', NULL),
+(1865, 28, 'Sagar', '3727829577', 'delivery', 'hfhkdhfgd', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Pending', '2025-10-16 20:16:55', '2025-10-16 20:16:55', NULL),
+(1866, 28, 'Sagar', '7327482472', 'delivery', 'shfkshkgg', NULL, NULL, 2330.00, 0.00, '', 116.50, 0.00, 2446.50, 'Ready', '2025-10-16 20:24:33', '2025-10-17 11:07:55', NULL),
+(1867, 28, 'Sagar', '5987959347', 'delivery', 'khghsgsg', NULL, NULL, 3030.00, 0.00, '', 151.50, 0.00, 3181.50, 'Pending', '2025-10-16 20:25:29', '2025-10-16 20:25:29', NULL),
+(1868, 28, 'Sagar', '7892572775', 'delivery', 'shkkshg', NULL, NULL, 3730.00, 0.00, '', 186.50, 0.00, 3916.50, 'Pending', '2025-10-16 20:26:23', '2025-10-16 20:26:23', NULL),
+(1869, 28, 'Sagar', '7482382794', 'delivery', 'hdfkhskf', NULL, NULL, 4430.00, 0.00, '', 221.50, 0.00, 4651.50, 'Ready', '2025-10-16 20:27:39', '2025-10-17 11:07:54', NULL),
+(1870, 28, 'dshkshfsk', '7292757292', 'delivery', 'skfhsdg', NULL, NULL, 5130.00, 0.00, '', 256.50, 0.00, 5386.50, 'Pending', '2025-10-16 20:28:23', '2025-10-16 20:28:23', NULL),
+(1871, 28, 'Sagar', '7398427394', 'delivery', 'hhsdkhsg', NULL, NULL, 5830.00, 0.00, '', 291.50, 0.00, 6121.50, 'Pending', '2025-10-16 20:31:23', '2025-10-16 20:31:23', NULL),
+(1872, 28, 'Sagar', '8238328423', 'delivery', 'hhdfhshkdhfshf', NULL, NULL, 6530.00, 0.00, '', 326.50, 0.00, 6856.50, 'Pending', '2025-10-16 20:38:59', '2025-10-16 20:38:59', NULL),
+(1873, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Ready', '2025-10-16 20:42:27', '2025-10-16 20:43:11', NULL),
+(1874, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Pending', '2025-10-16 20:43:44', '2025-10-16 20:43:44', NULL),
+(1875, 28, 'Sagar', '3984902842', 'delivery', 'sdhhkggg', NULL, NULL, 7230.00, 0.00, '', 361.50, 0.00, 7591.50, 'Pending', '2025-10-16 20:48:50', '2025-10-16 20:48:50', NULL),
+(1876, 28, 'Sagar', '7489732974', 'delivery', 'kshfdsf', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Ready', '2025-10-16 20:51:05', '2025-10-17 11:07:53', NULL),
+(1877, 28, 'Sagar', '3892789279', 'delivery', 'hdskhhs', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-16 20:52:45', '2025-10-17 11:07:53', NULL),
+(1878, 28, 'Sagar', '6324682823', 'delivery', 'hkhkdgd', NULL, NULL, 1860.00, 0.00, '', 93.00, 0.00, 1953.00, 'Pending', '2025-10-16 20:54:42', '2025-10-16 20:54:42', NULL),
+(1879, 28, 'Sagar', '3798274427', 'delivery', 'hkdshkdsg', NULL, NULL, 2790.00, 0.00, '', 139.50, 0.00, 2929.50, 'Ready', '2025-10-16 20:55:44', '2025-10-17 11:07:52', NULL),
+(1880, 28, 'Sagar', '3925772957', 'delivery', 'hkdhfgdh', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Pending', '2025-10-16 21:05:51', '2025-10-16 21:05:51', NULL),
+(1881, 28, 'Sagar', '3747237427', 'delivery', 'dffdhgd', NULL, NULL, 2100.00, 0.00, '', 105.00, 0.00, 2205.00, 'Pending', '2025-10-16 21:08:13', '2025-10-16 21:08:13', NULL),
+(1882, 28, 'Sagar', '3423743892', 'delivery', 'skhshggd', NULL, NULL, 2800.00, 0.00, '', 140.00, 0.00, 2940.00, 'Pending', '2025-10-16 21:16:15', '2025-10-16 21:16:15', NULL),
+(1883, 28, 'Sagar', '3423743892', 'delivery', 'skhshggd', NULL, NULL, 2800.00, 0.00, '', 140.00, 0.00, 2940.00, 'Ready', '2025-10-16 21:16:20', '2025-10-16 21:50:53', NULL),
+(1884, 28, 'Sagar', '4239927474', 'delivery', 'jdklsgg', NULL, NULL, 3500.00, 0.00, '', 175.00, 0.00, 3675.00, 'Completed', '2025-10-16 21:17:13', '2025-10-16 21:50:50', NULL),
+(1885, 28, 'Sagar', '7392797297', 'delivery', 'hghdfgg', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Completed', '2025-10-16 21:21:27', '2025-10-16 21:50:46', NULL),
+(1886, 28, 'Sagar', '4797424727', 'delivery', 'khskfhks', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Ready', '2025-10-16 21:51:18', '2025-10-17 11:07:52', NULL),
+(1887, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1790.00, 0.00, '', 89.50, 0.00, 1879.50, 'Ready', '2025-10-16 21:52:32', '2025-10-17 11:07:51', NULL),
+(1888, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2030.00, 0.00, '', 101.50, 0.00, 2131.50, 'Pending', '2025-10-16 21:53:24', '2025-10-16 21:53:24', NULL),
+(1889, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 920.00, 0.00, '', 46.00, 0.00, 966.00, 'Completed', '2025-10-16 22:02:56', '2025-10-16 22:03:40', NULL),
+(1890, 28, 'Sagar Pawar', '9004998995', 'dining', NULL, '6', NULL, 1850.00, 0.00, '', 92.50, 0.00, 1942.50, 'Pending', '2025-10-16 22:04:28', '2025-10-16 22:04:28', NULL),
+(1891, 28, 'Sagar Pawar', '0900499899', 'dining', NULL, '6', NULL, 1620.00, 0.00, '', 81.00, 0.00, 1701.00, 'Pending', '2025-10-16 22:05:26', '2025-10-16 22:05:26', NULL),
+(1892, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 620.00, 0.00, '', 31.00, 0.00, 651.00, 'Pending', '2025-10-17 06:29:12', '2025-10-17 06:29:12', NULL),
+(1893, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Completed', '2025-10-17 06:31:55', '2025-10-17 06:32:51', NULL),
+(1894, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-17 09:07:01', '2025-10-17 09:07:21', NULL),
+(1895, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1860.00, 0.00, '', 93.00, 0.00, 1953.00, 'Pending', '2025-10-17 09:07:55', '2025-10-17 09:07:55', NULL),
+(1896, 28, 'Sagar', '3279727487', 'delivery', 'khkfdhgg', NULL, NULL, 1820.00, 0.00, '', 91.00, 0.00, 1911.00, 'Ready', '2025-10-17 09:55:06', '2025-10-17 11:07:51', NULL),
+(1897, 28, 'Sagar', '7475943793', 'delivery', 'hhdgdfg', NULL, NULL, 2520.00, 0.00, '', 126.00, 0.00, 2646.00, 'Pending', '2025-10-17 09:59:37', '2025-10-17 09:59:37', NULL),
+(1898, 28, 'Sagar', '8982472742', 'delivery', 'dksggg', NULL, NULL, 3220.00, 0.00, '', 161.00, 0.00, 3381.00, 'Ready', '2025-10-17 10:01:04', '2025-10-17 11:07:50', NULL),
+(1899, 28, 'Sagar', '7329723737', 'delivery', 'hkfggdgfd', NULL, NULL, 3450.00, 0.00, '', 172.50, 0.00, 3622.50, 'Ready', '2025-10-17 10:09:10', '2025-10-17 11:07:50', NULL),
+(1900, 28, 'Sagar', '8972377325', 'delivery', 'dhsfkshg', NULL, NULL, 4150.00, 0.00, '', 207.50, 0.00, 4357.50, 'Ready', '2025-10-17 10:10:58', '2025-10-17 11:07:49', NULL),
+(1901, 28, 'Sagar', '8757498754', 'delivery', 'hshdfkf', NULL, NULL, 4850.00, 0.00, '', 242.50, 0.00, 5092.50, 'Ready', '2025-10-17 10:13:33', '2025-10-17 11:07:49', NULL),
+(1902, 28, 'Sagar', '7398477447', 'delivery', 'hskhdssg', NULL, NULL, 5550.00, 0.00, '', 277.50, 0.00, 5827.50, 'Pending', '2025-10-17 10:26:03', '2025-10-17 10:26:03', NULL),
+(1903, 30, 'Shreya Sinha', '9608554826', 'delivery', 'Abhishek Ranjan\nSilver Plaza, CHS LTD, B-306, NR Silver Park, Behind Dariya Raja hotel, Mira-Bhaindar Road, Mira Road (East), Thane, Maharashtra, 401107', NULL, 'Extra spicy', 150.00, 0.00, '', 0.00, 0.00, 150.00, 'Pending', '2025-10-17 10:35:18', '2025-10-17 10:35:18', NULL),
+(1904, 28, 'Sagar', '3297794274', 'delivery', 'hhfsdhfsf', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Ready', '2025-10-17 10:40:21', '2025-10-17 11:07:48', NULL),
+(1905, 28, 'Sagar', '3729772597', 'delivery', 'khhkdgf', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Pending', '2025-10-17 10:41:11', '2025-10-17 10:41:11', NULL),
+(1906, 28, 'Sagar', '3729772597', 'delivery', 'khhkdgf', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Pending', '2025-10-17 10:41:33', '2025-10-17 10:41:33', NULL),
+(1907, 28, 'Sagar', '8327927742', 'delivery', 'kdlsjlsjgg', NULL, NULL, 2210.00, 0.00, '', 110.50, 0.00, 2320.50, 'Pending', '2025-10-17 10:51:51', '2025-10-17 10:51:51', NULL),
+(1908, 28, 'Sagar', '2374742747', 'delivery', 'hfdshgg', NULL, NULL, 2910.00, 0.00, '', 145.50, 0.00, 3055.50, 'Completed', '2025-10-17 11:03:07', '2025-10-17 11:08:10', NULL),
+(1909, 28, 'Sagar', '7923729575', 'delivery', 'hsdkhgdg', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Completed', '2025-10-17 11:04:31', '2025-10-17 11:08:08', NULL),
+(1910, 28, 'Sagar', '7382787429', 'delivery', 'hfshdkjsg', NULL, NULL, 1820.00, 0.00, '', 91.00, 0.00, 1911.00, 'Confirmed', '2025-10-17 11:14:37', '2025-10-17 11:14:51', NULL),
+(1911, 28, 'Sagar', '7892377472', 'delivery', 'hhfhsdg', NULL, NULL, 2520.00, 0.00, '', 126.00, 0.00, 2646.00, 'Confirmed', '2025-10-17 11:17:02', '2025-10-17 11:17:13', NULL),
+(1912, 28, 'Sagar', '3797775734', 'delivery', 'hdfgdgd', NULL, NULL, 2750.00, 0.00, '', 137.50, 0.00, 2887.50, 'Confirmed', '2025-10-17 11:18:52', '2025-10-17 11:18:58', NULL),
+(1913, 28, 'Sagar', '7947942374', 'delivery', 'hjkhgkdfg', NULL, NULL, 3450.00, 0.00, '', 172.50, 0.00, 3622.50, 'Confirmed', '2025-10-17 11:20:37', '2025-10-17 11:20:48', NULL),
+(1914, 28, 'Sagar', '3928747237', 'delivery', 'hhkdshsg', NULL, NULL, 4150.00, 0.00, '', 207.50, 0.00, 4357.50, 'Confirmed', '2025-10-17 11:22:32', '2025-10-17 11:22:48', NULL),
+(1915, 28, 'Sagar', '3794274972', 'delivery', 'hsdhdsggg', NULL, NULL, 4850.00, 0.00, '', 242.50, 0.00, 5092.50, 'Pending', '2025-10-17 11:41:18', '2025-10-17 11:41:18', NULL),
+(1916, 28, 'Sagar', '4723987424', 'delivery', 'kskhfhsg', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Pending', '2025-10-17 11:43:31', '2025-10-17 11:43:31', NULL),
+(1917, 28, 'Sagar', '7347227427', 'delivery', 'hdhsfff', NULL, NULL, 1350.00, 0.00, '', 67.50, 0.00, 1417.50, 'Confirmed', '2025-10-17 11:44:10', '2025-10-17 11:44:22', NULL),
+(1918, 28, 'Sagar', '2648236864', 'delivery', 'hkshfkdsg', NULL, NULL, 2280.00, 0.00, '', 114.00, 0.00, 2394.00, 'Confirmed', '2025-10-17 11:47:09', '2025-10-17 11:55:37', NULL),
+(1919, 28, 'Sagar', '3279472343', 'delivery', 'hshfksfd', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Confirmed', '2025-10-17 11:54:40', '2025-10-17 11:55:37', NULL),
+(1920, 28, 'Sagar', '3497249774', 'delivery', 'skfssf', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Pending', '2025-10-17 11:56:21', '2025-10-17 11:56:21', NULL),
+(1921, 28, 'Sagar', '2947927972', 'delivery', 'hfhdkshffd', NULL, NULL, 1820.00, 0.00, '', 91.00, 0.00, 1911.00, 'Confirmed', '2025-10-17 11:57:14', '2025-10-17 11:57:47', NULL),
+(1922, 28, 'Sagar', '4792374932', 'delivery', 'fhsdkhf', NULL, NULL, 2520.00, 0.00, '', 126.00, 0.00, 2646.00, 'Pending', '2025-10-17 12:00:58', '2025-10-17 12:00:58', NULL),
+(1923, 28, 'Sagar', '8973927747', 'delivery', 'hfsdfdg', NULL, NULL, 3180.00, 0.00, '', 159.00, 0.00, 3339.00, 'Confirmed', '2025-10-17 12:02:12', '2025-10-17 12:02:29', NULL),
+(1924, 28, 'Sagar', '7329792472', 'delivery', 'jhsfsdf', NULL, NULL, 3880.00, 0.00, '', 194.00, 0.00, 4074.00, 'Confirmed', '2025-10-17 12:05:21', '2025-10-17 12:05:56', NULL),
+(1925, 28, 'Sagar', '7987242947', 'delivery', 'jhdfhsf', NULL, NULL, 4580.00, 0.00, '', 229.00, 0.00, 4809.00, 'Pending', '2025-10-17 12:06:24', '2025-10-17 12:06:24', NULL),
+(1926, 28, 'Sagar', '3728294727', 'delivery', 'dkfhdkhdgg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Pending', '2025-10-17 13:01:20', '2025-10-17 13:01:20', NULL),
+(1927, 28, 'Sagar', '2972572752', 'delivery', 'hkdhggf', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Confirmed', '2025-10-17 13:02:14', '2025-10-17 13:02:33', NULL),
+(1928, 28, 'Tanvi', '8378432748', 'delivery', 'hshshgg', NULL, NULL, 2330.00, 0.00, '', 116.50, 0.00, 2446.50, 'Confirmed', '2025-10-17 13:04:40', '2025-10-17 13:04:54', NULL),
+(1929, 28, 'Sagar', '3249727423', 'delivery', 'dshksg', NULL, NULL, 3030.00, 0.00, '', 151.50, 0.00, 3181.50, 'Pending', '2025-10-17 13:08:18', '2025-10-17 13:08:18', NULL),
+(1930, 28, 'Sagar', '3727492774', 'delivery', 'hdhdsghhg', NULL, NULL, 3420.00, 0.00, '', 171.00, 0.00, 3591.00, 'Pending', '2025-10-17 13:09:10', '2025-10-17 13:09:10', NULL),
+(1931, 28, 'Sagar', '3947327437', 'delivery', 'kdhsghgghhsg', NULL, NULL, 2800.00, 0.00, '', 140.00, 0.00, 2940.00, 'Confirmed', '2025-10-17 13:12:22', '2025-10-17 13:12:44', NULL),
+(1932, 28, 'Sagar', '2378295857', 'delivery', 'sdhhghg', NULL, NULL, 3500.00, 0.00, '', 175.00, 0.00, 3675.00, 'Pending', '2025-10-17 13:13:23', '2025-10-17 13:13:23', NULL),
+(1933, 28, 'Sagar', '2058038503', 'delivery', 'sdjksjgjg', NULL, NULL, 4200.00, 0.00, '', 210.00, 0.00, 4410.00, 'Pending', '2025-10-17 13:14:09', '2025-10-17 13:14:09', NULL),
+(1934, 28, 'Sagar', '8398272875', 'delivery', 'hshfjshg', NULL, NULL, 4900.00, 0.00, '', 245.00, 0.00, 5145.00, 'Pending', '2025-10-17 13:14:34', '2025-10-17 13:14:34', NULL),
+(1935, 28, 'Sagar', '3895777757', 'delivery', 'hdkhssg', NULL, NULL, 5600.00, 0.00, '', 280.00, 0.00, 5880.00, 'Confirmed', '2025-10-17 13:16:07', '2025-10-17 13:16:38', NULL),
+(1936, 28, 'Sagar', '3779775749', 'delivery', 'jdfhksfh', NULL, NULL, 6300.00, 0.00, '', 315.00, 0.00, 6615.00, 'Confirmed', '2025-10-17 13:18:22', '2025-10-17 13:18:43', NULL),
+(1937, 28, 'Sagar', '8478923742', 'delivery', 'dshkhkshksg', NULL, NULL, 4200.00, 0.00, '', 210.00, 0.00, 4410.00, 'Confirmed', '2025-10-17 13:32:47', '2025-10-17 13:33:27', NULL),
+(1938, 28, 'Sagar Pawar', '0900499899', 'dining', NULL, '5', NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-17 13:43:38', '2025-10-17 13:44:01', NULL),
+(1939, 28, 'Sagar', '9479739747', 'delivery', 'kdhghkdg', NULL, NULL, 4590.00, 0.00, '', 229.50, 0.00, 4819.50, 'Confirmed', '2025-10-17 14:23:58', '2025-10-17 14:24:58', NULL),
+(1940, 28, 'Sagar', '8298774772', 'delivery', 'khhhghdf', NULL, NULL, 5520.00, 0.00, '', 276.00, 0.00, 5796.00, 'Confirmed', '2025-10-17 14:27:32', '2025-10-17 14:28:05', NULL),
+(1941, 28, 'Sagar', '3977277232', 'delivery', 'hdhdsghgg', NULL, NULL, 6190.00, 0.00, '', 309.50, 0.00, 6499.50, 'Confirmed', '2025-10-17 14:31:03', '2025-10-17 14:31:26', NULL),
+(1942, 28, 'Sagar', '3466868566', 'delivery', 'hhksdhhg', NULL, NULL, 6890.00, 0.00, '', 344.50, 0.00, 7234.50, 'Confirmed', '2025-10-17 14:37:21', '2025-10-17 14:37:39', NULL),
+(1943, 28, 'Sagar', '7237775775', 'delivery', 'hdshkhsgg', NULL, NULL, 7590.00, 0.00, '', 379.50, 0.00, 7969.50, 'Confirmed', '2025-10-17 14:38:15', '2025-10-17 14:38:34', NULL),
+(1944, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Pending', '2025-10-17 15:06:17', '2025-10-17 15:06:17', NULL),
+(1945, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2420.00, 0.00, '', 121.00, 0.00, 2541.00, 'Pending', '2025-10-17 15:08:11', '2025-10-17 15:08:11', NULL),
+(1946, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2810.00, 0.00, '', 140.50, 0.00, 2950.50, 'Pending', '2025-10-17 15:08:22', '2025-10-17 15:08:22', NULL),
+(1947, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3200.00, 0.00, '', 160.00, 0.00, 3360.00, 'Pending', '2025-10-17 15:08:34', '2025-10-17 15:08:34', NULL),
+(1948, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3590.00, 0.00, '', 179.50, 0.00, 3769.50, 'Confirmed', '2025-10-17 15:08:45', '2025-10-17 15:08:48', NULL),
+(1949, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Pending', '2025-10-17 15:50:05', '2025-10-17 15:50:05', NULL),
+(1950, 64, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 149.00, 0.00, '', 0.00, 40.00, 189.00, 'Pending', '2025-10-17 15:50:34', '2025-10-17 15:50:34', NULL),
+(1951, 67, 'Test', '3795777995', 'delivery', 'hdsgg', NULL, NULL, 210.00, 0.00, '', 0.00, 0.00, 210.00, 'Pending', '2025-10-17 15:52:43', '2025-10-17 15:52:43', NULL),
+(1952, 64, 'Sagar', '7349857378', 'delivery', 'test', NULL, NULL, 149.00, 0.00, '', 0.00, 40.00, 189.00, 'Pending', '2025-10-17 15:54:42', '2025-10-17 15:54:42', NULL),
+(1953, 64, 'test', '7947477757', 'delivery', 'hkhgdfg', NULL, NULL, 597.00, 0.00, '', 0.00, 0.00, 597.00, 'Pending', '2025-10-17 16:36:31', '2025-10-17 16:36:31', NULL),
+(1954, 64, 'test', '7947347774', 'delivery', 'hskhsg', NULL, NULL, 746.00, 0.00, '', 0.00, 0.00, 746.00, 'Pending', '2025-10-17 16:36:59', '2025-10-17 16:36:59', NULL),
+(1955, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3360.00, 0.00, '', 168.00, 0.00, 3528.00, 'Confirmed', '2025-10-17 17:44:48', '2025-10-17 17:45:02', NULL),
+(1956, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3750.00, 0.00, '', 187.50, 0.00, 3937.50, 'Confirmed', '2025-10-17 17:47:29', '2025-10-17 17:47:51', NULL),
+(1957, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4170.00, 0.00, '', 208.50, 0.00, 4378.50, 'Confirmed', '2025-10-17 17:48:31', '2025-10-17 17:48:55', NULL),
+(1958, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4590.00, 0.00, '', 229.50, 0.00, 4819.50, 'Confirmed', '2025-10-17 17:49:31', '2025-10-17 17:52:07', NULL),
+(1959, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4980.00, 0.00, '', 249.00, 0.00, 5229.00, 'Confirmed', '2025-10-17 17:50:05', '2025-10-17 17:52:07', NULL),
+(1960, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5220.00, 0.00, '', 261.00, 0.00, 5481.00, 'Confirmed', '2025-10-17 17:51:36', '2025-10-17 17:52:07', NULL),
+(1961, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5610.00, 0.00, '', 280.50, 0.00, 5890.50, 'Cancelled', '2025-10-17 17:54:21', '2025-10-17 17:54:59', NULL),
+(1962, 28, 'Sagar', '4836726846', 'delivery', 'sfhjhsffs', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Pending', '2025-10-17 18:03:38', '2025-10-17 18:03:38', NULL),
+(1963, 28, 'Sagar', '3826482684', 'delivery', 'Vasudev sky high, Mira Road East', NULL, NULL, 1120.00, 0.00, '', 56.00, 0.00, 1176.00, 'Confirmed', '2025-10-17 18:45:13', '2025-10-17 18:45:37', NULL),
+(1964, 28, 'Sagar', '2389774724', 'delivery', 'sdhhgg', NULL, NULL, 1820.00, 0.00, '', 91.00, 0.00, 1911.00, 'Pending', '2025-10-17 18:45:58', '2025-10-17 18:45:58', NULL),
+(1965, 28, 'Sagar', '3873782747', 'delivery', '1404, Vasude Sky High, Mira Road East', NULL, NULL, 2750.00, 0.00, '', 137.50, 0.00, 2887.50, 'Pending', '2025-10-17 18:47:19', '2025-10-17 18:47:19', NULL),
+(1966, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6110.00, 0.00, '', 305.50, 0.00, 6415.50, 'Confirmed', '2025-10-17 18:48:00', '2025-10-17 18:48:07', NULL),
+(1967, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6350.00, 0.00, '', 317.50, 0.00, 6667.50, 'Pending', '2025-10-17 18:48:49', '2025-10-17 18:48:49', NULL),
+(1968, 28, 'Sagar', '3728972427', 'delivery', 'dshkhsgg', NULL, NULL, 3450.00, 0.00, '', 172.50, 0.00, 3622.50, 'Confirmed', '2025-10-17 18:52:05', '2025-10-17 18:52:17', NULL),
+(1969, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6590.00, 0.00, '', 329.50, 0.00, 6919.50, 'Pending', '2025-10-17 18:54:19', '2025-10-17 18:54:19', NULL),
+(1970, 28, 'Sagar', '3847238748', 'delivery', 'kfhjkhdgdf', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Confirmed', '2025-10-17 19:14:30', '2025-10-17 19:14:45', NULL),
+(1971, 28, 'Sagar', '3297327575', 'delivery', 'hkghdghfg', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Confirmed', '2025-10-17 19:15:44', '2025-10-17 19:16:14', NULL),
+(1972, 28, 'Sagar', '4375743857', 'delivery', 'dskhjksgh', NULL, NULL, 1860.00, 0.00, '', 93.00, 0.00, 1953.00, 'Confirmed', '2025-10-17 19:16:56', '2025-10-17 19:17:51', NULL),
+(1973, 28, 'Sagar', '7899874735', 'delivery', 'kfhgdfd', NULL, NULL, 2560.00, 0.00, '', 128.00, 0.00, 2688.00, 'Confirmed', '2025-10-17 19:19:30', '2025-10-17 19:19:46', NULL),
+(1974, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 420.00, 0.00, '', 21.00, 20.00, 461.00, 'Pending', '2025-10-17 19:21:00', '2025-10-17 19:21:00', NULL),
+(1975, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 840.00, 0.00, '', 42.00, 0.00, 882.00, 'Pending', '2025-10-17 19:26:33', '2025-10-17 19:26:33', NULL),
+(1976, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1070.00, 0.00, '', 53.50, 0.00, 1123.50, 'Pending', '2025-10-17 19:28:28', '2025-10-17 19:28:28', NULL),
+(1977, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1460.00, 0.00, '', 73.00, 0.00, 1533.00, 'Pending', '2025-10-17 20:34:25', '2025-10-17 20:34:25', NULL),
+(1978, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1690.00, 0.00, '', 84.50, 0.00, 1774.50, 'Confirmed', '2025-10-17 20:34:55', '2025-10-18 11:57:53', NULL),
+(1979, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 100.00, 0.00, '', 0.00, 0.00, 100.00, 'Cancelled', '2025-10-18 07:54:36', '2025-10-18 15:40:35', NULL),
+(1980, 44, 'Khan Abdul', '8369267451', 'delivery', 'Poonam estate cluster Biyanis Super 30 shop no. 11 near lenskart lane. ', NULL, NULL, 270.00, 0.00, '', 0.00, 30.00, 300.00, 'Pending', '2025-10-18 09:21:52', '2025-10-18 09:21:52', NULL),
+(1981, 28, 'Sagar', '4728937474', 'delivery', 'khhdfgg', NULL, NULL, 3490.00, 0.00, '', 174.50, 0.00, 3664.50, 'Confirmed', '2025-10-18 09:57:40', '2025-10-18 09:58:00', NULL),
+(1982, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-18 10:21:11', '2025-10-18 11:57:50', NULL),
+(1983, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Completed', '2025-10-18 10:22:42', '2025-10-18 11:57:46', NULL),
+(1984, 28, 'Sagar', '8728489732', 'delivery', 'hkdfdg', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-18 11:59:29', '2025-10-18 11:59:58', NULL),
+(1985, 28, 'Sagar', '8349028582', 'delivery', 'hfjdshfkdsf', NULL, NULL, 1560.00, 0.00, '', 78.00, 0.00, 1638.00, 'Completed', '2025-10-18 12:00:45', '2025-10-18 12:01:05', NULL),
+(1986, 28, 'Tanvi Mane', '4273473947', 'delivery', 'jdsjflsjlfjs', NULL, NULL, 2490.00, 0.00, '', 124.50, 0.00, 2614.50, 'Completed', '2025-10-18 12:01:27', '2025-10-18 12:01:55', NULL),
+(1987, 78, 'Gayatri Jagtap', '9193220662', 'delivery', 'khushal maruti mandir,Laxmi colony, Satara Parisar, sambhajinagar ', NULL, 'No', 189.00, 0.00, '', 0.00, 0.00, 189.00, 'Pending', '2025-10-18 14:51:50', '2025-10-18 14:51:50', NULL),
+(1988, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Confirmed', '2025-10-18 15:04:18', '2025-10-18 15:04:48', NULL),
+(1989, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2390.00, 0.00, '', 119.50, 0.00, 2509.50, 'Ready', '2025-10-19 06:42:42', '2025-10-19 08:56:51', NULL),
+(1990, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3090.00, 0.00, '', 154.50, 0.00, 3244.50, 'Completed', '2025-10-19 06:43:13', '2025-10-19 08:49:14', NULL),
+(1991, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3320.00, 0.00, '', 166.00, 0.00, 3486.00, 'Completed', '2025-10-19 08:47:05', '2025-10-19 08:49:06', NULL),
+(1992, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7090.00, 0.00, '', 354.50, 0.00, 7444.50, 'Completed', '2025-10-19 11:37:47', '2025-10-19 11:38:27', NULL),
+(1993, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Cancelled', '2025-10-19 11:38:55', '2025-10-19 11:39:04', NULL),
+(1994, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Pending', '2025-10-19 11:39:40', '2025-10-19 11:39:40', NULL),
+(1995, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2100.00, 0.00, '', 105.00, 0.00, 2205.00, 'Pending', '2025-10-19 11:40:25', '2025-10-19 11:40:25', NULL),
+(1996, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2800.00, 0.00, '', 140.00, 0.00, 2940.00, 'Confirmed', '2025-10-19 11:40:53', '2025-10-19 11:40:59', NULL),
+(1997, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3040.00, 0.00, '', 152.00, 0.00, 3192.00, 'Confirmed', '2025-10-19 11:41:26', '2025-10-19 11:41:28', NULL),
+(1998, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3430.00, 0.00, '', 171.50, 0.00, 3601.50, 'Pending', '2025-10-19 11:41:46', '2025-10-19 11:41:46', NULL),
+(1999, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3820.00, 0.00, '', 191.00, 0.00, 4011.00, 'Ready', '2025-10-19 11:42:29', '2025-10-19 14:16:22', NULL),
+(2000, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4210.00, 0.00, '', 210.50, 0.00, 4420.50, 'Completed', '2025-10-19 11:42:51', '2025-10-19 11:53:45', NULL),
+(2001, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-19 11:50:40', '2025-10-19 11:51:18', NULL),
+(2002, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Completed', '2025-10-19 11:52:28', '2025-10-19 11:53:37', NULL);
+INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `customer_phone`, `order_type`, `delivery_address`, `table_number`, `order_notes`, `subtotal`, `discount_amount`, `discount_type`, `gst_amount`, `delivery_charge`, `total_amount`, `status`, `created_at`, `updated_at`, `updated_by_session`) VALUES
+(2003, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 460.00, 0.00, '', 23.00, 20.00, 503.00, 'Completed', '2025-10-19 11:54:33', '2025-10-19 14:16:14', NULL),
+(2004, 64, 'Abdul Rahaman ', '9920591817', 'delivery', 'A-1007, Alexa Building, JP North Garden City', NULL, NULL, 140.00, 0.00, '', 0.00, 40.00, 180.00, 'Pending', '2025-10-19 12:09:06', '2025-10-19 12:09:06', NULL),
+(2005, 28, 'Tanvi Mane', '9004998995', 'delivery', 'Chembur', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-19 14:14:15', '2025-10-19 14:14:51', NULL),
+(2006, 28, 'Tanvi Mane', '0704560800', 'delivery', 'Chembur', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Completed', '2025-10-19 14:15:20', '2025-10-19 14:16:07', NULL),
+(2007, 28, 'Tanvi Mane', '0704560800', 'delivery', 'Chembur', NULL, NULL, 2330.00, 0.00, '', 116.50, 0.00, 2446.50, 'Confirmed', '2025-10-19 14:17:03', '2025-10-19 14:17:21', NULL),
+(2008, 28, 'Tanvi Mane', '0704560800', 'delivery', 'Chembur', NULL, NULL, 3030.00, 0.00, '', 151.50, 0.00, 3181.50, 'Confirmed', '2025-10-19 14:18:11', '2025-10-19 14:18:16', NULL),
+(2009, 28, 'Tanvi Mane', '0704560800', 'delivery', 'Chembur', NULL, NULL, 240.00, 0.00, '', 12.00, 20.00, 272.00, 'Pending', '2025-10-19 14:18:56', '2025-10-19 14:18:56', NULL),
+(2010, 28, 'Tanvi Mane', '0704560800', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-19 14:19:46', '2025-10-19 14:19:54', NULL),
+(2011, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 800.00, 0.00, '', 40.00, 0.00, 840.00, 'Pending', '2025-10-19 14:34:33', '2025-10-19 14:34:33', NULL),
+(2012, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1730.00, 0.00, '', 86.50, 0.00, 1816.50, 'Pending', '2025-10-19 14:35:32', '2025-10-19 14:35:32', NULL),
+(2013, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Ifigi', NULL, NULL, 100.00, 0.00, '', 0.00, 0.00, 100.00, 'Pending', '2025-10-19 17:52:26', '2025-10-19 17:52:26', NULL),
+(2014, 77, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 60.00, 0.00, '', 0.00, 0.00, 60.00, 'Pending', '2025-10-19 17:53:09', '2025-10-19 17:53:09', NULL),
+(2015, 77, 'Inayat Shaikh', '0981941102', 'dining', NULL, '4', NULL, 120.00, 0.00, '', 0.00, 0.00, 120.00, 'Pending', '2025-10-19 17:53:49', '2025-10-19 17:53:49', NULL),
+(2016, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Completed', '2025-10-20 06:09:55', '2025-10-20 06:38:40', NULL),
+(2017, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 470.00, 0.00, '', 23.50, 20.00, 513.50, 'Confirmed', '2025-10-20 07:13:46', '2025-10-20 07:13:59', NULL),
+(2018, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 890.00, 0.00, '', 44.50, 0.00, 934.50, 'Pending', '2025-10-20 07:14:25', '2025-10-20 07:14:25', NULL),
+(2019, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1310.00, 0.00, '', 65.50, 0.00, 1375.50, 'Confirmed', '2025-10-20 07:16:16', '2025-10-20 07:16:19', NULL),
+(2020, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1730.00, 0.00, '', 86.50, 0.00, 1816.50, 'Ready', '2025-10-20 07:16:47', '2025-10-20 09:09:47', NULL),
+(2021, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2150.00, 0.00, '', 107.50, 0.00, 2257.50, 'Completed', '2025-10-20 07:32:33', '2025-10-20 09:09:44', NULL),
+(2022, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2570.00, 0.00, '', 128.50, 0.00, 2698.50, 'Completed', '2025-10-20 07:39:01', '2025-10-20 09:09:01', NULL),
+(2023, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2990.00, 0.00, '', 149.50, 0.00, 3139.50, 'Completed', '2025-10-20 07:39:35', '2025-10-20 07:40:02', NULL),
+(2024, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3410.00, 0.00, '', 170.50, 0.00, 3580.50, 'Completed', '2025-10-20 07:43:39', '2025-10-20 09:08:53', NULL),
+(2025, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3830.00, 0.00, '', 191.50, 0.00, 4021.50, 'Completed', '2025-10-20 09:09:55', '2025-10-20 09:27:20', NULL),
+(2026, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4250.00, 0.00, '', 212.50, 0.00, 4462.50, 'Confirmed', '2025-10-20 10:23:32', '2025-10-20 10:23:56', NULL),
+(2027, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4670.00, 0.00, '', 233.50, 0.00, 4903.50, 'Confirmed', '2025-10-20 10:24:43', '2025-10-20 10:25:26', NULL),
+(2028, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4920.00, 0.00, '', 246.00, 0.00, 5166.00, 'Confirmed', '2025-10-20 10:25:36', '2025-10-20 10:26:01', NULL),
+(2029, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5170.00, 0.00, '', 258.50, 0.00, 5428.50, 'Confirmed', '2025-10-20 10:26:23', '2025-10-20 10:26:40', NULL),
+(2030, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5410.00, 0.00, '', 270.50, 0.00, 5680.50, 'Pending', '2025-10-20 10:58:38', '2025-10-20 10:58:38', NULL),
+(2031, 28, 'Sagar', '7374287498', 'delivery', 'hkdshsg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-20 17:43:46', '2025-10-20 17:43:54', NULL),
+(2032, 28, 'Sagar', '7374287498', 'delivery', 'hkdshsg', NULL, NULL, 700.00, 0.00, '', 35.00, 0.00, 735.00, 'Confirmed', '2025-10-20 17:44:13', '2025-10-20 17:44:35', NULL),
+(2033, 28, 'Sagar', '9759759483', 'delivery', 'hgkdgdf', NULL, NULL, 1090.00, 0.00, '', 54.50, 0.00, 1144.50, 'Confirmed', '2025-10-20 17:50:27', '2025-10-20 17:50:35', NULL),
+(2034, 20, 'Mamta suthar ', '7977769567', 'delivery', 'Aanad enclave A 504 opposit RBK global school ', NULL, NULL, 240.00, 0.00, '', 0.00, 0.00, 240.00, 'Pending', '2025-10-20 18:28:34', '2025-10-20 18:28:34', NULL),
+(2035, 28, 'Sagar', '5846756835', 'delivery', 'hdkshksg', NULL, NULL, 2020.00, 0.00, '', 101.00, 0.00, 2121.00, 'Completed', '2025-10-21 06:19:56', '2025-10-21 06:21:37', NULL),
+(2036, 28, 'Saagar', '4797934773', 'delivery', 'hkjhf', NULL, NULL, 2720.00, 0.00, '', 136.00, 0.00, 2856.00, 'Completed', '2025-10-21 06:23:35', '2025-10-21 06:24:15', NULL),
+(2037, 28, 'dsjkfhkjs', '4759739759', 'delivery', 'hkhkhgkdfg', NULL, NULL, 2950.00, 0.00, '', 147.50, 0.00, 3097.50, 'Completed', '2025-10-21 06:24:32', '2025-10-21 06:25:50', NULL),
+(2038, 28, 'dshhjsk', '9875798774', 'delivery', 'hdhfgfd', NULL, NULL, 3650.00, 0.00, '', 182.50, 0.00, 3832.50, 'Ready', '2025-10-21 06:35:35', '2025-10-21 20:09:20', NULL),
+(2039, 28, 'Sagar', '2388490248', 'delivery', 'jgdflkgjd', NULL, NULL, 3890.00, 0.00, '', 194.50, 0.00, 4084.50, 'Ready', '2025-10-21 06:48:44', '2025-10-21 20:09:32', NULL),
+(2040, 28, 'Sagar', '8983850483', 'delivery', 'gdfjgdg', NULL, NULL, 4820.00, 0.00, '', 241.00, 0.00, 5061.00, 'Ready', '2025-10-21 06:51:19', '2025-10-21 20:09:30', NULL),
+(2041, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6110.00, 0.00, '', 305.50, 0.00, 6415.50, 'Ready', '2025-10-21 06:54:45', '2025-10-21 20:09:30', NULL),
+(2042, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6500.00, 0.00, '', 325.00, 0.00, 6825.00, 'Ready', '2025-10-21 06:57:44', '2025-10-21 20:09:25', NULL),
+(2043, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6740.00, 0.00, '', 337.00, 0.00, 7077.00, 'Ready', '2025-10-21 06:58:23', '2025-10-21 20:09:25', NULL),
+(2044, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 6990.00, 0.00, '', 349.50, 0.00, 7339.50, 'Ready', '2025-10-21 07:01:38', '2025-10-21 20:09:24', NULL),
+(2045, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7240.00, 0.00, '', 362.00, 0.00, 7602.00, 'Ready', '2025-10-21 07:03:07', '2025-10-21 20:09:21', NULL),
+(2046, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 7490.00, 0.00, '', 374.50, 0.00, 7864.50, 'Ready', '2025-10-21 07:04:23', '2025-10-21 20:09:18', NULL),
+(2047, 28, 'Sagar', '9375874753', 'delivery', 'hshdgd', NULL, NULL, 5430.00, 0.00, '', 271.50, 0.00, 5701.50, 'Ready', '2025-10-21 07:11:55', '2025-10-21 20:09:15', NULL),
+(2048, 28, 'Sagar', '5834783573', 'delivery', 'hhdfg', NULL, NULL, 320.00, 0.00, '', 16.00, 20.00, 356.00, 'Ready', '2025-10-21 07:13:14', '2025-10-21 20:09:14', NULL),
+(2049, 28, 'Sagar', '7778375435', 'delivery', 'hfhgdghd', NULL, NULL, 1020.00, 0.00, '', 51.00, 0.00, 1071.00, 'Ready', '2025-10-21 07:30:05', '2025-10-21 20:09:14', NULL),
+(2050, 28, 'Sagar', '4375938757', 'delivery', 'hshkgfdg', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Ready', '2025-10-21 07:31:32', '2025-10-21 20:09:13', NULL),
+(2051, 28, 'Sagar', '3792742747', 'delivery', 'khgkhdkfg', NULL, NULL, 2090.00, 0.00, '', 104.50, 0.00, 2194.50, 'Ready', '2025-10-21 07:33:06', '2025-10-21 20:09:13', NULL),
+(2052, 28, 'Sagar', '3974927274', 'delivery', 'jdhkdhsgd', NULL, NULL, 320.00, 0.00, '', 16.00, 20.00, 356.00, 'Ready', '2025-10-21 07:47:37', '2025-10-21 20:09:12', NULL),
+(2053, 28, 'Sagar', '3473284274', 'delivery', 'dkshfkshkfh', NULL, NULL, 1020.00, 0.00, '', 51.00, 0.00, 1071.00, 'Ready', '2025-10-21 07:48:56', '2025-10-21 20:09:12', NULL),
+(2054, 28, 'Sagar', '3748273978', 'delivery', 'hdkfjdksf', NULL, NULL, 1950.00, 0.00, '', 97.50, 0.00, 2047.50, 'Cancelled', '2025-10-21 07:51:35', '2025-10-21 07:52:05', NULL),
+(2055, 28, 'Sgar', '3753847535', 'delivery', 'shhgsd', NULL, NULL, 2650.00, 0.00, '', 132.50, 0.00, 2782.50, 'Cancelled', '2025-10-21 07:53:30', '2025-10-21 07:53:48', NULL),
+(2056, 28, 'Sagar', '5643863665', 'delivery', 'fihdfhighd', NULL, NULL, 2880.00, 0.00, '', 144.00, 0.00, 3024.00, 'Ready', '2025-10-21 07:54:46', '2025-10-21 20:09:12', NULL),
+(2057, 28, 'Sagar', '8739479537', 'delivery', 'dfhkhdg', NULL, NULL, 3810.00, 0.00, '', 190.50, 0.00, 4000.50, 'Ready', '2025-10-21 08:00:40', '2025-10-21 20:09:12', NULL),
+(2058, 28, 'Sagar', '7879437535', 'delivery', 'dhgdfhg', NULL, NULL, 320.00, 0.00, '', 16.00, 20.00, 356.00, 'Ready', '2025-10-21 08:03:05', '2025-10-21 20:09:11', NULL),
+(2059, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 460.00, 0.00, '', 23.00, 20.00, 503.00, 'Ready', '2025-10-21 08:03:56', '2025-10-21 20:09:11', NULL),
+(2060, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 690.00, 0.00, '', 34.50, 0.00, 724.50, 'Ready', '2025-10-21 08:06:19', '2025-10-21 20:09:10', NULL),
+(2061, 28, 'Sagar', '7823749274', 'delivery', 'kjsdhhgsdg', NULL, NULL, 1020.00, 0.00, '', 51.00, 0.00, 1071.00, 'Ready', '2025-10-21 08:10:26', '2025-10-21 20:09:09', NULL),
+(2062, 28, 'Sagar', '7932727477', 'delivery', 'kdshg', NULL, NULL, 1720.00, 0.00, '', 86.00, 0.00, 1806.00, 'Ready', '2025-10-21 08:11:57', '2025-10-21 20:09:09', NULL),
+(2063, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Ready', '2025-10-21 08:12:57', '2025-10-21 20:09:09', NULL),
+(2064, 28, 'Sagar', '8854398583', 'delivery', 'sdhsdhg', NULL, NULL, 320.00, 0.00, '', 16.00, 20.00, 356.00, 'Ready', '2025-10-21 08:36:30', '2025-10-21 20:09:07', NULL),
+(2065, 28, 'Sagar', '7382942747', 'delivery', 'dfhjshksgg', NULL, NULL, 1020.00, 0.00, '', 51.00, 0.00, 1071.00, 'Ready', '2025-10-21 12:06:40', '2025-10-21 20:09:06', NULL),
+(2066, 28, 'Sagar Pawar', '3242684682', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-21 12:13:40', '2025-10-21 20:09:06', NULL),
+(2067, 28, 'Sagar Pawar', '3242684682', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-21 12:13:47', '2025-10-21 20:09:04', NULL),
+(2068, 28, 'Sagar Pawar', '7857934777', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 1160.00, 0.00, '', 58.00, 0.00, 1218.00, 'Ready', '2025-10-21 12:15:56', '2025-10-21 20:09:03', NULL),
+(2069, 28, 'Sagar Pawar', '7857934777', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 1160.00, 0.00, '', 58.00, 0.00, 1218.00, 'Ready', '2025-10-21 12:18:10', '2025-10-21 20:09:03', NULL),
+(2070, 28, 'Sagar Pawar', '3277248297', 'delivery', '1404, Building No. 2, Vasudev Sky High, Beverly Park, Mira Road - East', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Cancelled', '2025-10-21 12:36:02', '2025-10-21 12:36:27', NULL),
+(2071, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Ready', '2025-10-21 15:50:12', '2025-10-21 20:09:02', NULL),
+(2072, 28, 'Sagar', '7895749385', 'delivery', 'hjkhhkfgdgd', NULL, NULL, 1250.00, 0.00, '', 62.50, 0.00, 1312.50, 'Ready', '2025-10-21 16:08:39', '2025-10-21 20:09:01', NULL),
+(2073, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 470.00, 0.00, '', 23.50, 20.00, 513.50, 'Ready', '2025-10-21 16:11:22', '2025-10-21 20:09:00', NULL),
+(2074, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1620.00, 0.00, '', 81.00, 0.00, 1701.00, 'Ready', '2025-10-21 16:12:14', '2025-10-21 20:06:42', NULL),
+(2075, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2320.00, 0.00, '', 116.00, 0.00, 2436.00, 'Ready', '2025-10-21 16:13:24', '2025-10-21 20:09:00', NULL),
+(2076, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3020.00, 0.00, '', 151.00, 0.00, 3171.00, 'Ready', '2025-10-21 16:14:31', '2025-10-21 16:15:09', NULL),
+(2077, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3020.00, 0.00, '', 151.00, 0.00, 3171.00, 'Cancelled', '2025-10-21 16:15:56', '2025-10-21 16:18:52', NULL),
+(2078, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3250.00, 0.00, '', 162.50, 0.00, 3412.50, 'Ready', '2025-10-21 16:21:40', '2025-10-21 20:08:59', NULL),
+(2079, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3670.00, 0.00, '', 183.50, 0.00, 3853.50, 'Cancelled', '2025-10-21 16:22:14', '2025-10-21 16:24:19', NULL),
+(2080, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4090.00, 0.00, '', 204.50, 0.00, 4294.50, 'Ready', '2025-10-21 16:24:43', '2025-10-21 20:08:59', NULL),
+(2081, 28, 'Sagar', '9004998995', 'delivery', '1404, Vasudev Sky High, Mira Road East', NULL, NULL, 1950.00, 0.00, '', 97.50, 0.00, 2047.50, 'Ready', '2025-10-21 16:30:32', '2025-10-21 20:08:58', NULL),
+(2082, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4340.00, 0.00, '', 217.00, 0.00, 4557.00, 'Ready', '2025-10-21 16:44:09', '2025-10-21 20:08:57', NULL),
+(2083, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4800.00, 0.00, '', 240.00, 0.00, 5040.00, 'Cancelled', '2025-10-21 16:45:05', '2025-10-21 16:45:47', NULL),
+(2084, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5050.00, 0.00, '', 252.50, 0.00, 5302.50, 'Ready', '2025-10-21 16:46:14', '2025-10-21 20:08:56', NULL),
+(2085, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 5300.00, 0.00, '', 265.00, 0.00, 5565.00, 'Ready', '2025-10-21 16:47:55', '2025-10-21 20:08:56', NULL),
+(2086, 28, 'Heena Shaikh ', '9999999999', 'delivery', 'Vhsbsndhe', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-21 17:05:32', '2025-10-21 20:08:55', NULL),
+(2087, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1860.00, 0.00, '', 93.00, 0.00, 1953.00, 'Ready', '2025-10-21 17:06:28', '2025-10-21 20:08:55', NULL),
+(2088, 19, 'Test', '5555555555', 'delivery', 'Test', NULL, NULL, 500.00, 0.00, '', 25.00, 0.00, 525.00, 'Cancelled', '2025-10-21 17:11:18', '2025-10-21 17:11:27', NULL),
+(2089, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2560.00, 0.00, '', 128.00, 0.00, 2688.00, 'Ready', '2025-10-21 17:26:10', '2025-10-21 20:08:55', NULL),
+(2090, 28, 'Kulsum', '9874563212', 'delivery', 'Ufic', NULL, NULL, 250.00, 0.00, '', 12.50, 20.00, 282.50, 'Ready', '2025-10-21 17:48:58', '2025-10-21 20:08:54', NULL),
+(2091, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 230.00, 0.00, '', 11.50, 20.00, 261.50, 'Ready', '2025-10-21 17:57:44', '2025-10-21 20:08:54', NULL),
+(2092, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur', NULL, 'Spicy', 955.00, 0.00, '', 47.75, 0.00, 1002.75, 'Ready', '2025-10-21 18:16:49', '2025-10-21 20:08:53', NULL),
+(2093, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur', NULL, NULL, 1235.00, 0.00, '', 61.75, 0.00, 1296.75, 'Cancelled', '2025-10-21 18:17:45', '2025-10-21 18:17:55', NULL),
+(2094, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 1320.00, 0.00, '', 66.00, 0.00, 1386.00, 'Ready', '2025-10-21 18:18:51', '2025-10-21 20:07:27', NULL),
+(2095, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 1465.00, 0.00, '', 73.25, 0.00, 1538.25, 'Cancelled', '2025-10-21 18:19:44', '2025-10-21 18:19:55', NULL),
+(2096, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 2020.00, 0.00, '', 101.00, 0.00, 2121.00, 'Ready', '2025-10-21 18:20:55', '2025-10-21 20:08:52', NULL),
+(2097, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 1865.00, 0.00, '', 93.25, 0.00, 1958.25, 'Ready', '2025-10-21 18:21:44', '2025-10-21 20:06:06', NULL),
+(2098, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 2095.00, 0.00, '', 104.75, 0.00, 2199.75, 'Ready', '2025-10-21 18:24:01', '2025-10-21 20:06:12', NULL),
+(2099, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur\nBlg 43', NULL, NULL, 2325.00, 0.00, '', 116.25, 0.00, 2441.25, 'Ready', '2025-10-21 18:24:46', '2025-10-21 20:06:17', NULL),
+(2100, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur', NULL, NULL, 1370.00, 0.00, '', 68.50, 0.00, 1438.50, 'Ready', '2025-10-21 18:26:29', '2025-10-21 20:07:29', NULL),
+(2101, 28, 'Tanvi Mane', '9004254724', 'delivery', 'Chembur', NULL, NULL, 1600.00, 0.00, '', 80.00, 0.00, 1680.00, 'Cancelled', '2025-10-21 18:26:58', '2025-10-21 18:28:15', NULL),
+(2102, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-21 18:45:03', '2025-10-21 20:09:40', NULL),
+(2103, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Completed', '2025-10-21 19:14:48', '2025-10-21 20:09:45', NULL),
+(2104, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1630.00, 0.00, '', 81.50, 0.00, 1711.50, 'Completed', '2025-10-21 19:17:43', '2025-10-21 20:09:52', NULL),
+(2105, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1160.00, 0.00, '', 58.00, 0.00, 1218.00, 'Completed', '2025-10-21 19:41:04', '2025-10-21 20:09:51', NULL),
+(2106, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1390.00, 0.00, '', 69.50, 0.00, 1459.50, 'Completed', '2025-10-21 20:10:15', '2025-10-21 20:11:51', NULL),
+(2107, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2090.00, 0.00, '', 104.50, 0.00, 2194.50, 'Ready', '2025-10-21 20:12:43', '2025-10-22 05:04:33', NULL),
+(2108, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2560.00, 0.00, '', 128.00, 0.00, 2688.00, 'Completed', '2025-10-21 20:37:48', '2025-10-22 05:04:23', NULL),
+(2109, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2790.00, 0.00, '', 139.50, 0.00, 2929.50, 'Completed', '2025-10-22 04:41:26', '2025-10-22 05:04:26', NULL),
+(2110, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3490.00, 0.00, '', 174.50, 0.00, 3664.50, 'Cancelled', '2025-10-22 04:45:24', '2025-10-22 04:45:54', NULL),
+(2111, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4190.00, 0.00, '', 209.50, 0.00, 4399.50, 'Ready', '2025-10-22 05:04:50', '2025-10-22 05:05:49', NULL),
+(2112, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 4420.00, 0.00, '', 221.00, 0.00, 4641.00, 'Confirmed', '2025-10-22 05:11:38', '2025-10-22 05:11:46', NULL),
+(2113, 19, 'Test', '3333333333', 'delivery', 'Fgg', NULL, NULL, 300.00, 0.00, '', 15.00, 0.00, 315.00, 'Confirmed', '2025-10-22 05:14:48', '2025-10-22 05:15:02', NULL),
+(2114, 19, 'Test', '3333333333', 'delivery', 'Fgg', NULL, NULL, 600.00, 0.00, '', 30.00, 0.00, 630.00, 'Confirmed', '2025-10-22 05:15:37', '2025-10-22 05:15:42', NULL),
+(2115, 19, 'Test', '9819411026', 'delivery', 'Fgg', NULL, NULL, 920.00, 0.00, '', 46.00, 0.00, 966.00, 'Confirmed', '2025-10-22 05:16:08', '2025-10-22 05:16:13', NULL);
 
 -- --------------------------------------------------------
 
@@ -33664,7 +34216,1372 @@ INSERT INTO `order_items` (`item_id`, `user_id`, `order_id`, `product_name`, `pr
 (3224, 28, 1579, 'Chicken Malai Tandoori (Half)', 250.00, 1),
 (3225, 28, 1580, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
 (3226, 28, 1581, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
-(3227, 28, 1581, 'Chicken Shahi Tandoori (Half)', 230.00, 2);
+(3227, 28, 1581, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3228, 28, 1582, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3229, 28, 1582, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3230, 28, 1583, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3231, 28, 1583, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3232, 28, 1583, 'Chicken Tandoori With Fry (Full)', 370.00, 14),
+(3233, 28, 1584, 'Chicken Shahi Tandoori (Full)', 500.00, 11),
+(3234, 28, 1584, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3235, 28, 1584, 'Chicken Tandoori With Fry (Full)', 370.00, 14),
+(3236, 28, 1584, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(3237, 28, 1584, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(3238, 56, 1585, 'Chicken Regular Shawarma (Small)', 90.00, 1),
+(3239, 28, 1586, 'Chicken Shahi Tandoori (Full)', 500.00, 18),
+(3240, 28, 1586, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3241, 28, 1587, 'Chicken Shahi Tandoori (Full)', 500.00, 24),
+(3242, 28, 1587, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3243, 28, 1588, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3244, 28, 1589, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3245, 28, 1589, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3246, 28, 1589, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3247, 28, 1590, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3248, 28, 1590, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3249, 28, 1591, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3250, 28, 1591, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3251, 28, 1592, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3252, 28, 1592, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3253, 28, 1593, 'Chicken Shahi Tandoori (Half)', 230.00, 12),
+(3254, 28, 1593, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3255, 44, 1594, 'Tandoori Roti', 10.00, 4),
+(3256, 44, 1594, 'Spl Chicken White Korma (Half)', 90.00, 1),
+(3257, 28, 1595, 'Chicken Shahi Tandoori (Half)', 230.00, 12),
+(3258, 28, 1595, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3259, 28, 1596, 'Chicken Shahi Tandoori (Half)', 230.00, 13),
+(3260, 28, 1596, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3261, 28, 1597, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3262, 28, 1597, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3263, 28, 1598, 'Chicken Shahi Tandoori (Half)', 230.00, 13),
+(3264, 28, 1598, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3265, 28, 1599, 'Chicken Shahi Tandoori (Half)', 230.00, 14),
+(3266, 28, 1599, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3267, 28, 1600, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3268, 28, 1601, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3269, 28, 1601, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3270, 28, 1602, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3271, 28, 1602, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3272, 28, 1603, 'Chicken Shahi Tandoori (Full)', 500.00, 9),
+(3273, 28, 1603, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3274, 28, 1604, 'Chicken Shahi Tandoori (Full)', 500.00, 10),
+(3275, 28, 1604, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3276, 28, 1605, 'Chicken Shahi Tandoori (Full)', 500.00, 10),
+(3277, 28, 1605, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3278, 28, 1605, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3279, 28, 1606, 'Chicken Shahi Tandoori (Full)', 500.00, 11),
+(3280, 28, 1606, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3281, 28, 1606, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3282, 28, 1607, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3283, 28, 1608, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3284, 28, 1609, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3285, 28, 1609, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3286, 28, 1609, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3287, 28, 1610, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3288, 28, 1610, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3289, 28, 1610, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3290, 28, 1611, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3291, 28, 1611, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3292, 28, 1611, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3293, 28, 1611, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3294, 28, 1612, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3295, 28, 1612, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3296, 28, 1612, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3297, 28, 1612, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3298, 28, 1613, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3299, 28, 1613, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3300, 28, 1613, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3301, 28, 1613, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3302, 28, 1614, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3303, 28, 1614, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3304, 28, 1614, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3305, 28, 1614, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3306, 28, 1615, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3307, 28, 1615, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3308, 28, 1615, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3309, 28, 1615, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3310, 28, 1616, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3311, 28, 1616, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3312, 28, 1616, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3313, 28, 1616, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3314, 28, 1617, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3315, 28, 1617, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3316, 28, 1617, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3317, 28, 1617, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3318, 28, 1618, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3319, 28, 1618, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3320, 28, 1618, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3321, 28, 1618, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3322, 28, 1619, 'Chicken Shahi Tandoori (Full)', 500.00, 10),
+(3323, 28, 1619, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3324, 28, 1619, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3325, 28, 1619, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3326, 28, 1620, 'Chicken Shahi Tandoori (Full)', 500.00, 11),
+(3327, 28, 1620, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3328, 28, 1620, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3329, 28, 1620, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3330, 28, 1621, 'Chicken Shahi Tandoori (Full)', 500.00, 12),
+(3331, 28, 1621, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3332, 28, 1621, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3333, 28, 1621, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3334, 28, 1622, 'Chicken Shahi Tandoori (Full)', 500.00, 13),
+(3335, 28, 1622, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3336, 28, 1622, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3337, 28, 1622, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3338, 28, 1623, 'Chicken Shahi Tandoori (Full)', 500.00, 14),
+(3339, 28, 1623, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3340, 28, 1623, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3341, 28, 1623, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3342, 28, 1624, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3343, 28, 1625, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3344, 28, 1625, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3345, 28, 1626, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3346, 28, 1626, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3347, 28, 1627, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3348, 28, 1627, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3349, 28, 1628, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3350, 28, 1628, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3351, 28, 1628, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3352, 28, 1629, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3353, 28, 1629, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3354, 28, 1629, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3355, 21, 1630, 'Chicken Afgani (Bls)', 210.00, 1),
+(3356, 28, 1631, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3357, 28, 1631, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3358, 28, 1631, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3359, 28, 1632, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3360, 28, 1632, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3361, 28, 1632, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3362, 28, 1633, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3363, 28, 1633, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3364, 28, 1633, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3365, 28, 1633, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3366, 28, 1634, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3367, 28, 1634, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3368, 28, 1634, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3369, 28, 1634, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3370, 28, 1635, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3371, 28, 1636, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3372, 28, 1636, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3373, 28, 1636, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3374, 28, 1637, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3375, 28, 1637, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3376, 28, 1637, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3377, 28, 1638, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3378, 28, 1638, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3379, 28, 1638, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3380, 28, 1639, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3381, 28, 1639, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3382, 28, 1639, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3383, 28, 1640, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3384, 28, 1641, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3385, 28, 1641, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3386, 28, 1642, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3387, 28, 1642, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3388, 28, 1643, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3389, 28, 1643, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3390, 28, 1644, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3391, 28, 1644, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3392, 28, 1645, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3393, 28, 1645, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3394, 28, 1646, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3395, 28, 1646, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3396, 28, 1647, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3397, 28, 1647, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3398, 28, 1648, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3399, 28, 1648, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3400, 28, 1649, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3401, 28, 1649, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3402, 28, 1649, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3403, 28, 1650, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3404, 28, 1650, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3405, 28, 1650, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3406, 28, 1651, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3407, 28, 1651, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3408, 28, 1651, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3409, 28, 1652, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3410, 28, 1652, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3411, 28, 1652, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3412, 28, 1652, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3413, 28, 1653, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3414, 28, 1653, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3415, 28, 1653, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3416, 28, 1653, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3417, 28, 1653, 'Chicken Banjara Kabab (10 Pcs.)', 290.00, 1),
+(3418, 28, 1653, 'Chicken Reshmi Kabab (8 Pcs.)', 280.00, 1),
+(3419, 28, 1653, 'Chicken Malai Tikka (8 Pcs.)', 320.00, 1),
+(3420, 28, 1654, 'Chicken Malai Tikka (8 Pcs.)', 320.00, 1),
+(3421, 28, 1655, 'Chicken Malai Tikka (8 Pcs.)', 320.00, 1),
+(3422, 28, 1655, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3423, 28, 1655, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3424, 28, 1656, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3425, 28, 1656, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3426, 28, 1656, 'Chicken Shahi Tandoori (Full)', 500.00, 23),
+(3427, 28, 1657, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3428, 28, 1657, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3429, 28, 1658, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3430, 28, 1658, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3431, 28, 1658, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3432, 28, 1658, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3433, 28, 1659, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3434, 28, 1659, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3435, 28, 1659, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3436, 28, 1659, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3437, 28, 1660, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3438, 28, 1660, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3439, 28, 1660, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3440, 28, 1660, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3441, 28, 1661, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3442, 28, 1661, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3443, 28, 1662, 'Gulab Jamun (3pcs)', 40.00, 1),
+(3444, 28, 1662, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3445, 28, 1663, 'Gulab Jamun (3pcs)', 40.00, 1),
+(3446, 28, 1663, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3447, 28, 1663, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3448, 28, 1663, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 2),
+(3449, 28, 1664, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3450, 28, 1664, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3451, 28, 1665, 'Chicken Shahi Tandoori (Half)', 230.00, 6);
+INSERT INTO `order_items` (`item_id`, `user_id`, `order_id`, `product_name`, `price`, `quantity`) VALUES
+(3452, 28, 1665, 'Chicken Shahi Tandoori (Full)', 500.00, 9),
+(3453, 28, 1666, 'Chicken Shahi Tandoori (Half)', 230.00, 6),
+(3454, 28, 1666, 'Chicken Shahi Tandoori (Full)', 500.00, 10),
+(3455, 28, 1667, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3456, 28, 1668, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3457, 28, 1668, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3458, 28, 1668, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3459, 28, 1669, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3460, 28, 1669, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3461, 28, 1670, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3462, 28, 1670, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3463, 28, 1670, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3464, 28, 1671, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3465, 28, 1671, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3466, 28, 1671, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3467, 28, 1672, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3468, 28, 1672, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3469, 28, 1672, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3470, 28, 1673, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3471, 28, 1673, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3472, 28, 1673, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3473, 28, 1674, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3474, 28, 1674, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3475, 28, 1674, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3476, 28, 1675, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3477, 28, 1676, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3478, 28, 1677, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3479, 28, 1677, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3480, 28, 1678, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3481, 28, 1678, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3482, 28, 1679, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3483, 28, 1679, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3484, 28, 1679, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3485, 32, 1680, 'Idli Vada', 60.00, 4),
+(3486, 32, 1680, 'Dum Biriyani', 230.00, 1),
+(3487, 28, 1681, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3488, 28, 1681, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3489, 28, 1682, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3490, 28, 1682, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3491, 28, 1683, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3492, 28, 1683, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3493, 28, 1684, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3494, 28, 1684, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3495, 28, 1685, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3496, 28, 1685, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3497, 28, 1686, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3498, 28, 1686, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3499, 28, 1687, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3500, 28, 1687, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3501, 28, 1688, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3502, 28, 1688, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3503, 28, 1689, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3504, 28, 1690, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3505, 28, 1691, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3506, 28, 1691, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3507, 28, 1692, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3508, 28, 1692, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3509, 28, 1693, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3510, 28, 1693, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3511, 28, 1694, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3512, 28, 1694, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3513, 28, 1695, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3514, 28, 1695, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3515, 28, 1696, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3516, 28, 1696, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3517, 28, 1697, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3518, 28, 1698, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3519, 28, 1698, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3520, 28, 1699, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3521, 28, 1699, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3522, 28, 1700, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3523, 28, 1700, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3524, 28, 1701, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3525, 28, 1701, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3526, 28, 1702, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3527, 28, 1702, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3528, 28, 1703, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3529, 28, 1703, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3530, 28, 1704, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3531, 28, 1704, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3532, 28, 1705, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3533, 28, 1706, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3534, 28, 1706, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3535, 28, 1707, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3536, 28, 1707, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3537, 31, 1708, 'Chicken Triple Schez. Noodles (Half)', 120.00, 2),
+(3538, 28, 1709, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3539, 28, 1709, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3540, 28, 1709, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3541, 28, 1709, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3542, 28, 1710, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3543, 28, 1710, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3544, 28, 1710, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3545, 28, 1710, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3546, 28, 1710, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3547, 28, 1711, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3548, 28, 1711, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3549, 28, 1711, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3550, 28, 1711, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3551, 28, 1711, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3552, 28, 1712, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3553, 28, 1712, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3554, 28, 1713, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3555, 28, 1713, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3556, 28, 1713, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3557, 28, 1713, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3558, 28, 1713, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3559, 28, 1714, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3560, 28, 1714, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3561, 28, 1714, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3562, 28, 1714, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3563, 28, 1714, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3564, 28, 1715, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3565, 28, 1715, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3566, 28, 1716, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3567, 28, 1716, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3568, 28, 1717, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3569, 28, 1717, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3570, 28, 1717, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3571, 28, 1717, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3572, 28, 1718, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3573, 28, 1718, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3574, 28, 1718, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3575, 28, 1719, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3576, 28, 1719, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3577, 28, 1719, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3578, 28, 1719, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3579, 28, 1719, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3580, 28, 1719, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(3581, 28, 1719, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(3582, 28, 1720, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3583, 28, 1720, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3584, 28, 1720, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3585, 28, 1720, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3586, 28, 1720, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3587, 28, 1720, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(3588, 28, 1720, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(3589, 28, 1721, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3590, 28, 1721, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3591, 28, 1721, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3592, 28, 1721, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3593, 28, 1721, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3594, 28, 1721, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(3595, 28, 1721, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(3596, 28, 1722, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3597, 28, 1723, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3598, 28, 1723, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3599, 28, 1723, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3600, 28, 1724, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3601, 28, 1724, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3602, 28, 1724, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3603, 28, 1724, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3604, 28, 1724, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(3605, 28, 1724, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(3606, 28, 1724, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(3607, 28, 1725, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3608, 28, 1725, 'Chicken Shahi Tandoori (Half)', 230.00, 6),
+(3609, 28, 1725, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3610, 28, 1725, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3611, 28, 1725, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(3612, 28, 1725, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(3613, 28, 1725, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(3614, 28, 1726, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3615, 28, 1726, 'Chicken Shahi Tandoori (Full)', 500.00, 7),
+(3616, 28, 1726, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3617, 28, 1727, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3618, 28, 1727, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(3619, 28, 1727, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3620, 28, 1728, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3621, 28, 1729, 'Fish Tandoori (pomfret) (20 Mints)', 230.00, 1),
+(3622, 28, 1729, 'Chicken Shahi Tandoori (Full)', 500.00, 1),
+(3623, 28, 1730, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3624, 28, 1731, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3625, 28, 1731, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3626, 28, 1732, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3627, 28, 1732, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3628, 28, 1733, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3629, 28, 1733, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(3630, 28, 1733, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3631, 28, 1734, 'Chicken Shahi Tandoori (Full)', 500.00, 12),
+(3632, 28, 1734, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3633, 28, 1734, 'Chicken Tandoori With Fry (Full)', 370.00, 14),
+(3634, 28, 1734, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(3635, 28, 1734, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(3636, 28, 1735, 'Chicken Shahi Tandoori (Full)', 500.00, 13),
+(3637, 28, 1735, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3638, 28, 1735, 'Chicken Tandoori With Fry (Full)', 370.00, 14),
+(3639, 28, 1735, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(3640, 28, 1735, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(3641, 28, 1735, 'Chicken Mumtazi (Bls)', 280.00, 1),
+(3642, 28, 1736, 'Chicken Shahi Tandoori (Full)', 500.00, 14),
+(3643, 28, 1736, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3644, 28, 1736, 'Chicken Tandoori With Fry (Full)', 370.00, 14),
+(3645, 28, 1736, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(3646, 28, 1736, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(3647, 28, 1736, 'Chicken Mumtazi (Bls)', 280.00, 1),
+(3648, 28, 1737, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3649, 28, 1737, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(3650, 28, 1737, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3651, 51, 1738, 'Chl. Kalimiri Tandoori Half', 200.00, 1),
+(3652, 28, 1739, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3653, 28, 1739, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3654, 28, 1740, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3655, 28, 1740, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(3656, 28, 1740, 'Chicken Schz. Hakka Noodles', 200.00, 1),
+(3657, 28, 1740, 'Chicken Sheek Biryani', 220.00, 1),
+(3658, 28, 1741, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3659, 28, 1741, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3660, 28, 1742, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3661, 28, 1742, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(3662, 28, 1742, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3663, 28, 1742, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3664, 28, 1743, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3665, 28, 1743, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(3666, 28, 1743, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3667, 28, 1743, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3668, 28, 1744, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3669, 28, 1744, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3670, 28, 1745, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3671, 28, 1745, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3672, 28, 1745, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3673, 28, 1746, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3674, 28, 1746, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3675, 28, 1747, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(3676, 28, 1747, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3677, 28, 1748, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3678, 28, 1748, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3679, 28, 1748, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3680, 28, 1748, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3681, 28, 1749, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3682, 28, 1749, 'Chicken Shahi Tandoori (Full)', 500.00, 8),
+(3683, 28, 1749, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3684, 21, 1750, 'Chicken Chatpata (BIs)', 290.00, 1),
+(3685, 63, 1751, 'Cheese Corn Pizza', 299.00, 1),
+(3686, 63, 1751, 'Cheesy Cigar Roll', 299.00, 1),
+(3687, 77, 1752, 'R.B. Chicken Shawarma', 100.00, 1),
+(3688, 77, 1752, 'Regular Chicken Shawarma', 60.00, 3),
+(3689, 77, 1752, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3690, 77, 1752, 'Special Chicken Shawarma', 80.00, 1),
+(3691, 77, 1752, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 1),
+(3692, 77, 1753, 'Regular Chicken Shawarma', 60.00, 1),
+(3693, 77, 1753, 'Kaddu ki kheer', 30.00, 1),
+(3694, 77, 1754, 'R.B. Chicken Shawarma', 100.00, 1),
+(3695, 77, 1754, 'Regular Chicken Shawarma', 60.00, 4),
+(3696, 77, 1754, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3697, 77, 1754, 'Special Chicken Shawarma', 80.00, 1),
+(3698, 77, 1754, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 1),
+(3699, 77, 1755, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3700, 77, 1756, 'Special Chicken Shawarma', 80.00, 1),
+(3701, 28, 1757, 'Chicken Shahi Tandoori (Full)', 500.00, 6),
+(3702, 28, 1757, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3703, 77, 1758, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3704, 77, 1759, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3705, 77, 1759, 'Qubani Ka Meetha (Apricot)', 50.00, 1),
+(3706, 77, 1760, 'Regular Chicken Shawarma', 60.00, 1),
+(3707, 77, 1760, 'Special Chicken Shawarma', 80.00, 1),
+(3708, 77, 1760, 'Jumbo Chicken Shawarma', 100.00, 1),
+(3709, 77, 1760, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 2),
+(3710, 77, 1761, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3711, 77, 1761, 'Qubani Ka Meetha (Apricot)', 50.00, 1),
+(3712, 77, 1761, 'Special Chicken Shawarma', 80.00, 1),
+(3713, 77, 1762, 'Chicken Roll', 80.00, 1),
+(3714, 77, 1762, 'Regular Chicken Shawarma', 60.00, 1),
+(3715, 77, 1762, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3716, 77, 1762, 'Special Chicken Shawarma', 80.00, 1),
+(3717, 77, 1763, 'Regular Chicken Shawarma', 60.00, 1),
+(3718, 77, 1763, 'Special Chicken Shawarma', 80.00, 1),
+(3719, 77, 1763, 'Jumbo Chicken Shawarma', 100.00, 1),
+(3720, 77, 1763, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 2),
+(3721, 77, 1763, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3722, 77, 1764, 'Regular Chicken Shawarma', 60.00, 1),
+(3723, 77, 1764, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3724, 77, 1764, 'Special Chicken Shawarma', 80.00, 1),
+(3725, 77, 1765, 'Regular Chicken Shawarma', 60.00, 2),
+(3726, 77, 1765, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3727, 77, 1765, 'Special Chicken Shawarma', 80.00, 1),
+(3728, 77, 1765, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 230.00, 1),
+(3729, 77, 1766, 'Regular Chicken Shawarma', 60.00, 2),
+(3730, 77, 1766, 'Schezwan Chicken Shawarma', 80.00, 2),
+(3731, 77, 1766, 'Special Chicken Shawarma', 80.00, 1),
+(3732, 77, 1766, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 230.00, 1),
+(3733, 32, 1767, 'Roti', 25.00, 13),
+(3734, 32, 1767, 'Paneer Angara', 260.00, 1),
+(3735, 32, 1767, 'Mix Veg', 220.00, 1),
+(3736, 77, 1768, 'Special Chicken Shawarma', 80.00, 1),
+(3737, 77, 1768, 'Regular Chicken Shawarma', 60.00, 1),
+(3738, 77, 1769, 'Special Chicken Shawarma', 80.00, 1),
+(3739, 77, 1769, 'Regular Chicken Shawarma', 60.00, 2),
+(3740, 77, 1770, 'Special Chicken Shawarma', 80.00, 2),
+(3741, 77, 1770, 'Regular Chicken Shawarma', 60.00, 2),
+(3742, 77, 1771, 'Special Chicken Shawarma', 80.00, 2),
+(3743, 77, 1771, 'Regular Chicken Shawarma', 60.00, 3),
+(3744, 77, 1772, 'Regular Chicken Shawarma', 60.00, 1),
+(3745, 77, 1772, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3746, 77, 1773, 'Regular Chicken Shawarma', 60.00, 1),
+(3747, 77, 1774, 'Regular Chicken Shawarma', 60.00, 2),
+(3748, 77, 1775, 'Special Chicken Shawarma', 80.00, 2),
+(3749, 77, 1775, 'Regular Chicken Shawarma', 60.00, 4),
+(3750, 77, 1776, 'Special Chicken Shawarma', 80.00, 2),
+(3751, 77, 1776, 'Regular Chicken Shawarma', 60.00, 5),
+(3752, 77, 1777, 'Special Chicken Shawarma', 80.00, 3),
+(3753, 77, 1777, 'Regular Chicken Shawarma', 60.00, 5),
+(3754, 28, 1778, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3755, 28, 1778, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3756, 28, 1778, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3757, 28, 1778, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3758, 77, 1779, 'Regular Chicken Shawarma', 60.00, 2),
+(3759, 77, 1779, 'Kaddu ki kheer', 30.00, 1),
+(3760, 77, 1779, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3761, 77, 1780, 'Special Chicken Shawarma', 80.00, 3),
+(3762, 77, 1780, 'Regular Chicken Shawarma', 60.00, 5),
+(3763, 77, 1780, 'Cake Ka Meetha', 30.00, 1),
+(3764, 77, 1781, 'Special Chicken Shawarma', 80.00, 3),
+(3765, 77, 1781, 'Regular Chicken Shawarma', 60.00, 7),
+(3766, 77, 1781, 'Cake Ka Meetha', 30.00, 1),
+(3767, 77, 1781, 'Kaddu ki kheer', 30.00, 1),
+(3768, 77, 1782, 'Special Chicken Shawarma', 80.00, 3),
+(3769, 77, 1782, 'Regular Chicken Shawarma', 60.00, 8),
+(3770, 77, 1782, 'Cake Ka Meetha', 30.00, 1),
+(3771, 77, 1782, 'Kaddu ki kheer', 30.00, 1),
+(3772, 77, 1783, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3773, 77, 1783, 'Qubani Ka Meetha (Apricot)', 50.00, 1),
+(3774, 77, 1783, 'Special Chicken Shawarma', 80.00, 1),
+(3775, 77, 1783, 'Regular Chicken Shawarma', 60.00, 1),
+(3776, 77, 1784, 'R.B. Chicken Shawarma', 100.00, 1),
+(3777, 77, 1784, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 1),
+(3778, 77, 1785, 'R.B. Chicken Shawarma', 100.00, 1),
+(3779, 77, 1785, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 120.00, 1),
+(3780, 77, 1785, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3781, 28, 1786, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(3782, 28, 1786, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3783, 28, 1786, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3784, 28, 1786, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3785, 77, 1787, 'Special Chicken Shawarma', 80.00, 3),
+(3786, 77, 1787, 'Regular Chicken Shawarma', 60.00, 9),
+(3787, 77, 1787, 'Cake Ka Meetha', 30.00, 1),
+(3788, 77, 1787, 'Kaddu ki kheer', 30.00, 1),
+(3789, 31, 1788, 'Chicken Triple Fried Rice (Full)', 200.00, 1),
+(3790, 31, 1788, 'Chicken Chilly (Full)', 200.00, 1),
+(3791, 78, 1789, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3792, 78, 1789, 'Open Chicken Shawarma', 100.00, 1),
+(3793, 78, 1790, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3794, 78, 1790, 'Open Chicken Shawarma', 100.00, 1),
+(3795, 78, 1790, 'Regular Chicken Shawarma', 60.00, 1),
+(3796, 79, 1791, 'Cake Ka Meetha', 30.00, 1),
+(3797, 79, 1792, 'Regular Chicken Shawarma', 60.00, 2),
+(3798, 79, 1792, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3799, 80, 1793, 'Regular Chicken Shawarma', 60.00, 1),
+(3800, 80, 1793, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3801, 80, 1794, 'Regular Chicken Shawarma', 60.00, 2),
+(3802, 80, 1794, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3803, 80, 1794, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3804, 77, 1795, 'Regular Chicken Shawarma', 60.00, 1),
+(3805, 77, 1795, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3806, 28, 1796, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(3807, 28, 1796, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3808, 28, 1797, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3809, 28, 1798, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3810, 28, 1799, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3811, 28, 1800, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3812, 28, 1800, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3813, 71, 1801, 'Veg. Biryani', 170.00, 1),
+(3814, 21, 1802, 'Butter Chicken (Bls) (Half)', 210.00, 1),
+(3815, 21, 1802, 'Tandoori Butter Roti', 20.00, 5),
+(3816, 28, 1803, 'Gulab Jamun (3pcs)', 40.00, 1),
+(3817, 77, 1804, 'Chicken Dum Biryani (500g) ? Serves 1 person', 120.00, 1),
+(3818, 64, 1805, 'Chicken Tandoori Burger', 119.00, 1),
+(3819, 28, 1806, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3820, 28, 1807, 'Regular Chicken Shawarma', 60.00, 2),
+(3821, 28, 1807, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3822, 28, 1807, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3823, 28, 1807, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3824, 28, 1808, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3825, 28, 1809, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3826, 28, 1810, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3827, 28, 1811, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3828, 77, 1812, 'Chicken Dum Biryani (500g) ? Serves 1 person', 120.00, 2),
+(3829, 28, 1813, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3830, 56, 1814, 'Chicken Tikka Pizza (8 Inch)', 209.00, 1),
+(3831, 56, 1814, 'Veg Extravaganza Pizza (8 inch)', 209.00, 1),
+(3832, 28, 1815, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3833, 28, 1816, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3834, 28, 1816, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3835, 28, 1817, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3836, 28, 1818, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3837, 28, 1818, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3838, 28, 1819, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3839, 28, 1819, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3840, 28, 1820, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3841, 28, 1820, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3842, 28, 1821, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3843, 28, 1822, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3844, 28, 1822, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3845, 28, 1823, 'Regular Chicken Shawarma', 60.00, 2),
+(3846, 28, 1823, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3847, 28, 1823, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3848, 28, 1823, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3849, 28, 1823, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3850, 77, 1824, 'Regular Chicken Shawarma', 60.00, 1),
+(3851, 69, 1825, 'Pomfret/Halwa Thali', 699.00, 1),
+(3852, 28, 1826, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3853, 28, 1826, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3854, 28, 1827, 'FCM Test Pizza', 399.00, 1),
+(3855, 28, 1828, 'FCM Test Pizza', 399.00, 1),
+(3856, 28, 1829, 'FCM Test Pizza', 399.00, 1),
+(3857, 28, 1830, 'Final Test Pizza', 399.00, 2),
+(3858, 28, 1831, 'Test', 100.00, 1),
+(3859, 28, 1832, 'Test', 100.00, 1),
+(3860, 28, 1833, 'Test', 100.00, 1),
+(3861, 28, 1834, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3862, 28, 1834, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3863, 28, 1835, 'Sound Test Pizza', 499.00, 1),
+(3864, 28, 1835, 'Test Drink', 99.00, 2),
+(3865, 28, 1836, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(3866, 28, 1836, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3867, 28, 1837, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(3868, 28, 1837, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3869, 28, 1838, 'Regular Chicken Shawarma', 60.00, 2),
+(3870, 28, 1838, 'Lucknow Chicken Shawarma', 90.00, 1),
+(3871, 28, 1838, 'Schezwan Chicken Shawarma', 80.00, 1),
+(3872, 28, 1838, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3873, 28, 1838, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3874, 28, 1839, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(3875, 28, 1839, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3876, 28, 1839, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3877, 28, 1840, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3878, 28, 1840, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3879, 28, 1841, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3880, 28, 1841, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3881, 28, 1841, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3882, 28, 1842, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3883, 28, 1842, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3884, 28, 1842, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3885, 28, 1843, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3886, 28, 1843, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3887, 28, 1843, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3888, 28, 1843, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3889, 28, 1844, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3890, 28, 1844, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3891, 28, 1844, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3892, 28, 1844, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3893, 28, 1845, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3894, 28, 1845, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3895, 28, 1845, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3896, 28, 1845, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3897, 28, 1846, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3898, 28, 1846, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3899, 28, 1846, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(3900, 28, 1847, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3901, 28, 1848, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3902, 28, 1848, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3903, 28, 1849, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3904, 28, 1849, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3905, 28, 1850, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3906, 28, 1850, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3907, 28, 1850, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3908, 28, 1851, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3909, 28, 1851, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3910, 28, 1851, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3911, 28, 1851, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(3912, 28, 1852, 'Chicken Shahi Tandoori (Full)', 500.00, 2),
+(3913, 28, 1852, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3914, 28, 1852, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3915, 28, 1852, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(3916, 28, 1852, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3917, 28, 1853, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3918, 28, 1853, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3919, 28, 1853, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3920, 28, 1854, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3921, 28, 1855, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3922, 28, 1855, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3923, 28, 1855, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3924, 28, 1855, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3925, 28, 1856, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3926, 28, 1856, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3927, 28, 1856, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3928, 28, 1856, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3929, 28, 1857, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3930, 28, 1857, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3931, 28, 1857, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3932, 28, 1857, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3933, 28, 1858, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3934, 28, 1858, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3935, 28, 1858, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3936, 28, 1858, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3937, 28, 1859, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3938, 28, 1859, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3939, 28, 1859, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3940, 28, 1859, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3941, 28, 1860, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3942, 28, 1860, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3943, 28, 1860, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3944, 28, 1860, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(3945, 28, 1861, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3946, 28, 1861, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3947, 28, 1861, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3948, 28, 1861, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(3949, 28, 1862, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3950, 28, 1862, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(3951, 28, 1862, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3952, 28, 1862, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(3953, 28, 1863, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3954, 28, 1864, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3955, 28, 1864, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3956, 28, 1865, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3957, 28, 1865, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3958, 28, 1866, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3959, 28, 1866, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3960, 28, 1867, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3961, 28, 1867, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3962, 28, 1868, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(3963, 28, 1868, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3964, 28, 1869, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(3965, 28, 1869, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3966, 28, 1870, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(3967, 28, 1870, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3968, 28, 1871, 'Chicken Shahi Tandoori (Full)', 700.00, 8),
+(3969, 28, 1871, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3970, 28, 1872, 'Chicken Shahi Tandoori (Full)', 700.00, 9),
+(3971, 28, 1872, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3972, 28, 1873, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3973, 28, 1874, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3974, 28, 1875, 'Chicken Shahi Tandoori (Full)', 700.00, 10),
+(3975, 28, 1875, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3976, 28, 1876, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3977, 28, 1877, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(3978, 28, 1877, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3979, 28, 1878, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(3980, 28, 1878, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3981, 28, 1879, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(3982, 28, 1879, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3983, 28, 1880, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3984, 28, 1881, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(3985, 28, 1882, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3986, 28, 1883, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(3987, 28, 1884, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(3988, 28, 1885, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3989, 28, 1886, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(3990, 28, 1886, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3991, 28, 1887, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3992, 28, 1887, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3993, 28, 1888, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(3994, 28, 1888, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(3995, 28, 1888, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(3996, 28, 1889, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(3997, 28, 1890, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(3998, 28, 1890, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(3999, 28, 1891, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4000, 28, 1891, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4001, 28, 1892, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4002, 28, 1892, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4003, 28, 1893, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4004, 28, 1894, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4005, 28, 1894, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4006, 28, 1895, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4007, 28, 1895, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4008, 28, 1896, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4009, 28, 1896, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4010, 28, 1897, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4011, 28, 1897, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4012, 28, 1898, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4013, 28, 1898, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4014, 28, 1899, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4015, 28, 1899, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4016, 28, 1899, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4017, 28, 1900, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4018, 28, 1900, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4019, 28, 1900, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4020, 28, 1901, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4021, 28, 1901, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(4022, 28, 1901, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4023, 28, 1902, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4024, 28, 1902, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(4025, 28, 1902, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4026, 30, 1903, 'Veg. Schezwan Noodles (Full)', 150.00, 1),
+(4027, 28, 1904, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4028, 28, 1905, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4029, 28, 1905, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4030, 28, 1906, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4031, 28, 1906, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4032, 28, 1907, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4033, 28, 1907, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4034, 28, 1907, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4035, 28, 1908, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4036, 28, 1908, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4037, 28, 1908, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4038, 28, 1909, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4039, 28, 1910, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4040, 28, 1910, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4041, 28, 1911, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4042, 28, 1911, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4043, 28, 1912, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4044, 28, 1912, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4045, 28, 1912, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4046, 28, 1913, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4047, 28, 1913, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4048, 28, 1913, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4049, 28, 1914, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4050, 28, 1914, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4051, 28, 1914, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4052, 28, 1915, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4053, 28, 1915, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(4054, 28, 1915, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4055, 28, 1916, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4056, 28, 1917, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4057, 28, 1917, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4058, 28, 1917, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4059, 28, 1918, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4060, 28, 1918, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4061, 28, 1918, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4062, 28, 1919, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4063, 28, 1920, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4064, 28, 1920, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4065, 28, 1921, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4066, 28, 1921, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4067, 28, 1922, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4068, 28, 1922, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4069, 28, 1923, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4070, 28, 1923, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4071, 28, 1923, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4072, 28, 1924, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4073, 28, 1924, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4074, 28, 1924, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4075, 28, 1925, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4076, 28, 1925, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4077, 28, 1925, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4078, 28, 1926, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4079, 28, 1927, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4080, 28, 1927, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4081, 28, 1928, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4082, 28, 1928, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4083, 28, 1929, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4084, 28, 1929, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4085, 28, 1930, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4086, 28, 1930, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4087, 28, 1930, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4088, 28, 1931, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4089, 28, 1932, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4090, 28, 1933, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(4091, 28, 1934, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(4092, 28, 1935, 'Chicken Shahi Tandoori (Full)', 700.00, 8),
+(4093, 28, 1936, 'Chicken Shahi Tandoori (Full)', 700.00, 9),
+(4094, 28, 1937, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(4095, 28, 1938, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4096, 28, 1939, 'Chicken Shahi Tandoori (Full)', 700.00, 6),
+(4097, 28, 1939, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4098, 28, 1940, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(4099, 28, 1940, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4100, 28, 1940, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4101, 28, 1941, 'Chicken Shahi Tandoori (Full)', 700.00, 7),
+(4102, 28, 1941, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4103, 28, 1941, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4104, 28, 1941, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(4105, 28, 1941, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4106, 28, 1942, 'Chicken Shahi Tandoori (Full)', 700.00, 8),
+(4107, 28, 1942, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4108, 28, 1942, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4109, 28, 1942, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(4110, 28, 1942, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4111, 28, 1943, 'Chicken Shahi Tandoori (Full)', 700.00, 9),
+(4112, 28, 1943, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4113, 28, 1943, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4114, 28, 1943, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(4115, 28, 1943, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4116, 28, 1944, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4117, 28, 1945, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4118, 28, 1945, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(4119, 28, 1945, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4120, 28, 1946, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4121, 28, 1946, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(4122, 28, 1946, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4123, 28, 1947, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4124, 28, 1947, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 4),
+(4125, 28, 1947, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4126, 28, 1948, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4127, 28, 1948, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4128, 28, 1948, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4129, 28, 1949, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4130, 64, 1950, 'Cheese & Tomato Pizza (Reg)', 149.00, 1),
+(4131, 67, 1951, 'Chicken Tandoori (Half)', 210.00, 1),
+(4132, 64, 1952, 'Cheese & Tomato Pizza (Reg)', 149.00, 1),
+(4133, 64, 1953, 'Cheese & Tomato Pizza (Reg)', 149.00, 2),
+(4134, 64, 1953, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(4135, 64, 1954, 'Cheese & Tomato Pizza (Reg)', 149.00, 3),
+(4136, 64, 1954, 'Cheese & Tomato Pizza (Med)', 299.00, 1),
+(4137, 28, 1955, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4138, 28, 1955, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(4139, 28, 1955, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4140, 28, 1955, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4141, 28, 1955, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4142, 28, 1956, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4143, 28, 1956, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(4144, 28, 1956, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4145, 28, 1956, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4146, 28, 1956, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4147, 28, 1957, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4148, 28, 1957, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(4149, 28, 1957, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4150, 28, 1957, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4151, 28, 1957, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4152, 28, 1958, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4153, 28, 1958, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(4154, 28, 1958, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4155, 28, 1958, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4156, 28, 1958, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4157, 28, 1959, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4158, 28, 1959, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 4),
+(4159, 28, 1959, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4160, 28, 1959, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4161, 28, 1959, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4162, 28, 1960, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4163, 28, 1960, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 4),
+(4164, 28, 1960, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4165, 28, 1960, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4166, 28, 1960, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4167, 28, 1961, 'Chicken Shahi Tandoori (Full)', 500.00, 3),
+(4168, 28, 1961, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4169, 28, 1961, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4170, 28, 1961, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4171, 28, 1961, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4172, 28, 1962, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4173, 28, 1963, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4174, 28, 1963, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4175, 28, 1964, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4176, 28, 1964, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4177, 28, 1965, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4178, 28, 1965, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4179, 28, 1965, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4180, 28, 1966, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(4181, 28, 1966, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4182, 28, 1966, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4183, 28, 1966, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4184, 28, 1966, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4185, 28, 1967, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(4186, 28, 1967, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4187, 28, 1967, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(4188, 28, 1967, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4189, 28, 1967, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4190, 28, 1968, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4191, 28, 1968, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4192, 28, 1968, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4193, 28, 1969, 'Chicken Shahi Tandoori (Full)', 500.00, 4),
+(4194, 28, 1969, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4195, 28, 1969, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 4),
+(4196, 28, 1969, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4197, 28, 1969, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4198, 28, 1970, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4199, 28, 1971, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4200, 28, 1971, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4201, 28, 1972, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4202, 28, 1972, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4203, 28, 1973, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4204, 28, 1973, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4205, 28, 1974, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4206, 28, 1975, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4207, 28, 1976, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4208, 28, 1976, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4209, 28, 1977, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4210, 28, 1977, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4211, 28, 1977, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4212, 28, 1978, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4213, 28, 1978, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4214, 28, 1978, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4215, 77, 1979, 'Open Chicken Shawarma', 100.00, 1),
+(4216, 44, 1980, 'Chicken Muradabadi Biryani (Full)', 120.00, 1),
+(4217, 44, 1980, 'Chicken Boneless Muradabadi Biryani (Full)', 150.00, 1),
+(4218, 28, 1981, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4219, 28, 1981, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4220, 28, 1982, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4221, 28, 1982, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4222, 28, 1983, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4223, 28, 1983, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4224, 28, 1984, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4225, 28, 1984, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4226, 28, 1985, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4227, 28, 1985, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4228, 28, 1985, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4229, 28, 1985, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4230, 28, 1986, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4231, 28, 1986, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4232, 28, 1986, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4233, 28, 1986, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4234, 78, 1987, 'Veg Dum Biryani (1000g)', 189.00, 1),
+(4235, 28, 1988, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4236, 28, 1988, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4237, 28, 1989, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4238, 28, 1989, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4239, 28, 1989, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4240, 28, 1989, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4241, 28, 1990, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4242, 28, 1990, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4243, 28, 1990, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4244, 28, 1990, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4245, 28, 1991, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4246, 28, 1991, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4247, 28, 1991, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4248, 28, 1991, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4249, 28, 1992, 'Chicken Shahi Tandoori (Full)', 500.00, 5),
+(4250, 28, 1992, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 5),
+(4251, 28, 1992, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 4),
+(4252, 28, 1992, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4253, 28, 1992, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4254, 28, 1993, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4255, 28, 1994, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4256, 28, 1995, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4257, 28, 1996, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4258, 28, 1997, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4259, 28, 1997, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4260, 28, 1998, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4261, 28, 1998, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4262, 28, 1998, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4263, 28, 1999, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4264, 28, 1999, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4265, 28, 1999, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(4266, 28, 2000, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4267, 28, 2000, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4268, 28, 2000, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 3),
+(4269, 28, 2001, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4270, 28, 2001, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4271, 28, 2002, 'Chicken Shahi Tandoori (Full)', 700.00, 2);
+INSERT INTO `order_items` (`item_id`, `user_id`, `order_id`, `product_name`, `price`, `quantity`) VALUES
+(4272, 28, 2002, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4273, 28, 2003, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4274, 64, 2004, 'Sev Puri With Papdi', 40.00, 2),
+(4275, 64, 2004, 'Papdi Chaat', 60.00, 1),
+(4276, 28, 2005, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4277, 28, 2005, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4278, 28, 2006, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4279, 28, 2006, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4280, 28, 2007, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4281, 28, 2007, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4282, 28, 2008, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4283, 28, 2008, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4284, 28, 2009, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4285, 28, 2010, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4286, 28, 2011, 'Fish Manchurian', 400.00, 1),
+(4287, 28, 2011, 'Fish Chilly', 400.00, 1),
+(4288, 28, 2012, 'Fish Manchurian', 400.00, 1),
+(4289, 28, 2012, 'Fish Chilly', 400.00, 1),
+(4290, 28, 2012, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4291, 28, 2012, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4292, 77, 2013, 'Jumbo Chicken Shawarma', 100.00, 1),
+(4293, 77, 2014, 'Regular Chicken Shawarma', 60.00, 1),
+(4294, 77, 2015, 'Regular Chicken Shawarma', 60.00, 2),
+(4295, 28, 2016, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4296, 28, 2017, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4297, 28, 2017, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4298, 28, 2018, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4299, 28, 2018, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4300, 28, 2018, 'Chicken Malai Tandoori (Full)', 420.00, 1),
+(4301, 28, 2019, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4302, 28, 2019, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4303, 28, 2019, 'Chicken Malai Tandoori (Full)', 420.00, 2),
+(4304, 28, 2020, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4305, 28, 2020, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4306, 28, 2020, 'Chicken Malai Tandoori (Full)', 420.00, 3),
+(4307, 28, 2021, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4308, 28, 2021, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4309, 28, 2021, 'Chicken Malai Tandoori (Full)', 420.00, 4),
+(4310, 28, 2022, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4311, 28, 2022, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4312, 28, 2022, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4313, 28, 2023, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4314, 28, 2023, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4315, 28, 2023, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4316, 28, 2023, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4317, 28, 2024, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4318, 28, 2024, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4319, 28, 2024, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4320, 28, 2024, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4321, 28, 2025, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4322, 28, 2025, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4323, 28, 2025, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4324, 28, 2025, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 3),
+(4325, 28, 2026, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4326, 28, 2026, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4327, 28, 2026, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4328, 28, 2026, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 4),
+(4329, 28, 2027, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4330, 28, 2027, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4331, 28, 2027, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4332, 28, 2027, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4333, 28, 2028, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4334, 28, 2028, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4335, 28, 2028, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4336, 28, 2028, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4337, 28, 2028, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4338, 28, 2029, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4339, 28, 2029, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4340, 28, 2029, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4341, 28, 2029, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4342, 28, 2029, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 2),
+(4343, 28, 2030, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4344, 28, 2030, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4345, 28, 2030, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4346, 28, 2030, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4347, 28, 2030, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 2),
+(4348, 28, 2031, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4349, 28, 2032, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4350, 28, 2033, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4351, 28, 2033, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4352, 20, 2034, 'S. K. Special Biriyani', 240.00, 1),
+(4353, 28, 2035, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4354, 28, 2035, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4355, 28, 2035, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4356, 28, 2036, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4357, 28, 2036, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4358, 28, 2036, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4359, 28, 2037, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4360, 28, 2037, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4361, 28, 2037, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4362, 28, 2038, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4363, 28, 2038, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4364, 28, 2038, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4365, 28, 2039, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4366, 28, 2039, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4367, 28, 2039, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4368, 28, 2039, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4369, 28, 2040, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4370, 28, 2040, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4371, 28, 2040, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4372, 28, 2040, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4373, 28, 2041, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4374, 28, 2041, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4375, 28, 2041, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4376, 28, 2041, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4377, 28, 2041, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 2),
+(4378, 28, 2041, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4379, 28, 2042, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4380, 28, 2042, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 2),
+(4381, 28, 2042, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4382, 28, 2042, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4383, 28, 2042, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 2),
+(4384, 28, 2042, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4385, 28, 2042, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4386, 28, 2043, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4387, 28, 2043, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(4388, 28, 2043, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4389, 28, 2043, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4390, 28, 2043, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 2),
+(4391, 28, 2043, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4392, 28, 2043, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4393, 28, 2044, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4394, 28, 2044, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(4395, 28, 2044, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4396, 28, 2044, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4397, 28, 2044, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 3),
+(4398, 28, 2044, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4399, 28, 2044, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4400, 28, 2045, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4401, 28, 2045, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(4402, 28, 2045, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4403, 28, 2045, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4404, 28, 2045, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 4),
+(4405, 28, 2045, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4406, 28, 2045, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4407, 28, 2046, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4408, 28, 2046, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 3),
+(4409, 28, 2046, 'Chicken Malai Tandoori (Full)', 420.00, 5),
+(4410, 28, 2046, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 5),
+(4411, 28, 2046, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 4),
+(4412, 28, 2046, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4413, 28, 2046, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4414, 28, 2046, 'Chicken Lahori Tandori (Half) (NEW)', 250.00, 1),
+(4415, 28, 2047, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4416, 28, 2047, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(4417, 28, 2047, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4418, 28, 2047, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4419, 28, 2047, 'Chicken Shahi Kabab (10 Pcs.) (NEW)', 290.00, 1),
+(4420, 28, 2047, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4421, 28, 2048, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4422, 28, 2049, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4423, 28, 2049, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4424, 28, 2050, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4425, 28, 2050, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4426, 28, 2050, 'Chicken Tandoori With Fry (Full)', 370.00, 1),
+(4427, 28, 2051, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4428, 28, 2051, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4429, 28, 2051, 'Chicken Tandoori With Fry (Full)', 370.00, 1),
+(4430, 28, 2052, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4431, 28, 2053, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4432, 28, 2053, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4433, 28, 2054, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4434, 28, 2054, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4435, 28, 2054, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4436, 28, 2055, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4437, 28, 2055, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4438, 28, 2055, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4439, 28, 2056, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4440, 28, 2056, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4441, 28, 2056, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4442, 28, 2057, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4443, 28, 2057, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4444, 28, 2057, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4445, 28, 2058, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4446, 28, 2059, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4447, 28, 2060, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4448, 28, 2061, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4449, 28, 2061, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4450, 28, 2062, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4451, 28, 2062, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4452, 28, 2063, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4453, 28, 2063, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4454, 28, 2064, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4455, 28, 2065, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4456, 28, 2065, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4457, 28, 2066, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4458, 28, 2066, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4459, 28, 2067, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4460, 28, 2067, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4461, 28, 2068, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4462, 28, 2068, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4463, 28, 2068, 'Chicken Tandoori With Fry (Half)', 230.00, 1),
+(4464, 28, 2069, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4465, 28, 2069, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4466, 28, 2069, 'Chicken Tandoori With Fry (Half)', 230.00, 1),
+(4467, 28, 2070, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4468, 28, 2070, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4469, 28, 2070, 'Chicken Tandoori With Fry (Half)', 230.00, 2),
+(4470, 28, 2071, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4471, 28, 2072, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4472, 28, 2072, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4473, 28, 2072, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4474, 28, 2073, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4475, 28, 2073, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4476, 28, 2074, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4477, 28, 2074, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4478, 28, 2075, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4479, 28, 2075, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4480, 28, 2076, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4481, 28, 2076, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4482, 28, 2077, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4483, 28, 2077, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4484, 28, 2078, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4485, 28, 2078, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4486, 28, 2079, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4487, 28, 2079, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4488, 28, 2079, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 1),
+(4489, 28, 2080, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4490, 28, 2080, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4491, 28, 2080, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4492, 28, 2081, 'Chicken Tiranga Kabab (9 Pcs.) (NEW)', 320.00, 1),
+(4493, 28, 2081, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4494, 28, 2081, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4495, 28, 2082, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4496, 28, 2082, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4497, 28, 2082, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4498, 28, 2082, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4499, 28, 2083, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4500, 28, 2083, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4501, 28, 2083, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4502, 28, 2083, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4503, 28, 2083, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(4504, 28, 2084, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4505, 28, 2084, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4506, 28, 2084, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4507, 28, 2084, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4508, 28, 2084, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(4509, 28, 2084, 'Chicken Lahori Tandori (Half) (NEW)', 250.00, 1),
+(4510, 28, 2085, 'Chicken Shahi Tandoori (Half)', 230.00, 5),
+(4511, 28, 2085, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4512, 28, 2085, 'Chicken Peshawari Cream Tandoori (Full)', 420.00, 2),
+(4513, 28, 2085, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4514, 28, 2085, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(4515, 28, 2085, 'Chicken Lahori Tandori (Half) (NEW)', 250.00, 2),
+(4516, 28, 2086, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4517, 28, 2086, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4518, 28, 2087, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4519, 28, 2087, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4520, 19, 2088, 'Chilli Flex Creamy Tandoori (New) (Full)', 500.00, 1),
+(4521, 28, 2089, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4522, 28, 2089, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4523, 28, 2090, 'Chicken Peshawari Cream Tandoori (Half)', 250.00, 1),
+(4524, 28, 2091, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4525, 28, 2092, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4526, 28, 2092, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4527, 28, 2092, 'Tandoori Roti', 15.00, 1),
+(4528, 28, 2093, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4529, 28, 2093, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4530, 28, 2093, 'Tandoori Roti', 15.00, 1),
+(4531, 28, 2093, 'Prawns Schezwan Sauce', 280.00, 1),
+(4532, 28, 2094, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4533, 28, 2094, 'Chicken Shahi Khazana', 620.00, 1),
+(4534, 28, 2095, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4535, 28, 2095, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4536, 28, 2095, 'Tandoori Roti', 15.00, 1),
+(4537, 28, 2095, 'Prawns Schezwan Sauce', 280.00, 1),
+(4538, 28, 2095, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4539, 28, 2096, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4540, 28, 2096, 'Chicken Shahi Khazana', 620.00, 1),
+(4541, 28, 2097, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4542, 28, 2097, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4543, 28, 2097, 'Tandoori Roti', 15.00, 1),
+(4544, 28, 2097, 'Prawns Schezwan Sauce', 280.00, 1),
+(4545, 28, 2097, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4546, 28, 2097, 'Fish Manchurian', 400.00, 1),
+(4547, 28, 2098, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4548, 28, 2098, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4549, 28, 2098, 'Tandoori Roti', 15.00, 1),
+(4550, 28, 2098, 'Prawns Schezwan Sauce', 280.00, 1),
+(4551, 28, 2098, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4552, 28, 2098, 'Fish Manchurian', 400.00, 1),
+(4553, 28, 2099, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(4554, 28, 2099, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4555, 28, 2099, 'Tandoori Roti', 15.00, 1),
+(4556, 28, 2099, 'Prawns Schezwan Sauce', 280.00, 1),
+(4557, 28, 2099, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4558, 28, 2099, 'Fish Manchurian', 400.00, 1),
+(4559, 28, 2100, 'Prawns Schezwan Sauce', 280.00, 1),
+(4560, 28, 2100, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4561, 28, 2100, 'Fish Manchurian', 400.00, 1),
+(4562, 28, 2101, 'Prawns Schezwan Sauce', 280.00, 1),
+(4563, 28, 2101, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4564, 28, 2101, 'Fish Manchurian', 400.00, 1),
+(4565, 28, 2102, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4566, 28, 2102, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4567, 28, 2103, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4568, 28, 2103, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4569, 28, 2104, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(4570, 28, 2104, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4571, 28, 2105, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4572, 28, 2105, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4573, 28, 2106, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4574, 28, 2106, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(4575, 28, 2107, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4576, 28, 2107, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(4577, 28, 2108, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(4578, 28, 2108, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4579, 28, 2109, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4580, 28, 2109, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(4581, 28, 2110, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4582, 28, 2110, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(4583, 28, 2111, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(4584, 28, 2111, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4585, 28, 2112, 'Chicken Shahi Tandoori (Half)', 230.00, 4),
+(4586, 28, 2112, 'Chicken Shahi Tandoori (Full)', 700.00, 5),
+(4587, 19, 2113, 'Chilli Flex Creamy Tandoori (New) (Half)', 300.00, 1),
+(4588, 19, 2114, 'Chilli Flex Creamy Tandoori (New) (Half)', 300.00, 2),
+(4589, 19, 2115, 'Chilli Flex Creamy Tandoori (New) (Half)', 300.00, 2),
+(4590, 19, 2115, 'Chilli Flex Creamy Tikka dry (New) (Full)', 320.00, 1);
 
 -- --------------------------------------------------------
 
@@ -33740,7 +35657,234 @@ INSERT INTO `order_updates` (`id`, `order_id`, `user_id`, `old_status`, `new_sta
 (163, 1565, 64, 'Pending', 'Confirmed', 'd9328f6a44580473f7c8481d1e07b72d', 'accepted', '2025-10-04 13:34:41'),
 (164, 1566, 64, 'Pending', 'Confirmed', 'ea9a27aa842ca3cd94dccc17d13f0dfe', 'accepted', '2025-10-04 13:36:09'),
 (165, 1580, 28, 'Pending', 'Confirmed', '490fa025c8dd2a9ea8cd3b331325d3e1', 'accepted', '2025-10-06 17:35:14'),
-(166, 1581, 28, 'Pending', 'Confirmed', '92c1409ae4ad4d5177190f131c7256f3', 'accepted', '2025-10-06 21:05:49');
+(166, 1581, 28, 'Pending', 'Confirmed', '92c1409ae4ad4d5177190f131c7256f3', 'accepted', '2025-10-06 21:05:49'),
+(167, 1586, 28, 'Pending', 'Confirmed', 'b498e3b4801cda7622fc5dcf65cf3326', 'accepted', '2025-10-07 13:03:53'),
+(168, 1588, 28, 'Pending', 'Confirmed', '79703d6a49b761f07d42abe2ff79e785', 'accepted', '2025-10-07 15:04:36'),
+(169, 1589, 28, 'Pending', 'Confirmed', '79703d6a49b761f07d42abe2ff79e785', 'accepted', '2025-10-07 15:36:14'),
+(170, 1592, 28, 'Pending', 'Confirmed', '7e36cfc7e27f31aee0731a006ecb5d92', 'accepted', '2025-10-07 20:14:07'),
+(171, 1593, 28, 'Pending', 'Confirmed', '7e36cfc7e27f31aee0731a006ecb5d92', 'accepted', '2025-10-07 20:45:01'),
+(172, 1716, 28, 'Pending', 'Confirmed', '6d055f464037b656d2a440e55ee26c19', 'accepted', '2025-10-10 12:36:36'),
+(173, 1717, 28, 'Pending', 'Confirmed', '6d055f464037b656d2a440e55ee26c19', 'accepted', '2025-10-10 12:37:52'),
+(174, 1718, 28, 'Pending', 'Confirmed', 'ab83256875f6fa3a07106bdd02181bae', 'accepted', '2025-10-10 13:12:32'),
+(175, 1720, 28, 'Pending', 'Cancelled', 'ab83256875f6fa3a07106bdd02181bae', 'rejected', '2025-10-10 13:14:11'),
+(176, 1721, 28, 'Pending', 'Cancelled', 'ab83256875f6fa3a07106bdd02181bae', 'rejected', '2025-10-10 13:15:00'),
+(177, 1723, 28, 'Pending', 'Confirmed', 'ab83256875f6fa3a07106bdd02181bae', 'accepted', '2025-10-10 13:38:43'),
+(178, 1725, 28, 'Pending', 'Confirmed', 'ab83256875f6fa3a07106bdd02181bae', 'accepted', '2025-10-10 13:55:49'),
+(179, 1726, 28, 'Pending', 'Cancelled', 'ab83256875f6fa3a07106bdd02181bae', 'rejected', '2025-10-10 13:59:24'),
+(180, 1727, 28, 'Pending', 'Cancelled', 'ab83256875f6fa3a07106bdd02181bae', 'rejected', '2025-10-10 14:00:13'),
+(181, 1728, 28, 'Pending', 'Cancelled', 'ab83256875f6fa3a07106bdd02181bae', 'rejected', '2025-10-10 14:23:55'),
+(182, 1729, 28, 'Pending', 'Confirmed', '3719730a25a84fd9964b10a928e56400', 'accepted', '2025-10-10 14:50:03'),
+(183, 1730, 28, 'Pending', 'Confirmed', '3719730a25a84fd9964b10a928e56400', 'accepted', '2025-10-10 14:52:02'),
+(184, 1731, 28, 'Pending', 'Confirmed', 'ab83256875f6fa3a07106bdd02181bae', 'accepted', '2025-10-10 14:53:34'),
+(185, 1732, 28, 'Pending', 'Confirmed', '382c386591f14cb6243fafe1d4bcd22b', 'accepted', '2025-10-10 17:49:20'),
+(186, 1733, 28, 'Pending', 'Cancelled', '382c386591f14cb6243fafe1d4bcd22b', 'rejected', '2025-10-10 17:58:53'),
+(187, 1734, 28, 'Pending', 'Cancelled', '382c386591f14cb6243fafe1d4bcd22b', 'rejected', '2025-10-10 17:58:53'),
+(188, 1739, 28, 'Pending', 'Confirmed', '053cab554cafdfbc515b5448f1d4ed18', 'accepted', '2025-10-10 19:45:01'),
+(189, 1740, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 19:50:16'),
+(190, 1741, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 19:51:43'),
+(191, 1742, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 19:53:58'),
+(192, 1743, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 19:55:09'),
+(193, 1744, 28, 'Pending', 'Cancelled', '362a31f2a6f4911af05b7fe531560efd', 'rejected', '2025-10-10 19:55:59'),
+(194, 1745, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 19:56:37'),
+(195, 1746, 28, 'Pending', 'Confirmed', '053cab554cafdfbc515b5448f1d4ed18', 'accepted', '2025-10-10 20:13:42'),
+(196, 1747, 28, 'Pending', 'Confirmed', '053cab554cafdfbc515b5448f1d4ed18', 'accepted', '2025-10-10 20:14:58'),
+(197, 1748, 28, 'Pending', 'Confirmed', '362a31f2a6f4911af05b7fe531560efd', 'accepted', '2025-10-10 20:17:03'),
+(198, 1775, 77, 'Pending', 'Confirmed', 'd88fc3ef5af7d01b1ae569e6a9d591ad', 'accepted', '2025-10-12 12:33:06'),
+(199, 1776, 77, 'Pending', 'Confirmed', 'd88fc3ef5af7d01b1ae569e6a9d591ad', 'accepted', '2025-10-12 12:33:47'),
+(200, 1777, 77, 'Pending', 'Confirmed', 'd88fc3ef5af7d01b1ae569e6a9d591ad', 'accepted', '2025-10-12 12:35:17'),
+(201, 1779, 77, 'Pending', 'Cancelled', 'a1456b531bdeadbce37bb4d132a32a47', 'rejected', '2025-10-12 12:41:54'),
+(202, 1780, 77, 'Pending', 'Confirmed', 'a1456b531bdeadbce37bb4d132a32a47', 'accepted', '2025-10-12 12:42:57'),
+(203, 1783, 77, 'Pending', 'Cancelled', 'efe7cad933589e2f499d3a154ea5ef55', 'rejected', '2025-10-12 15:06:24'),
+(204, 1784, 77, 'Pending', 'Confirmed', 'efe7cad933589e2f499d3a154ea5ef55', 'accepted', '2025-10-12 15:07:48'),
+(205, 1785, 77, 'Pending', 'Confirmed', 'efe7cad933589e2f499d3a154ea5ef55', 'accepted', '2025-10-12 15:10:01'),
+(206, 1787, 77, 'Pending', 'Confirmed', 'efe7cad933589e2f499d3a154ea5ef55', 'accepted', '2025-10-12 15:18:25'),
+(207, 1803, 28, 'Pending', 'Confirmed', '7752cc5ef59450579ce8be6a0493d24c', 'accepted', '2025-10-13 17:59:45'),
+(208, 1806, 28, 'Pending', 'Confirmed', '5e2cb077e5d0fcebb1b773e126a748bd', 'accepted', '2025-10-14 09:00:41'),
+(209, 1807, 28, 'Pending', 'Confirmed', '5e2cb077e5d0fcebb1b773e126a748bd', 'accepted', '2025-10-14 09:01:38'),
+(210, 1808, 28, 'Pending', 'Confirmed', '5e2cb077e5d0fcebb1b773e126a748bd', 'accepted', '2025-10-14 09:05:43'),
+(211, 1809, 28, 'Pending', 'Cancelled', '5e2cb077e5d0fcebb1b773e126a748bd', 'rejected', '2025-10-14 09:08:23'),
+(212, 1813, 28, 'Pending', 'Confirmed', '95179ba1629d1789de04d2695b7674e3', 'accepted', '2025-10-14 14:41:04'),
+(213, 1815, 28, 'Pending', 'Confirmed', 'b76b7f8dd852523b18899878e87fdb71', 'accepted', '2025-10-15 13:01:15'),
+(214, 1817, 28, 'Pending', 'Confirmed', 'b76b7f8dd852523b18899878e87fdb71', 'accepted', '2025-10-15 13:07:58'),
+(215, 1818, 28, 'Pending', 'Confirmed', 'b76b7f8dd852523b18899878e87fdb71', 'accepted', '2025-10-15 13:15:34'),
+(216, 1819, 28, 'Pending', 'Confirmed', '685787840c254b083852c1fe10e57199', 'accepted', '2025-10-15 13:36:37'),
+(217, 1820, 28, 'Pending', 'Confirmed', '685787840c254b083852c1fe10e57199', 'accepted', '2025-10-15 13:45:33'),
+(218, 1821, 28, 'Pending', 'Confirmed', '685787840c254b083852c1fe10e57199', 'accepted', '2025-10-15 13:46:40'),
+(219, 1822, 28, 'Pending', 'Confirmed', '685787840c254b083852c1fe10e57199', 'accepted', '2025-10-15 13:49:18'),
+(220, 1824, 77, 'Pending', 'Confirmed', 'd155bb795a619442e686b9d81c991138', 'accepted', '2025-10-15 14:26:51'),
+(221, 1826, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 06:28:08'),
+(222, 1827, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 06:28:55'),
+(223, 1828, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 06:28:55'),
+(224, 1829, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 06:29:13'),
+(225, 1832, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 06:53:53'),
+(226, 1834, 28, 'Pending', 'Confirmed', '30f5851700f2f6e665c86deefe75d807', 'accepted', '2025-10-16 07:18:01'),
+(227, 1836, 28, 'Pending', 'Confirmed', '74092ace2aa32528190e731a966f7229', 'accepted', '2025-10-16 09:36:41'),
+(228, 1837, 28, 'Pending', 'Confirmed', '8a8780b2750214146223784f54a1afb3', 'accepted', '2025-10-16 14:39:46'),
+(229, 1854, 28, 'Pending', 'Confirmed', '9a18881baed67e93b4c7083b5e45fd86', 'accepted', '2025-10-16 18:39:05'),
+(230, 1866, 28, 'Pending', 'Confirmed', '84120de68d9c033ff9c08bac083f57da', 'accepted', '2025-10-16 20:25:03'),
+(231, 1869, 28, 'Pending', 'Confirmed', '84120de68d9c033ff9c08bac083f57da', 'accepted', '2025-10-16 20:27:52'),
+(232, 1873, 28, 'Pending', 'Confirmed', '58e8eb7a43c8b63df035ab017d041129', 'accepted', '2025-10-16 20:42:44'),
+(233, 1876, 28, 'Pending', 'Confirmed', '58e8eb7a43c8b63df035ab017d041129', 'accepted', '2025-10-16 20:51:40'),
+(234, 1877, 28, 'Pending', 'Confirmed', '58e8eb7a43c8b63df035ab017d041129', 'accepted', '2025-10-16 20:53:00'),
+(235, 1879, 28, 'Pending', 'Confirmed', '58e8eb7a43c8b63df035ab017d041129', 'accepted', '2025-10-16 20:55:53'),
+(236, 1885, 28, 'Pending', 'Confirmed', '58e8eb7a43c8b63df035ab017d041129', 'accepted', '2025-10-16 21:22:07'),
+(237, 1886, 28, 'Pending', 'Confirmed', 'cf3932dda836082a30077240f3ab8f6b', 'accepted', '2025-10-16 21:51:35'),
+(238, 1887, 28, 'Pending', 'Confirmed', 'cf3932dda836082a30077240f3ab8f6b', 'accepted', '2025-10-16 21:52:51'),
+(239, 1889, 28, 'Pending', 'Confirmed', 'f6d6b5f714c4ec5c7899e6774ca4d913', 'accepted', '2025-10-16 22:03:07'),
+(240, 1893, 28, 'Pending', 'Confirmed', 'e07966c6558f0248c49323f3f68c4e48', 'accepted', '2025-10-17 06:32:35'),
+(241, 1896, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 09:55:14'),
+(242, 1898, 28, 'Pending', 'Confirmed', 'bbb44cbb792f1d581441c650af9a6201', 'accepted', '2025-10-17 10:01:26'),
+(243, 1899, 28, 'Pending', 'Confirmed', 'bbb44cbb792f1d581441c650af9a6201', 'accepted', '2025-10-17 10:09:28'),
+(244, 1900, 28, 'Pending', 'Confirmed', 'bbb44cbb792f1d581441c650af9a6201', 'accepted', '2025-10-17 10:13:06'),
+(245, 1901, 28, 'Pending', 'Confirmed', 'bbb44cbb792f1d581441c650af9a6201', 'accepted', '2025-10-17 10:13:44'),
+(246, 1904, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 10:40:31'),
+(247, 1908, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:03:20'),
+(248, 1909, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:05:01'),
+(249, 1910, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:14:51'),
+(250, 1911, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:17:13'),
+(251, 1912, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:18:58'),
+(252, 1913, 28, 'Pending', 'Confirmed', 'b2a89ab3f014d540d0def77389928b62', 'accepted', '2025-10-17 11:20:48'),
+(253, 1914, 28, 'Pending', 'Confirmed', '79c353c35284735424063fdfb39afcd7', 'accepted', '2025-10-17 11:22:48'),
+(254, 1917, 28, 'Pending', 'Confirmed', '527025413d123b7c8dc30352cd4d0fe8', 'accepted', '2025-10-17 11:44:22'),
+(255, 1918, 28, 'Pending', 'Confirmed', '527025413d123b7c8dc30352cd4d0fe8', 'accepted', '2025-10-17 11:55:37'),
+(256, 1919, 28, 'Pending', 'Confirmed', '527025413d123b7c8dc30352cd4d0fe8', 'accepted', '2025-10-17 11:55:37'),
+(257, 1921, 28, 'Pending', 'Confirmed', 'da7259968d05ca0dc1cd692a32c866f2', 'accepted', '2025-10-17 11:57:47'),
+(258, 1923, 28, 'Pending', 'Confirmed', 'da7259968d05ca0dc1cd692a32c866f2', 'accepted', '2025-10-17 12:02:29'),
+(259, 1924, 28, 'Pending', 'Confirmed', '6d553221459d5ab9fab148215114a271', 'accepted', '2025-10-17 12:05:56'),
+(260, 1927, 28, 'Pending', 'Confirmed', '5a8f5f5a2dcd8ee6457cd7b9b20b61e4', 'accepted', '2025-10-17 13:02:33'),
+(261, 1928, 28, 'Pending', 'Confirmed', '5a8f5f5a2dcd8ee6457cd7b9b20b61e4', 'accepted', '2025-10-17 13:04:54'),
+(262, 1931, 28, 'Pending', 'Confirmed', 'f023903f7e343d82a0876ea30a56ab9c', 'accepted', '2025-10-17 13:12:44'),
+(263, 1935, 28, 'Pending', 'Confirmed', 'f023903f7e343d82a0876ea30a56ab9c', 'accepted', '2025-10-17 13:16:38'),
+(264, 1936, 28, 'Pending', 'Confirmed', 'abf9625e1e4f61bb1a3baeed410c0014', 'accepted', '2025-10-17 13:18:43'),
+(265, 1937, 28, 'Pending', 'Confirmed', 'f023903f7e343d82a0876ea30a56ab9c', 'accepted', '2025-10-17 13:33:28'),
+(266, 1938, 28, 'Pending', 'Confirmed', '0ef4b22b17dde6d34527c2cfb4ab7200', 'accepted', '2025-10-17 13:44:01'),
+(267, 1939, 28, 'Pending', 'Confirmed', 'abf9625e1e4f61bb1a3baeed410c0014', 'accepted', '2025-10-17 14:24:58'),
+(268, 1940, 28, 'Pending', 'Confirmed', 'abf9625e1e4f61bb1a3baeed410c0014', 'accepted', '2025-10-17 14:28:05'),
+(269, 1941, 28, 'Pending', 'Confirmed', 'abf9625e1e4f61bb1a3baeed410c0014', 'accepted', '2025-10-17 14:31:26'),
+(270, 1942, 28, 'Pending', 'Confirmed', '5919def0baa5a4f53e9369781f8871ec', 'accepted', '2025-10-17 14:37:39'),
+(271, 1943, 28, 'Pending', 'Confirmed', '5919def0baa5a4f53e9369781f8871ec', 'accepted', '2025-10-17 14:38:34'),
+(272, 1948, 28, 'Pending', 'Confirmed', '76bacfbf6ef6a5f9224bdfed7cf492bc', 'accepted', '2025-10-17 15:08:48'),
+(273, 1955, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:45:02'),
+(274, 1956, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:47:51'),
+(275, 1957, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:48:55'),
+(276, 1958, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:52:07'),
+(277, 1959, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:52:07'),
+(278, 1960, 28, 'Pending', 'Confirmed', '6d63236f5370b234ad289588d266931c', 'accepted', '2025-10-17 17:52:07'),
+(279, 1961, 28, 'Pending', 'Cancelled', '6d63236f5370b234ad289588d266931c', 'rejected', '2025-10-17 17:54:59'),
+(280, 1963, 28, 'Pending', 'Confirmed', 'e63b45f30ad65ea40839ad18cf1b178a', 'accepted', '2025-10-17 18:45:37'),
+(281, 1966, 28, 'Pending', 'Confirmed', 'e63b45f30ad65ea40839ad18cf1b178a', 'accepted', '2025-10-17 18:48:07'),
+(282, 1968, 28, 'Pending', 'Confirmed', 'e63b45f30ad65ea40839ad18cf1b178a', 'accepted', '2025-10-17 18:52:17'),
+(283, 1970, 28, 'Pending', 'Confirmed', '1babf8fb8373fc79c119e219feba6785', 'accepted', '2025-10-17 19:14:45'),
+(284, 1971, 28, 'Pending', 'Confirmed', '2f1572600152389c421a1f0c96123420', 'accepted', '2025-10-17 19:16:14'),
+(285, 1972, 28, 'Pending', 'Confirmed', '2f1572600152389c421a1f0c96123420', 'accepted', '2025-10-17 19:17:51'),
+(286, 1973, 28, 'Pending', 'Confirmed', 'e63b45f30ad65ea40839ad18cf1b178a', 'accepted', '2025-10-17 19:19:46'),
+(287, 1981, 28, 'Pending', 'Confirmed', '8539fee6fa4b593eb991c6aa9e60c8fc', 'accepted', '2025-10-18 09:58:00'),
+(288, 1983, 28, 'Pending', 'Confirmed', 'a14c754db90d83273c9c5c369019c85c', 'accepted', '2025-10-18 10:22:56'),
+(289, 1988, 28, 'Pending', 'Confirmed', '6ecc7ac13a0baf3e32fb485d8f0238f6', 'accepted', '2025-10-18 15:04:48'),
+(290, 1992, 28, 'Pending', 'Confirmed', 'c8767be80e2eb163cd9a5f5b63899fff', 'accepted', '2025-10-19 11:37:59'),
+(291, 1993, 28, 'Pending', 'Cancelled', 'c8767be80e2eb163cd9a5f5b63899fff', 'rejected', '2025-10-19 11:39:04'),
+(292, 1996, 28, 'Pending', 'Confirmed', 'c8767be80e2eb163cd9a5f5b63899fff', 'accepted', '2025-10-19 11:40:59'),
+(293, 1997, 28, 'Pending', 'Confirmed', 'c8767be80e2eb163cd9a5f5b63899fff', 'accepted', '2025-10-19 11:41:28'),
+(294, 2000, 28, 'Pending', 'Confirmed', 'c8767be80e2eb163cd9a5f5b63899fff', 'accepted', '2025-10-19 11:42:55'),
+(295, 2005, 28, 'Pending', 'Confirmed', 'e7d531b7b1240e6c36cb055abb694562', 'accepted', '2025-10-19 14:14:31'),
+(296, 2007, 28, 'Pending', 'Confirmed', '80bae8a4d787f25383c5f670c15d73fa', 'accepted', '2025-10-19 14:17:21'),
+(297, 2008, 28, 'Pending', 'Confirmed', '80bae8a4d787f25383c5f670c15d73fa', 'accepted', '2025-10-19 14:18:16'),
+(298, 2010, 28, 'Pending', 'Confirmed', '80bae8a4d787f25383c5f670c15d73fa', 'accepted', '2025-10-19 14:19:54'),
+(299, 2016, 28, 'Pending', 'Confirmed', 'a86edcd855c1b5ae3d33f6bd8056074b', 'accepted', '2025-10-20 06:10:13'),
+(300, 2017, 28, 'Pending', 'Confirmed', '91f6a79b798b95419339c9e7d6e452f5', 'accepted', '2025-10-20 07:13:59'),
+(301, 2019, 28, 'Pending', 'Confirmed', '91f6a79b798b95419339c9e7d6e452f5', 'accepted', '2025-10-20 07:16:19'),
+(302, 2020, 28, 'Pending', 'Confirmed', 'e5e3481fe8729b6a37c0d448f8ee5a8f', 'accepted', '2025-10-20 07:17:58'),
+(303, 2021, 28, 'Pending', 'Confirmed', '5ef6ae8682ed0fdb60026a1c125ff649', 'accepted', '2025-10-20 07:32:43'),
+(304, 2022, 28, 'Pending', 'Confirmed', 'fb78edb2b7e03dd621fb386fed27cd7f', 'accepted', '2025-10-20 07:39:15'),
+(305, 2023, 28, 'Pending', 'Confirmed', 'fb78edb2b7e03dd621fb386fed27cd7f', 'accepted', '2025-10-20 07:39:50'),
+(306, 2024, 28, 'Pending', 'Confirmed', 'fb78edb2b7e03dd621fb386fed27cd7f', 'accepted', '2025-10-20 07:43:48'),
+(307, 2025, 28, 'Pending', 'Confirmed', '71f1ae1011f025b10207b873344d57ce', 'accepted', '2025-10-20 09:10:03'),
+(308, 2026, 28, 'Pending', 'Confirmed', 'b3f1bd0fedd9a226571a4070ffc7e085', 'accepted', '2025-10-20 10:23:56'),
+(309, 2027, 28, 'Pending', 'Confirmed', 'b3f1bd0fedd9a226571a4070ffc7e085', 'accepted', '2025-10-20 10:25:26'),
+(310, 2028, 28, 'Pending', 'Confirmed', 'b3f1bd0fedd9a226571a4070ffc7e085', 'accepted', '2025-10-20 10:26:01'),
+(311, 2029, 28, 'Pending', 'Confirmed', '8d47c6348c6e7df1120b8b025d9564e7', 'accepted', '2025-10-20 10:26:40'),
+(312, 2031, 28, 'Pending', 'Confirmed', 'e45ebcd28cb69c25f5d1a49a46247440', 'accepted', '2025-10-20 17:43:54'),
+(313, 2032, 28, 'Pending', 'Confirmed', 'd6d44c0e57de395afd63eb7549d649ad', 'accepted', '2025-10-20 17:44:35'),
+(314, 2033, 28, 'Pending', 'Confirmed', 'e45ebcd28cb69c25f5d1a49a46247440', 'accepted', '2025-10-20 17:50:35'),
+(315, 2035, 28, 'Pending', 'Confirmed', '02d5f1fbafbd8ef2813a128a8c2bfd68', 'accepted', '2025-10-21 06:20:16'),
+(316, 2038, 28, 'Pending', 'Confirmed', '02d5f1fbafbd8ef2813a128a8c2bfd68', 'accepted', '2025-10-21 06:35:54'),
+(317, 2039, 28, 'Pending', 'Confirmed', '02d5f1fbafbd8ef2813a128a8c2bfd68', 'accepted', '2025-10-21 06:49:09'),
+(318, 2040, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 06:52:27'),
+(319, 2041, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 06:55:48'),
+(320, 2042, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 06:58:02'),
+(321, 2043, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 06:59:53'),
+(322, 2044, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 07:02:36'),
+(323, 2045, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 07:03:57'),
+(324, 2046, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:04:40'),
+(325, 2047, 28, 'Pending', 'Confirmed', 'affe2ab3c2e55360381db855c6c465a0', 'accepted', '2025-10-21 07:12:23'),
+(326, 2048, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:20:23'),
+(327, 2049, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:30:47'),
+(328, 2051, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:33:25'),
+(329, 2050, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:39:49'),
+(330, 2052, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:48:30'),
+(331, 2053, 28, 'Pending', 'Confirmed', '1595cd9df632f7ad742cf326a3dd70f1', 'accepted', '2025-10-21 07:49:10'),
+(332, 2054, 28, 'Pending', 'Cancelled', '064861dd8882b2076a1112dcea950fce', 'rejected', '2025-10-21 07:52:05'),
+(333, 2055, 28, 'Pending', 'Cancelled', '064861dd8882b2076a1112dcea950fce', 'rejected', '2025-10-21 07:53:48'),
+(334, 2056, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 07:54:52'),
+(335, 2057, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:01:39'),
+(336, 2058, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:03:17'),
+(337, 2059, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:04:10'),
+(338, 2060, 28, 'Pending', 'Confirmed', 'a0411fc85789d0a6ccf39c9e552b2c55', 'accepted', '2025-10-21 08:06:26'),
+(339, 2061, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:10:43'),
+(340, 2062, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:12:10'),
+(341, 2063, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:13:29'),
+(342, 2064, 28, 'Pending', 'Confirmed', '064861dd8882b2076a1112dcea950fce', 'accepted', '2025-10-21 08:37:00'),
+(343, 2065, 28, 'Pending', 'Confirmed', '55dd2b3c18fea0353fd4c291f3fd44c4', 'accepted', '2025-10-21 12:06:50'),
+(344, 2066, 28, 'Pending', 'Confirmed', '34b4f02ef9d44d1bedf01aeaee05085e', 'accepted', '2025-10-21 12:14:10'),
+(345, 2067, 28, 'Pending', 'Confirmed', '34b4f02ef9d44d1bedf01aeaee05085e', 'accepted', '2025-10-21 12:14:10'),
+(346, 2068, 28, 'Pending', 'Confirmed', '34b4f02ef9d44d1bedf01aeaee05085e', 'accepted', '2025-10-21 12:16:24'),
+(347, 2069, 28, 'Pending', 'Confirmed', '55dd2b3c18fea0353fd4c291f3fd44c4', 'accepted', '2025-10-21 12:33:47'),
+(348, 2070, 28, 'Pending', 'Cancelled', '55dd2b3c18fea0353fd4c291f3fd44c4', 'rejected', '2025-10-21 12:36:27'),
+(349, 2071, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 15:51:00'),
+(350, 2072, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:09:17'),
+(351, 2073, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:12:38'),
+(352, 2074, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:12:38'),
+(353, 2075, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:14:52'),
+(354, 2076, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:14:52'),
+(355, 2077, 28, 'Pending', 'Cancelled', '4443e06bea85cf5cfc12a2420ea94db6', 'rejected', '2025-10-21 16:18:52'),
+(356, 2078, 28, 'Pending', 'Confirmed', '4443e06bea85cf5cfc12a2420ea94db6', 'accepted', '2025-10-21 16:22:03'),
+(357, 2079, 28, 'Pending', 'Cancelled', '06e44c166b7afd956d5894608e995be2', 'rejected', '2025-10-21 16:24:19'),
+(358, 2080, 28, 'Pending', 'Confirmed', '06e44c166b7afd956d5894608e995be2', 'accepted', '2025-10-21 16:25:09'),
+(359, 2081, 28, 'Pending', 'Confirmed', '8190614252f9b36447ceb8040cab4d3b', 'accepted', '2025-10-21 16:30:54'),
+(360, 2082, 28, 'Pending', 'Confirmed', '7aee91ff9720f75ac19d4ac36d109c0c', 'accepted', '2025-10-21 16:44:31'),
+(361, 2083, 28, 'Pending', 'Cancelled', 'ad3f4418f7b95adf7c4e3c27d9e53c6a', 'rejected', '2025-10-21 16:45:47'),
+(362, 2084, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 16:47:07'),
+(363, 2085, 28, 'Pending', 'Confirmed', 'ad3f4418f7b95adf7c4e3c27d9e53c6a', 'accepted', '2025-10-21 16:48:36'),
+(364, 2086, 28, 'Pending', 'Confirmed', 'ad3f4418f7b95adf7c4e3c27d9e53c6a', 'accepted', '2025-10-21 17:05:57'),
+(365, 2087, 28, 'Pending', 'Confirmed', 'ad3f4418f7b95adf7c4e3c27d9e53c6a', 'accepted', '2025-10-21 17:06:34'),
+(366, 2088, 19, 'Pending', 'Cancelled', '8bcf0acfc01ae9aebe46101a2e06e8d8', 'rejected', '2025-10-21 17:11:27'),
+(367, 2089, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 17:26:30'),
+(368, 2090, 28, 'Pending', 'Confirmed', '42448e886e456c7a623cd3b105d8228c', 'accepted', '2025-10-21 17:49:52'),
+(369, 2091, 28, 'Pending', 'Confirmed', '42448e886e456c7a623cd3b105d8228c', 'accepted', '2025-10-21 17:57:57'),
+(370, 2092, 28, 'Pending', 'Confirmed', '42448e886e456c7a623cd3b105d8228c', 'accepted', '2025-10-21 18:17:17'),
+(371, 2093, 28, 'Pending', 'Cancelled', '42448e886e456c7a623cd3b105d8228c', 'rejected', '2025-10-21 18:17:55'),
+(372, 2094, 28, 'Pending', 'Confirmed', '42448e886e456c7a623cd3b105d8228c', 'accepted', '2025-10-21 18:19:04'),
+(373, 2095, 28, 'Pending', 'Cancelled', '0be107eec64dcec744720780dc8d008b', 'rejected', '2025-10-21 18:19:55'),
+(374, 2096, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 18:22:05'),
+(375, 2097, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 18:22:05'),
+(376, 2098, 28, 'Pending', 'Confirmed', '0be107eec64dcec744720780dc8d008b', 'accepted', '2025-10-21 18:24:14'),
+(377, 2099, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 18:25:17'),
+(378, 2100, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 18:27:50'),
+(379, 2101, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 18:27:50'),
+(380, 2102, 28, 'Pending', 'Confirmed', 'c58b81bfc1258f0aea1588f4a62174e3', 'accepted', '2025-10-21 18:45:43'),
+(381, 2103, 28, 'Pending', 'Confirmed', 'c58b81bfc1258f0aea1588f4a62174e3', 'accepted', '2025-10-21 19:15:08'),
+(382, 2104, 28, 'Pending', 'Confirmed', 'c58b81bfc1258f0aea1588f4a62174e3', 'accepted', '2025-10-21 19:17:50'),
+(383, 2105, 28, 'Pending', 'Confirmed', '52aaaf8d0ec78db6a41dbdb4370a76fb', 'accepted', '2025-10-21 19:41:44'),
+(384, 2106, 28, 'Pending', 'Confirmed', 'a63204fb707c2db2584c362cfb2b9dd1', 'accepted', '2025-10-21 20:10:21'),
+(385, 2107, 28, 'Pending', 'Confirmed', 'a63204fb707c2db2584c362cfb2b9dd1', 'accepted', '2025-10-21 20:12:52'),
+(386, 2108, 28, 'Pending', 'Confirmed', 'a63204fb707c2db2584c362cfb2b9dd1', 'accepted', '2025-10-21 20:37:56'),
+(387, 2109, 28, 'Pending', 'Confirmed', '0e8a9053cf2ba31d5f01276cfa02459a', 'accepted', '2025-10-22 04:41:50'),
+(388, 2110, 28, 'Pending', 'Cancelled', '0e8a9053cf2ba31d5f01276cfa02459a', 'rejected', '2025-10-22 04:45:54'),
+(389, 2111, 28, 'Pending', 'Confirmed', '0e8a9053cf2ba31d5f01276cfa02459a', 'accepted', '2025-10-22 05:05:11'),
+(390, 2112, 28, 'Pending', 'Confirmed', '0e8a9053cf2ba31d5f01276cfa02459a', 'accepted', '2025-10-22 05:11:46'),
+(391, 2113, 19, 'Pending', 'Confirmed', '89cc3dd063e5607ee252b95165b28d4a', 'accepted', '2025-10-22 05:15:02'),
+(392, 2114, 19, 'Pending', 'Confirmed', '89cc3dd063e5607ee252b95165b28d4a', 'accepted', '2025-10-22 05:15:42'),
+(393, 2115, 19, 'Pending', 'Confirmed', '89cc3dd063e5607ee252b95165b28d4a', 'accepted', '2025-10-22 05:16:13');
 
 -- --------------------------------------------------------
 
@@ -33769,6 +35913,24 @@ INSERT INTO `packages` (`id`, `name`, `description`, `price`, `duration`, `statu
 (1, 'Delivery Package', 'Delivery Package', 6999.00, 365, 'active', '2025-04-26 16:08:41', '2025-09-17 14:19:22', 0, 1),
 (2, 'Dining Package', 'Dining Package', 6999.00, 365, 'active', '2025-04-26 16:10:40', '2025-09-17 14:19:32', 0, 1),
 (3, 'Premium Package', 'Delivery and Dining Package', 9999.00, 365, 'active', '2025-04-26 16:11:25', '2025-08-06 14:20:38', 0, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `partner_devices`
+--
+
+CREATE TABLE `partner_devices` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `device_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `device_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `device_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fcm_token` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -38826,7 +40988,7 @@ CREATE TABLE `products_28` (
 --
 
 INSERT INTO `products_28` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `created_at`, `updated_at`, `is_active`) VALUES
-(2, 'Chicken Shahi Tandoori (Full)', 'Royal-style tandoori chicken, rich in spices and aroma.', 500.00, 100, 'uploads/master_products/chickenshahitandoori.jpg', 1, '2025-08-30 12:21:03', '2025-09-25 13:21:10', 1),
+(2, 'Chicken Shahi Tandoori (Full)', 'Royal-style tandoori chicken, rich in spices and aroma.', 700.00, 100, 'uploads/master_products/chickenshahitandoori.jpg', 1, '2025-08-30 12:21:03', '2025-10-10 20:08:47', 1),
 (3, 'Chicken Shahi Tandoori (Half)', 'Half portion of spiced Shahi-style tandoori chicken delight.', 230.00, 100, 'uploads/master_products/chickenshahitandoori.jpg', 1, '2025-08-30 12:21:03', '2025-09-25 16:21:09', 1),
 (4, 'Chicken Peri Peri Tandoori (Full) (NEW)', 'Fiery peri peri marinated chicken grilled to perfection.', 390.00, 100, 'uploads/master_products/chickenperiperitandoori.jpg', 1, '2025-08-30 12:21:03', '2025-08-30 12:21:03', 1),
 (5, 'Chicken Peri Peri Tandoori (Half) (NEW)', 'Spicy grilled chicken with bold peri peri seasoning.', 240.00, 100, 'uploads/master_products/chickenperiperitandoori.jpg', 1, '2025-08-30 12:21:03', '2025-08-30 12:21:03', 1),
@@ -39295,7 +41457,14 @@ INSERT INTO `products_28` (`id`, `product_name`, `description`, `price`, `quanti
 (476, 'Shahi Thaal', 'Whole Grilled Chicken in Arabic Spices Served With Traditional Arabic Rice, Chicken Keema Masala, Chicken Korma, 3 Long Pcs Chicken Seekh And 6 Paratha With Traditional Chutney & Raita', 1600.00, 100, 'uploads/master_products/shahithaal.jpg', NULL, '2025-09-06 18:33:27', '2025-09-06 18:33:27', 1),
 (477, 'Sea Food Thaal', 'Prawns Tawa Sukha, Fish Tikka, Surmai Tawa Fry, Fish Chilly, Fish Curry, Prawns Masala, Prawns Fried Rice, Steam Rice, 6 Tandoori Roti, Schezwan Chutney, Green Chutney & Salads', 1500.00, 100, 'uploads/master_products/seafoodthaal.jpg', NULL, '2025-09-06 18:33:27', '2025-09-06 18:33:27', 1),
 (478, 'Chinese Thaal', 'Serving With Chicken Schezwan Gravy, Veg, Manchurian Gravy, Chicken Hakka Noodles, Chicken Fried Rice, Chicken Lollipop, Chicken Chilli Dry, Chicken 65, Chicken Manchow Soup, Fried Noodles And Schezwan Chatni', 1000.00, 100, 'uploads/master_products/chinesethaal.jpg', NULL, '2025-09-06 18:33:27', '2025-09-06 18:33:27', 1),
-(479, 'Pahadi Kabab', 'Well cooked pahadi kabab', 190.00, 1, 'uploads/products/68be9c78da504.JPG', 1, '2025-09-08 09:06:00', '2025-09-08 09:06:00', 1);
+(479, 'Pahadi Kabab', 'Well cooked pahadi kabab', 190.00, 1, 'uploads/products/68be9c78da504.JPG', 1, '2025-09-08 09:06:00', '2025-09-08 09:06:00', 1),
+(482, 'Test', 'Test', 1212.00, 1, '', NULL, '2025-10-10 15:26:23', '2025-10-10 15:26:23', 1),
+(483, 'New', 'New', 1111.00, 11, '', NULL, '2025-10-10 15:55:21', '2025-10-10 15:55:21', 1),
+(484, 'Test', 'Test', 111.00, 11, '', NULL, '2025-10-10 15:56:03', '2025-10-10 15:56:03', 1),
+(485, 'Sagar', 'Sagar', 111.00, 111, '', NULL, '2025-10-10 15:57:10', '2025-10-10 15:57:10', 1),
+(486, 'Inayat', 'Inayat', 111.00, 111, '', NULL, '2025-10-10 16:02:53', '2025-10-10 16:02:53', 1),
+(487, 'Tanvi', 'Tanvi', 11.00, 11, 'uploads/products/68e9334669776.jpg', NULL, '2025-10-10 16:23:38', '2025-10-10 16:24:38', 1),
+(488, 'Qwe', 'Qwe', 12.00, 12, NULL, NULL, '2025-10-13 16:35:34', '2025-10-13 16:35:49', 1);
 
 -- --------------------------------------------------------
 
@@ -43605,17 +45774,17 @@ CREATE TABLE `products_50` (
 --
 
 INSERT INTO `products_50` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `created_at`, `updated_at`, `is_active`) VALUES
-(1, 'CH Special Noodles - (Full)', 'Signature Chinese noodles with spicy vegetables and bold flavor.', 220.00, 100, 'uploads/master_products/chspecialnoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(2, 'Hakka Noodles (Half)', 'Mildly spiced stir-fried noodles tossed with fresh vegetables.', 90.00, 100, 'uploads/master_products/hakkanoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(3, 'Hakka Noodles - (Full)', 'Classic Hakka noodles stir-fried with vegetables and light sauces.', 140.00, 100, 'uploads/master_products/hakkanoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(4, 'Schezwan Noodles (Half)', 'Spicy noodles with schezwan sauce and crunchy vegetables.', 100.00, 100, 'uploads/master_products/schezwannoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(5, 'Schezwan Noodles - (Full)', 'Hot and tangy schezwan noodles with mixed vegetables.', 150.00, 100, 'uploads/master_products/schezwannoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(6, 'Triple Hakka Noodles (Half)', 'Noodles, rice, and gravy in one spicy combination.', 140.00, 100, 'uploads/master_products/triplehakkanoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(7, 'Triple Hakka Noodles - (Full)', 'Trio of rice, noodles, and gravy with spices.', 200.00, 100, 'uploads/master_products/triplehakkanoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
+(1, 'CH Special Noodles - (Full)', 'Signature Chinese noodles with spicy vegetables and bold flavor.', 220.00, 100, 'uploads/products/68e787c9e72db.jpg', 314, '2025-08-30 14:10:14', '2025-10-09 10:00:41', 1),
+(2, 'Hakka Noodles (Half)', 'Mildly spiced stir-fried noodles tossed with fresh vegetables.', 90.00, 100, 'uploads/products/68e787f931662.jpg', 314, '2025-08-30 14:10:14', '2025-10-09 10:01:29', 1),
+(3, 'Hakka Noodles - (Full)', 'Classic Hakka noodles stir-fried with vegetables and light sauces.', 140.00, 100, 'uploads/products/68e788506230c.jpg', 314, '2025-08-30 14:10:14', '2025-10-09 10:02:56', 1),
+(4, 'Schezwan Noodles (Half)', 'Spicy noodles with schezwan sauce and crunchy vegetables.', 100.00, 100, 'uploads/products/68e9288277f4f.jpg', 314, '2025-08-30 14:10:14', '2025-10-10 15:38:42', 1),
+(5, 'Schezwan Noodles - (Full)', 'Hot and tangy schezwan noodles with mixed vegetables.', 150.00, 100, 'uploads/products/68e92897c5df1.jpg', 314, '2025-08-30 14:10:14', '2025-10-10 15:39:03', 1),
+(6, 'Triple Hakka Noodles (Half)', 'Noodles, rice, and gravy in one spicy combination.', 140.00, 100, 'uploads/products/68e9363e23bca.jpg', 314, '2025-08-30 14:10:14', '2025-10-10 16:37:18', 1),
+(7, 'Triple Hakka Noodles - (Full)', 'Trio of rice, noodles, and gravy with spices.', 200.00, 100, 'uploads/products/68e9365a4fe4e.jpg', 314, '2025-08-30 14:10:14', '2025-10-10 16:37:46', 1),
 (8, 'Chopper Noodles (Half)', 'Crispy noodles served with flavorful thick vegetable sauce.', 150.00, 100, 'uploads/master_products/choppernoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
 (9, 'Chopper Noodles - (Full)', 'Crunchy noodles with savory vegetables in spicy gravy.', 200.00, 100, 'uploads/master_products/choppernoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
 (10, 'Hong-Kong Noodles - (Full)', 'Gravy noodles with exotic vegetables in Hong Kong style.', 170.00, 100, 'uploads/master_products/hongkongnoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
-(11, 'Singapore Noodles - (Full)', 'Thin noodles with curry flavor and sautéed vegetables.', 170.00, 100, 'uploads/master_products/singaporenoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
+(11, 'Singapore Noodles - (Full)', 'Thin noodles with curry flavor and sautéed vegetables.', 170.00, 100, 'uploads/products/68e936efbd697.jpg', 314, '2025-08-30 14:10:14', '2025-10-10 16:40:15', 1),
 (12, 'Garlic Noodles (Half)', 'Noodles tossed with aromatic garlic and light sauces.', 130.00, 100, 'uploads/master_products/garlicnoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
 (13, 'Garlic Noodles - (Full)', 'Garlic-flavored noodles with vegetables and subtle spice.', 170.00, 100, 'uploads/master_products/garlicnoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
 (14, 'Burnt Garlic Noodles (Half)', 'Intense burnt garlic flavor with fried noodles.', 130.00, 100, 'uploads/master_products/burntgarlicnoodles.jpg', 314, '2025-08-30 14:10:14', '2025-09-05 14:17:26', 1),
@@ -43794,7 +45963,8 @@ INSERT INTO `products_50` (`id`, `product_name`, `description`, `price`, `quanti
 (187, 'Mix Schez. Rice./Noodles - (Full)', 'Spicy schezwan rice and noodles combination.', 200.00, 100, 'uploads/master_products/mixschezricenoodles.jpg', 317, '2025-08-30 14:10:15', '2025-09-05 14:17:26', 1),
 (188, 'Mix Triple Rice/Noodles - (Full)', 'Rice, noodles, gravy mix in triple style.', 250.00, 100, 'uploads/master_products/mixtriplericenoodles.jpg', 317, '2025-08-30 14:10:15', '2025-09-05 14:17:26', 1),
 (189, 'Mix Chopper Rice/Noodles - (Full)', 'Chopper-style rice and noodles with sauce.', 260.00, 100, 'uploads/master_products/mixchopperricenoodles.jpg', 317, '2025-08-30 14:10:15', '2025-09-05 14:17:26', 1),
-(190, 'Mix Manc. Rice/Noodles - (Full)', 'Fried rice and noodles with manchurian mix.', 270.00, 100, 'uploads/master_products/mixmancricenoodles.jpg', 317, '2025-08-30 14:10:15', '2025-09-05 14:17:26', 1);
+(190, 'Mix Manc. Rice/Noodles - (Full)', 'Fried rice and noodles with manchurian mix.', 270.00, 100, 'uploads/master_products/mixmancricenoodles.jpg', 317, '2025-08-30 14:10:15', '2025-09-05 14:17:26', 1),
+(191, 'Schezwan Noodles', '', 150.00, 1, 'uploads/products/68e789739a5b2.jpg', NULL, '2025-10-09 10:07:47', '2025-10-09 10:07:47', 1);
 
 -- --------------------------------------------------------
 
@@ -46852,21 +49022,21 @@ INSERT INTO `products_69` (`id`, `product_name`, `description`, `price`, `quanti
 (1, 'Bombil Fry', 'Bombil fish fried in authentic Malvani masala.', 350.00, 100, 'uploads/products/68cc0f19c0783.png', 482, '2025-09-17 14:54:34', '2025-09-18 13:54:33', 1),
 (2, 'Mandeli Fry', 'Mandeli fish fried on tawa in traditional Malvani masala.', 290.00, 100, 'uploads/products/68cc119d6cfa9.png', 482, '2025-09-17 14:54:34', '2025-09-27 13:35:02', 0),
 (3, 'Prawns Tawa Fry', 'Succulent prawns fried on tawa in spicy Malvani masala.', 430.00, 100, 'uploads/master_products/prawnstawafry.jpg', 482, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
-(4, 'Bangada Tawa Fry', 'Mackerel marinated and shallow fried to perfection on a tawa.', 250.00, 100, 'uploads/products/68cc17cdefe00.jpg', 482, '2025-09-17 14:54:34', '2025-09-27 13:34:52', 0),
+(4, 'Bangada Tawa Fry', 'Mackerel marinated and shallow fried to perfection on a tawa.', 250.00, 100, 'uploads/products/68cc17cdefe00.jpg', 482, '2025-09-17 14:54:34', '2025-10-16 07:19:24', 1),
 (5, 'Halva Fish (Saranga) (As Per Size)', 'Halva fish, also known as Saranga, fried on tawa in Malvani masala.', 699.00, 100, 'uploads/master_products/halvafish.jpg', 482, '2025-09-17 14:54:34', '2025-09-27 13:35:12', 0),
 (6, 'Surmai Fry (As Per Size)', 'Surmai fish fried on tawa in aromatic Malvani masala.', 699.00, 100, 'uploads/products/68cc17e671691.png', 482, '2025-09-17 14:54:34', '2025-09-18 14:32:06', 1),
 (7, 'Pompret Fry (As Per Size)', 'Pomfret fish fried on tawa in traditional Malvani masala.', 699.00, 100, 'uploads/products/68cc0e00457b7.png', 482, '2025-09-17 14:54:34', '2025-09-18 13:49:52', 1),
 (8, 'Surmai Kalvan', 'Surmai fish curry spiced with homemade ground Malvani masala.', 295.00, 100, 'uploads/master_products/surmaikalvan.jpg', 483, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
 (9, 'Pomfret Kalvan', 'Pomfret fish curry spiced with homemade ground Malvani masala.', 300.00, 100, 'uploads/master_products/pomfretkalvan.jpg', 483, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
 (10, 'Prawns Malvani Rassa', 'Prawns cooked in a fiery red Malvani gravy.', 295.00, 100, 'uploads/master_products/prawnsmalvanirassa.jpg', 483, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
-(11, 'Bangada Kalvan', 'Bold and tangy mackerel curry in a traditional Malvani style.', 250.00, 100, 'uploads/master_products/bangadakalvan.jpg', 483, '2025-09-17 14:54:34', '2025-09-27 13:35:28', 0),
+(11, 'Bangada Kalvan', 'Bold and tangy mackerel curry in a traditional Malvani style.', 250.00, 100, 'uploads/master_products/bangadakalvan.jpg', 483, '2025-09-17 14:54:34', '2025-10-16 07:19:11', 1),
 (12, 'Crab Masala (Kurlya Rassa) (As Per Size)', 'Crab masala spiced with homemade ground Malvani masala.', 699.00, 100, 'uploads/master_products/crabmasala.jpg', 483, '2025-09-17 14:54:34', '2025-09-27 13:35:42', 0),
-(13, 'Mandeli Kalvan', 'Mandeli fish curry spiced with homemade ground Malvani masala.', 190.00, 100, 'uploads/master_products/mandelikalvan.jpg', 483, '2025-09-17 14:54:34', '2025-09-27 13:35:56', 0),
+(13, 'Mandeli Kalvan', 'Mandeli fish curry spiced with homemade ground Malvani masala.', 190.00, 100, 'uploads/master_products/mandelikalvan.jpg', 483, '2025-09-17 14:54:34', '2025-10-16 07:20:17', 1),
 (14, 'Surmai Thali', 'Served with Surmai fry, Surmai Kalvan, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 699.00, 100, 'uploads/master_products/surmaithali.jpg', 484, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
-(15, 'Pomfret/Halwa Thali', 'Served with Pomfret Fry, Pomfret Kalvan, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 699.00, 100, 'uploads/master_products/pomfrethalwathali.jpg', 484, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
+(15, 'Pomfret Thali', 'Served with Pomfret Fry, Pomfret Kalvan, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 699.00, 100, 'uploads/master_products/pomfrethalwathali.jpg', 484, '2025-09-17 14:54:34', '2025-10-16 07:18:32', 1),
 (16, 'Prawns Thali', 'Served with Prawns Fry, Prawns Kalvan, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 580.00, 100, 'uploads/master_products/prawnsthali.jpg', 484, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
 (17, 'Bombil Thali', 'Served with Bombil Fry, Curry, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 450.00, 100, 'uploads/master_products/bombilthali.jpg', 484, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
-(18, 'Bangada Thali', 'Served with Bangada Fry, Curry, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 395.00, 100, 'uploads/master_products/bangadathali.jpg', 484, '2025-09-17 14:54:34', '2025-09-27 13:36:07', 0),
+(18, 'Bangada Thali', 'Served with Bangada Fry, Curry, Suka Jawala, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 395.00, 100, 'uploads/master_products/bangadathali.jpg', 484, '2025-09-17 14:54:34', '2025-10-16 08:58:44', 1),
 (19, 'Crab Thali (As Per Size)', 'Served with Crab Kalvan, Solkadhi, 1 Bhakari or 3 Chapati, Rice, Salad.', 699.00, 100, 'uploads/master_products/crabthali.jpg', 484, '2025-09-17 14:54:34', '2025-09-27 13:38:42', 0),
 (20, 'Chicken Thali', 'Hearty platter featuring Malvani Chicken Curry, served with bhakari/chapati, kombadi wade, boiled egg, steamed rice, solkadhi.', 375.00, 100, 'uploads/master_products/chickenthali.jpg', 485, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
 (21, 'Mutton Thali', 'Traditional mutton curry slow cooked in bold Malvani spices, served with bhakari/chapati, wade, boiled egg, steamed rice, solkadhi, salad.', 595.00, 100, 'uploads/master_products/muttonthali.jpg', 485, '2025-09-17 14:54:34', '2025-09-17 14:54:34', 1),
@@ -48283,6 +50453,261 @@ INSERT INTO `products_73` (`id`, `product_name`, `description`, `price`, `quanti
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `products_77`
+--
+
+CREATE TABLE `products_77` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '0',
+  `image_path` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products_77`
+--
+
+INSERT INTO `products_77` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `created_at`, `updated_at`, `is_active`) VALUES
+(1, 'Regular Chicken Shawarma', 'A classic chicken shawarma, seasoned and wrapped in fresh bread for a satisfying meal.', 60.00, 100, 'uploads/master_products/regularchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(2, 'Schezwan Chicken Shawarma', 'Spicy Schezwan chicken shawarma, offering a delicious and zesty kick in every bite.', 80.00, 100, 'uploads/master_products/schezwanchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(3, 'Special Chicken Shawarma', 'Our chef\'s special chicken shawarma, featuring unique spices and rich, authentic flavors.', 80.00, 100, 'uploads/master_products/specialchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(4, 'Lucknow Chicken Shawarma', 'Inspired by Lucknow, this chicken shawarma offers a distinct aromatic and flavorful experience.', 90.00, 100, 'uploads/master_products/lucknowchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(5, 'Open Chicken Shawarma', 'Deconstructed chicken shawarma served open-faced, allowing you to savor each delicious ingredient individually.', 100.00, 100, 'uploads/master_products/openchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(6, 'Jumbo Chicken Shawarma', 'A generously sized chicken shawarma, perfect for a hearty and satisfying meal anytime.', 100.00, 100, 'uploads/master_products/jumbochickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(7, 'R.B. Chicken Shawarma', 'A unique R.B. style chicken shawarma served on a plate, offering distinct and rich flavors.', 100.00, 100, 'uploads/master_products/rbchickenshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(8, 'Open Special Shawarma', 'Our special deconstructed shawarma, served open-faced with enhanced flavors and premium toppings.', 120.00, 100, 'uploads/master_products/openspecialshawarma.jpg', 548, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(9, 'Chicken Dum Biryani (500g) ? Serves 1 person', 'Flavorful chicken dum biryani for one, served with gulab jamun, raita, gravy, egg.', 120.00, 100, 'uploads/master_products/chickendumbiryani500g.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(10, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 'Smoky chicken biryani for one, served with gulab jamun, raita, gravy, and egg.', 120.00, 100, 'uploads/master_products/chickensmokybiryani500g.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(11, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 'Large chicken dum biryani for two, with two gulab jamun, raita, gravy, eggs.', 230.00, 100, 'uploads/master_products/chickendumbiryani1kg.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(12, 'Chicken Sheek Biryani (500g)', 'Special boneless chicken seekh biryani, delicious and perfect for Sunday special occasions.', 170.00, 100, 'uploads/master_products/chickensheekbiryani500g.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(13, 'Chicken Tikka Biryani (500g)', 'Special boneless chicken tikka biryani, served in pieces, great for Friday feasting.', 170.00, 100, 'uploads/master_products/chickentikkabiryani500g.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(14, '1Kg. Chicken Dum Biryani', 'Bulk chicken dum biryani for 5-6, with (6) Gulab Jamun, (6)Rita, (6)Grevy & (6)Eggs.', 700.00, 100, 'uploads/master_products/1kgchickendumbiryani.jpg', 549, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(15, 'Veg Dum Biryani (500g)', 'Delicious vegetable dum biryani for one, served with gulab jamun, raita, gravy.', 99.00, 100, 'uploads/master_products/vegdumbiryani500g.jpg', 550, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(16, 'Veg Dum Biryani (1000g)', 'Large vegetable dum biryani for two, with two gulab jamun, raita, gravy.', 189.00, 100, 'uploads/master_products/vegdumbiryani1kg.jpg', 550, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(17, '1Kg. Veg. Dum Biryani', 'Bulk vegetable dum biryani for 5-6, with 1Kg. Vegetables + 1 Kg. Rice (6) Gulab Jamun, (6) Rita, (6) Grevy', 499.00, 100, 'uploads/master_products/1kgvegetabledumbiryani.jpg', 550, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(18, '1Kg. Paneer Dum Biryani', 'Bulk paneer dum biryani for 5-6, with 1 Kg paneer and 1kg rice, available on order.', 799.00, 100, 'uploads/master_products/1kgpaneerdumbiryani.jpg', 550, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(19, 'Chicken Stick', 'Delicious chicken sticks, lightly seasoned and perfectly cooked for a quick appetizer.', 30.00, 100, 'uploads/master_products/chickenstick.jpg', 551, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(20, 'Chicken Shahi Roll With Cheese', 'Rich chicken shahi roll, generously filled with cheese, a royal and delightful appetizer.', 40.00, 100, 'uploads/master_products/chickenshahirollwithcheese.jpg', 551, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(21, 'Chicken Leg', 'Juicy chicken leg, seasoned and cooked to perfection, a satisfying snack or starter.', 50.00, 100, 'uploads/master_products/chickenleg.jpg', 551, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(22, 'Shahi Tukda', 'A rich Indian bread pudding, soaked in syrup and topped with delicious nuts.', 25.00, 100, 'uploads/master_products/shahitukda.jpg', 553, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(23, 'Kaddu ki kheer', 'Creamy pumpkin pudding, cooked with milk, sugar, and aromatic spices for a sweet treat.', 30.00, 100, 'uploads/master_products/kaddukikheer.jpg', 553, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(24, 'Arabian Dessert', 'Exotic Arabian dessert, offering unique flavors and a delightful sweet experience to finish your meal.', 30.00, 100, 'uploads/master_products/arabiandessert.jpg', 553, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(25, 'Cake Ka Meetha', 'A sweet cake dessert, offering a delightful and comforting taste experience for dessert lovers.', 30.00, 100, 'uploads/master_products/cakekameetha.jpg', 553, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1),
+(26, 'Qubani Ka Meetha (Apricot)', 'Traditional Hyderabadi apricot dessert, served with cream for a rich and tangy taste.', 50.00, 100, 'uploads/master_products/qubanikameetha.jpg', 553, '2025-10-11 19:44:41', '2025-10-11 19:44:41', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_78`
+--
+
+CREATE TABLE `products_78` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '0',
+  `image_path` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products_78`
+--
+
+INSERT INTO `products_78` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `created_at`, `updated_at`, `is_active`) VALUES
+(1, 'Regular Chicken Shawarma', 'A classic chicken shawarma, seasoned and wrapped in fresh bread for a satisfying meal.', 60.00, 100, 'uploads/master_products/regularchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(2, 'Schezwan Chicken Shawarma', 'Spicy Schezwan chicken shawarma, offering a delicious and zesty kick in every bite.', 80.00, 100, 'uploads/master_products/schezwanchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(3, 'Special Chicken Shawarma', 'Our chef\'s special chicken shawarma, featuring unique spices and rich, authentic flavors.', 80.00, 100, 'uploads/master_products/specialchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(4, 'Lucknow Chicken Shawarma', 'Inspired by Lucknow, this chicken shawarma offers a distinct aromatic and flavorful experience.', 90.00, 100, 'uploads/master_products/lucknowchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(5, 'Open Chicken Shawarma', 'Deconstructed chicken shawarma served open-faced, allowing you to savor each delicious ingredient individually.', 100.00, 100, 'uploads/master_products/openchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(6, 'Jumbo Chicken Shawarma', 'A generously sized chicken shawarma, perfect for a hearty and satisfying meal anytime.', 100.00, 100, 'uploads/master_products/jumbochickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(7, 'R.B. Chicken Shawarma', 'A unique R.B. style chicken shawarma served on a plate, offering distinct and rich flavors.', 100.00, 100, 'uploads/master_products/rbchickenshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(8, 'Open Special Shawarma', 'Our special deconstructed shawarma, served open-faced with enhanced flavors and premium toppings.', 120.00, 100, 'uploads/master_products/openspecialshawarma.jpg', 554, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(9, 'Chicken Dum Biryani (500g) ? Serves 1 person', 'Flavorful chicken dum biryani for one, served with gulab jamun, raita, gravy, egg.', 120.00, 100, 'uploads/master_products/chickendumbiryani500g.jpg', 549, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(10, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 'Smoky chicken biryani for one, served with gulab jamun, raita, gravy, and egg.', 120.00, 100, 'uploads/master_products/chickensmokybiryani500g.jpg', 555, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(11, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 'Large chicken dum biryani for two, with two gulab jamun, raita, gravy, eggs.', 230.00, 100, 'uploads/master_products/chickendumbiryani1kg.jpg', 555, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(12, 'Chicken Sheek Biryani (500g)', 'Special boneless chicken seekh biryani, delicious and perfect for Sunday special occasions.', 170.00, 100, 'uploads/master_products/chickensheekbiryani500g.jpg', 555, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(13, 'Chicken Tikka Biryani (500g)', 'Special boneless chicken tikka biryani, served in pieces, great for Friday feasting.', 170.00, 100, 'uploads/master_products/chickentikkabiryani500g.jpg', 555, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(14, '1Kg. Chicken Dum Biryani', 'Bulk chicken dum biryani for 5-6, with (6) Gulab Jamun, (6)Rita, (6)Grevy & (6)Eggs.', 700.00, 100, 'uploads/master_products/1kgchickendumbiryani.jpg', 555, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(15, 'Veg Dum Biryani (500g)', 'Delicious vegetable dum biryani for one, served with gulab jamun, raita, gravy.', 99.00, 100, 'uploads/master_products/vegdumbiryani500g.jpg', 550, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(16, 'Veg Dum Biryani (1000g)', 'Large vegetable dum biryani for two, with two gulab jamun, raita, gravy.', 189.00, 100, 'uploads/master_products/vegdumbiryani1kg.jpg', 556, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(17, '1Kg. Veg. Dum Biryani', 'Bulk vegetable dum biryani for 5-6, with 1Kg. Vegetables + 1 Kg. Rice (6) Gulab Jamun, (6) Rita, (6) Grevy', 499.00, 100, 'uploads/master_products/1kgvegetabledumbiryani.jpg', 556, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(18, '1Kg. Paneer Dum Biryani', 'Bulk paneer dum biryani for 5-6, with 1 Kg paneer and 1kg rice, available on order.', 799.00, 100, 'uploads/master_products/1kgpaneerdumbiryani.jpg', 556, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(19, 'Chicken Stick', 'Delicious chicken sticks, lightly seasoned and perfectly cooked for a quick appetizer.', 30.00, 100, 'uploads/master_products/chickenstick.jpg', 557, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(20, 'Chicken Shahi Roll With Cheese', 'Rich chicken shahi roll, generously filled with cheese, a royal and delightful appetizer.', 40.00, 100, 'uploads/master_products/chickenshahirollwithcheese.jpg', 557, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(21, 'Chicken Leg', 'Juicy chicken leg, seasoned and cooked to perfection, a satisfying snack or starter.', 50.00, 100, 'uploads/master_products/chickenleg.jpg', 557, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(22, 'Shahi Tukda', 'A rich Indian bread pudding, soaked in syrup and topped with delicious nuts.', 25.00, 100, 'uploads/master_products/shahitukda.jpg', 553, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(23, 'Kaddu ki kheer', 'Creamy pumpkin pudding, cooked with milk, sugar, and aromatic spices for a sweet treat.', 30.00, 100, 'uploads/master_products/kaddukikheer.jpg', 558, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(24, 'Arabian Dessert', 'Exotic Arabian dessert, offering unique flavors and a delightful sweet experience to finish your meal.', 30.00, 100, 'uploads/master_products/arabiandessert.jpg', 558, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(25, 'Cake Ka Meetha', 'A sweet cake dessert, offering a delightful and comforting taste experience for dessert lovers.', 30.00, 100, 'uploads/master_products/cakekameetha.jpg', 558, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1),
+(26, 'Qubani Ka Meetha (Apricot)', 'Traditional Hyderabadi apricot dessert, served with cream for a rich and tangy taste.', 50.00, 100, 'uploads/master_products/qubanikameetha.jpg', 558, '2025-10-13 07:41:17', '2025-10-13 07:41:17', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_79`
+--
+
+CREATE TABLE `products_79` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `image_path` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag_id` int(11) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products_79`
+--
+
+INSERT INTO `products_79` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Regular Chicken Shawarma', 'A classic chicken shawarma, seasoned and wrapped in fresh bread for a satisfying meal.', 60.00, 100, 'uploads/master_products/regularchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(2, 'Schezwan Chicken Shawarma', 'Spicy Schezwan chicken shawarma, offering a delicious and zesty kick in every bite.', 80.00, 100, 'uploads/master_products/schezwanchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(3, 'Special Chicken Shawarma', 'Our chef\'s special chicken shawarma, featuring unique spices and rich, authentic flavors.', 80.00, 100, 'uploads/master_products/specialchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(4, 'Lucknow Chicken Shawarma', 'Inspired by Lucknow, this chicken shawarma offers a distinct aromatic and flavorful experience.', 90.00, 100, 'uploads/master_products/lucknowchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(5, 'Open Chicken Shawarma', 'Deconstructed chicken shawarma served open-faced, allowing you to savor each delicious ingredient individually.', 100.00, 100, 'uploads/master_products/openchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(6, 'Jumbo Chicken Shawarma', 'A generously sized chicken shawarma, perfect for a hearty and satisfying meal anytime.', 100.00, 100, 'uploads/master_products/jumbochickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(7, 'R.B. Chicken Shawarma', 'A unique R.B. style chicken shawarma served on a plate, offering distinct and rich flavors.', 100.00, 100, 'uploads/master_products/rbchickenshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(8, 'Open Special Shawarma', 'Our special deconstructed shawarma, served open-faced with enhanced flavors and premium toppings.', 120.00, 100, 'uploads/master_products/openspecialshawarma.jpg', 559, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(9, 'Chicken Dum Biryani (500g) ? Serves 1 person', 'Flavorful chicken dum biryani for one, served with gulab jamun, raita, gravy, egg.', 120.00, 100, 'uploads/master_products/chickendumbiryani500g.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(10, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 'Smoky chicken biryani for one, served with gulab jamun, raita, gravy, and egg.', 120.00, 100, 'uploads/master_products/chickensmokybiryani500g.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(11, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 'Large chicken dum biryani for two, with two gulab jamun, raita, gravy, eggs.', 230.00, 100, 'uploads/master_products/chickendumbiryani1kg.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(12, 'Chicken Sheek Biryani (500g)', 'Special boneless chicken seekh biryani, delicious and perfect for Sunday special occasions.', 170.00, 100, 'uploads/master_products/chickensheekbiryani500g.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(13, 'Chicken Tikka Biryani (500g)', 'Special boneless chicken tikka biryani, served in pieces, great for Friday feasting.', 170.00, 100, 'uploads/master_products/chickentikkabiryani500g.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(14, '1Kg. Chicken Dum Biryani', 'Bulk chicken dum biryani for 5-6, with (6) Gulab Jamun, (6)Rita, (6)Grevy & (6)Eggs.', 700.00, 100, 'uploads/master_products/1kgchickendumbiryani.jpg', 560, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(15, 'Veg Dum Biryani (500g)', 'Delicious vegetable dum biryani for one, served with gulab jamun, raita, gravy.', 99.00, 100, 'uploads/master_products/vegdumbiryani500g.jpg', 561, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(16, 'Veg Dum Biryani (1000g)', 'Large vegetable dum biryani for two, with two gulab jamun, raita, gravy.', 189.00, 100, 'uploads/master_products/vegdumbiryani1kg.jpg', 561, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(17, '1Kg. Veg. Dum Biryani', 'Bulk vegetable dum biryani for 5-6, with 1Kg. Vegetables + 1 Kg. Rice (6) Gulab Jamun, (6) Rita, (6) Grevy', 499.00, 100, 'uploads/master_products/1kgvegetabledumbiryani.jpg', 561, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(18, '1Kg. Paneer Dum Biryani', 'Bulk paneer dum biryani for 5-6, with 1 Kg paneer and 1kg rice, available on order.', 799.00, 100, 'uploads/master_products/1kgpaneerdumbiryani.jpg', 561, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(19, 'Chicken Stick', 'Delicious chicken sticks, lightly seasoned and perfectly cooked for a quick appetizer.', 30.00, 100, 'uploads/master_products/chickenstick.jpg', 562, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(20, 'Chicken Shahi Roll With Cheese', 'Rich chicken shahi roll, generously filled with cheese, a royal and delightful appetizer.', 40.00, 100, 'uploads/master_products/chickenshahirollwithcheese.jpg', 562, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(21, 'Chicken Leg', 'Juicy chicken leg, seasoned and cooked to perfection, a satisfying snack or starter.', 50.00, 100, 'uploads/master_products/chickenleg.jpg', 562, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(22, 'Shahi Tukda', 'A rich Indian bread pudding, soaked in syrup and topped with delicious nuts.', 25.00, 100, 'uploads/master_products/shahitukda.jpg', 563, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(23, 'Kaddu ki kheer', 'Creamy pumpkin pudding, cooked with milk, sugar, and aromatic spices for a sweet treat.', 30.00, 100, 'uploads/master_products/kaddukikheer.jpg', 563, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(24, 'Arabian Dessert', 'Exotic Arabian dessert, offering unique flavors and a delightful sweet experience to finish your meal.', 30.00, 100, 'uploads/master_products/arabiandessert.jpg', 563, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(25, 'Cake Ka Meetha', 'A sweet cake dessert, offering a delightful and comforting taste experience for dessert lovers.', 30.00, 100, 'uploads/master_products/cakekameetha.jpg', 563, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35'),
+(26, 'Qubani Ka Meetha (Apricot)', 'Traditional Hyderabadi apricot dessert, served with cream for a rich and tangy taste.', 50.00, 100, 'uploads/master_products/qubanikameetha.jpg', 563, 1, '2025-10-13 07:54:35', '2025-10-13 07:54:35');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_80`
+--
+
+CREATE TABLE `products_80` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '0',
+  `image_path` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products_80`
+--
+
+INSERT INTO `products_80` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `created_at`, `updated_at`, `is_active`) VALUES
+(1, 'Regular Chicken Shawarma', 'A classic chicken shawarma, seasoned and wrapped in fresh bread for a satisfying meal.', 60.00, 100, 'uploads/master_products/regularchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(2, 'Schezwan Chicken Shawarma', 'Spicy Schezwan chicken shawarma, offering a delicious and zesty kick in every bite.', 80.00, 100, 'uploads/master_products/schezwanchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(3, 'Special Chicken Shawarma', 'Our chef\'s special chicken shawarma, featuring unique spices and rich, authentic flavors.', 80.00, 100, 'uploads/master_products/specialchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(4, 'Lucknow Chicken Shawarma', 'Inspired by Lucknow, this chicken shawarma offers a distinct aromatic and flavorful experience.', 90.00, 100, 'uploads/master_products/lucknowchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(5, 'Open Chicken Shawarma', 'Deconstructed chicken shawarma served open-faced, allowing you to savor each delicious ingredient individually.', 100.00, 100, 'uploads/master_products/openchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(6, 'Jumbo Chicken Shawarma', 'A generously sized chicken shawarma, perfect for a hearty and satisfying meal anytime.', 100.00, 100, 'uploads/master_products/jumbochickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(7, 'R.B. Chicken Shawarma', 'A unique R.B. style chicken shawarma served on a plate, offering distinct and rich flavors.', 100.00, 100, 'uploads/master_products/rbchickenshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(8, 'Open Special Shawarma', 'Our special deconstructed shawarma, served open-faced with enhanced flavors and premium toppings.', 120.00, 100, 'uploads/master_products/openspecialshawarma.jpg', 559, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(9, 'Chicken Dum Biryani (500g) ? Serves 1 person', 'Flavorful chicken dum biryani for one, served with gulab jamun, raita, gravy, egg.', 120.00, 100, 'uploads/master_products/chickendumbiryani500g.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(10, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 'Smoky chicken biryani for one, served with gulab jamun, raita, gravy, and egg.', 120.00, 100, 'uploads/master_products/chickensmokybiryani500g.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(11, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 'Large chicken dum biryani for two, with two gulab jamun, raita, gravy, eggs.', 230.00, 100, 'uploads/master_products/chickendumbiryani1kg.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(12, 'Chicken Sheek Biryani (500g)', 'Special boneless chicken seekh biryani, delicious and perfect for Sunday special occasions.', 170.00, 100, 'uploads/master_products/chickensheekbiryani500g.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(13, 'Chicken Tikka Biryani (500g)', 'Special boneless chicken tikka biryani, served in pieces, great for Friday feasting.', 170.00, 100, 'uploads/master_products/chickentikkabiryani500g.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(14, '1Kg. Chicken Dum Biryani', 'Bulk chicken dum biryani for 5-6, with (6) Gulab Jamun, (6)Rita, (6)Grevy & (6)Eggs.', 700.00, 100, 'uploads/master_products/1kgchickendumbiryani.jpg', 565, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(15, 'Veg Dum Biryani (500g)', 'Delicious vegetable dum biryani for one, served with gulab jamun, raita, gravy.', 99.00, 100, 'uploads/master_products/vegdumbiryani500g.jpg', 566, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(16, 'Veg Dum Biryani (1000g)', 'Large vegetable dum biryani for two, with two gulab jamun, raita, gravy.', 189.00, 100, 'uploads/master_products/vegdumbiryani1kg.jpg', 566, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(17, '1Kg. Veg. Dum Biryani', 'Bulk vegetable dum biryani for 5-6, with 1Kg. Vegetables + 1 Kg. Rice (6) Gulab Jamun, (6) Rita, (6) Grevy', 499.00, 100, 'uploads/master_products/1kgvegetabledumbiryani.jpg', 566, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(18, '1Kg. Paneer Dum Biryani', 'Bulk paneer dum biryani for 5-6, with 1 Kg paneer and 1kg rice, available on order.', 799.00, 100, 'uploads/master_products/1kgpaneerdumbiryani.jpg', 566, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(19, 'Chicken Stick', 'Delicious chicken sticks, lightly seasoned and perfectly cooked for a quick appetizer.', 30.00, 100, 'uploads/master_products/chickenstick.jpg', 567, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(20, 'Chicken Shahi Roll With Cheese', 'Rich chicken shahi roll, generously filled with cheese, a royal and delightful appetizer.', 40.00, 100, 'uploads/master_products/chickenshahirollwithcheese.jpg', 567, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(21, 'Chicken Leg', 'Juicy chicken leg, seasoned and cooked to perfection, a satisfying snack or starter.', 50.00, 100, 'uploads/master_products/chickenleg.jpg', 567, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(22, 'Shahi Tukda', 'A rich Indian bread pudding, soaked in syrup and topped with delicious nuts.', 25.00, 100, 'uploads/master_products/shahitukda.jpg', 568, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(23, 'Kaddu ki kheer', 'Creamy pumpkin pudding, cooked with milk, sugar, and aromatic spices for a sweet treat.', 30.00, 100, 'uploads/master_products/kaddukikheer.jpg', 568, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(24, 'Arabian Dessert', 'Exotic Arabian dessert, offering unique flavors and a delightful sweet experience to finish your meal.', 30.00, 100, 'uploads/master_products/arabiandessert.jpg', 568, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(25, 'Cake Ka Meetha', 'A sweet cake dessert, offering a delightful and comforting taste experience for dessert lovers.', 30.00, 100, 'uploads/master_products/cakekameetha.jpg', 568, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1),
+(26, 'Qubani Ka Meetha (Apricot)', 'Traditional Hyderabadi apricot dessert, served with cream for a rich and tangy taste.', 50.00, 100, 'uploads/master_products/qubanikameetha.jpg', 568, '2025-10-13 08:26:00', '2025-10-13 08:26:00', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_81`
+--
+
+CREATE TABLE `products_81` (
+  `id` int(11) NOT NULL,
+  `product_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `price` decimal(10,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `image_path` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `tag_id` int(11) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `products_81`
+--
+
+INSERT INTO `products_81` (`id`, `product_name`, `description`, `price`, `quantity`, `image_path`, `tag_id`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Regular Chicken Shawarma', 'A classic chicken shawarma, seasoned and wrapped in fresh bread for a satisfying meal.', 60.00, 100, 'uploads/master_products/regularchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(2, 'Schezwan Chicken Shawarma', 'Spicy Schezwan chicken shawarma, offering a delicious and zesty kick in every bite.', 80.00, 100, 'uploads/master_products/schezwanchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(3, 'Special Chicken Shawarma', 'Our chef\'s special chicken shawarma, featuring unique spices and rich, authentic flavors.', 80.00, 100, 'uploads/master_products/specialchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(4, 'Lucknow Chicken Shawarma', 'Inspired by Lucknow, this chicken shawarma offers a distinct aromatic and flavorful experience.', 90.00, 100, 'uploads/master_products/lucknowchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(5, 'Open Chicken Shawarma', 'Deconstructed chicken shawarma served open-faced, allowing you to savor each delicious ingredient individually.', 100.00, 100, 'uploads/master_products/openchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(6, 'Jumbo Chicken Shawarma', 'A generously sized chicken shawarma, perfect for a hearty and satisfying meal anytime.', 100.00, 100, 'uploads/master_products/jumbochickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(7, 'R.B. Chicken Shawarma', 'A unique R.B. style chicken shawarma served on a plate, offering distinct and rich flavors.', 100.00, 100, 'uploads/master_products/rbchickenshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(8, 'Open Special Shawarma', 'Our special deconstructed shawarma, served open-faced with enhanced flavors and premium toppings.', 120.00, 100, 'uploads/master_products/openspecialshawarma.jpg', 569, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(9, 'Chicken Dum Biryani (500g) ? Serves 1 person', 'Flavorful chicken dum biryani for one, served with gulab jamun, raita, gravy, egg.', 120.00, 100, 'uploads/master_products/chickendumbiryani500g.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(10, 'Chicken Smoky Biryani (500g) ? Serves 1 person', 'Smoky chicken biryani for one, served with gulab jamun, raita, gravy, and egg.', 120.00, 100, 'uploads/master_products/chickensmokybiryani500g.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(11, 'Chicken Dum Biryani (1000g) ? Serves 2 persons', 'Large chicken dum biryani for two, with two gulab jamun, raita, gravy, eggs.', 230.00, 100, 'uploads/master_products/chickendumbiryani1kg.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(12, 'Chicken Sheek Biryani (500g)', 'Special boneless chicken seekh biryani, delicious and perfect for Sunday special occasions.', 170.00, 100, 'uploads/master_products/chickensheekbiryani500g.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(13, 'Chicken Tikka Biryani (500g)', 'Special boneless chicken tikka biryani, served in pieces, great for Friday feasting.', 170.00, 100, 'uploads/master_products/chickentikkabiryani500g.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(14, '1Kg. Chicken Dum Biryani', 'Bulk chicken dum biryani for 5-6, with (6) Gulab Jamun, (6)Rita, (6)Grevy & (6)Eggs.', 700.00, 100, 'uploads/master_products/1kgchickendumbiryani.jpg', 570, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(15, 'Veg Dum Biryani (500g)', 'Delicious vegetable dum biryani for one, served with gulab jamun, raita, gravy.', 99.00, 100, 'uploads/master_products/vegdumbiryani500g.jpg', 571, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(16, 'Veg Dum Biryani (1000g)', 'Large vegetable dum biryani for two, with two gulab jamun, raita, gravy.', 189.00, 100, 'uploads/master_products/vegdumbiryani1kg.jpg', 571, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(17, '1Kg. Veg. Dum Biryani', 'Bulk vegetable dum biryani for 5-6, with 1Kg. Vegetables + 1 Kg. Rice (6) Gulab Jamun, (6) Rita, (6) Grevy', 499.00, 100, 'uploads/master_products/1kgvegetabledumbiryani.jpg', 571, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(18, '1Kg. Paneer Dum Biryani', 'Bulk paneer dum biryani for 5-6, with 1 Kg paneer and 1kg rice, available on order.', 799.00, 100, 'uploads/master_products/1kgpaneerdumbiryani.jpg', 571, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(19, 'Chicken Stick', 'Delicious chicken sticks, lightly seasoned and perfectly cooked for a quick appetizer.', 30.00, 100, 'uploads/master_products/chickenstick.jpg', 572, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(20, 'Chicken Shahi Roll With Cheese', 'Rich chicken shahi roll, generously filled with cheese, a royal and delightful appetizer.', 40.00, 100, 'uploads/master_products/chickenshahirollwithcheese.jpg', 572, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(21, 'Chicken Leg', 'Juicy chicken leg, seasoned and cooked to perfection, a satisfying snack or starter.', 50.00, 100, 'uploads/master_products/chickenleg.jpg', 572, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(22, 'Shahi Tukda', 'A rich Indian bread pudding, soaked in syrup and topped with delicious nuts.', 25.00, 100, 'uploads/master_products/shahitukda.jpg', 573, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(23, 'Kaddu ki kheer', 'Creamy pumpkin pudding, cooked with milk, sugar, and aromatic spices for a sweet treat.', 30.00, 100, 'uploads/master_products/kaddukikheer.jpg', 573, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(24, 'Arabian Dessert', 'Exotic Arabian dessert, offering unique flavors and a delightful sweet experience to finish your meal.', 30.00, 100, 'uploads/master_products/arabiandessert.jpg', 573, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(25, 'Cake Ka Meetha', 'A sweet cake dessert, offering a delightful and comforting taste experience for dessert lovers.', 30.00, 100, 'uploads/master_products/cakekameetha.jpg', 573, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45'),
+(26, 'Qubani Ka Meetha (Apricot)', 'Traditional Hyderabadi apricot dessert, served with cream for a rich and tangy taste.', 50.00, 100, 'uploads/master_products/qubanikameetha.jpg', 573, 1, '2025-10-13 08:38:45', '2025-10-13 08:38:45');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `profile_cover_photo`
 --
 
@@ -48353,7 +50778,12 @@ INSERT INTO `profile_cover_photo` (`id`, `user_id`, `profile_photo`, `cover_phot
 (51, 70, 'profile_70_1758576415.jpg', 'cover_70_1758576407.jpg', '2025-09-22 21:26:47', '2025-09-22 21:26:55'),
 (52, 71, 'profile_71_1758580671.jpg', 'cover_71_1758580666.jpg', '2025-09-22 22:37:46', '2025-09-22 22:37:51'),
 (53, 72, 'profile_72_1758582805.jpg', 'cover_72_1758582802.jpg', '2025-09-22 23:13:22', '2025-09-22 23:13:25'),
-(54, 73, 'profile_73_1758584163.jpg', 'cover_73_1758584160.jpg', '2025-09-22 23:36:00', '2025-09-22 23:36:03');
+(54, 73, 'profile_73_1758584163.jpg', 'cover_73_1758584160.jpg', '2025-09-22 23:36:00', '2025-09-22 23:36:03'),
+(55, 77, 'profile_77_1760336027.png', 'cover_77_1760336034.jpg', '2025-10-11 14:41:53', '2025-10-13 06:13:54'),
+(56, 78, 'profile_78_1760265365.jpg', 'cover_78_1760265361.jpg', '2025-10-12 10:35:54', '2025-10-12 10:36:05'),
+(57, 79, 'profile_79_1760341597.png', 'cover_79_1760341600.jpg', '2025-10-12 10:37:05', '2025-10-13 07:46:40'),
+(58, 80, 'profile_80_1760343614.png', 'cover_80_1760343617.jpg', '2025-10-12 10:37:44', '2025-10-13 08:20:17'),
+(59, 81, 'profile_81_1760344352.png', 'cover_81_1760344355.jpg', '2025-10-12 10:39:20', '2025-10-13 08:32:35');
 
 -- --------------------------------------------------------
 
@@ -48431,7 +50861,12 @@ INSERT INTO `profile_url_details` (`user_id`, `profile_url`, `created_at`, `upda
 (70, 'pawankoliwadakhougali', '2025-09-22 21:26:34', '2025-09-22 21:26:34'),
 (71, 'pawankoliwadakanakia', '2025-09-22 22:36:46', '2025-09-22 22:36:46'),
 (72, 'pawankoliwadabhayandareast', '2025-09-22 23:13:54', '2025-09-22 23:13:54'),
-(73, 'pawankoliwadabhayandarwest', '2025-09-22 23:32:46', '2025-09-22 23:32:46');
+(73, 'pawankoliwadabhayandarwest', '2025-09-22 23:32:46', '2025-09-22 23:32:46'),
+(77, 'biryanibybulkpundliknagar', '2025-10-11 14:31:56', '2025-10-11 14:31:56'),
+(78, 'biryanibybulksataraparisar', '2025-10-12 10:34:53', '2025-10-12 10:34:53'),
+(79, 'biryanibybulkkanchanwadi', '2025-10-12 10:37:26', '2025-10-12 10:37:26'),
+(80, 'biryanibybulkpahadsinghpura', '2025-10-12 10:37:58', '2025-10-13 08:29:43'),
+(81, 'biryanibybulkkatkatgate', '2025-10-12 10:39:07', '2025-10-12 10:39:07');
 
 -- --------------------------------------------------------
 
@@ -48646,7 +51081,17 @@ INSERT INTO `ratings` (`id`, `user_id`, `reviewer_name`, `reviewer_email`, `revi
 (130, 28, 'Tanvi Mane', '', '9004254724', 5, 'Good', '2025-09-30 19:34:13'),
 (131, 21, 'Inayat Shaikh', '', '9819411026', 5, 'Fg', '2025-09-30 20:03:21'),
 (132, 15, 'Nishant Sharma', 'nishant.developer22@gmail.com', '1201201200', 1, 'Hello team, \"goldcoinrestaurant.in\"\r\n\r\nWe can quickly promote your website We can place your website on top of the Natural Listings on Google, Yahoo and Bing.\r\n\r\n Because of this you\'re losing a ton of calls to your competitors!\r\n\r\nWe can place your website on Google\'s 1st page. We will improve your website’s position on Google and get more traffic.\r\n\r\nI can send you more details on the packages/Portfolio/past work details.\r\n\r\n\r\nThank you,\r\n\r\nNishant Sharma', '2025-10-03 08:28:51'),
-(133, 35, 'Jomon cj', '', '6238797193', 4, '????', '2025-10-06 09:52:23');
+(133, 35, 'Jomon cj', '', '6238797193', 4, '????', '2025-10-06 09:52:23'),
+(134, 21, 'Adnan Shaikh', '', '9892130222', 2, 'Online it says free delivery. But on bill they charged 9 rs delivery charges.', '2025-10-11 08:06:52'),
+(135, 77, 'Inayat', 'inayat.shaikh09@gmail.com', '09819411026', 5, 'Pure Dum Magic\r\nThe aroma hits you the moment you open the box! Perfectly cooked rice, tender chicken, and that smoky dum flavor — easily the best biryani in Pundlik Nagar', '2025-10-11 16:15:10'),
+(136, 77, 'Mohan', '', '9999999999', 5, 'Worth Every Bite:\r\n\r\nLoved the generous portion and authentic taste. The 500g pack is perfect for one person, and the 1kg family pack is totally value for money', '2025-10-11 16:15:52'),
+(137, 77, 'Arbaaz', '', '8888888888', 5, 'We ordered in bulk for a family get-together — everyone loved it! Flavor consistency and quality were superb. Will definitely order again for every celebration', '2025-10-11 16:16:48'),
+(138, 77, 'Rahul', '', '12222222222', 5, 'Most places compromise on quantity, but not Biryani By Bulk! Full of flavors, tender meat, and enough to satisfy big appetites. Totally worth it', '2025-10-11 16:17:31'),
+(139, 77, 'Pratik', '', '9819411026', 5, 'Ordered online — delivery was quick, packaging was neat, and the biryani was steaming hot. You can feel the freshness and quality in every bite', '2025-10-11 16:21:23'),
+(140, 69, 'Amol Bamane', 'b.amol2003@gmail.com', '09870159148', 5, 'Test is very good ', '2025-10-12 01:22:22'),
+(141, 77, 'Inayat Shaikh', '', '9819411026', 5, 'Best in class', '2025-10-12 12:37:26'),
+(142, 31, 'GANESH', 'gg134641@gmail.com', '9867113143', 4, 'Nice ', '2025-10-12 16:43:38'),
+(143, 78, 'Gayatri Jagtap', '', '9322066243', 5, 'Good ', '2025-10-18 14:55:30');
 
 -- --------------------------------------------------------
 
@@ -49157,7 +51602,12 @@ INSERT INTO `social_link` (`id`, `user_id`, `Facebook`, `Instagram`, `WhatsApp`,
 (50, 70, '', '', 'https://wa.me/918655566674', '', '', '', '2025-09-22 21:28:53', '2025-09-22 21:28:53'),
 (51, 71, '', '', 'https://wa.me/918655566672', '', '', '', '2025-09-22 22:38:24', '2025-09-22 22:38:24'),
 (52, 72, '', '', 'https://wa.me/918879926765', '', '', '', '2025-09-22 23:16:29', '2025-09-22 23:16:29'),
-(53, 73, '', '', 'https://wa.me/918655566673', '', '', '', '2025-09-22 23:36:32', '2025-09-22 23:36:32');
+(53, 73, '', '', 'https://wa.me/918655566673', '', '', '', '2025-09-22 23:36:32', '2025-09-22 23:36:32'),
+(54, 77, '', '', 'https://wa.me/917378759777', '', '', '', '2025-10-11 15:13:33', '2025-10-11 15:13:33'),
+(55, 78, '', '', 'https://wa.me/917378759777', '', '', '', '2025-10-13 07:45:25', '2025-10-13 07:45:25'),
+(56, 79, '', '', 'https://wa.me/917378759777', '', '', '', '2025-10-13 07:46:49', '2025-10-13 07:46:49'),
+(57, 80, '', '', 'https://wa.me/917378759777', '', '', '', '2025-10-13 08:19:52', '2025-10-13 08:19:52'),
+(58, 81, '', '', 'https://wa.me/917378759777', '', '', '', '2025-10-13 08:32:50', '2025-10-13 08:32:50');
 
 -- --------------------------------------------------------
 
@@ -49412,13 +51862,6 @@ INSERT INTO `store_timing` (`id`, `user_id`, `day_of_week`, `open_time`, `close_
 (432, 62, 4, '00:00:00', '23:59:00', 0, '2025-08-28 09:30:04', '2025-08-28 09:30:04'),
 (433, 62, 5, '00:00:00', '23:59:00', 0, '2025-08-28 09:30:04', '2025-08-28 09:30:04'),
 (434, 62, 6, '00:00:00', '23:59:00', 0, '2025-08-28 09:30:04', '2025-08-28 09:30:04'),
-(564, 19, 0, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(565, 19, 1, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(566, 19, 2, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(567, 19, 3, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(568, 19, 4, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(569, 19, 5, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
-(570, 19, 6, '12:01:00', '23:59:00', 0, '2025-09-03 13:32:23', '2025-09-03 13:32:23'),
 (598, 64, 0, '00:00:00', '23:59:00', 0, '2025-09-04 23:10:36', '2025-09-04 23:10:36'),
 (599, 64, 1, '00:00:00', '23:59:00', 0, '2025-09-04 23:10:36', '2025-09-04 23:10:36'),
 (600, 64, 2, '00:00:00', '23:59:00', 0, '2025-09-04 23:10:36', '2025-09-04 23:10:36'),
@@ -49496,20 +51939,62 @@ INSERT INTO `store_timing` (`id`, `user_id`, `day_of_week`, `open_time`, `close_
 (1038, 67, 4, '00:00:00', '23:59:00', 0, '2025-09-25 14:34:00', '2025-09-25 14:34:00'),
 (1039, 67, 5, '00:00:00', '23:59:00', 0, '2025-09-25 14:34:00', '2025-09-25 14:34:00'),
 (1040, 67, 6, '00:00:00', '23:59:00', 0, '2025-09-25 14:34:00', '2025-09-25 14:34:00'),
-(1048, 28, 0, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1049, 28, 1, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1050, 28, 2, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1051, 28, 3, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1052, 28, 4, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1053, 28, 5, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
-(1054, 28, 6, '00:00:00', '23:59:00', 0, '2025-09-25 16:18:34', '2025-09-25 16:18:34'),
 (1069, 73, 0, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
 (1070, 73, 1, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
 (1071, 73, 2, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
 (1072, 73, 3, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
 (1073, 73, 4, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
 (1074, 73, 5, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
-(1075, 73, 6, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34');
+(1075, 73, 6, '17:00:00', '23:59:00', 0, '2025-09-27 11:32:34', '2025-09-27 11:32:34'),
+(1083, 28, 0, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1084, 28, 1, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1085, 28, 2, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1086, 28, 3, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1087, 28, 4, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1088, 28, 5, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1089, 28, 6, '00:00:00', '23:59:00', 0, '2025-10-10 19:59:41', '2025-10-10 19:59:41'),
+(1090, 77, 0, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1091, 77, 1, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1092, 77, 2, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1093, 77, 3, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1094, 77, 4, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1095, 77, 5, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1096, 77, 6, '00:00:00', '23:59:00', 0, '2025-10-11 14:55:31', '2025-10-11 14:55:31'),
+(1097, 78, 0, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1098, 78, 1, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1099, 78, 2, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1100, 78, 3, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1101, 78, 4, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1102, 78, 5, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1103, 78, 6, '00:00:00', '23:59:00', 0, '2025-10-13 07:34:21', '2025-10-13 07:34:21'),
+(1111, 79, 0, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1112, 79, 1, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1113, 79, 2, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1114, 79, 3, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1115, 79, 4, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1116, 79, 5, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1117, 79, 6, '00:00:00', '23:59:00', 0, '2025-10-13 08:17:05', '2025-10-13 08:17:05'),
+(1139, 80, 0, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1140, 80, 1, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1141, 80, 2, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1142, 80, 3, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1143, 80, 4, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1144, 80, 5, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1145, 80, 6, '00:00:00', '23:59:00', 0, '2025-10-13 08:28:17', '2025-10-13 08:28:17'),
+(1153, 81, 0, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1154, 81, 1, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1155, 81, 2, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1156, 81, 3, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1157, 81, 4, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1158, 81, 5, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1159, 81, 6, '00:00:00', '23:59:00', 0, '2025-10-13 08:33:33', '2025-10-13 08:33:33'),
+(1160, 19, 0, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1161, 19, 1, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1162, 19, 2, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1163, 19, 3, '10:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1164, 19, 4, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1165, 19, 5, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28'),
+(1166, 19, 6, '12:01:00', '23:59:00', 0, '2025-10-22 05:14:28', '2025-10-22 05:14:28');
 
 -- --------------------------------------------------------
 
@@ -49590,7 +52075,14 @@ INSERT INTO `subscriptions` (`subscription_id`, `user_id`, `package_id`, `subscr
 (54, 70, 3, 'Premium Package', '2025-09-22 21:12:34', '2026-09-22 21:12:34', '2026-09-22 21:12:34', 'active', NULL, '2025-09-22 21:12:34', '2026-09-22 21:12:34', 1, NULL, NULL, 0, '2025-09-22 21:12:34', '2025-09-22 21:12:34'),
 (55, 71, 3, 'Premium Package', '2025-09-22 22:35:46', '2026-09-22 22:35:46', '2026-09-22 22:35:46', 'active', NULL, '2025-09-22 22:35:46', '2026-09-22 22:35:46', 1, NULL, NULL, 0, '2025-09-22 22:35:46', '2025-09-22 22:35:46'),
 (56, 72, 3, 'Premium Package', '2025-09-22 23:13:01', '2026-09-22 23:13:01', '2026-09-22 23:13:01', 'active', NULL, '2025-09-22 23:13:01', '2026-09-22 23:13:01', 1, NULL, NULL, 0, '2025-09-22 23:13:01', '2025-09-22 23:13:01'),
-(57, 73, 3, 'Premium Package', '2025-09-22 23:32:06', '2026-09-22 23:32:06', '2026-09-22 23:32:06', 'active', NULL, '2025-09-22 23:32:06', '2026-09-22 23:32:06', 1, NULL, NULL, 0, '2025-09-22 23:32:06', '2025-09-22 23:32:06');
+(57, 73, 3, 'Premium Package', '2025-09-22 23:32:06', '2026-09-22 23:32:06', '2026-09-22 23:32:06', 'active', NULL, '2025-09-22 23:32:06', '2026-09-22 23:32:06', 1, NULL, NULL, 0, '2025-09-22 23:32:06', '2025-09-22 23:32:06'),
+(58, 77, 3, 'Premium Package', '2025-10-11 13:20:23', '2026-10-11 13:20:23', '2026-10-11 13:20:23', 'active', NULL, '2025-10-11 13:20:23', '2026-10-11 13:20:23', 1, NULL, NULL, 0, '2025-10-11 13:20:23', '2025-10-11 13:20:23'),
+(59, 78, 3, 'Premium Package', '2025-10-12 10:25:04', '2026-10-12 10:25:04', '2026-10-12 10:25:04', 'active', NULL, '2025-10-12 10:25:04', '2026-10-12 10:25:04', 1, NULL, NULL, 0, '2025-10-12 10:25:04', '2025-10-12 10:25:04'),
+(60, 78, 3, 'Premium Package', '2025-10-12 10:26:50', '2026-10-12 10:26:50', '2026-10-12 10:26:50', 'active', NULL, '2025-10-12 10:26:50', '2026-10-12 10:26:50', 1, NULL, NULL, 0, '2025-10-12 10:26:50', '2025-10-12 10:26:50'),
+(61, 79, 3, 'Premium Package', '2025-10-12 10:26:55', '2026-10-12 10:26:55', '2026-10-12 10:26:55', 'active', NULL, '2025-10-12 10:26:55', '2026-10-12 10:26:55', 1, NULL, NULL, 0, '2025-10-12 10:26:55', '2025-10-12 10:26:55'),
+(62, 79, 3, 'Premium Package', '2025-10-12 10:31:47', '2026-10-12 10:31:47', '2026-10-12 10:31:47', 'active', NULL, '2025-10-12 10:31:47', '2026-10-12 10:31:47', 1, NULL, NULL, 0, '2025-10-12 10:31:47', '2025-10-12 10:31:47'),
+(63, 81, 3, 'Premium Package', '2025-10-12 10:31:52', '2026-10-12 10:31:52', '2026-10-12 10:31:52', 'active', NULL, '2025-10-12 10:31:52', '2026-10-12 10:31:52', 1, NULL, NULL, 0, '2025-10-12 10:31:52', '2025-10-12 10:31:52'),
+(64, 80, 3, 'Premium Package', '2025-10-12 10:31:55', '2026-10-12 10:31:55', '2026-10-12 10:31:55', 'active', NULL, '2025-10-12 10:31:55', '2026-10-12 10:31:55', 1, NULL, NULL, 0, '2025-10-12 10:31:55', '2025-10-12 10:31:55');
 
 -- --------------------------------------------------------
 
@@ -49680,8 +52172,8 @@ CREATE TABLE `tags` (
 --
 
 INSERT INTO `tags` (`id`, `user_id`, `tag`, `created_at`, `position`, `is_active`) VALUES
-(1, 28, 'Starter', '2025-08-05 11:31:08', 4, 1),
-(2, 28, 'Dry & Gravy', '2025-08-05 11:31:45', 5, 1),
+(1, 28, 'Starter', '2025-08-05 11:31:08', 5, 1),
+(2, 28, 'Dry & Gravy', '2025-08-05 11:31:45', 4, 1),
 (3, 28, 'Rice', '2025-08-05 11:33:04', 6, 1),
 (4, 28, 'Soup', '2025-08-05 11:33:48', 2, 1),
 (5, 28, 'Chinese Starter', '2025-08-05 11:35:13', 1, 1),
@@ -50168,7 +52660,32 @@ INSERT INTO `tags` (`id`, `user_id`, `tag`, `created_at`, `position`, `is_active
 (544, 73, 'Chinese Noodles', '2025-09-22 23:40:01', 10, 1),
 (545, 73, 'Triple Rice / Noodles With Gravy', '2025-09-22 23:40:06', 11, 1),
 (546, 73, 'Dry/Gravy', '2025-09-22 23:40:10', 12, 1),
-(547, 73, 'Sweet', '2025-09-22 23:40:14', 13, 1);
+(547, 73, 'Sweet', '2025-09-22 23:40:14', 13, 1),
+(548, 77, 'Shawarma', '2025-10-11 14:52:58', 1, 1),
+(549, 77, 'Chicken Biryani', '2025-10-11 14:53:16', 2, 1),
+(550, 77, 'Veg Biryani', '2025-10-11 14:53:51', 3, 1),
+(551, 77, 'Starters', '2025-10-11 14:54:03', 4, 1),
+(553, 77, 'Dessert', '2025-10-11 14:54:25', 5, 1),
+(554, 78, 'Shawarma', '2025-10-13 07:34:58', 1, 1),
+(555, 78, 'Chicken Biryani', '2025-10-13 07:35:30', 2, 1),
+(556, 78, 'Veg Biryani', '2025-10-13 07:35:40', 3, 1),
+(557, 78, 'Starters', '2025-10-13 07:35:47', 4, 1),
+(558, 78, 'Dessert', '2025-10-13 07:36:00', 5, 1),
+(559, 79, 'Shawarma', '2025-10-13 07:48:15', 1, 1),
+(560, 79, 'Chicken Biryani', '2025-10-13 07:48:23', 2, 1),
+(561, 79, 'Veg Biryani', '2025-10-13 07:48:31', 3, 1),
+(562, 79, 'Starters', '2025-10-13 07:48:38', 4, 1),
+(563, 79, 'Dessert', '2025-10-13 07:48:45', 5, 1),
+(564, 80, 'Shawarma', '2025-10-13 08:23:11', 1, 1),
+(565, 80, 'Chicken Biryani', '2025-10-13 08:23:20', 2, 1),
+(566, 80, 'Veg Biryani', '2025-10-13 08:23:28', 3, 1),
+(567, 80, 'Starters', '2025-10-13 08:23:37', 4, 1),
+(568, 80, 'Dessert', '2025-10-13 08:23:46', 5, 1),
+(569, 81, 'Shawarma', '2025-10-13 08:33:55', 1, 1),
+(570, 81, 'Chicken Biryani', '2025-10-13 08:34:04', 2, 1),
+(571, 81, 'Veg Biryani', '2025-10-13 08:34:15', 3, 1),
+(572, 81, 'Starters', '2025-10-13 08:34:22', 4, 1),
+(573, 81, 'Dessert', '2025-10-13 08:34:28', 5, 1);
 
 -- --------------------------------------------------------
 
@@ -50239,7 +52756,12 @@ INSERT INTO `theme` (`id`, `user_id`, `primary_color`, `secondary_color`, `creat
 (47, 70, '#481428', '#fffae7', '2025-09-22 21:45:26', '2025-09-22 21:45:26'),
 (48, 71, '#481428', '#fffae7', '2025-09-22 22:40:10', '2025-09-22 22:40:10'),
 (49, 72, '#481428', '#fffae7', '2025-09-22 23:18:38', '2025-09-22 23:18:38'),
-(50, 73, '#481428', '#fffae7', '2025-09-22 23:36:52', '2025-09-22 23:36:52');
+(50, 73, '#481428', '#fffae7', '2025-09-22 23:36:52', '2025-09-22 23:36:52'),
+(51, 77, '#000000', '#ffaa53', '2025-10-11 15:09:26', '2025-10-12 07:08:45'),
+(52, 78, '#000000', '#ffaa53', '2025-10-13 07:25:30', '2025-10-13 07:25:30'),
+(53, 79, '#000000', '#ffaa53', '2025-10-13 07:47:01', '2025-10-13 07:47:01'),
+(54, 80, '#000000', '#ffaa53', '2025-10-13 08:20:02', '2025-10-13 08:20:02'),
+(55, 81, '#000000', '#ffaa53', '2025-10-13 08:33:18', '2025-10-13 08:33:18');
 
 -- --------------------------------------------------------
 
@@ -50502,7 +53024,13 @@ INSERT INTO `trial_subscriptions` (`id`, `user_id`, `start_date`, `end_date`, `i
 (62, 72, '2025-09-22 23:10:12', '2025-09-29 23:10:12', 0, '2025-09-22 23:10:12'),
 (63, 73, '2025-09-22 23:31:33', '2025-09-29 23:31:33', 0, '2025-09-22 23:31:33'),
 (64, 74, '2025-09-23 18:42:32', '2025-09-30 18:42:32', 1, '2025-09-23 18:42:32'),
-(65, 75, '2025-10-04 10:03:41', '2025-10-11 10:03:41', 1, '2025-10-04 10:03:41');
+(65, 75, '2025-10-04 10:03:41', '2025-10-11 10:03:41', 1, '2025-10-04 10:03:41'),
+(66, 76, '2025-10-10 05:48:35', '2025-10-17 05:48:35', 1, '2025-10-10 05:48:35'),
+(67, 77, '2025-10-11 13:18:50', '2025-10-18 13:18:50', 0, '2025-10-11 13:18:50'),
+(68, 78, '2025-10-12 10:24:18', '2025-10-19 10:24:18', 0, '2025-10-12 10:24:18'),
+(69, 79, '2025-10-12 10:26:40', '2025-10-19 10:26:40', 0, '2025-10-12 10:26:40'),
+(70, 80, '2025-10-12 10:29:04', '2025-10-19 10:29:04', 0, '2025-10-12 10:29:04'),
+(71, 81, '2025-10-12 10:30:50', '2025-10-19 10:30:50', 0, '2025-10-12 10:30:50');
 
 -- --------------------------------------------------------
 
@@ -50515,6 +53043,8 @@ CREATE TABLE `users` (
   `Name` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
   `Password` varchar(255) NOT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `token_expires` int(11) DEFAULT NULL,
   `role` enum('admin','user','sales_person') NOT NULL DEFAULT 'user',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -50529,56 +53059,62 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `Name`, `Email`, `Password`, `role`, `created_at`, `updated_at`, `phone`, `address`, `is_trial`, `trial_start`, `trial_end`) VALUES
-(1, 'Sagar Pawar', 'webihooks@gmail.com', '$2y$10$BIvEp65vRmw4UXmxBL5wEeIQEipJa2TVegvsdi4JUumzOxjP.DWsy', 'admin', '2025-03-25 19:09:42', '2025-09-05 16:32:01', '9004998995', '1404, Building No.2, Vasudev Sky High, Mira road - East', 0, NULL, NULL),
-(4, 'Momo King', 'momosking63@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', 'user', '2025-04-03 12:02:30', '2025-07-30 14:55:21', '7045242798', 'Shop 04, Building-S- 5, Jangid Tower, Shanti Park, Near Syndicate Bank, Mira Road, Mumbai.', 0, NULL, NULL),
-(5, 'Khushamadeed', 'khushamadeedofficial@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', 'user', '2025-04-12 09:17:58', '2025-07-30 16:54:53', '7208790035', 'Gala No. 8, 9, 10, Arciadia, Jangid Enclave, Kanakia Rd, Opp. Laxmi Park, Unique Gardens, Gaurav City, Mira Road - East', 0, NULL, NULL),
-(13, 'Zain', 'zaynshaikh9223@gmail.com', 'dfhjdhfjdjkdhjghjdf', 'admin', '2025-05-05 08:02:06', '2025-08-30 15:38:23', '7738804051', 'Silver Park', 0, NULL, NULL),
-(15, 'Gold Coin Restaurant', 'goldcoinsince1994@gmail.com', '$2y$10$sSL80aJwPXuT3jsKVJi.heNHTysEyU0c877/qq8dR5B4JCtI6WBpG', 'user', '2025-05-23 10:36:26', '2025-05-26 10:35:39', '9867891178', 'Sheetal Darshan Building Sheetal Nagar Naka, Mira Road East, Maharashtra 401107', 1, '2025-05-23 10:36:26', '2025-05-30 10:36:26'),
-(16, 'Krishna Lunch Home', 'udayhegde82@gmail.com', '$2y$10$iYZTYEovllrvgilkoEOGsOP7XZERryS3Y72DYuzb3JtaFDEiCc0ym', 'user', '2025-05-24 11:15:43', '2025-07-30 14:54:55', '7304072176', 'Shop No-1 & 2, Sheetal Kunj, behind Snehanjali, Sheetal Nagar, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-05-24 11:15:43', '2025-05-31 11:15:43'),
-(17, 'Swadisht Rasoi', 'Swadishtrasoi175@gmail.com', '$2y$10$H9D9bu9FFQfhQhX/NgPMT.56.fzVKe67JPJRCH0oU5LlYcR5tpMCC', 'user', '2025-06-01 10:44:55', '2025-07-27 17:24:12', '9326633276', 'Shop No.05, Sai Arcade, Indralok Phase 3, Bhayandar East, Mumbai, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-01 10:44:55', '2025-06-08 10:44:55'),
-(18, 'Inayat', 'inayat.shaikh09@gmail.com', '$2y$10$iRSt8b0sUMI9aA0hqY29mevHOafK8RpBHIFnWCWwLUuvgs/ptdAti', 'admin', '2025-03-25 19:09:42', '2025-06-13 06:21:24', '9819411026', 'Virar', 0, NULL, NULL),
-(19, 'New Shahi Family Restaurant', 'newshahi@gmail.com', '$2y$10$J.Hrd.cx/mOwDvqTIke4pOgMfr19JOsKElKQ4auXVWdyTPHEnMZSu', 'user', '2025-06-09 10:51:21', '2025-08-13 14:25:21', '7208295640', 'Shop No.1, 2.3.4, Mira Bhayandar Rd, Medetiya Nagar, Queens Park, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-06-09 10:51:21', '2025-06-16 10:51:21'),
-(20, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnaindralok@gmail.com', '$2y$10$6rS/HeO2nXbxaBK6F5cSq.ppEkWqOt8sTmbMJdkp0uyO7SWwisCs6', 'user', '2025-06-10 08:19:20', '2025-06-11 12:28:05', '9920555031', 'Shop 1,2,3, C Wing, Durga residency, annapurna estate, IV Indralok, Deepak Hospital road, Bhayandar east Thane- 401105', 1, '2025-06-10 08:19:20', '2025-06-17 08:19:20'),
-(21, 'Shahi Restaurant', 'shahi.restaurant01@gmail.com', '$2y$10$GbNDhKvW0Of4tW9WTrV/5urrDgJk1ArlMZ/NhsGjNrDU8bO0DzORS', 'user', '2025-06-12 06:46:08', '2025-06-21 08:49:56', '7700900525', 'M.T.N.L Road, Sheetal Sai, Sheetal Nagar, Mira Road, Thane-401107', 1, '2025-06-12 06:46:08', '2025-06-19 06:46:08'),
-(22, 'Shree Krishna Pure Veg Dinning', 'shreekrishnaindralokdinning@gmail.com', '$2y$10$CBzVWLE9wSRDMcT83YLBT.lFDSAebp.GtQ6FLPLUkdmxebVxFXaD6', 'user', '2025-06-12 12:07:07', '2025-06-12 12:07:07', '9920555031', ' Shop no. 1,2,3, C Wing, Durga Residency, Annapurna Estate, IV Indralok, Deepak Hospital Road, Bhayandar East, Thane-401105', 1, '2025-06-12 12:07:07', '2025-06-19 12:07:07'),
-(23, 'Sigdi Restaurant', 'sigdi@gmail.com', '$2y$10$H9D9bu9FFQfhQhX/NgPMT.56.fzVKe67JPJRCH0oU5LlYcR5tpMCC', 'user', '2025-06-12 16:02:57', '2025-08-16 16:12:19', '7777052512', 'Laxmi Park, SHOP NO.8, Oswal Point, A wing, Kanakia Rd, opposite Park View Hotel, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-06-12 16:02:57', '2025-06-19 16:02:57'),
-(24, 'Charlies Chimney', 'charlieschimney2014@gmail.com', '$2y$10$lQC48y6GRh.qJghJywelQu/6c/DTjsuX2N9HKwTiP4.653P8xjnEK', 'user', '2025-06-14 11:51:13', '2025-06-20 13:20:08', '7045682929', 'Shop NO 8, 9 & 11 ,Ostwal Kiran CHS Ltd, Opposite Old Petrol Pump, Mira Bhayandar Road, Mira Road East', 1, '2025-06-14 11:51:13', '2025-06-21 11:51:13'),
-(25, 'Prime Fast Food', 'gsatish645@gmail.com', '$2y$10$PIFA3hJtlAnkr0E2QDS6z.ehk23hHaIKFAUcwQMyUTAPe/Syshojy', 'user', '2025-06-16 15:42:04', '2025-06-24 12:57:11', '9137394559', 'Shop No. 11 Cinemax Prime Mall, Kanakia Road, Mira Road East, Thane 401107', 1, '2025-06-16 15:42:04', '2025-06-23 15:42:04'),
-(26, 'Shivali Garden', 'shivaligarden@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', 'user', '2025-06-17 10:09:18', '2025-06-17 10:09:18', '8828526044', 'Shivali Garden, Shanti Park, Gokul Village, Mira Road East, Thane-401107', 1, '2025-06-17 10:09:18', '2025-06-24 10:09:18'),
-(27, 'Sajid Block', 'sajid.sashk_block@gmail.com', '$2y$10$ayAMkp7eSARsD74LvlKiLudT3yeOEJazL.ykpPd5oC6d.EItQBiCm', 'user', '2025-06-23 06:19:54', '2025-07-28 08:20:17', '8369105106', 'abcd', 0, NULL, NULL),
-(28, 'The Dhamaal Cafe', 'thedhamaal@gmail.com', '$2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly', 'user', '2025-06-23 08:27:08', '2025-08-30 17:06:11', '9004998995', 'shop 2, sheetal raj complex', 1, '2025-06-23 08:27:08', '2025-06-30 08:27:08'),
-(30, 'Hollywood Bollywood Restaurant', 'hollywoodbollywoodrestaurant@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', 'user', '2025-06-24 13:05:28', '2025-06-24 13:29:39', '7700047166', 'Jai Shree Krishna Darshan C, Shop Number 8,9, Hatkesh Rd, opposite RITU PARADISE PHASE-1, Phase 1, Gaurav Sankalp, Mira Road East, Maharashtra 401107', 1, '2025-06-24 13:05:28', '2025-07-01 13:05:28'),
-(31, 'Bijay Chinese Corner', 'bijaychinese@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', 'user', '2025-06-24 13:29:35', '2025-06-24 13:35:55', '9821912865', 'Gala No.3/4, Village Goddev Naka, Navghar Rd, Nr. Kapol Bank, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-24 13:29:35', '2025-07-01 13:29:35'),
-(32, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnanavgharroad@gmail.com', '$2y$10$jfp93bfVCwbZy7fkE4IEeOW61QeajOcO.Qd3rH8Z3ICbfPmFGdvrq', 'user', '2025-06-25 10:22:50', '2025-06-25 15:48:28', '7718837249', 'Shop No 1, CHS LTD, Jay Vandana, Navghar Rd, Bhayandar, Bharat Nagar, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-25 10:22:50', '2025-07-02 10:22:50'),
-(34, 'Shree Krishna Pure Veg Restaurant Dining', 'shreekrishnanavgharroaddining@gmail.com', '$2y$10$k3t/eKJNG2QT71Sru7jane1cG208v5DURUEYRKZnS3pPbyI8qDnWm', 'user', '2025-06-26 17:56:17', '2025-06-26 17:58:47', '7718837249', 'Shop No 1, CHS LTD, Jay Vandana, Navghar Rd, Bhayandar, Bharat Nagar, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-26 17:56:17', '2025-07-03 17:56:17'),
-(35, 'Shree Krishna Lunch Home', 'shreekrishnalunchhome23@gmail.com', '$2y$10$Q8FLj67i4fQKVW6QxVnb/.DHwTewapGRI8V2bPqO8ys2cm5XoTnc2', 'user', '2025-06-27 06:49:03', '2025-07-12 17:53:24', '7506916823', 'shop no. 10-11, Shree Ambica Complex, Medatiya Nagar, Phase-1, Near Seven Square Academy, Deepak Hospital Road, Mira Bhayandar, Mira Road (E), Thane-401107', 1, '2025-06-27 06:49:03', '2025-07-04 06:49:03'),
-(36, 'Shree Balaji Restaurant', 'shreebalajihospitality2703@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', 'user', '2025-06-27 13:38:42', '2025-08-05 13:00:33', '8591243074', 'Balaji Complex, Next to Flyover, 150 Feet Road, Bhayandar (West) - 401 101.\r\n', 1, '2025-06-27 13:38:42', '2025-07-04 13:38:42'),
-(40, 'Shree Krishna Lunch Home - Dining', 'shreekrishnalunchhome23dining@gmail.com', '$2y$10$qqdzp/iEiQIGgPPhPW2RE.IkHr/kMeDaDXgxhmApT.pvBQUTtlnTC', 'user', '2025-06-30 16:55:05', '2025-07-12 17:53:42', '7506916823', 'Mira Road', 1, '2025-06-30 16:55:05', '2025-07-07 16:55:05'),
-(41, 'Shree Balaji Restaurant Dining', 'shreebalajihospitality2703dining@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', 'user', '2025-07-02 16:47:45', '2025-08-05 13:00:39', '8591243074', 'Balaji Complex, Next to Flyover, 150 Feet Road, Bhayandar (West) - 401 101.\r\n', 1, '2025-07-02 16:47:45', '2025-07-09 16:47:45'),
-(44, 'New Delhi Zaika', 'Kayammohammed1985@gmail.com', '$2y$10$S3SG5LMTOJxOp/HtTCVEEeJZsbtR8xz2DMBflxRs0H5IBkLiB8Ngy', 'user', '2025-07-16 07:31:23', '2025-07-28 10:12:24', '9372527926', 'Shop 17,  Green Avenue, Near St. Xavier School, Shanti Park, Mira Road East-401107', 1, '2025-07-16 07:31:23', '2025-07-23 07:31:23'),
-(46, 'The Myriad Hotel - Dining', 'themyriadbusinesshoteldigitaldining@gmail.com', '$2y$10$x9PkAAYMW8i6iSXZlO5HiObqJtFBE.HlmWy06LjcDSs7RW49HGctK', 'user', '2025-07-22 10:39:32', '2025-07-22 13:58:13', '9152713732', 'The Myriad Hotel, Opp. Indian Petrol\r\nPump, Mira Road - East', 1, '2025-07-22 10:39:32', '2025-07-29 10:39:32'),
-(47, 'The Myriad Hotel', 'themyriadbusinesshoteldigital@gmail.com', '$2y$10$BLlYiNyGeHuvB.8vdEy1v.hm17C5NAZWHAkdKO2JqQwsQ7OKrraC.', 'user', '2025-07-22 14:12:31', '2025-07-26 12:49:17', '9152713732', 'The Myriad Hotel, Opp. Indian Petrol Pump, Sai baba nagar, Mira Road - East, Thane - 401107.', 1, '2025-07-22 14:12:31', '2025-07-29 14:12:31'),
-(48, 'Hotel Prabhuleela', 'hotelprabhuleela@gmail.com', '$2y$10$S3SG5LMTOJxOp/HtTCVEEeJZsbtR8xz2DMBflxRs0H5IBkLiB8Ngy', 'user', '2025-07-23 09:33:51', '2025-07-23 09:33:51', '7718990994', 'Shop no. 5, 6/7, Station Rd, Bhayandar, Patel Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 1, '2025-07-23 09:33:51', '2025-07-30 09:33:51'),
-(50, 'Chinese Hub Pure Veg Family Restaurant', 'Chinesehubpureveg@gmail.com', '$2y$10$bRP9AK8sYqYqAdsingElEuJSUJcmH9zPqaO9.flSYMvhDuf9Zfb9W', 'user', '2025-07-29 07:20:02', '2025-07-30 08:47:52', '7752927799', 'Shop no 9, Bharati Tower, Pleasant Park, Mira Road - East, Mira Bhayandar, Maharashtra 401107', 1, '2025-07-29 07:20:02', '2025-08-05 07:20:02'),
-(51, 'Ashish Family Bar and Restaurant', 'ashishrestaurant@gmail.com', '$2y$10$eQV2vj3ecxO46GguVBwoAuhiCYUvRcX0RVmQpxUkci2hY2ijedR.O', 'user', '2025-07-29 11:39:42', '2025-07-29 11:39:42', '8369346683', 'Sai Yogeshwar Apartment, Navghar Phatak Road, Bhayandar East, Mumbai, 401105', 1, '2025-07-29 11:39:42', '2025-08-05 11:39:42'),
-(55, 'Aao Khao Chinese Biryani Pulav', 'tousif.malik82@gmail.com', '$2y$10$3g50sGLHTA9hvrh/2M8LL.RVOPnG19PRvLJNY9AD2BlJNAvhcckm.', 'user', '2025-08-01 11:30:31', '2025-08-01 11:53:49', '8828188809', 'Mira road', 1, '2025-08-01 11:30:31', '2025-08-08 11:30:31'),
-(56, 'Shawarmazing', 'sameernedarya@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', 'user', '2025-08-02 07:47:05', '2025-08-02 09:55:43', '9892347628', 'Shop no. 1 , Mira Plaza , Mira - Bhayandar Rd, Hatkesh Rd, Mira Road East, Thane, Maharashtra 401107', 1, '2025-08-02 07:47:05', '2025-08-09 07:47:05'),
-(57, 'Moradabadi and Hyderabadi Famous Chicken Biryani', 'mohdfurqan16832@gmail.com', '$2y$10$qcEbXhYTUcBOshlJrRtjaOsOxDIpwpp9gQqWkDxk4g7RqC/fPozgu', 'user', '2025-08-02 10:23:25', '2025-08-02 12:49:01', '7057768748', 'Shop 2, New Salasar Orchid CHS, New Green Court Club, Mira Road, Mira Bhayandar, Maharashtra, 401107', 1, '2025-08-02 10:23:25', '2025-08-09 10:23:25'),
-(59, 'Shree Sai Chinese', 'shreesaichinese26@gmail.com', '$2y$10$NDXPFhv1nqmjPDLKRhotSew1gZg0QFcCfAmJTGOpRL1syRBz3lnnm', 'user', '2025-08-07 14:11:29', '2025-08-07 14:45:32', '9326018619', 'Shop No. 6 Bldg. No 8, Eden Rose, near Cinemax Road, Vagad Nagar, Beverly Park, Mira Road East, Thane, Mira Bhayandar, Maharashtra 401105', 1, '2025-08-07 14:11:29', '2025-08-14 14:11:29'),
-(62, 'Hotel Aai Saheb Lunch Home', 'hotelaaisaheb@gmail.com', '$2y$10$invBkAjV45URtLxQ95GTE.4n7RUHneCctPb/lQBMe7Qt0T1LBXh6O', 'user', '2025-08-13 06:20:50', '2025-08-14 08:54:34', '7045242798', 'Shop No.4, Jangid Tower, Khau Gali, Next to Canera Bank, Mira Road - East, Thane - 401107.', 1, '2025-08-13 06:20:50', '2025-08-20 06:20:50'),
-(63, 'The Seven Spices', 'thesevenspices954@gmail.com', '$2y$10$OvxLIamqUhbpgEOz9f60dO9h1aHY/OulErSnNMtX7Az0J6a383mfy', 'user', '2025-08-20 15:02:06', '2025-08-20 15:18:41', '9967929299', 'Opp. Old Petrol Pump, beside Wood Plaza, Medetiya Nagar, Queens Park, Mira Road East, Mira Bhayandar, Maharashtra 401105', 1, '2025-08-20 15:02:06', '2025-08-27 15:02:06'),
-(64, 'Taste Special', 'tastespecial@gmail.com', '$2y$10$SFxx8uL3RmMOKLy4COf1euruvZpFYQHBv8.wX.5u1SfAE7zIMPUAa', 'user', '2025-08-22 13:18:31', '2025-08-22 13:26:33', '8933918122', 'JP North Rd, Kashimira, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-08-22 13:18:31', '2025-08-29 13:18:31'),
-(66, 'Timeless Fine Dine Restaurant', 'timeless@gmail.com', '$2y$10$mfPG8z7hyb8sNzaC9LOPauZhWB2J9Y.OJfavajfW28K5YsddIs0QK', 'user', '2025-09-09 06:25:08', '2025-09-09 07:07:22', '9136136518', 'Shree Ram Tower MTNL Road, Near DCB Bank, Sheetal Nagar, Sai Baba Nagar, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-09-09 06:25:08', '2025-09-16 06:25:08'),
-(67, 'Pawan Koliwada - Jangid(Miraroad)', 'pawankoliwadajangid@gmail.com', '$2y$10$k4eAUA1dic9Zd7/9RfzHAeb7GrSeTFCJUGRLUp5FbDmJK4nT9c1zy', 'user', '2025-09-09 07:10:42', '2025-09-22 20:52:41', '8655996099', 'Shop No.5/6, Jangid Complex, Opp. Akash Ganga, Near Jangid Complex, MTNL Road, Mira Road(E), Thane - 401007', 1, '2025-09-09 07:10:42', '2025-09-16 07:10:42'),
-(68, 'Shree Krishna Restrobar', 'shreekrishnarestrobar@gmail.com', '$2y$10$ODtcvpeIURPjpLrZ/lOAB.IIQLTmzretKiZAvApa0.4krGz1dVZVm', 'user', '2025-09-09 08:11:13', '2025-09-09 08:11:13', '8652515555', 'Tara Compound,Western Express Highway,Dahisar Chek Naka,Dahisar East, Tare Compound (Dahisar East), Maharashtra 401107', 1, '2025-09-09 08:11:13', '2025-09-16 08:11:13'),
-(69, 'Hotel Kalvan House', 'kalvanhouse@gmail.com', '$2y$10$L8o/aoCLTarFtLxfSZiuhODEQI50MEjBc6fW/hUyJi/WTSqouXkXm', 'user', '2025-09-17 14:09:52', '2025-10-01 17:51:12', '9920955966', 'Shop No. Four, E wing, Development Green Avenue, Near Balaji Hotel, Shanti Park, Mira Road - East, Thane - 401107', 1, '2025-09-17 14:09:52', '2025-09-24 14:09:52'),
-(70, 'Pawan Koliwada - Khougali(Miraroad)', 'pawankoliwadakhougali@gmail.com', '$2y$10$29agYDQPv3TH3MQNmhiWkeLdc4xE2.koqkFdSdXzO/K7At5aQEIlW', 'user', '2025-09-22 21:07:40', '2025-09-22 21:16:08', '8655996011', 'Shop No.5/6, Jangid Complex, Opp. Akash Ganga, Near Jangid Complex, MTNL Road, Mira Road(E), Thane - 401007', 1, '2025-09-22 21:07:40', '2025-09-29 21:07:40'),
-(71, 'Pawan Koliwada - Kanakia(Miraroad)', 'pawankoliwadakanakia@gmail.com', '$2y$10$k2fLp.BSLyoeNZwwjdF4DeVkoDaFCQlN8eujCOYYCRPXf//W1ZaNq', 'user', '2025-09-22 22:35:15', '2025-09-22 22:35:15', '8108812813', 'Blog 4, Shelter, Shop No. 24/25, Kanakia Rd, Mira Road East, Mira Bhayandar, Maharashtra 401105', 1, '2025-09-22 22:35:15', '2025-09-29 22:35:15'),
-(72, 'Pawan Koliwada - Bhayandar East', 'pawankoliwadabhayandareast@gmail.com', '$2y$10$gePJHthEolrXEA02W6GJjuFldi5E7KxgOgraaX.Ih5LBIvqOane7u', 'user', '2025-09-22 23:10:12', '2025-09-22 23:10:12', '8879926764', 'Shop No 3, Appartment, Ganga Chhaya Biulding, Chandan Nagar, Station Road, Bhayandar East-401105 (Chandan Nagar)', 1, '2025-09-22 23:10:12', '2025-09-29 23:10:12'),
-(73, 'Pawan Koliwada - Bhayandar West', 'pawankoliwadabhayandarwest@gmail.com', '$2y$10$bVw1By8VnQSshUSB7o9fWe2j0nH4WAjENrnlxt3dg2WszgW3oIhX6', 'user', '2025-09-22 23:31:33', '2025-09-22 23:31:33', '9321874506', 'Shop No: 9/28, Bhayander Shopping Centre, Dr Keshav Baliram Hedgewar Rd, near Police Station, opp. Ice Factory, Bhayandar, Sripal Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 1, '2025-09-22 23:31:33', '2025-09-29 23:31:33'),
-(74, 'SAUMYA AJMERA ', 'ajmerasaumyaviral@gmail.com', '$2y$10$4uFLREL6LxavqbQTHUiWEeyrZcDABRcFSp9f7gvLTz6ZYfiLy4rRW', 'user', '2025-09-23 18:42:32', '2025-09-23 18:42:32', '9321844716', 'D-2 SHANTU NAGAR NEAR JAIN DHUDHALAYA MIRA ROAD EAST ', 1, '2025-09-23 18:42:32', '2025-09-30 18:42:32'),
-(75, 'Lopoloifhidwjdwfefee fjedwjdwj ijwhfwdj wfiefwjdwd hwidjwidhwfhwidjiwj hjfhefjhwifhewfiwejj hfiwhfqw', 'nomin.momin+454u1@mail.ru', '$2y$10$tLjdhPzExJGwd3OPzFxafufLvi84RNzjw6UxmK1mnV0U8sv5jm5AC', 'user', '2025-10-04 10:03:41', '2025-10-04 10:03:41', '89349145677', 'Fdsafsafsadfasdf', 1, '2025-10-04 10:03:41', '2025-10-11 10:03:41');
+INSERT INTO `users` (`id`, `Name`, `Email`, `Password`, `remember_token`, `token_expires`, `role`, `created_at`, `updated_at`, `phone`, `address`, `is_trial`, `trial_start`, `trial_end`) VALUES
+(1, 'Sagar Pawar', 'webihooks@gmail.com', '$2y$10$BIvEp65vRmw4UXmxBL5wEeIQEipJa2TVegvsdi4JUumzOxjP.DWsy', NULL, NULL, 'admin', '2025-03-25 19:09:42', '2025-09-05 16:32:01', '9004998995', '1404, Building No.2, Vasudev Sky High, Mira road - East', 0, NULL, NULL),
+(4, 'Momo King', 'momosking63@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-04-03 12:02:30', '2025-07-30 14:55:21', '7045242798', 'Shop 04, Building-S- 5, Jangid Tower, Shanti Park, Near Syndicate Bank, Mira Road, Mumbai.', 0, NULL, NULL),
+(5, 'Khushamadeed', 'khushamadeedofficial@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', NULL, NULL, 'user', '2025-04-12 09:17:58', '2025-07-30 16:54:53', '7208790035', 'Gala No. 8, 9, 10, Arciadia, Jangid Enclave, Kanakia Rd, Opp. Laxmi Park, Unique Gardens, Gaurav City, Mira Road - East', 0, NULL, NULL),
+(13, 'Zain', 'zaynshaikh9223@gmail.com', 'dfhjdhfjdjkdhjghjdf', NULL, NULL, 'admin', '2025-05-05 08:02:06', '2025-08-30 15:38:23', '7738804051', 'Silver Park', 0, NULL, NULL),
+(15, 'Gold Coin Restaurant', 'goldcoinsince1994@gmail.com', '$2y$10$sSL80aJwPXuT3jsKVJi.heNHTysEyU0c877/qq8dR5B4JCtI6WBpG', NULL, NULL, 'user', '2025-05-23 10:36:26', '2025-05-26 10:35:39', '9867891178', 'Sheetal Darshan Building Sheetal Nagar Naka, Mira Road East, Maharashtra 401107', 1, '2025-05-23 10:36:26', '2025-05-30 10:36:26'),
+(16, 'Krishna Lunch Home', 'udayhegde82@gmail.com', '$2y$10$iYZTYEovllrvgilkoEOGsOP7XZERryS3Y72DYuzb3JtaFDEiCc0ym', NULL, NULL, 'user', '2025-05-24 11:15:43', '2025-07-30 14:54:55', '7304072176', 'Shop No-1 & 2, Sheetal Kunj, behind Snehanjali, Sheetal Nagar, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-05-24 11:15:43', '2025-05-31 11:15:43'),
+(17, 'Swadisht Rasoi', 'Swadishtrasoi175@gmail.com', '$2y$10$H9D9bu9FFQfhQhX/NgPMT.56.fzVKe67JPJRCH0oU5LlYcR5tpMCC', NULL, NULL, 'user', '2025-06-01 10:44:55', '2025-07-27 17:24:12', '9326633276', 'Shop No.05, Sai Arcade, Indralok Phase 3, Bhayandar East, Mumbai, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-01 10:44:55', '2025-06-08 10:44:55'),
+(18, 'Inayat', 'inayat.shaikh09@gmail.com', '$2y$10$iRSt8b0sUMI9aA0hqY29mevHOafK8RpBHIFnWCWwLUuvgs/ptdAti', NULL, NULL, 'admin', '2025-03-25 19:09:42', '2025-06-13 06:21:24', '9819411026', 'Virar', 0, NULL, NULL),
+(19, 'New Shahi Family Restaurant', 'newshahi@gmail.com', '$2y$10$J.Hrd.cx/mOwDvqTIke4pOgMfr19JOsKElKQ4auXVWdyTPHEnMZSu', NULL, NULL, 'user', '2025-06-09 10:51:21', '2025-08-13 14:25:21', '7208295640', 'Shop No.1, 2.3.4, Mira Bhayandar Rd, Medetiya Nagar, Queens Park, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-06-09 10:51:21', '2025-06-16 10:51:21'),
+(20, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnaindralok@gmail.com', '$2y$10$6rS/HeO2nXbxaBK6F5cSq.ppEkWqOt8sTmbMJdkp0uyO7SWwisCs6', NULL, NULL, 'user', '2025-06-10 08:19:20', '2025-06-11 12:28:05', '9920555031', 'Shop 1,2,3, C Wing, Durga residency, annapurna estate, IV Indralok, Deepak Hospital road, Bhayandar east Thane- 401105', 1, '2025-06-10 08:19:20', '2025-06-17 08:19:20'),
+(21, 'Shahi Restaurant', 'shahi.restaurant01@gmail.com', '$2y$10$GbNDhKvW0Of4tW9WTrV/5urrDgJk1ArlMZ/NhsGjNrDU8bO0DzORS', NULL, NULL, 'user', '2025-06-12 06:46:08', '2025-06-21 08:49:56', '7700900525', 'M.T.N.L Road, Sheetal Sai, Sheetal Nagar, Mira Road, Thane-401107', 1, '2025-06-12 06:46:08', '2025-06-19 06:46:08'),
+(22, 'Shree Krishna Pure Veg Dinning', 'shreekrishnaindralokdinning@gmail.com', '$2y$10$CBzVWLE9wSRDMcT83YLBT.lFDSAebp.GtQ6FLPLUkdmxebVxFXaD6', NULL, NULL, 'user', '2025-06-12 12:07:07', '2025-06-12 12:07:07', '9920555031', ' Shop no. 1,2,3, C Wing, Durga Residency, Annapurna Estate, IV Indralok, Deepak Hospital Road, Bhayandar East, Thane-401105', 1, '2025-06-12 12:07:07', '2025-06-19 12:07:07'),
+(23, 'Sigdi Restaurant', 'sigdi@gmail.com', '$2y$10$H9D9bu9FFQfhQhX/NgPMT.56.fzVKe67JPJRCH0oU5LlYcR5tpMCC', NULL, NULL, 'user', '2025-06-12 16:02:57', '2025-08-16 16:12:19', '7777052512', 'Laxmi Park, SHOP NO.8, Oswal Point, A wing, Kanakia Rd, opposite Park View Hotel, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-06-12 16:02:57', '2025-06-19 16:02:57'),
+(24, 'Charlies Chimney', 'charlieschimney2014@gmail.com', '$2y$10$lQC48y6GRh.qJghJywelQu/6c/DTjsuX2N9HKwTiP4.653P8xjnEK', NULL, NULL, 'user', '2025-06-14 11:51:13', '2025-06-20 13:20:08', '7045682929', 'Shop NO 8, 9 & 11 ,Ostwal Kiran CHS Ltd, Opposite Old Petrol Pump, Mira Bhayandar Road, Mira Road East', 1, '2025-06-14 11:51:13', '2025-06-21 11:51:13'),
+(25, 'Prime Fast Food', 'gsatish645@gmail.com', '$2y$10$PIFA3hJtlAnkr0E2QDS6z.ehk23hHaIKFAUcwQMyUTAPe/Syshojy', NULL, NULL, 'user', '2025-06-16 15:42:04', '2025-06-24 12:57:11', '9137394559', 'Shop No. 11 Cinemax Prime Mall, Kanakia Road, Mira Road East, Thane 401107', 1, '2025-06-16 15:42:04', '2025-06-23 15:42:04'),
+(26, 'Shivali Garden', 'shivaligarden@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', NULL, NULL, 'user', '2025-06-17 10:09:18', '2025-06-17 10:09:18', '8828526044', 'Shivali Garden, Shanti Park, Gokul Village, Mira Road East, Thane-401107', 1, '2025-06-17 10:09:18', '2025-06-24 10:09:18'),
+(27, 'Sajid Block', 'sajid.sashk_block@gmail.com', '$2y$10$ayAMkp7eSARsD74LvlKiLudT3yeOEJazL.ykpPd5oC6d.EItQBiCm', NULL, NULL, 'user', '2025-06-23 06:19:54', '2025-07-28 08:20:17', '8369105106', 'abcd', 0, NULL, NULL),
+(28, 'The Dhamaal Cafe', 'thedhamaal@gmail.com', '$2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly', NULL, NULL, 'user', '2025-06-23 08:27:08', '2025-10-18 15:02:49', '9004998995', 'shop 2, sheetal raj complex', 1, '2025-06-23 08:27:08', '2025-06-30 08:27:08'),
+(30, 'Hollywood Bollywood Restaurant', 'hollywoodbollywoodrestaurant@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-06-24 13:05:28', '2025-06-24 13:29:39', '7700047166', 'Jai Shree Krishna Darshan C, Shop Number 8,9, Hatkesh Rd, opposite RITU PARADISE PHASE-1, Phase 1, Gaurav Sankalp, Mira Road East, Maharashtra 401107', 1, '2025-06-24 13:05:28', '2025-07-01 13:05:28'),
+(31, 'Bijay Chinese Corner', 'bijaychinese@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-06-24 13:29:35', '2025-06-24 13:35:55', '9821912865', 'Gala No.3/4, Village Goddev Naka, Navghar Rd, Nr. Kapol Bank, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-24 13:29:35', '2025-07-01 13:29:35'),
+(32, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnanavgharroad@gmail.com', '$2y$10$jfp93bfVCwbZy7fkE4IEeOW61QeajOcO.Qd3rH8Z3ICbfPmFGdvrq', NULL, NULL, 'user', '2025-06-25 10:22:50', '2025-06-25 15:48:28', '7718837249', 'Shop No 1, CHS LTD, Jay Vandana, Navghar Rd, Bhayandar, Bharat Nagar, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-25 10:22:50', '2025-07-02 10:22:50'),
+(34, 'Shree Krishna Pure Veg Restaurant Dining', 'shreekrishnanavgharroaddining@gmail.com', '$2y$10$k3t/eKJNG2QT71Sru7jane1cG208v5DURUEYRKZnS3pPbyI8qDnWm', NULL, NULL, 'user', '2025-06-26 17:56:17', '2025-06-26 17:58:47', '7718837249', 'Shop No 1, CHS LTD, Jay Vandana, Navghar Rd, Bhayandar, Bharat Nagar, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-26 17:56:17', '2025-07-03 17:56:17'),
+(35, 'Shree Krishna Lunch Home', 'shreekrishnalunchhome23@gmail.com', '$2y$10$Q8FLj67i4fQKVW6QxVnb/.DHwTewapGRI8V2bPqO8ys2cm5XoTnc2', NULL, NULL, 'user', '2025-06-27 06:49:03', '2025-07-12 17:53:24', '7506916823', 'shop no. 10-11, Shree Ambica Complex, Medatiya Nagar, Phase-1, Near Seven Square Academy, Deepak Hospital Road, Mira Bhayandar, Mira Road (E), Thane-401107', 1, '2025-06-27 06:49:03', '2025-07-04 06:49:03'),
+(36, 'Shree Balaji Restaurant', 'shreebalajihospitality2703@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', NULL, NULL, 'user', '2025-06-27 13:38:42', '2025-08-05 13:00:33', '8591243074', 'Balaji Complex, Next to Flyover, 150 Feet Road, Bhayandar (West) - 401 101.\r\n', 1, '2025-06-27 13:38:42', '2025-07-04 13:38:42'),
+(40, 'Shree Krishna Lunch Home - Dining', 'shreekrishnalunchhome23dining@gmail.com', '$2y$10$qqdzp/iEiQIGgPPhPW2RE.IkHr/kMeDaDXgxhmApT.pvBQUTtlnTC', NULL, NULL, 'user', '2025-06-30 16:55:05', '2025-07-12 17:53:42', '7506916823', 'Mira Road', 1, '2025-06-30 16:55:05', '2025-07-07 16:55:05'),
+(41, 'Shree Balaji Restaurant Dining', 'shreebalajihospitality2703dining@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', NULL, NULL, 'user', '2025-07-02 16:47:45', '2025-08-05 13:00:39', '8591243074', 'Balaji Complex, Next to Flyover, 150 Feet Road, Bhayandar (West) - 401 101.\r\n', 1, '2025-07-02 16:47:45', '2025-07-09 16:47:45'),
+(44, 'New Delhi Zaika', 'Kayammohammed1985@gmail.com', '$2y$10$S3SG5LMTOJxOp/HtTCVEEeJZsbtR8xz2DMBflxRs0H5IBkLiB8Ngy', NULL, NULL, 'user', '2025-07-16 07:31:23', '2025-07-28 10:12:24', '9372527926', 'Shop 17,  Green Avenue, Near St. Xavier School, Shanti Park, Mira Road East-401107', 1, '2025-07-16 07:31:23', '2025-07-23 07:31:23'),
+(46, 'The Myriad Hotel - Dining', 'themyriadbusinesshoteldigitaldining@gmail.com', '$2y$10$x9PkAAYMW8i6iSXZlO5HiObqJtFBE.HlmWy06LjcDSs7RW49HGctK', NULL, NULL, 'user', '2025-07-22 10:39:32', '2025-07-22 13:58:13', '9152713732', 'The Myriad Hotel, Opp. Indian Petrol\r\nPump, Mira Road - East', 1, '2025-07-22 10:39:32', '2025-07-29 10:39:32'),
+(47, 'The Myriad Hotel', 'themyriadbusinesshoteldigital@gmail.com', '$2y$10$BLlYiNyGeHuvB.8vdEy1v.hm17C5NAZWHAkdKO2JqQwsQ7OKrraC.', NULL, NULL, 'user', '2025-07-22 14:12:31', '2025-07-26 12:49:17', '9152713732', 'The Myriad Hotel, Opp. Indian Petrol Pump, Sai baba nagar, Mira Road - East, Thane - 401107.', 1, '2025-07-22 14:12:31', '2025-07-29 14:12:31'),
+(48, 'Hotel Prabhuleela', 'hotelprabhuleela@gmail.com', '$2y$10$S3SG5LMTOJxOp/HtTCVEEeJZsbtR8xz2DMBflxRs0H5IBkLiB8Ngy', NULL, NULL, 'user', '2025-07-23 09:33:51', '2025-07-23 09:33:51', '7718990994', 'Shop no. 5, 6/7, Station Rd, Bhayandar, Patel Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 1, '2025-07-23 09:33:51', '2025-07-30 09:33:51'),
+(50, 'Chinese Hub Pure Veg Family Restaurant', 'Chinesehubpureveg@gmail.com', '$2y$10$bRP9AK8sYqYqAdsingElEuJSUJcmH9zPqaO9.flSYMvhDuf9Zfb9W', NULL, NULL, 'user', '2025-07-29 07:20:02', '2025-07-30 08:47:52', '7752927799', 'Shop no 9, Bharati Tower, Pleasant Park, Mira Road - East, Mira Bhayandar, Maharashtra 401107', 1, '2025-07-29 07:20:02', '2025-08-05 07:20:02'),
+(51, 'Ashish Family Bar and Restaurant', 'ashishrestaurant@gmail.com', '$2y$10$eQV2vj3ecxO46GguVBwoAuhiCYUvRcX0RVmQpxUkci2hY2ijedR.O', NULL, NULL, 'user', '2025-07-29 11:39:42', '2025-07-29 11:39:42', '8369346683', 'Sai Yogeshwar Apartment, Navghar Phatak Road, Bhayandar East, Mumbai, 401105', 1, '2025-07-29 11:39:42', '2025-08-05 11:39:42'),
+(55, 'Aao Khao Chinese Biryani Pulav', 'tousif.malik82@gmail.com', '$2y$10$3g50sGLHTA9hvrh/2M8LL.RVOPnG19PRvLJNY9AD2BlJNAvhcckm.', NULL, NULL, 'user', '2025-08-01 11:30:31', '2025-08-01 11:53:49', '8828188809', 'Mira road', 1, '2025-08-01 11:30:31', '2025-08-08 11:30:31'),
+(56, 'Shawarmazing', 'sameernedarya@gmail.com', '$2y$10$k7ztkxauOBnHzVU9rtisWOPtN8Cabel8zPDBhDiJrq10arxXMZpse', NULL, NULL, 'user', '2025-08-02 07:47:05', '2025-08-02 09:55:43', '9892347628', 'Shop no. 1 , Mira Plaza , Mira - Bhayandar Rd, Hatkesh Rd, Mira Road East, Thane, Maharashtra 401107', 1, '2025-08-02 07:47:05', '2025-08-09 07:47:05'),
+(57, 'Moradabadi and Hyderabadi Famous Chicken Biryani', 'mohdfurqan16832@gmail.com', '$2y$10$qcEbXhYTUcBOshlJrRtjaOsOxDIpwpp9gQqWkDxk4g7RqC/fPozgu', NULL, NULL, 'user', '2025-08-02 10:23:25', '2025-08-02 12:49:01', '7057768748', 'Shop 2, New Salasar Orchid CHS, New Green Court Club, Mira Road, Mira Bhayandar, Maharashtra, 401107', 1, '2025-08-02 10:23:25', '2025-08-09 10:23:25'),
+(59, 'Shree Sai Chinese', 'shreesaichinese26@gmail.com', '$2y$10$NDXPFhv1nqmjPDLKRhotSew1gZg0QFcCfAmJTGOpRL1syRBz3lnnm', NULL, NULL, 'user', '2025-08-07 14:11:29', '2025-08-07 14:45:32', '9326018619', 'Shop No. 6 Bldg. No 8, Eden Rose, near Cinemax Road, Vagad Nagar, Beverly Park, Mira Road East, Thane, Mira Bhayandar, Maharashtra 401105', 1, '2025-08-07 14:11:29', '2025-08-14 14:11:29'),
+(62, 'Hotel Aai Saheb Lunch Home', 'hotelaaisaheb@gmail.com', '$2y$10$invBkAjV45URtLxQ95GTE.4n7RUHneCctPb/lQBMe7Qt0T1LBXh6O', NULL, NULL, 'user', '2025-08-13 06:20:50', '2025-08-14 08:54:34', '7045242798', 'Shop No.4, Jangid Tower, Khau Gali, Next to Canera Bank, Mira Road - East, Thane - 401107.', 1, '2025-08-13 06:20:50', '2025-08-20 06:20:50'),
+(63, 'The Seven Spices', 'thesevenspices954@gmail.com', '$2y$10$OvxLIamqUhbpgEOz9f60dO9h1aHY/OulErSnNMtX7Az0J6a383mfy', NULL, NULL, 'user', '2025-08-20 15:02:06', '2025-08-20 15:18:41', '9967929299', 'Opp. Old Petrol Pump, beside Wood Plaza, Medetiya Nagar, Queens Park, Mira Road East, Mira Bhayandar, Maharashtra 401105', 1, '2025-08-20 15:02:06', '2025-08-27 15:02:06'),
+(64, 'Taste Special', 'tastespecial@gmail.com', '$2y$10$SFxx8uL3RmMOKLy4COf1euruvZpFYQHBv8.wX.5u1SfAE7zIMPUAa', NULL, NULL, 'user', '2025-08-22 13:18:31', '2025-08-22 13:26:33', '8933918122', 'JP North Rd, Kashimira, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-08-22 13:18:31', '2025-08-29 13:18:31'),
+(66, 'Timeless Fine Dine Restaurant', 'timeless@gmail.com', '$2y$10$mfPG8z7hyb8sNzaC9LOPauZhWB2J9Y.OJfavajfW28K5YsddIs0QK', NULL, NULL, 'user', '2025-09-09 06:25:08', '2025-09-09 07:07:22', '9136136518', 'Shree Ram Tower MTNL Road, Near DCB Bank, Sheetal Nagar, Sai Baba Nagar, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-09-09 06:25:08', '2025-09-16 06:25:08'),
+(67, 'Pawan Koliwada - Jangid(Miraroad)', 'pawankoliwadajangid@gmail.com', '$2y$10$k4eAUA1dic9Zd7/9RfzHAeb7GrSeTFCJUGRLUp5FbDmJK4nT9c1zy', NULL, NULL, 'user', '2025-09-09 07:10:42', '2025-09-22 20:52:41', '8655996099', 'Shop No.5/6, Jangid Complex, Opp. Akash Ganga, Near Jangid Complex, MTNL Road, Mira Road(E), Thane - 401007', 1, '2025-09-09 07:10:42', '2025-09-16 07:10:42'),
+(68, 'Shree Krishna Restrobar', 'shreekrishnarestrobar@gmail.com', '$2y$10$ODtcvpeIURPjpLrZ/lOAB.IIQLTmzretKiZAvApa0.4krGz1dVZVm', NULL, NULL, 'user', '2025-09-09 08:11:13', '2025-09-09 08:11:13', '8652515555', 'Tara Compound,Western Express Highway,Dahisar Chek Naka,Dahisar East, Tare Compound (Dahisar East), Maharashtra 401107', 1, '2025-09-09 08:11:13', '2025-09-16 08:11:13'),
+(69, 'Hotel Kalvan House', 'hotelkalvanhouse@gmail.com', '$2y$10$L8o/aoCLTarFtLxfSZiuhODEQI50MEjBc6fW/hUyJi/WTSqouXkXm', NULL, NULL, 'user', '2025-09-17 14:09:52', '2025-10-16 07:24:17', '9920955966', 'Shop No. Four, E wing, Development Green Avenue, Near Balaji Hotel, Shanti Park, Mira Road - East, Thane - 401107', 1, '2025-09-17 14:09:52', '2025-09-24 14:09:52'),
+(70, 'Pawan Koliwada - Khougali(Miraroad)', 'pawankoliwadakhougali@gmail.com', '$2y$10$29agYDQPv3TH3MQNmhiWkeLdc4xE2.koqkFdSdXzO/K7At5aQEIlW', NULL, NULL, 'user', '2025-09-22 21:07:40', '2025-09-22 21:16:08', '8655996011', 'Shop No.5/6, Jangid Complex, Opp. Akash Ganga, Near Jangid Complex, MTNL Road, Mira Road(E), Thane - 401007', 1, '2025-09-22 21:07:40', '2025-09-29 21:07:40'),
+(71, 'Pawan Koliwada - Kanakia(Miraroad)', 'pawankoliwadakanakia@gmail.com', '$2y$10$k2fLp.BSLyoeNZwwjdF4DeVkoDaFCQlN8eujCOYYCRPXf//W1ZaNq', NULL, NULL, 'user', '2025-09-22 22:35:15', '2025-09-22 22:35:15', '8108812813', 'Blog 4, Shelter, Shop No. 24/25, Kanakia Rd, Mira Road East, Mira Bhayandar, Maharashtra 401105', 1, '2025-09-22 22:35:15', '2025-09-29 22:35:15'),
+(72, 'Pawan Koliwada - Bhayandar East', 'pawankoliwadabhayandareast@gmail.com', '$2y$10$gePJHthEolrXEA02W6GJjuFldi5E7KxgOgraaX.Ih5LBIvqOane7u', NULL, NULL, 'user', '2025-09-22 23:10:12', '2025-09-22 23:10:12', '8879926764', 'Shop No 3, Appartment, Ganga Chhaya Biulding, Chandan Nagar, Station Road, Bhayandar East-401105 (Chandan Nagar)', 1, '2025-09-22 23:10:12', '2025-09-29 23:10:12'),
+(73, 'Pawan Koliwada - Bhayandar West', 'pawankoliwadabhayandarwest@gmail.com', '$2y$10$bVw1By8VnQSshUSB7o9fWe2j0nH4WAjENrnlxt3dg2WszgW3oIhX6', NULL, NULL, 'user', '2025-09-22 23:31:33', '2025-09-22 23:31:33', '9321874506', 'Shop No: 9/28, Bhayander Shopping Centre, Dr Keshav Baliram Hedgewar Rd, near Police Station, opp. Ice Factory, Bhayandar, Sripal Nagar, Bhayandar West, Mira Bhayandar, Maharashtra 401101', 1, '2025-09-22 23:31:33', '2025-09-29 23:31:33'),
+(74, 'SAUMYA AJMERA ', 'ajmerasaumyaviral@gmail.com', '$2y$10$4uFLREL6LxavqbQTHUiWEeyrZcDABRcFSp9f7gvLTz6ZYfiLy4rRW', NULL, NULL, 'user', '2025-09-23 18:42:32', '2025-09-23 18:42:32', '9321844716', 'D-2 SHANTU NAGAR NEAR JAIN DHUDHALAYA MIRA ROAD EAST ', 1, '2025-09-23 18:42:32', '2025-09-30 18:42:32'),
+(75, 'Lopoloifhidwjdwfefee fjedwjdwj ijwhfwdj wfiefwjdwd hwidjwidhwfhwidjiwj hjfhefjhwifhewfiwejj hfiwhfqw', 'nomin.momin+454u1@mail.ru', '$2y$10$tLjdhPzExJGwd3OPzFxafufLvi84RNzjw6UxmK1mnV0U8sv5jm5AC', NULL, NULL, 'user', '2025-10-04 10:03:41', '2025-10-04 10:03:41', '89349145677', 'Fdsafsafsadfasdf', 1, '2025-10-04 10:03:41', '2025-10-11 10:03:41'),
+(76, 'adsa sdsdfsdf', 'hykebana@forexzig.com', '$2y$10$hKmPRLH7g.Kmv/d6VCAxYuVoGnSsMwc7h5XM3OiIBYkkg7By1cH1S', NULL, NULL, 'user', '2025-10-10 05:48:35', '2025-10-10 05:48:35', '09080712345', 'Stadsregio Amsterdam\r\nPostbus', 1, '2025-10-10 05:48:35', '2025-10-17 05:48:35'),
+(77, 'Biryani By Bulk - Pundlik nagar', 'bbbpundliknagar@gmail.com', '$2y$10$isel8DHmB.4gv1kqyTptY.u6./Fe6jhAouBMDBdr15kBsdkXkDTLi', NULL, NULL, 'user', '2025-10-11 13:18:50', '2025-10-18 15:40:03', '7755939361', 'Pahade chowk, Hindu rashtra Chowk, Pundlik Nagar Rd, Tirupatinagar, Gajanan Nagar, Garkheda, Chhatrapati Sambhajinagar, Maharashtra 431009', 1, '2025-10-11 13:18:50', '2025-10-18 13:18:50'),
+(78, 'Biryani By Bulk - Satara Parisar', 'bbbsataraparisar@gmail.com', '$2y$10$XA8AiAsZLjAhzT5yoS3A9e1gdkKxnEcUhkNE9jypyIKH2jbdO.OSC', NULL, NULL, 'user', '2025-10-12 10:24:18', '2025-10-13 07:44:39', '7755939361', 'Amdar Rd, Near Satara Police Station, Chh, Satara Deolai Parisar, Chhatrapati Sambhajinagar, Maharashtra 431009', 1, '2025-10-12 10:24:18', '2025-10-19 10:24:18'),
+(79, 'Biryani By Bulk - Kanchanwadi', 'bbbkanchanwadi@gmail.com', '$2y$10$be58c/IuuMd8FHL98JRcZOWiXi/2jV/PUIp0B7a8EVFrgIw974/au', NULL, NULL, 'user', '2025-10-12 10:26:40', '2025-10-13 07:46:29', '7755939361', 'Plot no. 10 C, Nath Valley School Rd, Kanchanwadi, Chhatrapati Sambhajinagar, Maharashtra 431011', 1, '2025-10-12 10:26:40', '2025-10-19 10:26:40'),
+(80, 'Biryani By Bulk - Pahad Singh Pura', 'bbbpahadsinghpura@gmail.com', '$2y$10$ExdUX74QmwA2iBWTRLTwI..4MCPZGBy57rZdoABgAOJLg2v6.Q20G', NULL, NULL, 'user', '2025-10-12 10:29:04', '2025-10-13 08:21:46', '7755939361', 'Aurangabad Caves Rd, Pahadsingpura, Dr Babasaheb Ambedkar Marathwada University Campus, Chhatrapati Sambhajinagar, Maharashtra 431001', 1, '2025-10-12 10:29:04', '2025-10-19 10:29:04'),
+(81, 'Biryani By Bulk - Kat Kat Gate', 'bbbkatkatgate@gmail.com', '$2y$10$H4z3uCHl6decDhuKsM63LOTGT/o9DipXokSP9UD3al/.T92TCHNSq', NULL, NULL, 'user', '2025-10-12 10:30:50', '2025-10-13 08:32:17', '7755939361', 'Aurangabad', 1, '2025-10-12 10:30:50', '2025-10-19 10:30:50');
 
 -- --------------------------------------------------------
 
@@ -50634,7 +53170,12 @@ INSERT INTO `user_apks` (`id`, `user_id`, `file_name`, `file_path`, `upload_date
 (18, 70, 'pawan-koliwada.apk', 'downloads/70/pawan-koliwada.apk', '2025-09-23 02:47:30'),
 (19, 71, 'pawan-koliwada.apk', 'downloads/71/pawan-koliwada.apk', '2025-09-23 04:15:17'),
 (20, 72, 'pawan-koliwada.apk', 'downloads/72/pawan-koliwada.apk', '2025-09-23 04:45:37'),
-(21, 73, 'pawan-koliwada.apk', 'downloads/73/pawan-koliwada.apk', '2025-09-23 05:05:39');
+(21, 73, 'pawan-koliwada.apk', 'downloads/73/pawan-koliwada.apk', '2025-09-23 05:05:39'),
+(22, 77, 'biryanibybulk.apk', 'downloads/77/biryanibybulk.apk', '2025-10-13 16:54:42'),
+(23, 79, 'biryanibybulk.apk', 'downloads/79/biryanibybulk.apk', '2025-10-13 16:55:52'),
+(24, 81, 'biryanibybulk.apk', 'downloads/81/biryanibybulk.apk', '2025-10-13 16:57:29'),
+(25, 80, 'biryanibybulk.apk', 'downloads/80/biryanibybulk.apk', '2025-10-13 16:57:57'),
+(26, 78, 'biryanibybulk.apk', 'downloads/78/biryanibybulk.apk', '2025-10-13 16:58:27');
 
 -- --------------------------------------------------------
 
@@ -50711,6 +53252,57 @@ INSERT INTO `user_cards` (`id`, `user_id`, `card_type`, `file_path`, `uploaded_a
 (60, 67, 'back', 'card_designs/card_67_back_1757578830.png', '2025-09-11 13:50:30'),
 (61, 69, 'front', 'card_designs/card_69_front_1758186632.jpg', '2025-09-18 14:40:32'),
 (62, 69, 'back', 'card_designs/card_69_back_1758186632.jpg', '2025-09-18 14:40:32');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_devices`
+--
+
+CREATE TABLE `user_devices` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `player_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `device_type` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(4) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `platform` varchar(50) COLLATE utf8_unicode_ci DEFAULT 'unknown',
+  `source` varchar(50) COLLATE utf8_unicode_ci DEFAULT 'unknown'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `user_devices`
+--
+
+INSERT INTO `user_devices` (`id`, `user_id`, `player_id`, `device_type`, `is_active`, `created_at`, `updated_at`, `platform`, `source`) VALUES
+(1, 28, '199cd48f-17e7-447e-9079-5b231321dd4b', 'android_webtonative', 1, '2025-10-21 15:37:16', '2025-10-21 15:38:40', 'android', 'simple_script'),
+(2, 28, '50ae8b22-8d0f-4772-bfb6-7fb08723a1bd', 'android_webtonative', 1, '2025-10-21 15:48:03', '2025-10-21 16:18:57', 'android', 'simple_script'),
+(3, 28, 'e08389cf-104c-4d70-abf1-79dee7d6f0db', 'android_webtonative', 1, '2025-10-21 15:49:31', '2025-10-21 16:30:57', 'android', 'simple_script'),
+(4, 28, '37fb4878-2308-4d20-bca7-5ca5456827b9', 'android_webtonative', 1, '2025-10-21 16:24:15', '2025-10-21 16:25:14', 'android', 'simple_script'),
+(5, 28, 'dab71814-ab61-4ea7-8b88-daa1e9356887', 'android_webtonative', 1, '2025-10-21 16:41:58', '2025-10-21 20:38:21', 'android', 'simple_script'),
+(6, 28, '6af13a04-4cd8-44db-b147-f6d846796a01', 'android_webtonative', 1, '2025-10-21 16:42:34', '2025-10-21 17:08:17', 'android', 'simple_script'),
+(12, 19, '4ed1bf3a-fc88-4fff-9af7-2c7f031d8f39', 'android_webtonative', 1, '2025-10-21 17:10:17', '2025-10-21 17:11:31', 'android', 'simple_script'),
+(16, 28, 'd5e3e336-426a-4364-abe5-943fb1498bea', 'android_webtonative', 1, '2025-10-21 17:29:07', '2025-10-22 06:22:16', 'android', 'simple_script'),
+(17, 28, '7dc7b0b2-ac76-47df-832c-9bf4f0a069a1', 'android_webtonative', 1, '2025-10-21 17:55:02', '2025-10-21 17:58:42', 'android', 'simple_script'),
+(18, 28, '299003f4-0ed1-4ac0-bca6-d51cbc9e1b33', 'android_webtonative', 1, '2025-10-21 17:56:57', '2025-10-21 17:58:49', 'android', 'simple_script'),
+(19, 28, 'fe71c77d-f8a2-469f-a2c2-c77794e797f2', 'android_webtonative', 1, '2025-10-21 19:14:02', '2025-10-21 19:15:52', 'android', 'simple_script'),
+(20, 19, 'b57056a7-52f7-4197-9ce4-be716c597db5', 'android_webtonative', 1, '2025-10-22 05:10:39', '2025-10-22 05:16:16', 'android', 'simple_script');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_notification_settings`
+--
+
+CREATE TABLE `user_notification_settings` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `new_orders_enabled` tinyint(4) DEFAULT '1',
+  `sound_enabled` tinyint(4) DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -50854,6 +53446,14 @@ ALTER TABLE `discount`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `fcm_tokens`
+--
+ALTER TABLE `fcm_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_token` (`token`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `gst_charge`
 --
 ALTER TABLE `gst_charge`
@@ -50874,6 +53474,13 @@ ALTER TABLE `loyalty_cards`
 ALTER TABLE `master_products`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `onesignal_users`
+--
+ALTER TABLE `onesignal_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_device` (`user_id`,`device_type`);
 
 --
 -- Indexes for table `orders`
@@ -50905,6 +53512,14 @@ ALTER TABLE `order_updates`
 --
 ALTER TABLE `packages`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `partner_devices`
+--
+ALTER TABLE `partner_devices`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_device` (`user_id`,`device_id`),
+  ADD KEY `idx_user_id` (`user_id`);
 
 --
 -- Indexes for table `photo_gallery`
@@ -51244,6 +53859,42 @@ ALTER TABLE `products_73`
   ADD KEY `idx_tag_id` (`tag_id`);
 
 --
+-- Indexes for table `products_77`
+--
+ALTER TABLE `products_77`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_product_name` (`product_name`),
+  ADD KEY `idx_tag_id` (`tag_id`);
+
+--
+-- Indexes for table `products_78`
+--
+ALTER TABLE `products_78`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_product_name` (`product_name`),
+  ADD KEY `idx_tag_id` (`tag_id`);
+
+--
+-- Indexes for table `products_79`
+--
+ALTER TABLE `products_79`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `products_80`
+--
+ALTER TABLE `products_80`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_product_name` (`product_name`),
+  ADD KEY `idx_tag_id` (`tag_id`);
+
+--
+-- Indexes for table `products_81`
+--
+ALTER TABLE `products_81`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `profile_cover_photo`
 --
 ALTER TABLE `profile_cover_photo`
@@ -51389,6 +54040,22 @@ ALTER TABLE `user_cards`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `player_id` (`player_id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_player_id` (`player_id`);
+
+--
+-- Indexes for table `user_notification_settings`
+--
+ALTER TABLE `user_notification_settings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `user_sessions`
 --
 ALTER TABLE `user_sessions`
@@ -51423,13 +54090,13 @@ ALTER TABLE `bank_details`
 -- AUTO_INCREMENT for table `business_info`
 --
 ALTER TABLE `business_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `coupon_redemptions`
@@ -51465,25 +54132,31 @@ ALTER TABLE `dg_payment_methods`
 -- AUTO_INCREMENT for table `dg_transactions`
 --
 ALTER TABLE `dg_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=188;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
 
 --
 -- AUTO_INCREMENT for table `dining_and_delivery`
 --
 ALTER TABLE `dining_and_delivery`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `dining_tables`
 --
 ALTER TABLE `dining_tables`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `discount`
 --
 ALTER TABLE `discount`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+
+--
+-- AUTO_INCREMENT for table `fcm_tokens`
+--
+ALTER TABLE `fcm_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `gst_charge`
@@ -51504,28 +54177,40 @@ ALTER TABLE `master_products`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=241;
 
 --
+-- AUTO_INCREMENT for table `onesignal_users`
+--
+ALTER TABLE `onesignal_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1582;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2116;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3228;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4591;
 
 --
 -- AUTO_INCREMENT for table `order_updates`
 --
 ALTER TABLE `order_updates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=167;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=394;
 
 --
 -- AUTO_INCREMENT for table `packages`
 --
 ALTER TABLE `packages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `partner_devices`
+--
+ALTER TABLE `partner_devices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `photo_gallery`
@@ -51609,7 +54294,7 @@ ALTER TABLE `products_26`
 -- AUTO_INCREMENT for table `products_28`
 --
 ALTER TABLE `products_28`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=480;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=489;
 
 --
 -- AUTO_INCREMENT for table `products_30`
@@ -51687,7 +54372,7 @@ ALTER TABLE `products_48`
 -- AUTO_INCREMENT for table `products_50`
 --
 ALTER TABLE `products_50`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=191;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=192;
 
 --
 -- AUTO_INCREMENT for table `products_51`
@@ -51786,10 +54471,40 @@ ALTER TABLE `products_73`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=321;
 
 --
+-- AUTO_INCREMENT for table `products_77`
+--
+ALTER TABLE `products_77`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT for table `products_78`
+--
+ALTER TABLE `products_78`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT for table `products_79`
+--
+ALTER TABLE `products_79`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT for table `products_80`
+--
+ALTER TABLE `products_80`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT for table `products_81`
+--
+ALTER TABLE `products_81`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
 -- AUTO_INCREMENT for table `profile_cover_photo`
 --
 ALTER TABLE `profile_cover_photo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `qrcode_details`
@@ -51801,7 +54516,7 @@ ALTER TABLE `qrcode_details`
 -- AUTO_INCREMENT for table `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `sales_track`
@@ -51819,19 +54534,19 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `social_link`
 --
 ALTER TABLE `social_link`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `store_timing`
 --
 ALTER TABLE `store_timing`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1076;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1167;
 
 --
 -- AUTO_INCREMENT for table `subscriptions`
 --
 ALTER TABLE `subscriptions`
-  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `subscription_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `subscription_payments`
@@ -51843,13 +54558,13 @@ ALTER TABLE `subscription_payments`
 -- AUTO_INCREMENT for table `tags`
 --
 ALTER TABLE `tags`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=548;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=574;
 
 --
 -- AUTO_INCREMENT for table `theme`
 --
 ALTER TABLE `theme`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `tickets`
@@ -51873,13 +54588,13 @@ ALTER TABLE `ticket_replies`
 -- AUTO_INCREMENT for table `trial_subscriptions`
 --
 ALTER TABLE `trial_subscriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT for table `user_addons`
@@ -51891,13 +54606,25 @@ ALTER TABLE `user_addons`
 -- AUTO_INCREMENT for table `user_apks`
 --
 ALTER TABLE `user_apks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `user_cards`
 --
 ALTER TABLE `user_cards`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+
+--
+-- AUTO_INCREMENT for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `user_notification_settings`
+--
+ALTER TABLE `user_notification_settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_sessions`
@@ -51976,6 +54703,12 @@ ALTER TABLE `dining_tables`
 --
 ALTER TABLE `discount`
   ADD CONSTRAINT `discount_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `fcm_tokens`
+--
+ALTER TABLE `fcm_tokens`
+  ADD CONSTRAINT `fcm_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `gst_charge`
@@ -52098,6 +54831,18 @@ ALTER TABLE `trial_subscriptions`
 --
 ALTER TABLE `user_cards`
   ADD CONSTRAINT `user_cards_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_devices`
+--
+ALTER TABLE `user_devices`
+  ADD CONSTRAINT `user_devices_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_notification_settings`
+--
+ALTER TABLE `user_notification_settings`
+  ADD CONSTRAINT `user_notification_settings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_sessions`

@@ -1901,13 +1901,6 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
 
 
 
-
-
-        <h2><a href="notification_monitor.php">notification_monitor.php</a></h2>
-
-        <h2><a href="checklist.php">checklist.php</a></h2>
-
-
          <li class="nav-item">
             <a class="nav-link" href="dashboard.php">
                <span class="nav-icon">
