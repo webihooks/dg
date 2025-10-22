@@ -170,7 +170,7 @@ class SimpleOneSignalRegister {
         
         console.log('📨 Sending registration:', payload);
         
-        fetch('https://dgcard.online/register_device_unified.php', {
+        fetch('register_device_unified.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -208,6 +208,7 @@ class SimpleOneSignalRegister {
             border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
             border-radius: 5px;
             z-index: 10000;
+            display: none;
             color: ${type === 'success' ? '#155724' : '#721c24'};
         `;
         div.textContent = message;

@@ -47,8 +47,8 @@ class OneSignalNotification {
             $notificationData = [
                 'app_id' => $this->appId,
                 'include_player_ids' => $playerIds,
-                'headings' => ['en' => '🆕 New Order Received!'],
-                'contents' => ['en' => "Order #{$orderId} from {$customerName} - ₹{$totalAmount}"],
+                'headings' => ['en' => 'New Order Received! 🔥🔥🔥'],
+                'contents' => ['en' => "Order Id: {$orderId} from {$customerName} - ₹{$totalAmount}"],
                 'data' => [
                     'order_id' => $orderId,
                     'type' => 'new_order',
