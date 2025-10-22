@@ -203,7 +203,7 @@ try {
     // =========================================================================
     if ($orderId) {
         // Use fast non-blocking HTTP request instead of shell_exec
-        $notificationUrl = 'https://dgcard.online/send_onesignal_notification.php';
+        $notificationUrl = 'send_onesignal_notification.php';
         $notificationData = [
             'user_id' => $input['user_id'],
             'order_id' => $orderId,
