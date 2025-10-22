@@ -13,6 +13,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
     );
 
     public static $prefixLengthsPsr4 = array (
+        'o' => 
+        array (
+            'onesignal\\client\\' => 17,
+        ),
         'S' => 
         array (
             'SpomkyLabs\\Pki\\' => 15,
@@ -44,14 +48,27 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             'Firebase\\JWT\\' => 13,
         ),
+        'E' => 
+        array (
+            'Endroid\\QrCode\\' => 15,
+        ),
+        'D' => 
+        array (
+            'DASPRiD\\Enum\\' => 13,
+        ),
         'B' => 
         array (
             'Brick\\Math\\' => 11,
             'Base64Url\\' => 10,
+            'BaconQrCode\\' => 12,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'onesignal\\client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/onesignal/onesignal-php-api/lib',
+        ),
         'SpomkyLabs\\Pki\\' => 
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/pki-framework/src',
@@ -105,6 +122,14 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
+        'Endroid\\QrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/endroid/qr-code/src',
+        ),
+        'DASPRiD\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dasprid/enum/src',
+        ),
         'Brick\\Math\\' => 
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
@@ -112,6 +137,10 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         'Base64Url\\' => 
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/base64url/src',
+        ),
+        'BaconQrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
         ),
     );
 

@@ -111,3 +111,17 @@ Stack trace:
 #0 /home4/doctorie/public_html/deegeecard.com/api/dashboard_stats.php(6): authenticateJWT()
 #1 {main}
   thrown in /home4/doctorie/public_html/deegeecard.com/api/jwt_middleware.php on line 27
+[18-Oct-2025 13:34:25 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:34:25 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:34:32 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:34:32 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:34:49 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:34:49 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:36:14 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:36:14 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:36:22 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:36:22 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:36:29 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:36:29 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34
+[18-Oct-2025 13:38:04 UTC] PHP Warning:  Undefined array key "email" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 33
+[18-Oct-2025 13:38:04 UTC] PHP Warning:  Undefined array key "password" in /home4/doctorie/public_html/dgcard.online/api/login.php on line 34

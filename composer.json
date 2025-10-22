@@ -2,6 +2,8 @@
     "require": {
         "google\/auth": "^1.0",
         "firebase\/php-jwt": "^6.0",
-        "minishlink/web-push": "^9.0"
+        "minishlink/web-push": "^9.0",
+        "onesignal/onesignal-php-api": "^2.2",
+        "endroid/qr-code": "^4.0"
     }
 }

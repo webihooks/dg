@@ -116,3 +116,173 @@
 [13-Oct-2025 15:51:31 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
 [13-Oct-2025 16:32:38 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
 [13-Oct-2025 16:32:38 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 11:57:37 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 11:57:37 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:46:11 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:46:11 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:46:11 UTC] Login API called: GET
+[18-Oct-2025 13:46:11 UTC] Content-Type: not set
+[18-Oct-2025 13:46:22 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:46:22 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:46:22 UTC] Login API called: POST
+[18-Oct-2025 13:46:22 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 13:46:22 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 13:46:22 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 13:46:22 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 13:46:22 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 13:46:22 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 13:46:22 UTC] Password verified: YES
+[18-Oct-2025 13:46:22 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 13:46:59 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:46:59 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:46:59 UTC] Login API called: GET
+[18-Oct-2025 13:46:59 UTC] Content-Type: not set
+[18-Oct-2025 13:47:10 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:47:10 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:47:10 UTC] Login API called: POST
+[18-Oct-2025 13:47:10 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 13:47:10 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 13:47:10 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 13:47:10 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 13:47:10 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 13:47:10 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 13:47:10 UTC] Password verified: YES
+[18-Oct-2025 13:47:10 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 13:48:04 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:48:04 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:48:04 UTC] Login API called: GET
+[18-Oct-2025 13:48:04 UTC] Content-Type: not set
+[18-Oct-2025 13:48:19 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 13:48:19 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 13:48:19 UTC] Login API called: POST
+[18-Oct-2025 13:48:19 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 13:48:19 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 13:48:19 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 13:48:19 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 13:48:19 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 13:48:19 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 13:48:19 UTC] Password verified: YES
+[18-Oct-2025 13:48:19 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 14:09:35 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:09:35 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:09:35 UTC] Login API called: GET
+[18-Oct-2025 14:09:35 UTC] Content-Type: not set
+[18-Oct-2025 14:09:46 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:09:46 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:09:46 UTC] Login API called: POST
+[18-Oct-2025 14:09:46 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 14:09:46 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 14:09:46 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 14:09:46 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 14:09:46 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 14:09:46 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 14:09:46 UTC] Password verified: YES
+[18-Oct-2025 14:09:46 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 14:10:36 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:10:36 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:10:36 UTC] Login API called: GET
+[18-Oct-2025 14:10:36 UTC] Content-Type: not set
+[18-Oct-2025 14:10:59 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:10:59 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:10:59 UTC] Login API called: POST
+[18-Oct-2025 14:10:59 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 14:10:59 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 14:10:59 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 14:10:59 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 14:10:59 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 14:10:59 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 14:10:59 UTC] Password verified: YES
+[18-Oct-2025 14:10:59 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 14:18:53 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:18:53 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:18:53 UTC] Login API called: GET
+[18-Oct-2025 14:18:53 UTC] Content-Type: not set
+[18-Oct-2025 14:19:07 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:19:07 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:19:07 UTC] Login API called: POST
+[18-Oct-2025 14:19:07 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 14:19:07 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 14:19:07 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 14:19:07 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 14:19:07 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 14:19:07 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 14:19:07 UTC] Password verified: YES
+[18-Oct-2025 14:19:07 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 14:19:12 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:19:12 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:19:12 UTC] Login API called: GET
+[18-Oct-2025 14:19:12 UTC] Content-Type: not set
+[18-Oct-2025 14:22:59 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:22:59 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:22:59 UTC] Login API called: POST
+[18-Oct-2025 14:22:59 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 14:22:59 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 14:22:59 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 14:22:59 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 14:22:59 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 14:22:59 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 14:23:00 UTC] Password verified: YES
+[18-Oct-2025 14:23:00 UTC] Login successful for user: thedhamaal@gmail.com
+[18-Oct-2025 14:49:59 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:49:59 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:49:59 UTC] Login API called: GET
+[18-Oct-2025 14:49:59 UTC] Content-Type: not set
+[18-Oct-2025 14:50:08 UTC] PHP Warning:  ini_set(): Session ini settings cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 12
+[18-Oct-2025 14:50:08 UTC] PHP Warning:  session_set_cookie_params(): Session cookie parameters cannot be changed when a session is active in /home4/doctorie/public_html/dgcard.online/flutter_api/login.php on line 13
+[18-Oct-2025 14:50:08 UTC] Login API called: POST
+[18-Oct-2025 14:50:08 UTC] Content-Type: application/json; charset=utf-8
+[18-Oct-2025 14:50:08 UTC] Raw input: {"email":"thedhamaal@gmail.com","password":"deegee@card","remember_me":true}
+[18-Oct-2025 14:50:08 UTC] Parsed input: Array
+(
+    [email] => thedhamaal@gmail.com
+    [password] => deegee@card
+    [remember_me] => 1
+)
+
+[18-Oct-2025 14:50:08 UTC] Login attempt - Email: thedhamaal@gmail.com, Password length: 11
+[18-Oct-2025 14:50:08 UTC] User found: thedhamaal@gmail.com
+[18-Oct-2025 14:50:08 UTC] Stored hash: $2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly
+[18-Oct-2025 14:50:08 UTC] Password verified: YES
+[18-Oct-2025 14:50:08 UTC] Login successful for user: thedhamaal@gmail.com
