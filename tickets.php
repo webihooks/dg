@@ -20,6 +20,15 @@ $user_result = $user_stmt->get_result();
 $user = $user_result->fetch_assoc();
 $user_stmt->close();
 
+// Get user role
+$role_sql = "SELECT role FROM users WHERE id = ?";
+$role_stmt = $conn->prepare($role_sql);
+$role_stmt->bind_param("i", $user_id);
+$role_stmt->execute();
+$role_stmt->bind_result($role);
+$role_stmt->fetch();
+$role_stmt->close();
+
 if ($user['role'] === 'admin') {
     $is_admin = true;
 }
@@ -76,7 +85,16 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include ($is_admin ? 'admin_menu.php' : 'menu.php'); ?>
+        
+        <?php
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'sales_person') {
+            include 'sales_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">

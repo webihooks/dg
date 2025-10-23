@@ -1,23 +1,32 @@
 <?php
-// Enhanced universal session configuration with Android app debugging
+// ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
 session_set_cookie_params([
-    'lifetime' => 31536000, // 1 year for all platforms
+    'lifetime' => 31536000, // 1 year
     'path' => '/',
     'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']),
+    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
     'httponly' => true,
-    'samesite' => 'None' // Changed back to None for Android app compatibility
+    'samesite' => 'None' // Essential for Android apps
 ]);
 
-// Start session with extended lifetime (365 days)
-ini_set('session.gc_maxlifetime', 31536000);
-ini_set('session.cookie_lifetime', 31536000);
+// Server-side session configuration
+ini_set('session.gc_maxlifetime', 31536000); // 1 year
+ini_set('session.cookie_lifetime', 31536000); // 1 year
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 1 : 0);
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'None');
+
+// Prevent session ID regeneration on every request
+ini_set('session.use_strict_mode', 1);
+ini_set('session.use_cookies', 1);
+ini_set('session.use_only_cookies', 1);
+
 session_start();
 
-// Set cache control headers
-header("Cache-Control: no-cache, no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
+// Set aggressive caching headers for session persistence
+header("Cache-Control: private, max-age=31536000");
+header("Pragma: cache");
+header("Expires: " . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
 
 // Database connection
 $host = 'localhost';
@@ -61,17 +70,29 @@ if ($isAndroidApp) {
     $_SESSION['last_android_access'] = time();
 }
 
-// UNIVERSAL SESSION VALIDATION
+// UNIVERSAL SESSION VALIDATION WITH 365-DAY PERSISTENCE
 if (isset($_SESSION['user_id'])) {
     // Update session lifetime
     $_SESSION['last_activity'] = time();
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    $_SESSION['session_expires'] = time() + 31536000; // 1 year from now
     
     // Android-specific session maintenance
     if ($isAndroidApp) {
         $_SESSION['android_last_activity'] = time();
         $_SESSION['android_session_updated'] = true;
+        $_SESSION['android_session_id'] = session_id();
     }
+    
+    // Update session cookie with extended lifetime
+    setcookie(session_name(), session_id(), [
+        'expires' => time() + 31536000,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'None'
+    ]);
     
     // Redirect based on user role
     if ($_SESSION['role'] === 'admin') {
@@ -86,7 +107,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// ENHANCED REMEMBER ME TOKEN AUTO-LOGIN WITH ANDROID SUPPORT
+// ENHANCED REMEMBER ME TOKEN AUTO-LOGIN WITH 365-DAY PERSISTENCE
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $remember_token = $_COOKIE['remember_token'];
     
@@ -98,26 +119,40 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
-            // Auto-login user
+            // Auto-login user with fresh session
             session_regenerate_id(true);
             
+            // Set comprehensive session data
+            $_SESSION = []; // Clear existing session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['email'] = $user['Email'];
             $_SESSION['login_time'] = time();
             $_SESSION['last_activity'] = time();
             $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
             $_SESSION['auto_logged_in'] = true;
+            $_SESSION['session_expires'] = time() + 31536000; // 1 year from now
             
             // Android app specific data
             if ($isAndroidApp) {
                 $_SESSION['is_android_app'] = true;
                 $_SESSION['android_auto_login'] = true;
                 $_SESSION['android_login_time'] = time();
+                $_SESSION['android_session_id'] = session_id();
             }
             
-            // Log auto-login success for debugging
-            error_log("Android Auto-Login Success: User {$user['id']} via token");
+            // Update session cookie with extended lifetime
+            setcookie(session_name(), session_id(), [
+                'expires' => time() + 31536000,
+                'path' => '/',
+                'domain' => $_SERVER['HTTP_HOST'],
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'None'
+            ]);
+            
+            error_log("✅ Auto-Login Success: User {$user['id']} via token");
             
             // Redirect based on user role
             if ($user['role'] === 'admin') {
@@ -130,11 +165,11 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             exit();
         } else {
             // Clear invalid remember token
-            setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST']);
-            error_log("Android Auto-Login Failed: Invalid token");
+            setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST'], true, true);
+            error_log("❌ Auto-Login Failed: Invalid token");
         }
     } catch (PDOException $e) {
-        error_log("Android Auto-Login Error: " . $e->getMessage());
+        error_log("🚨 Auto-Login Error: " . $e->getMessage());
     }
 }
 
@@ -159,19 +194,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['login_time'] = time();
             $_SESSION['last_activity'] = time();
             $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+            $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
             $_SESSION['auto_logged_in'] = false;
+            $_SESSION['session_expires'] = time() + 31536000; // 1 year from now
             
             // Android app specific session data
             if ($isAndroidApp) {
                 $_SESSION['is_android_app'] = true;
                 $_SESSION['android_manual_login'] = true;
                 $_SESSION['android_login_time'] = time();
+                $_SESSION['android_session_id'] = session_id();
                 
                 // Log Android login
                 error_log("Android Manual Login Success: User {$user['id']}");
             }
             
-            // ENHANCED REMEMBER ME FOR ANDROID APPS
+            // ENHANCED REMEMBER ME FOR 365-DAY PERSISTENCE
             if (isset($_POST['remember_me'])) {
                 $remember_token = bin2hex(random_bytes(32));
                 $expires = time() + 31536000; // 1 year
@@ -188,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'expires' => $expires,
                     'path' => '/',
                     'domain' => $_SERVER['HTTP_HOST'],
-                    'secure' => isset($_SERVER['HTTPS']),
+                    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
                     'httponly' => true,
                     'samesite' => 'None' // Essential for Android WebView
                 ]);
@@ -203,8 +241,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':id', $user['id']);
                 $stmt->execute();
                 
-                setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST']);
+                setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST'], true, true);
             }
+            
+            // Update session cookie with extended lifetime
+            setcookie(session_name(), session_id(), [
+                'expires' => time() + 31536000,
+                'path' => '/',
+                'domain' => $_SERVER['HTTP_HOST'],
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'None'
+            ]);
             
             // Check trial
             if (isset($user['trial_end']) && strtotime($user['trial_end']) < time()) {
@@ -230,7 +278,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
@@ -242,7 +289,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <meta name="description" content="Deegeecard Login Page" />
      <meta name="author" content="" />
      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
 
      <!-- PWA Meta Tags -->
      <link rel="manifest" href="/manifest.json">
@@ -272,29 +318,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <script src="assets/js/config.js"></script>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-
-
-
-<!-- Session Keep Alive -->
+<!-- Enhanced Universal Session Management - 365 Days -->
 <script>
-// Enhanced Universal Session Management
+// Enhanced Universal Session Management - 365 Days
 class UniversalSessionManager {
     constructor() {
         this.keepAliveInterval = 300000; // 5 minutes
+        this.isAndroidApp = typeof WTN !== 'undefined';
         this.init();
     }
 
     init() {
         this.startKeepAlive();
         this.setupVisibilityHandler();
+        this.setupActivityHandlers();
+        this.initializeSession();
+    }
+
+    initializeSession() {
+        // Set session persistence in localStorage
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem('sessionInitialized', Date.now());
+            localStorage.setItem('userAgent', navigator.userAgent);
+            localStorage.setItem('sessionStart', new Date().toISOString());
+        }
     }
 
     startKeepAlive() {
-        // IMMEDIATE keep-alive on load
+        // Immediate keep-alive on load
         this.keepSessionAlive();
         
-        // Periodic keep-alive
-        setInterval(() => {
+        // Periodic keep-alive every 5 minutes
+        this.keepAliveTimer = setInterval(() => {
             this.keepSessionAlive();
         }, this.keepAliveInterval);
     }
@@ -303,46 +358,93 @@ class UniversalSessionManager {
         try {
             const response = await fetch('session-keepalive.php', {
                 method: 'GET',
-                credentials: 'include',
+                credentials: 'include', // Essential for cookies
                 headers: {
                     'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
-            if (response.ok) {
-                console.log('Session keep-alive successful');
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                console.log('✅ Session kept alive:', new Date().toLocaleTimeString());
+                
+                // Update session info in storage
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastKeepAlive', Date.now());
+                    localStorage.setItem('lastActivity', new Date().toISOString());
+                }
             } else {
-                console.warn('Session keep-alive failed');
+                console.warn('⚠️ Session keep-alive failed');
             }
         } catch (error) {
-            console.error('Keep-alive request failed:', error);
+            console.error('❌ Keep-alive request failed:', error);
         }
     }
 
     setupVisibilityHandler() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                // Page became visible - refresh session
+                // Page became visible - refresh session immediately
+                console.log('🔄 Page visible - refreshing session');
                 this.keepSessionAlive();
+                
+                // Additional session validation
+                this.validateSessionState();
             }
         });
+    }
+
+    setupActivityHandlers() {
+        // Refresh session on user activity
+        const activities = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        activities.forEach(activity => {
+            document.addEventListener(activity, () => {
+                this.keepSessionAlive();
+            }, { passive: true });
+        });
+    }
+
+    validateSessionState() {
+        // Check if session is still valid
+        if (typeof(Storage) !== "undefined") {
+            const lastKeepAlive = localStorage.getItem('lastKeepAlive');
+            if (lastKeepAlive && (Date.now() - parseInt(lastKeepAlive)) > 600000) { // 10 minutes
+                console.log('🔄 Session state validation triggered');
+                this.keepSessionAlive();
+            }
+        }
+    }
+
+    // Cleanup method
+    destroy() {
+        if (this.keepAliveTimer) {
+            clearInterval(this.keepAliveTimer);
+        }
     }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    new UniversalSessionManager();
+    window.sessionManager = new UniversalSessionManager();
+    
+    // Store session initialization
+    console.log('🚀 Universal Session Manager Initialized');
+    console.log('📱 Android App:', typeof WTN !== 'undefined');
+    console.log('🍪 Cookies enabled:', navigator.cookieEnabled);
+    console.log('📅 Session designed for 365-day persistence');
+});
+
+// Handle page unload for session preservation
+window.addEventListener('beforeunload', function() {
+    if (typeof(Storage) !== "undefined") {
+        localStorage.setItem('sessionPreserved', 'true');
+        localStorage.setItem('lastUnload', Date.now());
+    }
 });
 </script>
-<!-- Session Keep Alive -->
-
-
-
-
-
-
-
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-81W5S4MMGY"></script>
@@ -353,52 +455,6 @@ document.addEventListener('DOMContentLoaded', function() {
   gtag('config', 'G-81W5S4MMGY');
 </script>
 
-<!-- ADD SOLUTION 2 SCRIPT HERE -->
-<script>
-// Enhanced session management for Chrome desktop app
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're in a Chrome desktop app environment
-    const isChromeDesktopApp = /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
-    
-    if (isChromeDesktopApp) {
-        console.log('Chrome desktop app detected - enabling enhanced session management');
-        
-        // Periodically ping server to keep session alive
-        setInterval(() => {
-            fetch('session-keepalive.php', {
-                method: 'HEAD',
-                credentials: 'include' // Important: include cookies
-            }).then(response => {
-                console.log('Session keep-alive ping successful');
-            }).catch(err => {
-                console.log('Keep-alive request failed:', err);
-            });
-        }, 300000); // Ping every 5 minutes
-        
-        // Store session info in localStorage as backup
-        if (typeof(Storage) !== "undefined") {
-            localStorage.setItem('lastActivity', Date.now());
-            console.log('Session backup stored in localStorage');
-        }
-    }
-});
-
-// Handle beforeunload to preserve session
-window.addEventListener('beforeunload', function() {
-    if (typeof(Storage) !== "undefined") {
-        localStorage.setItem('sessionPreserved', 'true');
-        localStorage.setItem('preserveTime', Date.now());
-    }
-});
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-81W5S4MMGY');
-</script>
-
 <style>
 .bi-android2 {
      font-size: 25px; margin-right: 10px;
@@ -406,11 +462,28 @@ window.addEventListener('beforeunload', function() {
 .download_btn {
      line-height: 22px;
 }
+
+/* Session status indicator */
+.session-status {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: #28a745;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    z-index: 10000;
+    display: none;
+}
 </style>
      
 </head>
 
 <body class="h-100">
+     <!-- Session Status Indicator -->
+     <!-- <div class="session-status" id="sessionStatus">Session Active (365 Days)</div> -->
+
      <div class="d-flex flex-column h-100 p-3">
           <div class="d-flex flex-column flex-grow-1">
                <div class="row h-100">
@@ -433,7 +506,7 @@ window.addEventListener('beforeunload', function() {
                                         <p class="text-muted mt-1 mb-2">Enter your email address and password to access admin panel.</p>
 
                                         <div class="mb-2">
-                                             <form action="" method="POST" class="authentication-form">
+                                             <form action="" method="POST" class="authentication-form" id="loginForm">
                                                   <div class="mb-2">
                                                        <label class="form-label" for="example-email">Email</label>
                                                        <input type="email" id="example-email" name="email" class="form-control" placeholder="Enter your email" required>
@@ -445,8 +518,10 @@ window.addEventListener('beforeunload', function() {
                                                   </div>
                                                   <div class="mb-2">
                                                        <div class="form-check">
-                                                            <input type="checkbox" class="form-check-input" id="checkbox-signin">
-                                                            <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                                            <input type="checkbox" class="form-check-input" id="checkbox-signin" name="remember_me" checked>
+                                                            <label class="form-check-label" for="checkbox-signin">
+                                                                Remember Me(Recommended)
+                                                            </label>
                                                        </div>
                                                   </div>
 
@@ -457,7 +532,6 @@ window.addEventListener('beforeunload', function() {
                                         </div>
 
                                         <p class="text-danger text-center">Don't have an account? <a href="register.php" class="text-dark fw-bold ms-1">Sign Up</a></p>
-
 
                                         <!-- Download Our Partner Android App Section -->
                                         <div class="mt-1 border-top pt-4 mb-5">
@@ -530,21 +604,26 @@ function showInstallPrompt() {
     // Your custom install button logic
     console.log('App can be installed');
 }
+
+// Show session status on form interaction
+document.getElementById('loginForm').addEventListener('submit', function() {
+    const status = document.getElementById('sessionStatus');
+    status.style.display = 'block';
+    status.textContent = 'Setting up 365-day session...';
+    status.style.background = '#17a2b8';
+});
+
+// Show session info on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const status = document.getElementById('sessionStatus');
+        status.style.display = 'block';
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 3000);
+    }, 1000);
+});
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- ========================================= -->
 <!-- GUARANTEED OneSignal Device Registration -->

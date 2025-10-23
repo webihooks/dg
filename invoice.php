@@ -155,10 +155,13 @@ $conn->close();
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php 
-        // Include the appropriate menu based on user role
+
+
+        <?php
         if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'sales_person') {
+            include 'sales_menu.php';
         } else {
             include 'menu.php';
         }

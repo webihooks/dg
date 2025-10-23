@@ -20,6 +20,15 @@ $stmt->bind_result($user_name, $user_email);
 $stmt->fetch();
 $stmt->close();
 
+// Get user role
+$role_sql = "SELECT role FROM users WHERE id = ?";
+$role_stmt = $conn->prepare($role_sql);
+$role_stmt->bind_param("i", $user_id);
+$role_stmt->execute();
+$role_stmt->bind_result($role);
+$role_stmt->fetch();
+$role_stmt->close();
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = trim($_POST['subject']);
@@ -147,7 +156,16 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        
+        <?php
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'sales_person') {
+            include 'sales_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">

@@ -52,6 +52,53 @@
                </li>
 
 
+               <li class="nav-item">
+                    <a class="nav-link" href="invoice.php">
+                         <span class="nav-icon">
+                              <iconify-icon icon="la:file-invoice-dollar"></iconify-icon>
+                         </span>
+                         <span class="nav-text"> Invoice </span>
+                    </a>
+               </li>
+               
+
+               <li class="nav-item">
+                  <a class="nav-link menu-arrow" href="#ticket" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="ticket">
+                     <span class="nav-icon">
+                        <iconify-icon icon="material-symbols:help-outline"></iconify-icon>
+                     </span>
+                     <span class="nav-text"> Ticket </span>
+                  </a>
+                  <div class="collapse" id="ticket">
+                     <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                           <a class="sub-nav-link" href="create_ticket.php">Create Ticket</a>
+                        </li>
+                        <li class="sub-nav-item">
+                           <a class="sub-nav-link" href="view_tickets.php">View Tickets</a>
+                        </li>
+                     </ul>
+                  </div>
+               </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           </ul>
      </div>
 </div>
