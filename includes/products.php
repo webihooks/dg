@@ -35,10 +35,9 @@ if ($table_exists) {
     <?php endif; ?>
 <?php endif; ?>
 
-
 <script>
-// Add WhatsApp control flag at the very top
-const ENABLE_WHATSAPP_ORDER = false; // Set to true to enable WhatsApp integration
+// WhatsApp integration disabled
+const ENABLE_WHATSAPP_ORDER = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryBtn = document.getElementById('deliveryBtn');
@@ -307,13 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     <?php endif; ?>
 
-
-
-
-
-
-
-<div class="row" id="productsContainer">
+    <div class="row" id="productsContainer">
         <?php 
         // Get only active products from user-specific table with active tags or no tags
         $table_name = "products_" . $user_id;
@@ -339,93 +332,88 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         ?>
 
-    <?php if (!empty($products)): ?>
-        <?php foreach ($products as $product): ?>
-            <div class="col-sm-12 product-item" 
-                 data-name="<?= htmlspecialchars(strtolower($product['product_name'])) ?>" 
-                 data-desc="<?= htmlspecialchars(strtolower($product['description'])) ?>"
-                 data-tag="<?= isset($product['tag']) ? htmlspecialchars(strtolower($product['tag'])) : '' ?>">
-                <div class="card product-card">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
-                        <p class="card-text">
-                            <?= htmlspecialchars($product['description']) ?>
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-primary fw-bold">₹<?= number_format($product['price']) ?></span>
-                            <span class="badge bg-<?= ($product['quantity'] > 0) ? 'success' : 'danger' ?>" style="display: none;">
-                                <?= ($product['quantity'] > 0) ? 'In Stock' : 'Out of Stock' ?>
-                            </span>
+        <?php if (!empty($products)): ?>
+            <?php foreach ($products as $product): ?>
+                <div class="col-sm-12 product-item" 
+                     data-name="<?= htmlspecialchars(strtolower($product['product_name'])) ?>" 
+                     data-desc="<?= htmlspecialchars(strtolower($product['description'])) ?>"
+                     data-tag="<?= isset($product['tag']) ? htmlspecialchars(strtolower($product['tag'])) : '' ?>">
+                    <div class="card product-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
+                            <p class="card-text">
+                                <?= htmlspecialchars($product['description']) ?>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">₹<?= number_format($product['price']) ?></span>
+                                <span class="badge bg-<?= ($product['quantity'] > 0) ? 'success' : 'danger' ?>" style="display: none;">
+                                    <?= ($product['quantity'] > 0) ? 'In Stock' : 'Out of Stock' ?>
+                                </span>
+                            </div>
+                            <?php if ($product['quantity'] > 0): ?>
+                                <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
+                            <?php endif; ?>
+                            <?php if ($product['quantity'] > 0 && ($delivery_active || $dining_active) && $is_store_open): ?>
+                                <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
+                                    <button class="btn btn-primary w-100 add-to-cart" 
+                                            data-id="<?= htmlspecialchars($product['product_name']) ?>" 
+                                            data-name="<?= htmlspecialchars($product['product_name']) ?>" 
+                                            data-price="<?= $product['price'] ?>" 
+                                            data-max="<?= $product['quantity'] ?>" 
+                                            data-image="<?= htmlspecialchars($product['image_path']) ?>">
+                                        <i class="bi bi-cart-plus"></i> Add
+                                    </button>
+                                </div>
+                            <?php elseif ($product['quantity'] > 0 && !$is_store_open): ?>
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> Currently unavailable (Store closed)
+                                    </small>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <?php if ($product['quantity'] > 0): ?>
-                            <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
-                        <?php endif; ?>
-                        <?php if ($product['quantity'] > 0 && ($delivery_active || $dining_active) && $is_store_open): ?>
-                            <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
-                                <button class="btn btn-primary w-100 add-to-cart" 
-                                        data-id="<?= htmlspecialchars($product['product_name']) ?>" 
-                                        data-name="<?= htmlspecialchars($product['product_name']) ?>" 
-                                        data-price="<?= $product['price'] ?>" 
-                                        data-max="<?= $product['quantity'] ?>" 
-                                        data-image="<?= htmlspecialchars($product['image_path']) ?>">
-                                    <i class="bi bi-cart-plus"></i> Add
-                                </button>
-                            </div>
-                        <?php elseif ($product['quantity'] > 0 && !$is_store_open): ?>
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    <i class="bi bi-clock"></i> Currently unavailable (Store closed)
-                                </small>
+
+                        <?php if (!empty($product['image_path'])): ?>
+                            <div class="img-group">
+                                <!-- Lazy loading with fade-in effect -->
+                                <div class="aspect-ratio-box">
+                                    <img 
+                                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" 
+                                        data-src="<?= htmlspecialchars($product['image_path']) ?>" 
+                                        class="card-img-top product-img product-img-lazy product-img-placeholder" 
+                                        alt="<?= htmlspecialchars($product['product_name']) ?>" 
+                                        onerror="handleImageError(this)">
+                                    <div class="img-loading-spinner"></div>
+                                </div>
                             </div>
                         <?php endif; ?>
-                    </div>
 
-                    <?php if (!empty($product['image_path'])): ?>
-                        <div class="img-group">
-                            <!-- Lazy loading with fade-in effect -->
-                            <div class="aspect-ratio-box">
-                                <img 
-                                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" 
-                                    data-src="<?= htmlspecialchars($product['image_path']) ?>" 
-                                    class="card-img-top product-img product-img-lazy product-img-placeholder" 
-                                    alt="<?= htmlspecialchars($product['product_name']) ?>" 
-                                    onerror="handleImageError(this)">
-                                <div class="img-loading-spinner"></div>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <script>
-                        // Handle image errors
-                        function handleImageError(img) {
-                            img.style.display = 'none';
-                            const spinner = img.parentElement.querySelector('.img-loading-spinner');
-                            if (spinner) spinner.style.display = 'none';
-                            
-                            // Find the closest parent `.product-card`, then navigate to `.card-body .cart_btn_group`
-                            const productCard = img.closest('.product-card');
-                            if (productCard) {
-                                const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
-                                if (cartBtnGroup) {
-                                    cartBtnGroup.classList.add('top');
+                        <script>
+                            // Handle image errors
+                            function handleImageError(img) {
+                                img.style.display = 'none';
+                                const spinner = img.parentElement.querySelector('.img-loading-spinner');
+                                if (spinner) spinner.style.display = 'none';
+                                
+                                // Find the closest parent `.product-card`, then navigate to `.card-body .cart_btn_group`
+                                const productCard = img.closest('.product-card');
+                                if (productCard) {
+                                    const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
+                                    if (cartBtnGroup) {
+                                        cartBtnGroup.classList.add('top');
+                                    }
                                 }
                             }
-                        }
-                    </script>
+                        </script>
+                    </div>
                 </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info">No products available yet.</div>
             </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="col-12">
-            <div class="alert alert-info">No products available yet.</div>
-        </div>
-    <?php endif; ?>
-</div>
-
-
-
-
-
+        <?php endif; ?>
+    </div>
 
     <!-- Move search to bottom and make it sticky -->
     <div class="sticky-search-container">
@@ -460,8 +448,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-
-
     <?php if ($delivery_active || $dining_active): ?>
         <div class="cart-button-container" style="display: none;">
             <button class="btn btn-primary cart-button" onclick="toggleCart()">
@@ -491,252 +477,6 @@ if (localStorage.getItem(cartKey)) {
         cart.coupon = savedCart.coupon;
     }
 }
-
-// Whatsapp Msg Start
-// Add this function to your existing code
-function calculateSubtotal() {
-    return cart.filter(item => item.id).reduce((sum, item) => sum + (item.price * item.quantity), 0);
-}
-
-function placeOrderOnWhatsApp() {
-    if (cart.length === 0) {
-        showToast('Your cart is empty', 'error');
-        return;
-    }
-
-    <?php if ($delivery_active || $dining_active): ?>
-    const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
-    const deliveryCharge = Number(<?= json_encode($delivery_charges['delivery_charge'] ?? 0) ?>);
-    const freeDeliveryMin = Number(<?= json_encode($delivery_charges['free_delivery_minimum'] ?? 0) ?>);
-    const gstPercent = Number(<?= json_encode($gst_percent ?? 0) ?>);
-    
-    // Validate required fields
-    const phoneInput = isDelivery ? document.getElementById('customerPhone') : document.getElementById('dinningPhone');
-    if (!phoneInput.value || phoneInput.value.length !== 10) {
-        showToast('Please enter a valid 10-digit phone number', 'error');
-        phoneInput.focus();
-        return;
-    }
-
-    let customerName, orderDetails;
-    
-    if (isDelivery) {
-        customerName = document.getElementById('customerName').value;
-        const customerPhone = phoneInput.value;
-        const customerAddress = document.getElementById('customerAddress').value;
-        const customerNotes = document.getElementById('customerNotes').value;
-        
-        if (!customerName || !customerAddress) {
-            showToast('Please provide your name and address', 'error');
-            return;
-        }
-        
-        orderDetails = `*Delivery Order*\nName: ${customerName}\nPhone: ${customerPhone}\nAddress: ${customerAddress}`;
-        if (customerNotes) orderDetails += `\nNotes: ${customerNotes}`;
-    } else {
-        customerName = document.getElementById('dinningName').value;
-        const customerPhone = phoneInput.value;
-        const tableNumber = document.getElementById('tableNumber').value;
-        const dinningNotes = document.getElementById('dinningNotes').value;
-        
-        if (!customerName || !tableNumber) {
-            showToast('Please provide your name and table number', 'error');
-            return;
-        }
-        
-        orderDetails = `*Dining Order*\nName: ${customerName}\nPhone: ${customerPhone}\nTable No.: ${tableNumber}`;
-        if (dinningNotes) orderDetails += `\nNotes: ${dinningNotes}`;
-    }
-    <?php else: ?>
-    let customerName = 'Guest';
-    let orderDetails = `*Quick Order*`;
-    <?php endif; ?>
-
-    // Get WhatsApp number safely
-    const whatsappLink = <?= json_encode($social_link['whatsapp'] ?? '') ?>;
-    let phoneNumber = whatsappLink.match(/wa\.me\/(\d+)/)?.[1] || <?= json_encode($user['phone'] ?? '') ?>;
-
-    if (!phoneNumber) {
-        showToast('WhatsApp number not available for this business', 'error');
-        return;
-    }
-
-    // Format order date
-    const orderDate = new Date().toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    // Calculate order totals correctly
-    let subtotal = 0;
-    cart.forEach(item => {
-        if (item.id) { // Only count actual products, not coupon objects
-            subtotal += item.price * item.quantity;
-        }
-    });
-
-    // Get discount information from the UI
-    const discountSection = document.getElementById('discountSection');
-    let discountAmount = 0;
-    let discountText = '';
-    
-    if (discountSection && discountSection.style.display !== 'none') {
-        discountAmount = parseFloat(document.getElementById('discountAmount').textContent) || 0;
-        discountText = document.getElementById('discountType').textContent || '';
-    }
-
-    // Calculate amount after discount
-    let amountAfterDiscount = subtotal - discountAmount;
-    if (amountAfterDiscount < 0) amountAfterDiscount = 0;
-
-    // Calculate GST on amount after discount
-    let gstAmount = 0;
-    if (gstPercent > 0) {
-        gstAmount = (amountAfterDiscount * gstPercent) / 100;
-    }
-
-    // Calculate delivery charge
-    let actualDeliveryCharge = 0;
-    let deliveryText = '';
-    
-    if (isDelivery) {
-        // Check if free delivery minimum is set and applicable
-        if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
-            actualDeliveryCharge = 0;
-            deliveryText = `Delivery:       FREE\n(Order above ₹${freeDeliveryMin.toFixed(2)})\n`;
-        } else if (freeDeliveryMin > 0) {
-            // Not eligible for free delivery but free delivery minimum exists
-            actualDeliveryCharge = deliveryCharge;
-            const neededForFree = freeDeliveryMin - amountAfterDiscount;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n(Add ₹${neededForFree.toFixed(2)} more for FREE delivery)\n`;
-        } else {
-            // No free delivery minimum set, just charge normal delivery
-            actualDeliveryCharge = deliveryCharge;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n`;
-        }
-    }
-
-    // Calculate total
-    let total = amountAfterDiscount + gstAmount + actualDeliveryCharge;
-
-    // Business details
-    const businessName = <?= json_encode(htmlspecialchars($business_info['business_name'] ?? '')) ?>;
-    const businessAddress = <?= json_encode(htmlspecialchars($business_info['business_address'] ?? '')) ?>;
-    const businessPhone = <?= json_encode($user['phone'] ?? '') ?>;
-
-    // Build WhatsApp message
-    let message = `*${businessName.toUpperCase()}*\n` +
-                  `${businessAddress}\n` +
-                  `Phone: ${businessPhone}\n\n` +
-                  `Date: ${orderDate}\n` +
-                  `Order Type: ${isDelivery ? 'DELIVERY' : 'DINING'}\n` +
-                  `--------------------------------------------------\n` +
-                  `*ITEMS ORDERED*\n` +
-                  `--------------------------------------------------\n`;
-
-    // Add cart items
-    cart.forEach(item => {
-        if (item.id) { // Only show actual products, not coupon objects
-            const itemTotal = (item.price * item.quantity).toFixed(2);
-            message += `${item.name} x ${item.quantity}\n` +
-                      `₹${item.price.toFixed(2)} x ${item.quantity} = ₹${itemTotal}\n\n`;
-        }
-    });
-
-    // Add pricing summary
-    message += `--------------------------------------------------\n` +
-               `Subtotal:        ₹${subtotal.toFixed(2)}\n`;
-    
-    if (discountAmount > 0) {
-        message += `Discount:       -₹${discountAmount.toFixed(2)}\n`;
-        if (discountText) {
-            message += `(${discountText})\n`;
-        }
-    }
-    
-    if (gstPercent > 0) {
-        message += `GST (${gstPercent}%):    ₹${gstAmount.toFixed(2)}\n`;
-    }
-    
-    // Add delivery information
-    if (isDelivery) {
-        message += deliveryText;
-    }
-
-    message += `--------------------------------------------------\n` +
-               `*TOTAL:          ₹${total.toFixed(2)}*\n\n` +
-               `*CUSTOMER DETAILS*\n` +
-               `--------------------------------------------------\n` +
-               `${orderDetails}\n\n` +
-               `Thank you for your order. We'll process it shortly.\n\n`;
-
-    // Add profile URL
-    message += `Next time, place your order easily through this link 👉`;
-
-    // Add website if available
-    <?php if (!empty($business_info['website'])): ?>
-    message += `${<?= json_encode($business_info['website']) ?>}\n` +
-               `OR\n`;
-    <?php endif; ?>
-    
-    // At the top of your script, define the base URL
-    const baseUrl = 'https://deegeecard.com';
-    
-    // Then in your WhatsApp message:
-    message += `${baseUrl}/<?= $profile_url ?>`;
-
-
-    // Add your requested message
-    message += `\n\nAlso share your order with us on WhatsApp — just hit 'Send' 👉`;
-
-
-    // Safari-compatible WhatsApp opening
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    
-    // Create and click a hidden link (most reliable for Safari)
-    const link = document.createElement('a');
-    link.href = whatsappUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    
-    try {
-        link.click();
-    } catch (e) {
-        // Fallback if click fails
-        window.location.href = whatsappUrl;
-    }
-    
-    // Clean up
-    setTimeout(() => {
-        document.body.removeChild(link);
-    }, 1000);
-
-    // Reset coupon fields
-    if (cart.coupon) {
-        delete cart.coupon;
-        document.getElementById('couponCode').value = '';
-        document.getElementById('couponMessage').textContent = '';
-        document.getElementById('couponMessage').className = 'text-success';
-    }
-
-    // Reset cart
-    cart = [];
-    saveCart();
-    updateCartUI();
-    closeCart();
-    
-    // Success popup
-    showOrderSuccessPopup();
-}
-// Whatsapp Msg End
-
-
-
 
 // Add this to your JavaScript section
 document.getElementById('applyCouponBtn').addEventListener('click', function() {
@@ -1655,8 +1395,10 @@ function closeOrderSuccessPopup() {
   popup.classList.remove('active');
 }
 
+function calculateSubtotal() {
+    return cart.filter(item => item.id).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
 
-// Combined placeOrder function that saves to database AND sends to WhatsApp
 function placeOrder() {
     if (cart.length === 0) {
         alert('Your cart is empty');
@@ -1742,18 +1484,6 @@ function placeOrder() {
     // Use the correct path for place_order.php
     const placeOrderUrl = 'place_order.php';
     
-    // Store order details for WhatsApp (needed later)
-    const whatsappOrderDetails = {
-        isDelivery: isDelivery,
-        customerName: customerName,
-        customerPhone: customerPhone,
-        deliveryAddress: isDelivery ? deliveryAddress : null,
-        tableNumber: !isDelivery ? tableNumber : null,
-        orderNotes: orderNotes || null,
-        discountAmount: discountAmount,
-        discountType: discountType
-    };
-    
     // Send order data to server
     fetch(placeOrderUrl, {
         method: 'POST',
@@ -1797,11 +1527,6 @@ function placeOrder() {
             // Show success message
             // showToast('Order placed successfully! Redirecting to order status...', 'success');
             
-            // Conditionally prepare WhatsApp message based on flag
-            if (ENABLE_WHATSAPP_ORDER) {
-                prepareWhatsAppMessage(whatsappOrderDetails, orderId);
-            }
-            
             // Wait 3 seconds, then redirect to order status page
             setTimeout(() => {
                 const profileUrl = '<?= $profile_url ?>';
@@ -1836,181 +1561,7 @@ function placeOrder() {
     });
 }
 
-// Function to prepare and schedule WhatsApp message
-function prepareWhatsAppMessage(orderDetails, orderId) {
-    // Calculate order totals for WhatsApp message
-    let subtotal = 0;
-    cart.forEach(item => {
-        if (item.id) { // Only count actual products, not coupon objects
-            subtotal += item.price * item.quantity;
-        }
-    });
-
-    const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
-    const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
-    const gstPercent = <?= $gst_percent ?? 0 ?>;
-    
-    // Calculate amount after discount
-    let amountAfterDiscount = subtotal - orderDetails.discountAmount;
-    if (amountAfterDiscount < 0) amountAfterDiscount = 0;
-
-    // Calculate GST on amount after discount
-    let gstAmount = 0;
-    if (gstPercent > 0) {
-        gstAmount = (amountAfterDiscount * gstPercent) / 100;
-    }
-
-    // Calculate delivery charge
-    let actualDeliveryCharge = 0;
-    let deliveryText = '';
-    
-    if (orderDetails.isDelivery) {
-        if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
-            actualDeliveryCharge = 0;
-            deliveryText = `Delivery:       FREE\n(Order above ₹${freeDeliveryMin.toFixed(2)})\n`;
-        } else if (freeDeliveryMin > 0) {
-            actualDeliveryCharge = deliveryCharge;
-            const neededForFree = freeDeliveryMin - amountAfterDiscount;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n(Add ₹${neededForFree.toFixed(2)} more for FREE delivery)\n`;
-        } else {
-            actualDeliveryCharge = deliveryCharge;
-            deliveryText = `Delivery:       ₹${deliveryCharge.toFixed(2)}\n`;
-        }
-    }
-
-    // Calculate total
-    let total = amountAfterDiscount + gstAmount + actualDeliveryCharge;
-
-    // Business details
-    const businessName = <?= json_encode(htmlspecialchars($business_info['business_name'] ?? '')) ?>;
-    const businessAddress = <?= json_encode(htmlspecialchars($business_info['business_address'] ?? '')) ?>;
-    const businessPhone = <?= json_encode($user['phone'] ?? '') ?>;
-
-    // Format order date
-    const orderDate = new Date().toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    // Build order details section
-    let customerDetails;
-    if (orderDetails.isDelivery) {
-        customerDetails = `*Delivery Order*\nName: ${orderDetails.customerName}\nPhone: ${orderDetails.customerPhone}\nAddress: ${orderDetails.deliveryAddress}`;
-        if (orderDetails.orderNotes) customerDetails += `\nNotes: ${orderDetails.orderNotes}`;
-    } else {
-        customerDetails = `*Dining Order*\nName: ${orderDetails.customerName}\nPhone: ${orderDetails.customerPhone}\nTable No.: ${orderDetails.tableNumber}`;
-        if (orderDetails.orderNotes) customerDetails += `\nNotes: ${orderDetails.orderNotes}`;
-    }
-
-    // Build WhatsApp message
-    let message = `*${businessName.toUpperCase()}*\n` +
-                  `${businessAddress}\n` +
-                  `Phone: ${businessPhone}\n\n` +
-                  `Date: ${orderDate}\n` +
-                  `Order ID: ${orderId}\n` +
-                  `Order Type: ${orderDetails.isDelivery ? 'DELIVERY' : 'DINING'}\n` +
-                  `--------------------------------------------------\n` +
-                  `*ITEMS ORDERED*\n` +
-                  `--------------------------------------------------\n`;
-
-    // Add cart items
-    cart.forEach(item => {
-        if (item.id) { // Only show actual products, not coupon objects
-            const itemTotal = (item.price * item.quantity).toFixed(2);
-            message += `${item.name} x ${item.quantity}\n` +
-                      `₹${item.price.toFixed(2)} x ${item.quantity} = ₹${itemTotal}\n\n`;
-        }
-    });
-
-    // Add pricing summary
-    message += `--------------------------------------------------\n` +
-               `Subtotal:        ₹${subtotal.toFixed(2)}\n`;
-    
-    if (orderDetails.discountAmount > 0) {
-        message += `Discount:       -₹${orderDetails.discountAmount.toFixed(2)}\n`;
-        if (orderDetails.discountType) {
-            message += `(${orderDetails.discountType})\n`;
-        }
-    }
-    
-    if (gstPercent > 0) {
-        message += `GST (${gstPercent}%):    ₹${gstAmount.toFixed(2)}\n`;
-    }
-    
-    // Add delivery information
-    if (orderDetails.isDelivery) {
-        message += deliveryText;
-    }
-
-    message += `--------------------------------------------------\n` +
-               `*TOTAL:          ₹${total.toFixed(2)}*\n\n` +
-               `*CUSTOMER DETAILS*\n` +
-               `--------------------------------------------------\n` +
-               `${customerDetails}\n\n` +
-               `Thank you for your order. We'll process it shortly.\n\n`;
-
-    // Add profile URL (unchanged placement)
-    message += `Next time, place your order easily through this link 👉`;
-
-    // Add website if available
-    <?php if (!empty($business_info['website'])): ?>
-    message += `${<?= json_encode($business_info['website']) ?>}\n` +
-               `OR\n`;
-    <?php endif; ?>
-    
-    const baseUrl = 'https://deegeecard.com';
-    message += `${baseUrl}/<?= $profile_url ?>`;
-
-    // Add Track Your Order URL after the profile URL
-    message += `\n\n📱 *Track your order here:*\n`;
-    message += `${baseUrl}/order_status.php?order_id=${orderId}&profile_url=<?= $profile_url ?>`;
-
-    // Add your requested message
-    message += `\n\nAlso share your order with us on WhatsApp — just hit 'Send' 👉`;
-
-    // Store message for later use (after redirect)
-    localStorage.setItem('pendingWhatsAppMessage', message);
-    localStorage.setItem('pendingWhatsAppOrderId', orderId);
-}
-
-
-// Function to send WhatsApp message (to be called after redirect)
-function sendPendingWhatsAppMessage() {
-    const message = localStorage.getItem('pendingWhatsAppMessage');
-    const orderId = localStorage.getItem('pendingWhatsAppOrderId');
-    
-    if (message && orderId) {
-        // Get WhatsApp number
-        const whatsappLink = <?= json_encode($social_link['whatsapp'] ?? '') ?>;
-        let phoneNumber = whatsappLink.match(/wa\.me\/(\d+)/)?.[1] || <?= json_encode($user['phone'] ?? '') ?>;
-        
-        if (phoneNumber) {
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            
-            // Open WhatsApp in new tab after a short delay
-            setTimeout(() => {
-                window.open(whatsappUrl, '_blank');
-            }, 1000);
-        }
-        
-        // Clean up
-        localStorage.removeItem('pendingWhatsAppMessage');
-        localStorage.removeItem('pendingWhatsAppOrderId');
-    }
-}
-
-// Call this function on order_status.php page load
-// Add this to your order_status.php page:
-
-
-
-
-
-
-// Toast notification function (add this to your code if you don't have it already)
+// Toast notification function
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast-notification ${type}`;
@@ -2103,11 +1654,6 @@ function clearCoupon() {
     updateCartUI();
 }
 
-
-
-
-
-
 function createConfetti() {
   const confettiContainer = document.getElementById('confettiContainer');
   confettiContainer.innerHTML = '';
@@ -2153,8 +1699,6 @@ function createConfetti() {
 <!-- Add this to your HTML (before the closing body tag) -->
 <div class="confetti-container" id="confettiContainer"></div>
 
-
-
 <script>
 // Function to redirect to profile page
 function redirectToProfile() {
@@ -2198,23 +1742,6 @@ function showOrderSuccessPopup() {
     popup.classList.add('active');
 }
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- View Order Button -->
 <?php
@@ -2281,8 +1808,6 @@ placeOrder = function() {
     originalPlaceOrder.apply(this, arguments);
 };
 </script>
-
-
 
 <script>
 function goBackToMenu(orderId) {

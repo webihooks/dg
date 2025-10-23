@@ -9,7 +9,7 @@ class OneSignalNotification {
     
     public function __construct() {
         $this->appId = "9d512a16-1b7c-4d2c-ae9f-07c36c963086";
-        $this->restApiKey = "os_v2_app_tvisufq3prgszlu7a7bwzfrqq3wmhbl53lmem2fmf2cqjrkae2izj4uohbajanp2dnpyxhcmbtru53c5jkczqqovrathaohvyoxhpxq";
+        $this->restApiKey = "os_v2_app_tvisufq3prgszlu7a7bwzfrqq24v6jskjmau2xecvgoqvoglepe6qpc3dwtb76rlw6xslytjog3xo3smq2tee6kml3rkhqa3wii526a";
     }
     
     private function getDBConnection() {
