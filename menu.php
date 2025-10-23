@@ -1537,7 +1537,14 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
         const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
         
         console.log('WhatsApp confirmation sent to:', customerPhone);
-        showToast(`Confirmation sent to ${customerName}`, 'success');
+        // showToast(`Confirmation sent to ${customerName}`, 'success');
+        
+
+        // Redirect to orders.php after successful sending
+        setTimeout(() => {
+            window.location.href = 'orders.php';
+        }, 1500); // 1.5 second delay to allow toast to be visible
+        
         return true;
         
     } catch (error) {
