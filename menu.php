@@ -483,9 +483,29 @@ window.checkExistingPendingOrders = checkExistingPendingOrders;
     text-align: right;
     border-top: 2px solid #dee2e6;
 }
+.order-popup {
+    bottom: 15px !important;
+    max-height: 600px !important;
+    max-width: 500px !important;
+    border: 3px solid #ff6c2f !important;
+}
+@media only screen and (max-width: 400px) {
+    .order-popup {
+        max-width: 340px !important;
+        border: 3px solid #ff6c2f !important;
+    }
+    .order-popup button {
+        font-size: 14px !important;
+        padding: 12px 8px !important;
+        margin: 0 !important;
+        min-width: 140px !important;
+    }
+}
 </style>
 
 <script>
+// START: Enhanced Order System with Individual Order Popups
+
 // Global polling configuration
 const POLLING_CONFIG = {
     interval: 1000,
@@ -501,26 +521,24 @@ const POLLING_CONFIG = {
     refreshInterval: 5000,
     lastRefreshTime: Date.now(),
     autoRefreshEnabled: true,
-    // NEW: Track if we've checked for existing pending orders on load
-    hasCheckedExistingOrders: false
+    hasCheckedExistingOrders: false,
+    // NEW: Track currently visible order popups
+    visibleOrderPopups: new Set()
 };
 
-// Main initialization - ENHANCED to check existing pending orders
+// Main initialization
 async function initOrderSystem() {
-    console.log('Initializing order system with existing orders check...');
+    console.log('Initializing order system with individual order popups...');
     
     await initAudioSystem();
-    
-    // NEW: Check for existing pending orders immediately on page load
     await checkExistingPendingOrders();
-    
     initOrderPolling();
     setupEventListeners();
     
-    console.log('Order system initialized with existing orders check');
+    console.log('Order system initialized with individual order popups');
 }
 
-// NEW: Function to check for existing pending orders on page load
+// Function to check for existing pending orders on page load
 async function checkExistingPendingOrders() {
     if (POLLING_CONFIG.hasCheckedExistingOrders) return;
     
@@ -548,9 +566,9 @@ async function checkExistingPendingOrders() {
                 }
             }
             
-            // If we found pending orders, trigger the notification system
+            // Show individual popups for each pending order
             if (POLLING_CONFIG.pendingOrders.size > 0) {
-                console.log(`🎯 Triggering notification for ${POLLING_CONFIG.pendingOrders.size} existing pending orders`);
+                console.log(`🎯 Showing popups for ${POLLING_CONFIG.pendingOrders.size} existing pending orders`);
                 notifyNewOrder();
                 updateUI();
             }
@@ -565,7 +583,7 @@ async function checkExistingPendingOrders() {
     }
 }
 
-// Rest of your existing functions remain the same...
+// Audio system initialization (unchanged)
 async function initAudioSystem() {
     console.log('Initializing audio system...');
     
@@ -684,7 +702,7 @@ function notifyNewOrder() {
     }
     
     showVisualNotification();
-    showOrderActionButtons();
+    showIndividualOrderPopups();
 }
 
 function showVisualNotification() {
@@ -699,25 +717,6 @@ function showVisualNotification() {
         }, 10000);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Enhanced initOrderPolling with better visibility handling
 function initOrderPolling() {
@@ -738,19 +737,12 @@ function initOrderPolling() {
     
     // Start periodic refresh of pending orders (with visibility check)
     setInterval(() => {
-        const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
-        if (!isFloatingButtonsVisible) {
+        const isAnyPopupVisible = POLLING_CONFIG.visibleOrderPopups.size > 0;
+        if (!isAnyPopupVisible) {
             refreshPendingOrders();
         }
     }, POLLING_CONFIG.refreshInterval);
 }
-
-
-
-
-
-
-
 
 function setupEventListeners() {
     // Resume audio on any user interaction
@@ -806,18 +798,12 @@ function checkForNewOrders() {
         });
 }
 
-
-
-
-
-
-
 // Enhanced refreshPendingOrders function with visibility check
 function refreshPendingOrders() {
-    // Don't refresh if floating buttons are visible
-    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    // Don't refresh if any popup is visible
+    const isAnyPopupVisible = POLLING_CONFIG.visibleOrderPopups.size > 0;
     
-    if (POLLING_CONFIG.pendingOrders.size === 0 || isFloatingButtonsVisible) {
+    if (POLLING_CONFIG.pendingOrders.size === 0 || isAnyPopupVisible) {
         return;
     }
     
@@ -831,13 +817,7 @@ function refreshPendingOrders() {
         .catch(error => console.error('Refresh error:', error));
 }
 
-
-
-
-
-
-
-// Modified updatePendingOrdersList function - no refresh when buttons are visible
+// Modified updatePendingOrdersList function - no refresh when popups are visible
 function updatePendingOrdersList(newOrders) {
     if (POLLING_CONFIG.pendingOrders.size === 0) return;
     
@@ -850,6 +830,8 @@ function updatePendingOrdersList(newOrders) {
     currentPendingIds.forEach(orderId => {
         if (!newPendingIds.has(orderId)) {
             POLLING_CONFIG.pendingOrders.delete(orderId);
+            // Also remove the popup if it exists
+            removeOrderPopup(orderId);
             console.log(`Order #${orderId} removed from pending list (processed by another device)`);
             ordersWereRemoved = true;
         }
@@ -860,37 +842,26 @@ function updatePendingOrdersList(newOrders) {
         updateUI();
     }
     
-    // DON'T auto-refresh if floating action buttons are currently showing
-    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    // DON'T auto-refresh if any popup is currently showing
+    const isAnyPopupVisible = POLLING_CONFIG.visibleOrderPopups.size > 0;
     
-    if (ordersWereRemoved && POLLING_CONFIG.autoRefreshEnabled && !isFloatingButtonsVisible) {
-        // Only auto-refresh if no buttons are showing and orders were processed elsewhere
+    if (ordersWereRemoved && POLLING_CONFIG.autoRefreshEnabled && !isAnyPopupVisible) {
+        // Only auto-refresh if no popups are showing and orders were processed elsewhere
         autoRefreshPage();
-    } else if (ordersWereRemoved && isFloatingButtonsVisible) {
+    } else if (ordersWereRemoved && isAnyPopupVisible) {
         // Just show a subtle notification without refreshing
-        console.log('Orders processed by another device - but buttons are visible, so no refresh');
+        console.log('Orders processed by another device - but popups are visible, so no refresh');
         showToast('Some orders were processed by another device', 'info');
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // Enhanced autoRefreshPage function with additional checks
 function autoRefreshPage() {
-    // Double-check if floating buttons are visible before refreshing
-    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    // Double-check if any popup is visible before refreshing
+    const isAnyPopupVisible = POLLING_CONFIG.visibleOrderPopups.size > 0;
     
-    if (isFloatingButtonsVisible) {
-        console.log('Auto-refresh cancelled - floating action buttons are visible');
+    if (isAnyPopupVisible) {
+        console.log('Auto-refresh cancelled - order popups are visible');
         return;
     }
     
@@ -905,14 +876,6 @@ function autoRefreshPage() {
         window.location.reload();
     }, 2000);
 }
-
-
-
-
-
-
-
-
 
 // In your existing order system - Enhanced notification handling
 function handleNewOrders(newOrders) {
@@ -957,60 +920,59 @@ function logNotificationEvent(type, order) {
     console.log('📝 Notification Event:', event);
 }
 
-
-
-
-
-// Enhanced updateUI function
+// NEW: Enhanced updateUI function for individual popups
 function updateUI() {
-    const isFloatingButtonsVisible = document.getElementById('floatingActionButtons') !== null;
+    const isAnyPopupVisible = POLLING_CONFIG.visibleOrderPopups.size > 0;
     
     if (POLLING_CONFIG.pendingOrders.size > 0) {
-        if (!isFloatingButtonsVisible) {
-            showOrderActionButtons();
+        if (!isAnyPopupVisible) {
+            showIndividualOrderPopups();
         } else {
-            updateOrderActionButtons();
+            updateIndividualOrderPopups();
         }
     } else {
-        // Only hide buttons if they're currently visible
-        if (isFloatingButtonsVisible) {
-            hideOrderActionButtons();
-        }
+        // Hide all popups if no pending orders
+        hideAllOrderPopups();
         stopContinuousSound();
         // Restore original title
         document.title = document.title.replace('🔔 ', '');
     }
 }
-// Add a function to check if buttons are visible (for external use)
-function areFloatingButtonsVisible() {
-    return document.getElementById('floatingActionButtons') !== null;
+
+// NEW: Function to show individual popup for each order
+function showIndividualOrderPopups() {
+    // First hide any existing popups
+    hideAllOrderPopups();
+    
+    // Get pending orders sorted by order_id (oldest first)
+    const sortedOrders = Array.from(POLLING_CONFIG.pendingOrders.entries())
+        .sort(([idA], [idB]) => idA - idB);
+    
+    console.log(`Showing ${sortedOrders.length} individual order popups`);
+    
+    // Create popup for each order
+    sortedOrders.forEach(([orderId, order], index) => {
+        createOrderPopup(order, orderId, index);
+    });
 }
 
-
-
-
-
-
-
-
-
-
-// Order Action Buttons with Order Details
-function showOrderActionButtons() {
-    hideOrderActionButtons();
+// NEW: Function to create individual order popup
+function createOrderPopup(order, orderId, index) {
+    // Calculate vertical position to stack popups
+    const baseBottom = 15;
+    const popupHeight = 400; // Approximate height of each popup
+    const gap = 10;
+    const bottomPosition = baseBottom + (index * (popupHeight + gap));
     
-    const buttonContainer = document.createElement('div');
-    buttonContainer.id = 'floatingActionButtons';
-    buttonContainer.style.cssText = `
+    const popupContainer = document.createElement('div');
+    popupContainer.id = `orderPopup_${orderId}`;
+    popupContainer.className = 'order-popup';
+    popupContainer.style.cssText = `
         position: fixed;
-        bottom: 15px;
+        bottom: ${bottomPosition}px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        align-items: center;
+        z-index: ${9999 + index};
         background: rgba(255, 255, 255, 0.98);
         padding: 20px;
         border-radius: 15px;
@@ -1019,46 +981,33 @@ function showOrderActionButtons() {
         border: 1px solid rgba(255,255,255,0.3);
         max-width: 500px;
         width: 90%;
-        max-height: 80vh;
+        max-height: 400px;
         overflow-y: auto;
+        animation: slideInUp 0.3s ease-out;
     `;
     
-    // Header
+    // Header with order info
     const header = document.createElement('div');
     header.style.cssText = `
         text-align: center;
         width: 100%;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
     `;
     header.innerHTML = `
         <h4 style="margin: 0; color: #333; font-weight: bold;">
-            🔔 New Orders Pending (${POLLING_CONFIG.pendingOrders.size})
+            🔔 New Order #${orderId}
         </h4>
         <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-            Action Required
+            ${new Date(order.created_at).toLocaleString()}
         </p>
     `;
-    buttonContainer.appendChild(header);
+    popupContainer.appendChild(header);
     
-    // Order Details Container
-    const ordersContainer = document.createElement('div');
-    ordersContainer.style.cssText = `
-        width: 100%;
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 15px;
-        background: #f8f9fa;
-        margin-bottom: 10px;
-    `;
-    
-    // Add each order's details
-    POLLING_CONFIG.pendingOrders.forEach((order, orderId) => {
-        const orderElement = createOrderElement(order, orderId);
-        ordersContainer.appendChild(orderElement);
-    });
-    
-    buttonContainer.appendChild(ordersContainer);
+    // Order Details
+    const orderDetails = createOrderDetailsElement(order, orderId);
+    popupContainer.appendChild(orderDetails);
     
     // Action Buttons Container
     const actionButtonsContainer = document.createElement('div');
@@ -1067,15 +1016,17 @@ function showOrderActionButtons() {
         gap: 15px;
         justify-content: center;
         width: 100%;
-        flex-wrap: wrap;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
     `;
     
     // Accept Button
     const acceptButton = document.createElement('button');
-    acceptButton.id = 'acceptOrderButton';
-    acceptButton.innerHTML = `✅ Accept (${POLLING_CONFIG.pendingOrders.size})`;
+    acceptButton.id = `acceptOrder_${orderId}`;
+    acceptButton.innerHTML = `✅ Accept Order`;
     acceptButton.style.cssText = `
-        padding: 12px 25px;
+        padding: 12px 10px;
         font-size: 16px;
         font-weight: bold;
         border-radius: 25px;
@@ -1090,14 +1041,14 @@ function showOrderActionButtons() {
         flex: 1;
     `;
     
-    acceptButton.addEventListener('click', acceptAllPendingOrders);
+    acceptButton.addEventListener('click', () => acceptSingleOrder(orderId));
     
     // Reject Button
     const rejectButton = document.createElement('button');
-    rejectButton.id = 'rejectOrderButton';
-    rejectButton.innerHTML = `❌ Reject (${POLLING_CONFIG.pendingOrders.size})`;
+    rejectButton.id = `rejectOrder_${orderId}`;
+    rejectButton.innerHTML = `❌ Reject Order`;
     rejectButton.style.cssText = `
-        padding: 12px 25px;
+        padding: 12px 10px;
         font-size: 16px;
         font-weight: bold;
         border-radius: 25px;
@@ -1112,7 +1063,7 @@ function showOrderActionButtons() {
         flex: 1;
     `;
     
-    rejectButton.addEventListener('click', rejectAllPendingOrders);
+    rejectButton.addEventListener('click', () => rejectSingleOrder(orderId));
     
     // Add hover effects
     acceptButton.addEventListener('mouseenter', () => {
@@ -1135,70 +1086,22 @@ function showOrderActionButtons() {
     
     actionButtonsContainer.appendChild(acceptButton);
     actionButtonsContainer.appendChild(rejectButton);
-    buttonContainer.appendChild(actionButtonsContainer);
+    popupContainer.appendChild(actionButtonsContainer);
     
-    // Close Button
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '✕ Close';
-    closeButton.style.cssText = `
-        padding: 8px 20px;
-        font-size: 14px;
-        border-radius: 20px;
-        cursor: pointer;
-        background-color: #6c757d;
-        border: 2px solid #6c757d;
-        color: white;
-        margin-top: 10px;
-        transition: all 0.3s ease;
-        display:none;
-    `;
-    
-    closeButton.addEventListener('click', hideOrderActionButtons);
-    closeButton.addEventListener('mouseenter', () => {
-        closeButton.style.backgroundColor = '#5a6268';
-    });
-    closeButton.addEventListener('mouseleave', () => {
-        closeButton.style.backgroundColor = '#6c757d';
-    });
-    
-    buttonContainer.appendChild(closeButton);
-    document.body.appendChild(buttonContainer);
+    // Add to document and tracking
+    document.body.appendChild(popupContainer);
+    POLLING_CONFIG.visibleOrderPopups.add(orderId);
 }
 
-function createOrderElement(order, orderId) {
-    const orderElement = document.createElement('div');
-    orderElement.style.cssText = `
-        background: white;
-        border-radius: 8px;
+// NEW: Function to create order details element
+function createOrderDetailsElement(order, orderId) {
+    const detailsContainer = document.createElement('div');
+    detailsContainer.style.cssText = `
+        background: #f8f9fa;
+        border-radius: 10px;
         padding: 15px;
         margin-bottom: 15px;
         border-left: 4px solid orange;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    `;
-    
-    // Order Header
-    const orderHeader = document.createElement('div');
-    orderHeader.style.cssText = `
-        display: flex;
-        justify-content: between;
-        align-items: center;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #e9ecef;
-    `;
-    
-    orderHeader.innerHTML = `
-        <div style="flex: 1;">
-            <strong style="color: #333;">Order #${orderId}</strong>
-            <div style="font-size: 12px; color: #666;">
-                ${new Date(order.created_at).toLocaleString()}
-            </div>
-        </div>
-        <div style="text-align: right;">
-            <span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
-                ${order.status || 'Pending'}
-            </span>
-        </div>
     `;
     
     // Customer Info
@@ -1207,29 +1110,44 @@ function createOrderElement(order, orderId) {
         margin-bottom: 10px;
         font-size: 14px;
     `;
-    
     customerInfo.innerHTML = `
-        <div style="float:left;"><strong>👤 ${order.customer_name || 'Customer'}</strong></div>
-        <div style="color: #666; float:right;">📞 ${order.customer_phone || 'No phone'}</div>
-        <div style="clear:both;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong>👤 ${order.customer_name || 'Customer'}</strong>
+            <span style="background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                ${order.status || 'Pending'}
+            </span>
+        </div>
+        <div style="color: #666;">📞 ${order.customer_phone || 'No phone'}</div>
     `;
+    detailsContainer.appendChild(customerInfo);
     
     // Address (for delivery orders)
-    let addressHtml = '';
     if (order.order_type === 'delivery' && order.delivery_address) {
-        addressHtml = `
-            <div style="margin-bottom: 10px; font-size: 13px;">
-                <strong>📍 Delivery Address:</strong>
-                <div style="color: #666; margin-top: 2px;">${order.delivery_address}</div>
-            </div>
+        const addressElement = document.createElement('div');
+        addressElement.style.cssText = `
+            margin-bottom: 10px;
+            font-size: 13px;
+            padding: 8px;
+            background: #e9f7fe;
+            border-radius: 5px;
+            border-left: 3px solid #17a2b8;
         `;
+        addressElement.innerHTML = `
+            <strong>📍 Delivery Address:</strong>
+            <div style="color: #666; margin-top: 2px;">${order.delivery_address}</div>
+        `;
+        detailsContainer.appendChild(addressElement);
     } else if (order.order_type === 'dining' && order.table_number) {
-        addressHtml = `
-            <div style="margin-bottom: 10px; font-size: 13px;">
-                <strong>🍽️ Table Number:</strong>
-                <span style="color: #666;">${order.table_number}</span>
-            </div>
+        const tableElement = document.createElement('div');
+        tableElement.style.cssText = `
+            margin-bottom: 10px;
+            font-size: 13px;
         `;
+        tableElement.innerHTML = `
+            <strong>🍽️ Table Number:</strong>
+            <span style="color: #666;">${order.table_number}</span>
+        `;
+        detailsContainer.appendChild(tableElement);
     }
     
     // Order Items
@@ -1267,106 +1185,94 @@ function createOrderElement(order, orderId) {
     
     itemsHtml += '</div>';
     itemsContainer.innerHTML = itemsHtml;
+    detailsContainer.appendChild(itemsContainer);
     
-    // Assemble order element
-    orderElement.appendChild(orderHeader);
-    orderElement.appendChild(customerInfo);
-    
-    if (addressHtml) {
-        const addressElement = document.createElement('div');
-        addressElement.innerHTML = addressHtml;
-        orderElement.appendChild(addressElement);
+    return detailsContainer;
+}
+
+// NEW: Function to update individual order popups
+function updateIndividualOrderPopups() {
+    // Remove and recreate all popups with updated data
+    hideAllOrderPopups();
+    showIndividualOrderPopups();
+}
+
+// NEW: Function to hide all order popups
+function hideAllOrderPopups() {
+    POLLING_CONFIG.visibleOrderPopups.forEach(orderId => {
+        removeOrderPopup(orderId);
+    });
+    POLLING_CONFIG.visibleOrderPopups.clear();
+}
+
+// NEW: Function to remove specific order popup
+function removeOrderPopup(orderId) {
+    const popup = document.getElementById(`orderPopup_${orderId}`);
+    if (popup) {
+        popup.remove();
     }
-    
-    orderElement.appendChild(itemsContainer);
-    
-    return orderElement;
+    POLLING_CONFIG.visibleOrderPopups.delete(orderId);
 }
 
-function updateOrderActionButtons() {
-    const container = document.getElementById('floatingActionButtons');
-    if (container) {
-        // Remove and recreate with updated data
-        hideOrderActionButtons();
-        showOrderActionButtons();
-    }
-}
-
-function hideOrderActionButtons() {
-    const container = document.getElementById('floatingActionButtons');
-    if (container) container.remove();
-}
-
-async function acceptAllPendingOrders() {
-    if (POLLING_CONFIG.pendingOrders.size === 0) return;
+// NEW: Function to accept single order
+async function acceptSingleOrder(orderId) {
+    const order = POLLING_CONFIG.pendingOrders.get(orderId);
+    if (!order) return;
     
-    const button = document.getElementById('acceptOrderButton');
+    const button = document.getElementById(`acceptOrder_${orderId}`);
     const originalText = button.innerHTML;
     button.innerHTML = '⏳ Processing...';
     button.disabled = true;
     
-    const rejectButton = document.getElementById('rejectOrderButton');
+    const rejectButton = document.getElementById(`rejectOrder_${orderId}`);
     if (rejectButton) rejectButton.disabled = true;
     
     try {
-        const orderIds = Array.from(POLLING_CONFIG.pendingOrders.keys());
-        
         const businessData = await fetchBusinessData();
         
         const response = await fetch('accept_orders.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({order_ids: orderIds, new_status: 'Confirmed'})
+            body: JSON.stringify({order_ids: [orderId], new_status: 'Confirmed'})
         });
         
         const result = await response.json();
         
         if (result.success) {
-            showToast(`Accepted ${result.affected_rows} order(s)!`, 'success');
+            showToast(`Order #${orderId} accepted!`, 'success');
             
-            result.orders_data.forEach(order => {
-                POLLING_CONFIG.pendingOrders.delete(order.order_id);
-            });
+            // Remove from pending orders and popup
+            POLLING_CONFIG.pendingOrders.delete(orderId);
+            removeOrderPopup(orderId);
             
-            result.orders_data.forEach(order => {
-                if (order.customer_phone) {
-                    setTimeout(() => {
-                        sendOrderConfirmation(
-                            order.order_id,
-                            order.customer_phone,
-                            order.customer_name || 'Customer',
-                            order.order_type || 'delivery',
-                            businessData.businessInfo,
-                            businessData.userPhone,
-                            businessData.profileUrl
-                        );
-                    }, 1000);
-                }
-            });
+            // Send confirmation message
+            if (order.customer_phone) {
+                sendOrderConfirmation(
+                    order.order_id,
+                    order.customer_phone,
+                    order.customer_name || 'Customer',
+                    order.order_type || 'delivery',
+                    businessData.businessInfo,
+                    businessData.userPhone,
+                    businessData.profileUrl
+                );
+            }
             
-            stopContinuousSound();
-            hideOrderActionButtons();
-            document.title = document.title.replace('🔔 ', '');
-            
-            setTimeout(() => {
-                window.location.href = 'orders.php';
-            }, 2000);
+            // Update UI and check if all orders are processed
+            updateUI();
             
         } else {
-            // NEW: Handle redirect case
             if (result.error === 'redirect_to_orders') {
-                console.log('Orders already processed - redirecting to orders page');
+                console.log('Order already processed - redirecting to orders page');
                 showToast(result.message, 'warning');
                 
-                // Clear pending orders and redirect
                 POLLING_CONFIG.pendingOrders.clear();
                 stopContinuousSound();
-                hideOrderActionButtons();
+                hideAllOrderPopups();
                 
                 setTimeout(() => {
                     window.location.href = result.redirect_url || 'orders.php';
                 }, 1500);
-                
             } else {
                 throw new Error(result.error);
             }
@@ -1380,8 +1286,95 @@ async function acceptAllPendingOrders() {
     }
 }
 
+// NEW: Function to reject single order
+async function rejectSingleOrder(orderId) {
+    const order = POLLING_CONFIG.pendingOrders.get(orderId);
+    if (!order) return;
+    
+    const rejectionReason = await showRejectionReasonDialog();
+    if (!rejectionReason) {
+        return;
+    }
+    
+    const button = document.getElementById(`rejectOrder_${orderId}`);
+    const originalText = button.innerHTML;
+    button.innerHTML = '⏳ Rejecting...';
+    button.disabled = true;
+    
+    const acceptButton = document.getElementById(`acceptOrder_${orderId}`);
+    if (acceptButton) acceptButton.disabled = true;
+    
+    try {
+        const response = await fetch('reject_orders.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                order_ids: [orderId], 
+                new_status: 'Cancelled',
+                rejection_reason: rejectionReason
+            })
+        });
 
-// Function to fetch business data
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Reject response:', result);
+
+        if (result.success) {
+            showToast(result.message || `Order #${orderId} rejected!`, 'warning');
+            
+            // Remove from pending orders and popup
+            POLLING_CONFIG.pendingOrders.delete(orderId);
+            removeOrderPopup(orderId);
+            
+            // Send rejection message
+            if (order.customer_phone) {
+                sendOrderRejection(
+                    order.order_id,
+                    order.customer_phone,
+                    order.customer_name || 'Customer',
+                    order.order_type || 'delivery',
+                    order.total_amount || 0,
+                    result.business_info || { business_name: 'Our Restaurant' },
+                    result.user_phone || '',
+                    result.profile_url || '',
+                    result.rejection_reason || rejectionReason
+                );
+            }
+            
+            // Update UI and check if all orders are processed
+            updateUI();
+            
+        } else {
+            if (result.error === 'redirect_to_orders') {
+                console.log('Order already processed - redirecting to orders page');
+                showToast(result.message, 'warning');
+                
+                POLLING_CONFIG.pendingOrders.clear();
+                stopContinuousSound();
+                hideAllOrderPopups();
+                
+                setTimeout(() => {
+                    window.location.href = result.redirect_url || 'orders.php';
+                }, 1500);
+            } else {
+                throw new Error(result.error || 'Failed to reject order');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Rejection error:', error);
+        showToast('Error rejecting order: ' + error.message, 'danger');
+        
+        button.innerHTML = originalText;
+        button.disabled = false;
+        if (acceptButton) acceptButton.disabled = false;
+    }
+}
+
+// Function to fetch business data (unchanged)
 async function fetchBusinessData() {
     try {
         const response = await fetch('get_business_data.php');
@@ -1398,7 +1391,6 @@ async function fetchBusinessData() {
         }
     } catch (error) {
         console.error('Error fetching business data:', error);
-        // Return default values
         return {
             businessInfo: { business_name: 'Our Restaurant' },
             userPhone: '',
@@ -1407,123 +1399,7 @@ async function fetchBusinessData() {
     }
 }
 
-
-
-
-
-
-
-async function rejectAllPendingOrders() {
-    if (POLLING_CONFIG.pendingOrders.size === 0) return;
-    
-    const rejectionReason = await showRejectionReasonDialog();
-    if (!rejectionReason) {
-        return;
-    }
-    
-    const button = document.getElementById('rejectOrderButton');
-    const originalText = button.innerHTML;
-    button.innerHTML = '⏳ Rejecting...';
-    button.disabled = true;
-    
-    const acceptButton = document.getElementById('acceptOrderButton');
-    if (acceptButton) acceptButton.disabled = true;
-    
-    try {
-        const orderIds = Array.from(POLLING_CONFIG.pendingOrders.keys());
-        
-        const response = await fetch('reject_orders.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                order_ids: orderIds, 
-                new_status: 'Cancelled',
-                rejection_reason: rejectionReason
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Reject response:', result);
-
-        if (result.success) {
-            showToast(result.message || `Rejected ${result.affected_rows} order(s)!`, 'warning');
-            
-            result.orders_data.forEach(order => {
-                POLLING_CONFIG.pendingOrders.delete(order.order_id);
-            });
-            
-            if (result.orders_data && result.orders_data.length > 0) {
-                console.log('Sending rejection notifications for', result.orders_data.length, 'orders');
-                
-                result.orders_data.forEach((order, index) => {
-                    setTimeout(() => {
-                        sendOrderRejection(
-                            order.order_id,
-                            order.customer_phone,
-                            order.customer_name || 'Customer',
-                            order.order_type || 'delivery',
-                            order.total_amount || 0,
-                            result.business_info || { business_name: 'Our Restaurant' },
-                            result.user_phone || '',
-                            result.profile_url || '',
-                            result.rejection_reason || rejectionReason
-                        );
-                    }, index * 2000);
-                });
-            }
-            
-            stopContinuousSound();
-            hideOrderActionButtons();
-            document.title = document.title.replace('🔔 ', '');
-            
-            setTimeout(() => {
-                window.location.href = 'orders.php';
-            }, 2000);
-            
-        } else {
-            // NEW: Handle redirect case for rejection
-            if (result.error === 'redirect_to_orders') {
-                console.log('Orders already processed - redirecting to orders page');
-                showToast(result.message, 'warning');
-                
-                // Clear pending orders and redirect
-                POLLING_CONFIG.pendingOrders.clear();
-                stopContinuousSound();
-                hideOrderActionButtons();
-                
-                setTimeout(() => {
-                    window.location.href = result.redirect_url || 'orders.php';
-                }, 1500);
-                
-            } else {
-                throw new Error(result.error || 'Failed to reject orders');
-            }
-        }
-        
-    } catch (error) {
-        console.error('Rejection error:', error);
-        showToast('Error rejecting orders: ' + error.message, 'danger');
-        
-        button.innerHTML = originalText;
-        button.disabled = false;
-        if (acceptButton) acceptButton.disabled = false;
-    }
-}
-
-
-
-
-
-
-
-
-// Function to show rejection reason dialog
+// Function to show rejection reason dialog (unchanged)
 function showRejectionReasonDialog() {
     return new Promise((resolve) => {
         // Create modal overlay
@@ -1557,10 +1433,10 @@ function showRejectionReasonDialog() {
         dialog.innerHTML = `
             <h3 style="margin: 0 0 15px 0; color: #dc3545; font-size: 20px;">
                 <i class="bi bi-exclamation-triangle-fill" style="margin-right: 8px;"></i>
-                Reject Orders
+                Reject Order
             </h3>
             <p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">
-                Please select a reason for rejecting these orders:
+                Please select a reason for rejecting this order:
             </p>
             
             <div style="margin-bottom: 20px;">
@@ -1618,7 +1494,7 @@ function showRejectionReasonDialog() {
                     border-radius: 6px;
                     cursor: pointer;
                     font-weight: bold;
-                ">Reject Orders</button>
+                ">Reject Order</button>
             </div>
         `;
         
@@ -1692,7 +1568,7 @@ function showToast(message, type) {
     }, 5000);
 }
 
-// Add CSS
+// Add CSS for animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes pulse {
@@ -1713,13 +1589,18 @@ style.textContent = `
         100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
     }
     
-    #acceptOrderButton:hover {
-        background-color: #218838 !important;
-        transform: scale(1.05);
+    @keyframes slideInUp {
+        from {
+            transform: translate(-50%, 100%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
     }
     
-    #rejectOrderButton:hover {
-        background-color: #c82333 !important;
+    .order-popup button:hover {
         transform: scale(1.05);
     }
     
@@ -1748,7 +1629,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// WhatsApp notification function formatted as per sample
+// WhatsApp notification functions (unchanged)
 function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, businessInfo, businessPhone, profileUrl) {
     try {
         // Validate inputs
@@ -1815,7 +1696,6 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
     }
 }
 
-// WhatsApp notification function for order rejection
 function sendOrderRejection(orderId, customerPhone, customerName, orderType, totalAmount, businessInfo, businessPhone, profileUrl, rejectionReason) {
     try {
         // Validate inputs
@@ -1878,6 +1758,8 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         return false;
     }
 }
+
+// END: Enhanced Order System with Individual Order Popups
 </script>
 
 <div class="main-nav">
