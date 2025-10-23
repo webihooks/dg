@@ -314,12 +314,6 @@ $conn->close();
                             </div>
                         </div>
                         
-                        <div class="text-center mb-4">
-                            <a href="all_orders.php" class="btn btn-secondary">Back to All Orders</a>
-                            <?php if ($role === 'admin'): ?>
-                            <button class="btn btn-primary ml-2">Print Invoice</button>
-                            <?php endif; ?>
-                        </div>
                     </div>
                 </div>
             </div>
