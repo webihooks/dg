@@ -911,7 +911,7 @@ $conn->close();
 .kot-container {
     width: 65mm;
     max-width: 65mm;
-    font-family: 'Courier New', monospace;
+    font-family: 'Arial';
     font-size: 12px;
     line-height: 1.2;
     background: white;
@@ -2250,7 +2250,7 @@ function printBill() {
                 body {
                     margin: 0;
                     padding: 5px;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Aria';
                     font-size: 12px;
                     line-height: 1.2;
                     width: 65mm;
@@ -2261,7 +2261,7 @@ function printBill() {
                 .bill-container {
                     width: 65mm;
                     max-width: 65mm;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Arial';
                     font-size: 12px;
                     line-height: 1.2;
                     background: white;
@@ -3045,7 +3045,7 @@ function printKOT() {
                 body {
                     margin: 0;
                     padding: 5px;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Arial';
                     font-size: 12px;
                     line-height: 1.2;
                     width: 65mm;
@@ -3057,7 +3057,7 @@ function printKOT() {
                 .kot-container {
                     width: 65mm;
                     max-width: 65mm;
-                    font-family: 'Courier New', monospace;
+                    font-family: 'Arial';
                     font-size: 12px;
                     line-height: 1.2;
                     background: white;
