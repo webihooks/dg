@@ -1383,9 +1383,13 @@ $conn->close();
     }
 }
 
+th {
+    text-align: center;
+}
+
 th:last-child,
 th:nth-last-child(2) {
-  width: 185px;
+  width: 190px;
 }
 </style>
 
@@ -1461,7 +1465,7 @@ th:nth-last-child(2) {
                                         <table class="table order table-hover mb-0">
     <thead>
         <tr>
-            <th>Sr. No.</th>
+            <th>Sr.</th>
             <th>Order ID</th>
             <th>Date & Time</th>
             <th>Customer</th>

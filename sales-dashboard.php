@@ -123,8 +123,6 @@ $conn->close();
             include 'admin_menu.php';
         } elseif ($role === 'sales_person') {
             include 'sales_menu.php';
-        } else {
-            include 'menu.php';
         }
         ?>
 

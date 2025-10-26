@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
 session_set_cookie_params([
     'lifetime' => 31536000, // 1 year
@@ -21,12 +24,10 @@ ini_set('session.use_strict_mode', 1);
 ini_set('session.use_cookies', 1);
 ini_set('session.use_only_cookies', 1);
 
-session_start();
-
-// Set aggressive caching headers for session persistence
-header("Cache-Control: private, max-age=31536000");
-header("Pragma: cache");
-header("Expires: " . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+// Start session only if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Database connection
 $host = 'localhost';
@@ -70,8 +71,12 @@ if ($isAndroidApp) {
     $_SESSION['last_android_access'] = time();
 }
 
+// PREVENT INFINITE REDIRECT - Check if this is a redirect from dashboard
+$isRedirectFromDashboard = isset($_GET['redirect']) && $_GET['redirect'] === 'true';
+$forceLoginPage = isset($_GET['force_login']) && $_GET['force_login'] === 'true';
+
 // UNIVERSAL SESSION VALIDATION WITH 365-DAY PERSISTENCE
-if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && !$forceLoginPage) {
     // Update session lifetime
     $_SESSION['last_activity'] = time();
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
@@ -94,21 +99,33 @@ if (isset($_SESSION['user_id'])) {
         'samesite' => 'None'
     ]);
     
-    // Redirect based on user role
-    if ($_SESSION['role'] === 'admin') {
-        header("Location: admin-dashboard.php");
-        exit();
-    } elseif ($_SESSION['role'] === 'sales_person') {
-        header("Location: sales-dashboard.php");
-        exit();
-    } else {
-        header("Location: subscription.php");
-        exit();
+    // Redirect based on user role - ONLY if not already on login page
+    $current_page = basename($_SERVER['PHP_SELF']);
+    if ($current_page === 'login.php') {
+        $role = $_SESSION['role'] ?? '';
+        switch ($role) {
+            case 'admin':
+                header("Location: admin-dashboard.php");
+                exit();
+            case 'sales_person':
+                header("Location: sales-dashboard.php");
+                exit();
+            case 'printer':
+                header("Location: printer-dashboard.php");
+                exit();
+            case 'rider':
+                header("Location: rider-dashboard.php");
+                exit();
+            default:
+                header("Location: subscription.php");
+                exit();
+        }
     }
+    // If already on correct dashboard page, don't redirect
 }
 
 // ENHANCED REMEMBER ME TOKEN AUTO-LOGIN WITH 365-DAY PERSISTENCE
-if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$forceLoginPage) {
     $remember_token = $_COOKIE['remember_token'];
     
     try {
@@ -123,7 +140,6 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             session_regenerate_id(true);
             
             // Set comprehensive session data
-            $_SESSION = []; // Clear existing session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['email'] = $user['Email'];
@@ -155,12 +171,22 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             error_log("✅ Auto-Login Success: User {$user['id']} via token");
             
             // Redirect based on user role
-            if ($user['role'] === 'admin') {
-                header("Location: admin-dashboard.php");
-            } elseif ($user['role'] === 'sales_person') {
-                header("Location: sales-dashboard.php");
-            } else {
-                header("Location: subscription.php");
+            $role = $user['role'];
+            switch ($role) {
+                case 'admin':
+                    header("Location: admin-dashboard.php");
+                    break;
+                case 'sales_person':
+                    header("Location: sales-dashboard.php");
+                    break;
+                case 'printer':
+                    header("Location: printer-dashboard.php");
+                    break;
+                case 'rider':
+                    header("Location: rider-dashboard.php");
+                    break;
+                default:
+                    header("Location: subscription.php");
             }
             exit();
         } else {
@@ -260,13 +286,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
             
-            // Redirect
-            if ($user['role'] === 'admin') {
-                header("Location: admin-dashboard.php");
-            } elseif ($user['role'] === 'sales_person') {
-                header("Location: sales-dashboard.php");
-            } else {
-                header("Location: subscription.php");
+            // Redirect based on role
+            $role = $user['role'];
+            switch ($role) {
+                case 'admin':
+                    header("Location: admin-dashboard.php");
+                    break;
+                case 'sales_person':
+                    header("Location: sales-dashboard.php");
+                    break;
+                case 'printer':
+                    header("Location: printer-dashboard.php");
+                    break;
+                case 'rider':
+                    header("Location: rider-dashboard.php");
+                    break;
+                default:
+                    header("Location: subscription.php");
             }
             exit();
         } else {
@@ -608,19 +644,23 @@ function showInstallPrompt() {
 // Show session status on form interaction
 document.getElementById('loginForm').addEventListener('submit', function() {
     const status = document.getElementById('sessionStatus');
-    status.style.display = 'block';
-    status.textContent = 'Setting up 365-day session...';
-    status.style.background = '#17a2b8';
+    if (status) {
+        status.style.display = 'block';
+        status.textContent = 'Setting up 365-day session...';
+        status.style.background = '#17a2b8';
+    }
 });
 
 // Show session info on page load
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         const status = document.getElementById('sessionStatus');
-        status.style.display = 'block';
-        setTimeout(() => {
-            status.style.display = 'none';
-        }, 3000);
+        if (status) {
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
     }, 1000);
 });
 </script>

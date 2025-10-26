@@ -1,14 +1,18 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+ob_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 require 'config.php';
 require 'db_connection.php';
 
+// Redirect to login if user is not authenticated
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
+    ob_end_flush(); // Send output buffer and turn off buffering
     exit();
 }
+
 
 $user_id = $_SESSION['user_id'];
 $message = '';

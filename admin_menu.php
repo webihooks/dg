@@ -183,6 +183,15 @@
                </li>
 
                <li class="nav-item">
+                    <a class="nav-link" href="create_cards_assignment.php">
+                         <span class="nav-icon">
+                              <iconify-icon icon="ph:cards-light"></iconify-icon>
+                         </span>
+                         <span class="nav-text"> Cards Assignment</span>
+                    </a>
+               </li>
+
+               <li class="nav-item">
                     <a class="nav-link" href="qr.php">
                          <span class="nav-icon">
                               <iconify-icon icon="ic:baseline-qrcode"></iconify-icon>

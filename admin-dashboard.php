@@ -121,8 +121,6 @@ $conn->close();
         // Include the appropriate menu based on user role
         if ($role === 'admin') {
             include 'admin_menu.php';
-        } else {
-            include 'menu.php';
         }
         ?>
 
