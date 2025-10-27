@@ -1118,7 +1118,7 @@ function goBackToMenu(orderId) {
     localStorage.setItem('lastOrderUserId', '<?= $user_id ?>');
     
     // Redirect to profile page
-    window.location.href = '/<?= htmlspecialchars($back_url) ?>';
+    window.location.href = 'https://deegeecard.com/<?= htmlspecialchars($back_url) ?>';
 }
 </script>
 

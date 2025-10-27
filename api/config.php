@@ -7,8 +7,8 @@
 // Database configuration (optional - you can keep your existing connection code)
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'doctorie_webihooks_card');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'doctorie_webihooks');
+define('DB_PASS', 'S@g@r4834');
 
 // JWT expiration time (in seconds)
 define('JWT_EXPIRATION', 60 * 60 * 24); // 24 hours

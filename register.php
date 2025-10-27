@@ -2,8 +2,8 @@
 // Database connection details
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
-$username = 'root';
-$password = '';
+$username = 'doctorie_webihooks';
+$password = 'S@g@r4834';
 
 // Connect to the database
 try {

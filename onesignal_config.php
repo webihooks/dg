@@ -15,8 +15,8 @@ class OneSignalNotification {
     private function getDBConnection() {
         $host = 'localhost';
         $dbname = 'doctorie_webihooks_card';
-        $username = 'root';
-        $password = '';
+        $username = 'doctorie_webihooks';
+        $password = 'S@g@r4834';
         
         try {
             $conn = new mysqli($host, $username, $password, $dbname);

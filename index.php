@@ -6,15 +6,15 @@
     <title>DEEGEECARD | Get Orders Directly, Zero Commissions!!!</title>
 
     <meta name="description" content="DEEDEECARD">
-    <link rel="icon" type="image/png" href="/images/dg_logo.png">
+    <link rel="icon" type="image/png" href="https://deegeecard.com/images/dg_logo.png">
     <meta property="og:title" content="DEEDEECARD">
     <meta property="og:description" content="Get Orders Directly, Zero Commissions!!!">
-    <meta property="og:image" content="/images/dg_logo.png">
+    <meta property="og:image" content="https://deegeecard.com/images/dg_logo.png">
     <meta property="og:type" content="restaurant">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="DEEDEECARD">
     <meta name="twitter:description" content="Get Orders Directly, Zero Commissions!!!">
-    <meta name="twitter:image" content="/images/dg_logo.png">
+    <meta name="twitter:image" content="https://deegeecard.com/images/dg_logo.png">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -22,7 +22,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
-    <link rel="apple-touch-icon" href="/images/dg_logo.png">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
 
 
 
@@ -449,7 +449,7 @@
                 <div class="phone-frame animate-slide-up">
                     <div class="phone-notch"></div>
                     <div class="phone-screen">
-                        <iframe src="/thedhamaalcafe" class="phone-iframe" title="DeeGeeCard Example"></iframe>
+                        <iframe src="https://deegeecard.com/thedhamaalcafe" class="phone-iframe" title="DeeGeeCard Example"></iframe>
                     </div>
                     <div class="phone-button"></div>
                 </div>
@@ -517,10 +517,10 @@ try {
 <div class="client-carousel">
     <?php if (!empty($clientLogos)): ?>
         <?php foreach ($clientLogos as $client): ?>
-            <a href="/<?php echo htmlspecialchars($client['profile_url']); ?>" 
+            <a href="https://deegeecard.com/<?php echo htmlspecialchars($client['profile_url']); ?>" 
                class="client-item" target="_blank" 
                title="<?php echo htmlspecialchars($client['business_name']); ?>">
-                <img src="/uploads/profile/<?php echo htmlspecialchars($client['profile_photo']); ?>" 
+                <img src="https://deegeecard.com/uploads/profile/<?php echo htmlspecialchars($client['profile_photo']); ?>" 
                      alt="<?php echo htmlspecialchars($client['business_name']); ?>" 
                      class="client-logo">
             </a>

@@ -2,24 +2,29 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// SIMPLIFIED SESSION CONFIGURATION FOR LOCALHOST
+// ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
 session_set_cookie_params([
-    'lifetime' => 31536000,
+    'lifetime' => 31536000, // 1 year
     'path' => '/',
-    'domain' => '', // Leave empty for localhost
-    'secure' => false, // false for localhost
+    'domain' => $_SERVER['HTTP_HOST'],
+    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
     'httponly' => true,
-    'samesite' => 'Lax' // Use Lax for localhost instead of None
+    'samesite' => 'None' // Essential for Android apps
 ]);
 
 // Server-side session configuration
-ini_set('session.gc_maxlifetime', 31536000);
-ini_set('session.cookie_lifetime', 31536000);
-ini_set('session.cookie_secure', 0); // 0 for localhost
+ini_set('session.gc_maxlifetime', 31536000); // 1 year
+ini_set('session.cookie_lifetime', 31536000); // 1 year
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 1 : 0);
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_samesite', 'None');
 
-// Start session
+// Prevent session ID regeneration on every request
+ini_set('session.use_strict_mode', 1);
+ini_set('session.use_cookies', 1);
+ini_set('session.use_only_cookies', 1);
+
+// Start session only if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -27,8 +32,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Database connection
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
-$username = 'root';
-$password = '';
+$username = 'doctorie_webihooks';
+$password = 'S@g@r4834';
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -327,9 +332,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="default">
      <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
-     <link rel="apple-touch-icon" href="/images/dg_logo.png">
+     <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
      <meta name="msapplication-TileColor" content="#fb5b29">
-     <meta name="msapplication-TileImage" content="/images/dg_logo.png">
+     <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
      <meta name="application-name" content="DeeGeeCard">
      <meta name="mobile-web-app-capable" content="yes">
 

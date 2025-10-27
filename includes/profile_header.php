@@ -1,14 +1,14 @@
 <!-- Cover -->
 <div class="cover_photo">
     <?php if (!empty($photos['cover_photo'])): ?>
-    <img src="/uploads/cover/<?= htmlspecialchars($photos['cover_photo']) ?>" class="img-fluid" alt="Cover Photo">
+    <img src="https://deegeecard.com/uploads/cover/<?= htmlspecialchars($photos['cover_photo']) ?>" class="img-fluid" alt="Cover Photo">
     <?php endif; ?>
 </div>
 
 <!-- Profile Photo -->
 <div class="profile_photo">
     <?php if (!empty($photos['profile_photo'])): ?>
-    <img src="/uploads/profile/<?= htmlspecialchars($photos['profile_photo']) ?>" class="img-fluid" alt="Profile Photo">
+    <img src="https://deegeecard.com/uploads/profile/<?= htmlspecialchars($photos['profile_photo']) ?>" class="img-fluid" alt="Profile Photo">
     <?php endif; ?>
 </div>
 

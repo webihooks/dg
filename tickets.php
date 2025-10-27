@@ -85,7 +85,6 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        
         <?php
         if ($role === 'admin') {
             include 'admin_menu.php';

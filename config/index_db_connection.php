@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
-$username = 'root';
-$password = '';
+$username = 'doctorie_webihooks';
+$password = 'S@g@r4834';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);

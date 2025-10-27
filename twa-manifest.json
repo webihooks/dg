@@ -9,8 +9,8 @@
   "backgroundColor": "#F9F7F7",
   "enableNotifications": true,
   "startUrl": "/login.php",
-  "iconUrl": "https://deegeecard.com/assets/images/logo-lg.png",
-  "maskableIconUrl": "https://deegeecard.com/assets/images/logo-sm.png",
+  "iconUrl": "https://dgcard.online/assets/images/logo-lg.png",
+  "maskableIconUrl": "https://dgcard.online/assets/images/logo-sm.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./android-key.jks",
@@ -23,17 +23,17 @@
       "name": "Orders",
       "shortName": "Orders",
       "url": "/orders.php",
-      "chosenIconUrl": "https://deegeecard.com/assets/images/order-icon.png"
+      "chosenIconUrl": "https://dgcard.online/assets/images/order-icon.png"
     },
     {
       "name": "Dashboard", 
       "shortName": "Dashboard",
       "url": "/dashboard.php",
-      "chosenIconUrl": "https://deegeecard.com/assets/images/dashboard-icon.png"
+      "chosenIconUrl": "https://dgcard.online/assets/images/dashboard-icon.png"
     }
   ],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://deegeecard.com/manifest.json",
+  "webManifestUrl": "https://dgcard.online/manifest.json",
   "fallbackType": "customtabs",
   "features": {},
   "alphaDependencies": {

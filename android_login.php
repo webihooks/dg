@@ -6,8 +6,8 @@ session_start();
 // Database connection details
 $host = 'localhost'; // Replace with your database host
 $dbname = 'doctorie_webihooks_card'; // Replace with your database name
-$username = 'root'; // Replace with your database username
-$password = ''; // Replace with your database password
+$username = 'doctorie_webihooks'; // Replace with your database username
+$password = 'S@g@r4834'; // Replace with your database password
 
 // Connect to the database
 try {
