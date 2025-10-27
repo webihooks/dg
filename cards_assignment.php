@@ -362,7 +362,7 @@ $conn->close();
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td><?php echo htmlspecialchars($assignment['assigned_by_name']); ?></td>
-                                                            <td><?php echo date('d M Y H:i', strtotime($assignment['created_at'])); ?></td>
+                                                            <td><?php echo date('d M Y h:i A', strtotime($assignment['created_at'])); ?></td>
                                                             <td>
                                                                 <div class="d-flex flex-column gap-1">
                                                                     <a href="edit_assignment.php?id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-warning">

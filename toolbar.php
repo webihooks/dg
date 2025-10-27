@@ -414,7 +414,8 @@ document.addEventListener('keypress', function() {
 
                     <!-- User -->
                     <div class="dropdown topbar-item">
-                         <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a type="button" class="topbar-button" id="page-header-user-dropdown" 
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <span class="d-flex align-items-center">
                                    <img class="rounded-circle" width="32" src="assets/images/users/dummy-avatar.jpg" alt="avatar-3">
                                    <?php if ($isAndroidApp): ?>
