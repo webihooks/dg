@@ -41,8 +41,8 @@ if (isset($_SESSION['user_id'])) {
 // Database connection for user data
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
-$username = 'doctorie_webihooks';
-$password = 'S@g@r4834';
+$username = 'root';
+$password = '';
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

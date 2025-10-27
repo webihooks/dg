@@ -225,7 +225,7 @@ $conn->close();
                                                 <td><?php echo htmlspecialchars($order['user_name']); ?></td>
                                                 <td>
                                                     <?php if (!empty($order['profile_url'])): ?>
-                                                        <a href="https://deegeecard.com/<?php echo htmlspecialchars($order['profile_url']); ?>" 
+                                                        <a href="/<?php echo htmlspecialchars($order['profile_url']); ?>" 
                                                            class="profile-url" 
                                                            target="_blank">
                                                            <?php echo htmlspecialchars($order['profile_url']); ?>

@@ -1502,11 +1502,11 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
 
         // URLs
         const orderStatusUrl = profileUrl 
-            ? `https://deegeecard.com/order_status.php?order_id=${orderId}&profile_url=${encodeURIComponent(profileUrl)}`
-            : `https://deegeecard.com/order_status.php?order_id=${orderId}`;
+            ? `/order_status.php?order_id=${orderId}&profile_url=${encodeURIComponent(profileUrl)}`
+            : `/order_status.php?order_id=${orderId}`;
             
         const profileOrderUrl = profileUrl 
-            ? `https://deegeecard.com/${profileUrl}`
+            ? `/${profileUrl}`
             : 'https://deegeecard.com';
 
         // Create confirmation message exactly as per sample
@@ -1591,7 +1591,7 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         message += `🚀 *Next time, order faster!*\n`;
         message += `Place your order easily here:\n`;
         if (profileUrl) {
-            message += `🔗 https://deegeecard.com/${profileUrl}\n\n`;
+            message += `🔗 /${profileUrl}\n\n`;
         } else {
             message += `🔗 https://deegeecard.com\n\n`;
         }

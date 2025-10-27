@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 26, 2025 at 05:20 PM
+-- Generation Time: Oct 27, 2025 at 11:41 AM
 -- Server version: 5.7.23-23
 -- PHP Version: 8.1.33
 
@@ -202,6 +202,13 @@ CREATE TABLE `cards_assignment` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `cards_assignment`
+--
+
+INSERT INTO `cards_assignment` (`id`, `user_id`, `front_card_path`, `back_card_path`, `quantity`, `payment_screenshot_path`, `status`, `printer_notes`, `updated_by_printer`, `assigned_by`, `created_at`, `updated_at`) VALUES
+(1, 59, 'card_designs/card_59_front_1754643206.png', 'card_designs/card_59_back_1754643206.png', 1000, 'uploads/payments/1761496400_images.jpg', 'completed', 'hkfgdfg', 82, 18, '2025-10-26 16:28:46', '2025-10-26 16:33:20');
+
 -- --------------------------------------------------------
 
 --
@@ -216,6 +223,15 @@ CREATE TABLE `card_status_history` (
   `updated_by_printer` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `card_status_history`
+--
+
+INSERT INTO `card_status_history` (`id`, `card_assignment_id`, `status`, `printer_notes`, `updated_by_printer`, `created_at`) VALUES
+(1, 1, 'in_process', 'dshskghg', 82, '2025-10-26 16:29:22'),
+(2, 1, 'out_for_delivery', 'delivery', 82, '2025-10-26 16:32:03'),
+(3, 1, 'completed', 'hkfgdfg', 82, '2025-10-26 16:32:24');
 
 -- --------------------------------------------------------
 
@@ -29627,7 +29643,8 @@ INSERT INTO `dg_transactions` (`id`, `type`, `category_id`, `amount`, `descripti
 (190, 'expense', 10, 1364.00, '', '2025-10-10', '2025-10-10 22:06:22', '2025-10-10 22:06:22', 18, NULL, NULL, 0, NULL),
 (191, 'expense', 3, 200.00, '', '2025-10-11', '2025-10-11 07:24:50', '2025-10-11 07:24:50', 18, NULL, NULL, 0, NULL),
 (192, 'expense', 10, 40.00, '', '2025-10-12', '2025-10-12 16:14:38', '2025-10-12 16:14:38', 18, NULL, NULL, 0, NULL),
-(193, 'expense', 3, 200.00, 'Cig', '2025-10-23', '2025-10-23 05:21:21', '2025-10-23 05:21:21', 18, NULL, NULL, 0, NULL);
+(193, 'expense', 3, 200.00, 'Cig', '2025-10-23', '2025-10-23 05:21:21', '2025-10-23 05:21:21', 18, NULL, NULL, 0, NULL),
+(194, 'expense', 3, 300.00, '', '2025-10-26', '2025-10-26 16:44:42', '2025-10-26 16:44:42', 18, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -31236,7 +31253,21 @@ INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `customer_phone`, 
 (2345, 32, 'Jipson Kuttikkadan ', '9869980147', 'delivery', 'A-301, Sai Charanamrith, S. V. Road, near Naresh Steel Centre, behind Shivam Apartment, Bhayander (East) 401105', NULL, NULL, 160.00, 0.00, '', 0.00, 0.00, 160.00, 'Pending', '2025-10-25 06:10:37', '2025-10-25 06:10:37', NULL),
 (2346, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1560.00, 0.00, '', 78.00, 0.00, 1638.00, 'Confirmed', '2025-10-25 06:50:02', '2025-10-25 06:50:11', NULL),
 (2347, 28, 'Sagar Pawar', '0900499899', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 2260.00, 0.00, '', 113.00, 0.00, 2373.00, 'Ready', '2025-10-25 06:59:41', '2025-10-25 07:01:00', NULL),
-(2348, 63, 'Kinjal Shah', '7415679879', 'delivery', 'D - 201, Queens Tulip CHSL, Queens Park, Behind Deepak Hospital, Mira Road (E)', NULL, NULL, 533.00, 0.00, '', 26.65, 0.00, 559.65, 'Pending', '2025-10-25 14:28:44', '2025-10-25 14:28:44', NULL);
+(2348, 63, 'Kinjal Shah', '7415679879', 'delivery', 'D - 201, Queens Tulip CHSL, Queens Park, Behind Deepak Hospital, Mira Road (E)', NULL, NULL, 533.00, 0.00, '', 26.65, 0.00, 559.65, 'Pending', '2025-10-25 14:28:44', '2025-10-25 14:28:44', NULL),
+(2349, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 630.00, 0.00, '', 31.50, 0.00, 661.50, 'Ready', '2025-10-26 13:20:53', '2025-10-26 13:23:09', NULL),
+(2350, 28, 'Sagar Pawar', '9000499895', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 930.00, 0.00, '', 46.50, 0.00, 976.50, 'Ready', '2025-10-26 14:03:10', '2025-10-26 15:47:42', NULL),
+(2351, 28, 'Sagar', '7348248782', 'delivery', 'hfhfkhgkdf', NULL, NULL, 2480.00, 0.00, '', 124.00, 0.00, 2604.00, 'Ready', '2025-10-26 15:24:37', '2025-10-26 15:47:39', NULL),
+(2352, 28, 'Sagar', '3246278642', 'delivery', 'hhkdgdf', NULL, NULL, 3180.00, 0.00, '', 159.00, 0.00, 3339.00, 'Ready', '2025-10-26 15:28:34', '2025-10-26 15:47:35', NULL),
+(2353, 28, 'Tanvi', '8748972347', 'delivery', 'shkfshdf', NULL, NULL, 3810.00, 0.00, '', 190.50, 0.00, 4000.50, 'Ready', '2025-10-26 15:29:59', '2025-10-26 15:47:30', NULL),
+(2354, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2560.00, 0.00, '', 128.00, 0.00, 2688.00, 'Ready', '2025-10-26 15:33:37', '2025-10-26 15:47:24', NULL),
+(2355, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2790.00, 0.00, '', 139.50, 0.00, 2929.50, 'Ready', '2025-10-26 15:35:08', '2025-10-26 15:47:22', NULL),
+(2356, 64, 'Siddhi ', '8408946455', 'delivery', 'Jp Aviva 3207', NULL, NULL, 208.00, 0.00, '', 0.00, 40.00, 248.00, 'Pending', '2025-10-26 15:43:33', '2025-10-26 15:43:33', NULL),
+(2357, 64, 'Nandini Yadav', '7208778948', 'delivery', '1002, bldg.1, Gaurav Excellency, Near Gaurav Valley Mira road (e).', NULL, NULL, 304.00, 0.00, '', 0.00, 0.00, 304.00, 'Pending', '2025-10-26 15:49:45', '2025-10-26 15:49:45', NULL),
+(2358, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 1400.00, 0.00, '', 70.00, 0.00, 1470.00, 'Ready', '2025-10-26 20:35:53', '2025-10-26 20:37:10', NULL),
+(2359, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2100.00, 0.00, '', 105.00, 0.00, 2205.00, 'Confirmed', '2025-10-26 20:40:34', '2025-10-26 20:40:40', NULL),
+(2360, 28, 'Inayat Shaikh', '9819411026', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 2800.00, 0.00, '', 140.00, 0.00, 2940.00, 'Completed', '2025-10-26 20:41:03', '2025-10-26 20:41:24', NULL),
+(2361, 28, 'Sagar Pawar', '9004998995', 'delivery', '301, Abhinav Apt., Goddev Road, Bhayander - East, Thane - 401105', NULL, NULL, 1860.00, 0.00, '', 93.00, 0.00, 1953.00, 'Confirmed', '2025-10-27 03:34:26', '2025-10-27 03:34:46', NULL),
+(2362, 28, 'Inayat Shaikh', '0981941102', 'delivery', 'Avenue J, Building No 4, Flat No 103, Rustomjee Evershine Global City, Opp Bachraj Landmark, Virar West', NULL, NULL, 3500.00, 0.00, '', 175.00, 0.00, 3675.00, 'Confirmed', '2025-10-27 03:35:30', '2025-10-27 04:09:35', NULL);
 
 -- --------------------------------------------------------
 
@@ -37047,7 +37078,42 @@ INSERT INTO `order_items` (`item_id`, `user_id`, `order_id`, `product_name`, `pr
 (5781, 28, 2347, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
 (5782, 63, 2348, 'Ralli Malli Subzi', 319.00, 1),
 (5783, 63, 2348, 'Tandoori Roti Plain', 39.00, 4),
-(5784, 63, 2348, 'Fulka Roti', 29.00, 2);
+(5784, 63, 2348, 'Fulka Roti', 29.00, 2),
+(5785, 28, 2349, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(5786, 28, 2349, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(5787, 28, 2350, 'Chicken Shahi Tandoori (Full)', 700.00, 1),
+(5788, 28, 2350, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(5789, 28, 2351, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(5790, 28, 2351, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(5791, 28, 2351, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(5792, 28, 2352, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(5793, 28, 2352, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(5794, 28, 2352, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 1),
+(5795, 28, 2353, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(5796, 28, 2353, 'Chicken Shahi Tandoori (Half)', 230.00, 3),
+(5797, 28, 2353, 'Chicken Peri Peri Tandoori (Full) (NEW)', 390.00, 2),
+(5798, 28, 2353, 'Chicken Peri Peri Tandoori (Half) (NEW)', 240.00, 1),
+(5799, 28, 2354, 'Chicken Shahi Tandoori (Half)', 230.00, 1),
+(5800, 28, 2354, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(5801, 28, 2354, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(5802, 28, 2354, 'Chicken Sheek Biryani', 220.00, 1),
+(5803, 28, 2354, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(5804, 28, 2355, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(5805, 28, 2355, 'Chicken Malai Tandoori (Half)', 250.00, 1),
+(5806, 28, 2355, 'Chicken Lahori Tandori (Full) (NEW)', 460.00, 1),
+(5807, 28, 2355, 'Chicken Sheek Biryani', 220.00, 1),
+(5808, 28, 2355, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(5809, 64, 2356, 'Capsicums Pizza (Single Topping)', 99.00, 1),
+(5810, 64, 2356, 'Carnival Belgian (Candy)', 69.00, 1),
+(5811, 64, 2356, 'Sev Puri With Gol Puri', 40.00, 1),
+(5812, 64, 2357, 'Blackolives, Paneer & Gold Corn Pizza (Triple Topping)', 159.00, 1),
+(5813, 64, 2357, 'Pepper BBQ Chicken & Onion Pizza (Double Topping)', 145.00, 1),
+(5814, 28, 2358, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(5815, 28, 2359, 'Chicken Shahi Tandoori (Full)', 700.00, 3),
+(5816, 28, 2360, 'Chicken Shahi Tandoori (Full)', 700.00, 4),
+(5817, 28, 2361, 'Chicken Shahi Tandoori (Full)', 700.00, 2),
+(5818, 28, 2361, 'Chicken Shahi Tandoori (Half)', 230.00, 2),
+(5819, 28, 2362, 'Chicken Shahi Tandoori (Full)', 700.00, 5);
 
 -- --------------------------------------------------------
 
@@ -37573,7 +37639,19 @@ INSERT INTO `order_updates` (`id`, `order_id`, `user_id`, `old_status`, `new_sta
 (612, 2343, 28, 'Pending', 'Confirmed', '313a31ca2566208c506547ebbb214559', 'accepted', '2025-10-24 21:39:47'),
 (613, 2344, 28, 'Pending', 'Confirmed', 'a63396951fb6ee0b7d9f75a5cadb9cc6', 'accepted', '2025-10-24 21:43:16'),
 (614, 2346, 28, 'Pending', 'Confirmed', '1903f3bf429912d72144fbe36ee45d75', 'accepted', '2025-10-25 06:50:11'),
-(615, 2347, 28, 'Pending', 'Confirmed', '1903f3bf429912d72144fbe36ee45d75', 'accepted', '2025-10-25 06:59:57');
+(615, 2347, 28, 'Pending', 'Confirmed', '1903f3bf429912d72144fbe36ee45d75', 'accepted', '2025-10-25 06:59:57'),
+(616, 2349, 28, 'Pending', 'Confirmed', 'e1d21d8bdcff3aa9142ec248b16bc8a7', 'accepted', '2025-10-26 13:21:13'),
+(617, 2350, 28, 'Pending', 'Confirmed', '3b711b9f953aab73fdbace9e552ab5d4', 'accepted', '2025-10-26 14:03:15'),
+(618, 2351, 28, 'Pending', 'Confirmed', '506f995521f9d30ed0b19edd7fc512c7', 'accepted', '2025-10-26 15:25:10'),
+(619, 2352, 28, 'Pending', 'Confirmed', '54ec15eec600b62b03ea4865e56680a0', 'accepted', '2025-10-26 15:28:51'),
+(620, 2353, 28, 'Pending', 'Confirmed', '2218d023268aea49944b495e5f21cc87', 'accepted', '2025-10-26 15:31:02'),
+(621, 2354, 28, 'Pending', 'Confirmed', '97546e975514066080ca6102fa526d03', 'accepted', '2025-10-26 15:34:00'),
+(622, 2355, 28, 'Pending', 'Confirmed', '2218d023268aea49944b495e5f21cc87', 'accepted', '2025-10-26 15:35:19'),
+(623, 2358, 28, 'Pending', 'Confirmed', '197545136816c05521f94d621d66951a', 'accepted', '2025-10-26 20:37:03'),
+(624, 2359, 28, 'Pending', 'Confirmed', '080dcab0fee503fb20d4067f02278df3', 'accepted', '2025-10-26 20:40:40'),
+(625, 2360, 28, 'Pending', 'Confirmed', '080dcab0fee503fb20d4067f02278df3', 'accepted', '2025-10-26 20:41:10'),
+(626, 2361, 28, 'Pending', 'Confirmed', '42e44b9dbd148b5e8b94bdd32c6de7f5', 'accepted', '2025-10-27 03:34:46'),
+(627, 2362, 28, 'Pending', 'Confirmed', 'c7dc2ee9ee3bde1b9c42a8f99a4d0e7d', 'accepted', '2025-10-27 04:09:35');
 
 -- --------------------------------------------------------
 
@@ -54774,14 +54852,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `Name`, `Email`, `Password`, `remember_token`, `token_expires`, `role`, `created_at`, `updated_at`, `phone`, `address`, `is_trial`, `trial_start`, `trial_end`, `last_login`, `login_count`) VALUES
-(1, 'Sagar Pawar', 'webihooks@gmail.com', '$2y$10$BIvEp65vRmw4UXmxBL5wEeIQEipJa2TVegvsdi4JUumzOxjP.DWsy', 'e0fecb740b5c92a4b4be4b4cc38d4948faa8b42739b2b2bb4e565a3b6f446d01', 1793015231, 'admin', '2025-03-25 19:09:42', '2025-10-26 11:47:11', '9004998995', '1404, Building No.2, Vasudev Sky High, Mira road - East', 0, NULL, NULL, NULL, 0),
+(1, 'Sagar Pawar', 'webihooks@gmail.com', '$2y$10$BIvEp65vRmw4UXmxBL5wEeIQEipJa2TVegvsdi4JUumzOxjP.DWsy', NULL, NULL, 'admin', '2025-03-25 19:09:42', '2025-10-27 05:58:52', '9004998995', '1404, Building No.2, Vasudev Sky High, Mira road - East', 0, NULL, NULL, NULL, 0),
 (4, 'Momo King', 'momosking63@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-04-03 12:02:30', '2025-07-30 14:55:21', '7045242798', 'Shop 04, Building-S- 5, Jangid Tower, Shanti Park, Near Syndicate Bank, Mira Road, Mumbai.', 0, NULL, NULL, NULL, 0),
 (5, 'Khushamadeed', 'khushamadeedofficial@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', NULL, NULL, 'user', '2025-04-12 09:17:58', '2025-07-30 16:54:53', '7208790035', 'Gala No. 8, 9, 10, Arciadia, Jangid Enclave, Kanakia Rd, Opp. Laxmi Park, Unique Gardens, Gaurav City, Mira Road - East', 0, NULL, NULL, NULL, 0),
 (13, 'Sales', 'sales@gmail.com', '$2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly', NULL, NULL, 'sales_person', '2025-05-05 08:02:06', '2025-10-24 07:36:33', '7738804051', 'Silver Park', 0, NULL, NULL, NULL, 0),
 (15, 'Gold Coin Restaurant', 'goldcoinsince1994@gmail.com', '$2y$10$sSL80aJwPXuT3jsKVJi.heNHTysEyU0c877/qq8dR5B4JCtI6WBpG', NULL, NULL, 'user', '2025-05-23 10:36:26', '2025-05-26 10:35:39', '9867891178', 'Sheetal Darshan Building Sheetal Nagar Naka, Mira Road East, Maharashtra 401107', 1, '2025-05-23 10:36:26', '2025-05-30 10:36:26', NULL, 0),
 (16, 'Krishna Lunch Home', 'udayhegde82@gmail.com', '$2y$10$iYZTYEovllrvgilkoEOGsOP7XZERryS3Y72DYuzb3JtaFDEiCc0ym', NULL, NULL, 'user', '2025-05-24 11:15:43', '2025-07-30 14:54:55', '7304072176', 'Shop No-1 & 2, Sheetal Kunj, behind Snehanjali, Sheetal Nagar, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-05-24 11:15:43', '2025-05-31 11:15:43', NULL, 0),
 (17, 'Swadisht Rasoi', 'Swadishtrasoi175@gmail.com', '$2y$10$H9D9bu9FFQfhQhX/NgPMT.56.fzVKe67JPJRCH0oU5LlYcR5tpMCC', NULL, NULL, 'user', '2025-06-01 10:44:55', '2025-07-27 17:24:12', '9326633276', 'Shop No.05, Sai Arcade, Indralok Phase 3, Bhayandar East, Mumbai, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-01 10:44:55', '2025-06-08 10:44:55', NULL, 0),
-(18, 'Inayat', 'inayat.shaikh09@gmail.com', '$2y$10$iRSt8b0sUMI9aA0hqY29mevHOafK8RpBHIFnWCWwLUuvgs/ptdAti', 'c1785f73f51ca97d76f6b371a989992dfeee858791e680059597f1fa2b8eff5d', 1793005527, 'admin', '2025-03-25 19:09:42', '2025-10-26 09:05:27', '9819411026', 'Virar', 0, NULL, NULL, NULL, 0),
+(18, 'Inayat', 'inayat.shaikh09@gmail.com', '$2y$10$iRSt8b0sUMI9aA0hqY29mevHOafK8RpBHIFnWCWwLUuvgs/ptdAti', '724f7194bc8f880fe107ebd04654b139b23d9f45f042081aeb8b076866f5e25a', 1793047171, 'admin', '2025-03-25 19:09:42', '2025-10-26 20:39:31', '9819411026', 'Virar', 0, NULL, NULL, NULL, 0),
 (19, 'New Shahi Family Restaurant', 'newshahi@gmail.com', '$2y$10$J.Hrd.cx/mOwDvqTIke4pOgMfr19JOsKElKQ4auXVWdyTPHEnMZSu', NULL, NULL, 'user', '2025-06-09 10:51:21', '2025-10-24 11:21:38', '7208295640', 'Shop No.1, 2.3.4, Mira Bhayandar Rd, Medetiya Nagar, Queens Park, Mira Road East, Mira Bhayandar, Maharashtra 401107', 1, '2025-06-09 10:51:21', '2025-06-16 10:51:21', NULL, 0),
 (20, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnaindralok@gmail.com', '$2y$10$6rS/HeO2nXbxaBK6F5cSq.ppEkWqOt8sTmbMJdkp0uyO7SWwisCs6', NULL, NULL, 'user', '2025-06-10 08:19:20', '2025-06-11 12:28:05', '9920555031', 'Shop 1,2,3, C Wing, Durga residency, annapurna estate, IV Indralok, Deepak Hospital road, Bhayandar east Thane- 401105', 1, '2025-06-10 08:19:20', '2025-06-17 08:19:20', NULL, 0),
 (21, 'Shahi Restaurant', 'shahi.restaurant01@gmail.com', '$2y$10$GbNDhKvW0Of4tW9WTrV/5urrDgJk1ArlMZ/NhsGjNrDU8bO0DzORS', NULL, NULL, 'user', '2025-06-12 06:46:08', '2025-06-21 08:49:56', '7700900525', 'M.T.N.L Road, Sheetal Sai, Sheetal Nagar, Mira Road, Thane-401107', 1, '2025-06-12 06:46:08', '2025-06-19 06:46:08', NULL, 0),
@@ -54791,7 +54869,7 @@ INSERT INTO `users` (`id`, `Name`, `Email`, `Password`, `remember_token`, `token
 (25, 'Prime Fast Food', 'gsatish645@gmail.com', '$2y$10$PIFA3hJtlAnkr0E2QDS6z.ehk23hHaIKFAUcwQMyUTAPe/Syshojy', NULL, NULL, 'user', '2025-06-16 15:42:04', '2025-06-24 12:57:11', '9137394559', 'Shop No. 11 Cinemax Prime Mall, Kanakia Road, Mira Road East, Thane 401107', 1, '2025-06-16 15:42:04', '2025-06-23 15:42:04', NULL, 0),
 (26, 'Shivali Garden', 'shivaligarden@gmail.com', '$2y$10$GJmZb1jHhJdQHBHGN6KVW.wgtEDgjb6i1GQeE9ssBvY7572RuCBF6', NULL, NULL, 'user', '2025-06-17 10:09:18', '2025-06-17 10:09:18', '8828526044', 'Shivali Garden, Shanti Park, Gokul Village, Mira Road East, Thane-401107', 1, '2025-06-17 10:09:18', '2025-06-24 10:09:18', NULL, 0),
 (27, 'Sajid Block', 'sajid.sashk_block@gmail.com', '$2y$10$ayAMkp7eSARsD74LvlKiLudT3yeOEJazL.ykpPd5oC6d.EItQBiCm', NULL, NULL, 'user', '2025-06-23 06:19:54', '2025-10-24 07:23:06', '8369105106', 'abcd', 0, NULL, NULL, NULL, 0),
-(28, 'The Dhamaal Cafe', 'thedhamaal@gmail.com', '$2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly', NULL, NULL, 'user', '2025-06-23 08:27:08', '2025-10-26 10:56:22', '9004998995', 'shop 2, sheetal raj complex', 1, '2025-06-23 08:27:08', '2025-06-30 08:27:08', NULL, 0),
+(28, 'The Dhamaal Cafe', 'thedhamaal@gmail.com', '$2y$10$3R8TzT24O9RLBApADajczOfdFML2LULr4GpDuONHDQocyNf/Ew8ly', '17c755617a5542e869489d69f98bc39028765ea5669ad8440bfebd3779dc1085', 1793081312, 'user', '2025-06-23 08:27:08', '2025-10-27 06:08:32', '9004998995', 'shop 2, sheetal raj complex', 1, '2025-06-23 08:27:08', '2025-06-30 08:27:08', NULL, 0),
 (30, 'Hollywood Bollywood Restaurant', 'hollywoodbollywoodrestaurant@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-06-24 13:05:28', '2025-06-24 13:29:39', '7700047166', 'Jai Shree Krishna Darshan C, Shop Number 8,9, Hatkesh Rd, opposite RITU PARADISE PHASE-1, Phase 1, Gaurav Sankalp, Mira Road East, Maharashtra 401107', 1, '2025-06-24 13:05:28', '2025-07-01 13:05:28', NULL, 0),
 (31, 'Bijay Chinese Corner', 'bijaychinese@gmail.com', '$2y$10$07m9gngVFxxSH9ZolkStGOydWnYYXNBU4yp8WRrk.AAOY5Oad998G', NULL, NULL, 'user', '2025-06-24 13:29:35', '2025-06-24 13:35:55', '9821912865', 'Gala No.3/4, Village Goddev Naka, Navghar Rd, Nr. Kapol Bank, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-24 13:29:35', '2025-07-01 13:29:35', NULL, 0),
 (32, 'Shree Krishna Pure Veg Restaurant', 'shreekrishnanavgharroad@gmail.com', '$2y$10$jfp93bfVCwbZy7fkE4IEeOW61QeajOcO.Qd3rH8Z3ICbfPmFGdvrq', NULL, NULL, 'user', '2025-06-25 10:22:50', '2025-06-25 15:48:28', '7718837249', 'Shop No 1, CHS LTD, Jay Vandana, Navghar Rd, Bhayandar, Bharat Nagar, Bhayandar East, Mira Bhayandar, Maharashtra 401105', 1, '2025-06-25 10:22:50', '2025-07-02 10:22:50', NULL, 0),
@@ -54826,7 +54904,7 @@ INSERT INTO `users` (`id`, `Name`, `Email`, `Password`, `remember_token`, `token
 (79, 'Biryani By Bulk - Kanchanwadi', 'bbbkanchanwadi@gmail.com', '$2y$10$be58c/IuuMd8FHL98JRcZOWiXi/2jV/PUIp0B7a8EVFrgIw974/au', NULL, NULL, 'user', '2025-10-12 10:26:40', '2025-10-13 07:46:29', '7755939361', 'Plot no. 10 C, Nath Valley School Rd, Kanchanwadi, Chhatrapati Sambhajinagar, Maharashtra 431011', 1, '2025-10-12 10:26:40', '2025-10-19 10:26:40', NULL, 0),
 (80, 'Biryani By Bulk - Pahad Singh Pura', 'bbbpahadsinghpura@gmail.com', '$2y$10$ExdUX74QmwA2iBWTRLTwI..4MCPZGBy57rZdoABgAOJLg2v6.Q20G', NULL, NULL, 'user', '2025-10-12 10:29:04', '2025-10-13 08:21:46', '7755939361', 'Aurangabad Caves Rd, Pahadsingpura, Dr Babasaheb Ambedkar Marathwada University Campus, Chhatrapati Sambhajinagar, Maharashtra 431001', 1, '2025-10-12 10:29:04', '2025-10-19 10:29:04', NULL, 0),
 (81, 'Biryani By Bulk - Kat Kat Gate', 'bbbkatkatgate@gmail.com', '$2y$10$H4z3uCHl6decDhuKsM63LOTGT/o9DipXokSP9UD3al/.T92TCHNSq', NULL, NULL, 'user', '2025-10-12 10:30:50', '2025-10-13 08:32:17', '7755939361', 'Aurangabad', 1, '2025-10-12 10:30:50', '2025-10-19 10:30:50', NULL, 0),
-(82, 'Shree Ganesh Arts', 'shreeganesharts@gmail.com', '$2y$10$XzpQR1LhJVB3IFaAQJVBr.moa4lkGUD7EvckB.MWRwstMfRlZCPOm', NULL, NULL, 'printer', '2025-10-24 06:19:48', '2025-10-26 11:46:55', '9876543210', 'Andheri', 1, '2025-10-24 06:19:48', '2025-10-31 06:19:48', NULL, 0);
+(82, 'Shree Ganesh Arts', 'shreeganesharts@gmail.com', '$2y$10$XzpQR1LhJVB3IFaAQJVBr.moa4lkGUD7EvckB.MWRwstMfRlZCPOm', '2959fb9917fcc438a0c713237d93d4f636a43c37d4c5c661511683d071d85ec7', 1793032039, 'printer', '2025-10-24 06:19:48', '2025-10-26 16:27:19', '9876543210', 'Andheri', 1, '2025-10-24 06:19:48', '2025-10-31 06:19:48', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -55008,8 +55086,11 @@ INSERT INTO `user_devices` (`id`, `user_id`, `player_id`, `device_type`, `is_act
 (18, 28, '2c75afec-d57b-455c-bc27-b323cbd18cdc', 'android_webtonative', 1, '2025-10-24 00:43:41', '2025-10-24 00:46:20', 'android', 'android_only_script'),
 (19, 28, '4a5b2601-5827-4aa3-8388-24f5cc95c07d', 'android_webtonative', 1, '2025-10-24 04:53:23', '2025-10-24 09:34:40', 'android', 'android_only_script'),
 (22, 28, '276c4a3b-79d6-40e1-9a03-fca7a063106e', 'android_webtonative', 1, '2025-10-24 09:34:58', '2025-10-24 09:37:54', 'android', 'android_only_script'),
-(23, 28, '53e77af8-b0a9-42e0-8e4b-c19128a7e987', 'android_webtonative', 1, '2025-10-24 09:51:51', '2025-10-26 10:56:17', 'android', 'android_only_script'),
-(24, 28, '85e6cd4e-0747-47ae-b8ad-1d8a52db974d', 'android_webtonative', 1, '2025-10-24 10:05:59', '2025-10-25 20:08:11', 'android', 'android_only_script');
+(23, 28, '53e77af8-b0a9-42e0-8e4b-c19128a7e987', 'android_webtonative', 1, '2025-10-24 09:51:51', '2025-10-26 15:32:31', 'android', 'android_only_script'),
+(24, 28, '85e6cd4e-0747-47ae-b8ad-1d8a52db974d', 'android_webtonative', 1, '2025-10-24 10:05:59', '2025-10-25 20:08:11', 'android', 'android_only_script'),
+(25, 28, '97c5c84f-5055-4a66-b509-86c249eaaa6b', 'android_webtonative', 1, '2025-10-26 15:25:47', '2025-10-26 20:35:26', 'android', 'android_only_script'),
+(26, 28, 'fd55fa35-8229-4800-8dcb-bdaa466de8f3', 'android_webtonative', 1, '2025-10-26 15:33:10', '2025-10-27 04:09:38', 'android', 'android_only_script'),
+(27, 28, 'f6ded3f3-3b26-440c-b398-b2aea82ffb3e', 'android_webtonative', 1, '2025-10-26 20:40:02', '2025-10-27 06:08:44', 'android', 'android_only_script');
 
 -- --------------------------------------------------------
 
@@ -55843,13 +55924,13 @@ ALTER TABLE `business_info`
 -- AUTO_INCREMENT for table `cards_assignment`
 --
 ALTER TABLE `cards_assignment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `card_status_history`
 --
 ALTER TABLE `card_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `coupons`
@@ -55891,7 +55972,7 @@ ALTER TABLE `dg_payment_methods`
 -- AUTO_INCREMENT for table `dg_transactions`
 --
 ALTER TABLE `dg_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=195;
 
 --
 -- AUTO_INCREMENT for table `dining_and_delivery`
@@ -55945,19 +56026,19 @@ ALTER TABLE `onesignal_users`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2349;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2363;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5785;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5820;
 
 --
 -- AUTO_INCREMENT for table `order_updates`
 --
 ALTER TABLE `order_updates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=616;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=628;
 
 --
 -- AUTO_INCREMENT for table `packages`
@@ -56359,7 +56440,7 @@ ALTER TABLE `trial_subscriptions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
 
 --
 -- AUTO_INCREMENT for table `user_addons`
@@ -56383,7 +56464,7 @@ ALTER TABLE `user_cards`
 -- AUTO_INCREMENT for table `user_devices`
 --
 ALTER TABLE `user_devices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `user_notification_settings`

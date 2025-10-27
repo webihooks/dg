@@ -32,8 +32,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Database connection
 $host = 'localhost';
 $dbname = 'doctorie_webihooks_card';
-$username = 'doctorie_webihooks';
-$password = 'S@g@r4834';
+$username = 'root';
+$password = '';
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -332,9 +332,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="default">
      <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
-     <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+     <link rel="apple-touch-icon" href="/images/dg_logo.png">
      <meta name="msapplication-TileColor" content="#fb5b29">
-     <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+     <meta name="msapplication-TileImage" content="/images/dg_logo.png">
      <meta name="application-name" content="DeeGeeCard">
      <meta name="mobile-web-app-capable" content="yes">
 

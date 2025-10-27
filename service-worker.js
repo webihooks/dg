@@ -7,7 +7,7 @@ const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const CORE_ASSETS = [
   OFFLINE_URL,
   '/manifest.json',
-  'https://deegeecard.com/images/dg_logo.png',
+  '/images/dg_logo.png',
   '/assets/css/vendor.min.css',
   '/assets/css/icons.min.css',
   '/assets/css/app.min.css',
@@ -157,8 +157,8 @@ self.addEventListener('push', event => {
     title: 'DeeGee Card Update',
     body: 'You have new updates!',
     url: OFFLINE_URL,
-    icon: 'https://deegeecard.com/images/dg_logo.png',
-    badge: 'https://deegeecard.com/images/dg_logo.png',
+    icon: '/images/dg_logo.png',
+    badge: '/images/dg_logo.png',
     tag: 'deegeecard-update'
   };
   
@@ -311,8 +311,8 @@ async function syncOrdersAndData() {
         // Show immediate notification for new orders
         await self.registration.showNotification(`New Orders (${ordersData.newOrders.length})`, {
           body: `You have ${ordersData.newOrders.length} new orders waiting!`,
-          icon: 'https://deegeecard.com/images/dg_logo.png',
-          badge: 'https://deegeecard.com/images/dg_logo.png',
+          icon: '/images/dg_logo.png',
+          badge: '/images/dg_logo.png',
           vibrate: [300, 100, 300],
           requireInteraction: true,
           data: { url: '/admin-dashboard.php' }
@@ -366,7 +366,7 @@ async function checkForUpdates() {
         // Notify about app updates
         self.registration.showNotification('App Update Available', {
           body: 'A new version of DeeGee Card is available!',
-          icon: 'https://deegeecard.com/images/dg_logo.png',
+          icon: '/images/dg_logo.png',
           tag: 'app-update'
         });
       }

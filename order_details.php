@@ -222,7 +222,7 @@ $conn->close();
                                         <div class="mb-3">
                                             <strong>Profile URL:</strong> 
                                             <?php if (!empty($order['profile_url'])): ?>
-                                                <a href="https://deegeecard.com/<?php echo htmlspecialchars($order['profile_url']); ?>" 
+                                                <a href="/<?php echo htmlspecialchars($order['profile_url']); ?>" 
                                                    class="profile-url" 
                                                    target="_blank">
                                                    <?php echo htmlspecialchars($order['profile_url']); ?>

@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-sm-12 text-center">
-                            <img src="https://deegeecard.com/uploads/qrcodes/<?= htmlspecialchars($qr['upload_qr_code']) ?>" 
+                            <img src="/uploads/qrcodes/<?= htmlspecialchars($qr['upload_qr_code']) ?>" 
                                  class="img-fluid qr-code-img" 
                                  alt="Payment QR Code"
                                  style="max-width: 150px;">
@@ -29,7 +29,7 @@
                         </div>
                         <div class="col-sm-12 text-md-end mt-3 mt-md-0">
                             <button class="btn btn-outline-primary btn-sm" 
-                                onclick="showQrModal('<?= htmlspecialchars($qr['payment_type']) ?>', 'https://deegeecard.com/uploads/qrcodes/<?= htmlspecialchars($qr['upload_qr_code']) ?>', '<?= htmlspecialchars($qr['upi_id']) ?>')">
+                                onclick="showQrModal('<?= htmlspecialchars($qr['payment_type']) ?>', '/uploads/qrcodes/<?= htmlspecialchars($qr['upload_qr_code']) ?>', '<?= htmlspecialchars($qr['upi_id']) ?>')">
                                 <i class="bi bi-zoom-in"></i> Enlarge
                             </button>
                             <a href="upi://pay?pa=<?= urlencode($qr['upi_id']) ?>" 

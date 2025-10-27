@@ -121,7 +121,7 @@ if (empty($profile_url)) {
     $profile_url = "https://deegeecard.com";
 } else if (!preg_match("/^https?:\/\//i", $profile_url)) {
     // If the URL doesn't start with http:// or https://, add the domain
-    $profile_url = "https://deegeecard.com/" . ltrim($profile_url, '/');
+    $profile_url = "/" . ltrim($profile_url, '/');
 }
 
 $conn->close();
