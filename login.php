@@ -2,29 +2,24 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
+// SIMPLIFIED SESSION CONFIGURATION FOR LOCALHOST
 session_set_cookie_params([
-    'lifetime' => 31536000, // 1 year
+    'lifetime' => 31536000,
     'path' => '/',
-    'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'domain' => '', // Leave empty for localhost
+    'secure' => false, // false for localhost
     'httponly' => true,
-    'samesite' => 'None' // Essential for Android apps
+    'samesite' => 'Lax' // Use Lax for localhost instead of None
 ]);
 
 // Server-side session configuration
-ini_set('session.gc_maxlifetime', 31536000); // 1 year
-ini_set('session.cookie_lifetime', 31536000); // 1 year
-ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 1 : 0);
+ini_set('session.gc_maxlifetime', 31536000);
+ini_set('session.cookie_lifetime', 31536000);
+ini_set('session.cookie_secure', 0); // 0 for localhost
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'None');
+ini_set('session.cookie_samesite', 'Lax');
 
-// Prevent session ID regeneration on every request
-ini_set('session.use_strict_mode', 1);
-ini_set('session.use_cookies', 1);
-ini_set('session.use_only_cookies', 1);
-
-// Start session only if not already started
+// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

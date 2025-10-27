@@ -32,9 +32,9 @@ class WebPushNotification {
             $payload = json_encode([
                 'title' => '🔔 New Order Received!',
                 'body' => "From: $customerName\nAmount: ₹$totalAmount\n$displayAddress",
-                'icon' => 'https://dgcard.online/assets/images/logo-sm.png',
-                'badge' => 'https://dgcard.online/assets/images/logo-sm.png',
-                'sound' => 'https://dgcard.online/assets/sounds/new_order.wav',
+                'icon' => 'https://deegeecard.com/assets/images/logo-sm.png',
+                'badge' => 'https://deegeecard.com/assets/images/logo-sm.png',
+                'sound' => 'https://deegeecard.com/assets/sounds/new_order.wav',
                 'data' => [
                     'order_id' => $orderId,
                     'customer_name' => $customerName,
@@ -42,7 +42,7 @@ class WebPushNotification {
                     'total_amount' => $totalAmount,
                     'order_type' => $orderType,
                     'type' => 'new_order',
-                    'click_action' => 'https://dgcard.online/orders.php'
+                    'click_action' => 'https://deegeecard.com/orders.php'
                 ],
                 'actions' => [
                     [
@@ -135,7 +135,7 @@ class WebPushNotification {
             // Create web push instance with VAPID authentication
             $auth = [
                 'VAPID' => [
-                    'subject' => 'https://dgcard.online',
+                    'subject' => 'https://deegeecard.com',
                     'publicKey' => self::$vapidKeys['publicKey'],
                     'privateKey' => self::$vapidKeys['privateKey'],
                 ],
