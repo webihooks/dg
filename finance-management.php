@@ -207,7 +207,7 @@ $conn->close();
    <head>
       <meta charset="utf-8" />
       <title>Finance Management</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
       <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
       <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -216,6 +216,206 @@ $conn->close();
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .card-header h4, .card-header h5 {
+                font-size: 1.2rem;
+            }
+            
+            .summary-cards .col-md-3 {
+                margin-bottom: 15px;
+            }
+            
+            .summary-cards .card-body {
+                padding: 15px;
+            }
+            
+            .summary-cards h2 {
+                font-size: 1.5rem;
+            }
+            
+            .summary-cards h5 {
+                font-size: 0.9rem;
+            }
+            
+            .form-row-spacing .col-md-3,
+            .form-row-spacing .col-md-2 {
+                margin-bottom: 10px;
+            }
+            
+            .table-responsive {
+                border: 1px solid #dee2e6;
+                font-size: 0.875rem;
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 10px;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border: none;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            
+            .table tbody td:last-child {
+                border-bottom: none;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left;
+                margin-right: 10px;
+                flex: 0 0 40%;
+            }
+            
+            .mobile-hidden {
+                display: none;
+            }
+            
+            .mobile-full-width {
+                width: 100% !important;
+            }
+            
+            .btn-mobile {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .filter-form .col-md-3,
+            .filter-form .col-md-2 {
+                margin-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-body {
+                padding: 15px 10px;
+            }
+            
+            .summary-cards .col-md-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            
+            .table tbody td {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 5px;
+            }
+            
+            .table tbody td::before {
+                margin-bottom: 5px;
+                flex: 0 0 100%;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+            }
+        }
+        
+        /* Enhanced mobile styles for better touch experience */
+        .form-control, .form-select {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        .btn {
+            padding: 8px 16px;
+        }
+        
+        /* Transaction table mobile optimization */
+        .transaction-mobile-view {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-table {
+                display: none;
+            }
+            
+            .transaction-mobile-view {
+                display: block;
+            }
+            
+            .transaction-card {
+                border: 1px solid #e9ecef;
+                border-radius: 5px;
+                padding: 15px;
+                margin-bottom: 10px;
+                background: #fff;
+            }
+            
+            .transaction-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            
+            .transaction-date {
+                font-weight: bold;
+                color: #495057;
+            }
+            
+            .transaction-type {
+                font-size: 0.8rem;
+            }
+            
+            .transaction-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .transaction-detail {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                font-size: 0.8rem;
+                color: #6c757d;
+                margin-bottom: 2px;
+            }
+            
+            .detail-value {
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            
+            .transaction-amount {
+                grid-column: 1 / -1;
+                text-align: center;
+                font-size: 1.1rem;
+                font-weight: bold;
+                padding-top: 10px;
+                border-top: 1px solid #f8f9fa;
+            }
+        }
+        .scroll-to-top.show {
+          bottom: 15px;
+        }
+      </style>
    </head>
    <body>
       <div class="wrapper">
@@ -242,7 +442,7 @@ $conn->close();
                            <?php if (!empty($error_message)): ?>
                            <div class="alert alert-danger"><?php echo $error_message; ?></div>
                            <?php endif; ?>
-                           <div class="row mb-4">
+                           <div class="row mb-4 summary-cards">
                               <div class="col-md-3">
                                  <div class="card bg-success text-white">
                                     <div class="card-body">
@@ -283,8 +483,8 @@ $conn->close();
                                        <h5 class="card-title">Add Transaction</h5>
                                     </div>
                                     <div class="card-body">
-                                       <form method="POST" action="finance-management.php">
-                                          <div class="row">
+                                       <form method="POST" action="finance-management.php" name="add_transaction_form">
+                                          <div class="row form-row-spacing">
                                              <div class="col-md-3 mb-3">
                                                 <label for="transaction_type" class="form-label">Type</label>
                                                 <select class="form-select" id="transaction_type" name="transaction_type" required>
@@ -318,18 +518,18 @@ $conn->close();
                                                 <textarea class="form-control" id="description" name="description" rows="2"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
                                              </div>
                                           </div>
-                                          <button type="submit" name="add_transaction" class="btn btn-primary">Add Transaction</button>
+                                          <button type="submit" name="add_transaction" class="btn btn-primary btn-mobile">Add Transaction</button>
                                        </form>
                                     </div>
                                  </div>
                               </div>
-                              <div class="col-md-12">
+                              <div class="col-md-12 mt-4">
                                  <div class="card">
                                     <div class="card-header">
                                        <h5 class="card-title">Transaction History</h5>
                                     </div>
                                     <div class="card-body">
-                                       <form method="GET" action="finance-management.php" class="mb-4">
+                                       <form method="GET" action="finance-management.php" class="mb-4 filter-form">
                                           <div class="row g-2">
                                              <div class="col-md-3">
                                                 <label for="from_date" class="form-label">From Date</label>
@@ -359,12 +559,13 @@ $conn->close();
                                                 </select>
                                              </div>
                                              <div class="col-md-2 d-flex align-items-end">
-                                                <button type="submit" class="btn btn-info w-100">Apply Filter</button>
+                                                <button type="submit" class="btn btn-info w-100 btn-mobile">Apply Filter</button>
                                              </div>
                                           </div>
                                        </form>
 
-                                       <div class="table-responsive">
+                                       <!-- Desktop Table View -->
+                                       <div class="table-responsive desktop-table">
                                           <table class="table table-striped">
                                              <thead>
                                                 <tr>
@@ -405,6 +606,45 @@ $conn->close();
                                              </tbody>
                                           </table>
                                        </div>
+
+                                       <!-- Mobile Card View -->
+                                       <div class="transaction-mobile-view">
+                                           <?php if (empty($transactions)): ?>
+                                               <div class="text-center p-4">
+                                                   <p>No transactions found</p>
+                                               </div>
+                                           <?php else: ?>
+                                               <?php foreach ($transactions as $transaction): ?>
+                                                   <div class="transaction-card">
+                                                       <div class="transaction-header">
+                                                           <span class="transaction-date"><?php echo date('M d, Y', strtotime($transaction['date'])); ?></span>
+                                                           <span class="transaction-type badge bg-<?php echo $transaction['type'] === 'income' ? 'success' : 'danger'; ?>">
+                                                               <?php echo ucfirst($transaction['type']); ?>
+                                                           </span>
+                                                       </div>
+                                                       <div class="transaction-details">
+                                                           <div class="transaction-detail">
+                                                               <span class="detail-label">Category</span>
+                                                               <span class="detail-value"><?php echo htmlspecialchars($transaction['category']); ?></span>
+                                                           </div>
+                                                           <div class="transaction-detail">
+                                                               <span class="detail-label">Description</span>
+                                                               <span class="detail-value"><?php echo htmlspecialchars($transaction['description']); ?></span>
+                                                           </div>
+                                                           <?php if ($role === 'admin'): ?>
+                                                           <div class="transaction-detail">
+                                                               <span class="detail-label">User</span>
+                                                               <span class="detail-value"><?php echo htmlspecialchars($transaction['user_name']); ?></span>
+                                                           </div>
+                                                           <?php endif; ?>
+                                                           <div class="transaction-amount <?php echo $transaction['type'] === 'income' ? 'text-success' : 'text-danger'; ?>">
+                                                               <?php echo ($transaction['type'] === 'income' ? '+' : '-') . number_format($transaction['amount'], 2); ?>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               <?php endforeach; ?>
+                                           <?php endif; ?>
+                                       </div>
                                     </div>
                                  </div>
                               </div>
@@ -423,7 +663,7 @@ $conn->close();
           // Initialize form validation
           $(document).ready(function() {
               // Validation for Add Transaction form
-              $("form[name='add_transaction_form']").validate({ // Added a name to the add transaction form
+              $("form[name='add_transaction_form']").validate({
                   rules: {
                       amount: {
                           required: true,
@@ -451,10 +691,28 @@ $conn->close();
                           required: "Please select a date",
                           date: "Please enter a valid date"
                       }
+                  },
+                  errorClass: "text-danger",
+                  errorElement: "small",
+                  highlight: function(element) {
+                      $(element).addClass('is-invalid');
+                  },
+                  unhighlight: function(element) {
+                      $(element).removeClass('is-invalid');
                   }
               });
 
-              // No validation for filter form (GET requests) as it's optional filtering
+              // Enhance mobile form experience
+              $('input, select, textarea').on('focus', function() {
+                  $(this).addClass('focus');
+              }).on('blur', function() {
+                  $(this).removeClass('focus');
+              });
+
+              // Auto-hide alerts after 5 seconds
+              setTimeout(function() {
+                  $('.alert').fadeOut('slow');
+              }, 5000);
           });
       </script>
    </body>

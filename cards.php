@@ -208,7 +208,7 @@ $conn->close();
 <head>
     <meta charset="utf-8" />
     <title>Card Designs | Admin</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -267,6 +267,146 @@ $conn->close();
         }
         .mr-1 {
             margin-right: 0.25rem !important;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .card-header {
+                padding: 15px 10px;
+            }
+            
+            .card-header h4 {
+                font-size: 1.2rem;
+            }
+            
+            .upload-section {
+                padding: 15px;
+            }
+            
+            .card-upload-field {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .search-form .btn {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                border: 1px solid #dee2e6;
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 10px;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border: none;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            
+            .table tbody td:last-child {
+                border-bottom: none;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left;
+                margin-right: 10px;
+                flex: 0 0 40%;
+            }
+            
+            .table tbody td .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                justify-content: flex-end;
+                flex: 1;
+            }
+            
+            .table tbody td .btn {
+                flex: 1;
+                min-width: 70px;
+                text-align: center;
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+            
+            .btn-group .btn {
+                margin-right: 0 !important;
+            }
+            
+            .mobile-hidden {
+                display: none;
+            }
+            
+            .mobile-full-width {
+                width: 100% !important;
+                margin-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-body {
+                padding: 15px 10px;
+            }
+            
+            .upload-section .row > div {
+                margin-bottom: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .btn-group {
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
+        
+        /* Enhanced mobile table styles */
+        .mobile-table-cell {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .mobile-action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .scroll-to-top.show {
+          bottom: 15px;
         }
     </style>
 </head>
@@ -334,7 +474,7 @@ $conn->close();
                                         
                                         <div class="row mt-3">
                                             <div class="col-md-12">
-                                                <button type="submit" name="upload_cards" class="btn btn-primary">Upload Designs</button>
+                                                <button type="submit" name="upload_cards" class="btn btn-primary mobile-full-width">Upload Designs</button>
                                             </div>
                                         </div>
                                     </form>
@@ -348,21 +488,23 @@ $conn->close();
                 <div class="row mt-4">
                     <div class="col-xl-12">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="card-title">Card Designs</h4>
-                                <div class="search-container">
+                            <div class="card-header d-flex justify-content-between align-items-center flex-column flex-md-row">
+                                <h4 class="card-title mb-2 mb-md-0">Card Designs</h4>
+                                <div class="search-container w-100 w-md-auto">
                                     <form method="get" action="" class="search-form">
                                         <input type="text" class="form-control" name="search" placeholder="Search by user, type, or filename" value="<?php echo htmlspecialchars($search_term); ?>">
-                                        <button type="submit" class="btn btn-primary">Search</button>
-                                        <?php if (!empty($search_term)): ?>
-                                            <a href="cards.php" class="btn btn-secondary">Clear</a>
-                                        <?php endif; ?>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary flex-fill">Search</button>
+                                            <?php if (!empty($search_term)): ?>
+                                                <a href="cards.php" class="btn btn-secondary flex-fill">Clear</a>
+                                            <?php endif; ?>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered">
+                                    <table class="table table-striped table-bordered d-none d-md-table">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -415,6 +557,64 @@ $conn->close();
                                             <?php endif; ?>
                                         </tbody>
                                     </table>
+
+                                    <!-- Mobile Cards View -->
+                                    <div class="d-md-none">
+                                        <?php if ($cards_result->num_rows > 0): ?>
+                                            <?php 
+                                            // Reset pointer for mobile view
+                                            $cards_result->data_seek(0); 
+                                            ?>
+                                            <?php while ($card = $cards_result->fetch_assoc()): ?>
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <div class="mobile-table-cell">
+                                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                <strong><?php echo htmlspecialchars($card['user_name']); ?></strong>
+                                                                <small class="text-muted">ID: <?php echo $card['id']; ?></small>
+                                                            </div>
+                                                            
+                                                            <div class="mb-2">
+                                                                <strong>Type:</strong> <?php echo ucfirst($card['card_type']); ?> Design
+                                                            </div>
+                                                            
+                                                            <div class="mb-2 text-truncate">
+                                                                <strong>File:</strong> 
+                                                                <?php 
+                                                                $file_name = basename($card['file_path']);
+                                                                echo htmlspecialchars($file_name);
+                                                                ?>
+                                                            </div>
+                                                            
+                                                            <div class="mb-3">
+                                                                <strong>Uploaded:</strong> <?php echo date('d M Y H:i', strtotime($card['uploaded_at'])); ?>
+                                                            </div>
+                                                            
+                                                            <div class="mobile-action-buttons">
+                                                                <a href="<?php echo $card['file_path']; ?>" class="btn btn-sm btn-primary flex-fill" download>
+                                                                    Download
+                                                                </a>
+                                                                <a href="<?php echo $card['file_path']; ?>" class="btn btn-sm btn-info flex-fill" target="_blank">
+                                                                    View
+                                                                </a>
+                                                                <form method="post" class="flex-fill">
+                                                                    <input type="hidden" name="card_id" value="<?php echo $card['id']; ?>">
+                                                                    <button type="submit" name="delete_card" class="btn btn-sm btn-danger w-100" 
+                                                                            onclick="return confirm('Are you sure you want to delete this card design? This action cannot be undone.')">
+                                                                        Delete
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <div class="text-center p-4">
+                                                <?php echo empty($search_term) ? 'No card designs found' : 'No results found for "' . htmlspecialchars($search_term) . '"'; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -430,5 +630,25 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
+    
+    <script>
+        // Enhance mobile experience
+        $(document).ready(function() {
+            // Handle file input styling on mobile
+            $('input[type="file"]').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                if (fileName) {
+                    $(this).next('small').before('<div class="file-selected text-success mt-1"><i class="fas fa-check-circle"></i> Selected: ' + fileName + '</div>');
+                }
+            });
+            
+            // Enhance touch experience for buttons
+            $('.btn').on('touchstart', function() {
+                $(this).addClass('btn-active');
+            }).on('touchend', function() {
+                $(this).removeClass('btn-active');
+            });
+        });
+    </script>
 </body>
 </html>

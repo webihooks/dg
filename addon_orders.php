@@ -83,6 +83,117 @@ $conn->close();
         .table tbody tr:last-child td {
             border-bottom: 1px solid #ddd;
         }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            
+            .card-header .btn {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                min-width: 800px; /* Ensure table has enough width for horizontal scrolling */
+            }
+            
+            .table th, .table td {
+                white-space: nowrap;
+                padding: 8px 12px;
+                font-size: 0.875rem;
+            }
+            
+            .customer-info {
+                min-width: 150px;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-content {
+                border-radius: 0.5rem;
+            }
+            
+            .img-thumbnail {
+                max-height: 30px !important;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+            }
+            
+            .small {
+                font-size: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .table th, .table td {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .card-title {
+                font-size: 1.25rem;
+            }
+            
+            .modal-dialog {
+                margin: 0.25rem;
+            }
+            
+            .modal-header, .modal-footer {
+                padding: 0.75rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+        
+        /* Touch-friendly styles */
+        .btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .view-details {
+            min-width: 80px;
+        }
+        
+        /* Improve table row spacing for touch */
+        .table tbody tr {
+            height: 60px;
+        }
+        
+        /* Ensure modal is properly sized on mobile */
+        .modal-lg {
+            max-width: 95%;
+        }
     </style>
 </head>
 <body>
@@ -213,14 +324,26 @@ $conn->close();
     
     <script>
     $(document).ready(function() {
-        // Initialize DataTable
+        // Initialize DataTable with responsive options
         $('#ordersTable').DataTable({
             order: [[5, 'desc']],
-            responsive: true
+            responsive: true,
+            // Disable some features on mobile for better performance
+            pageLength: 10,
+            lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search orders..."
+            },
+            // Custom responsive rendering
+            drawCallback: function(settings) {
+                // Add touch-friendly class to buttons after table is drawn
+                $('.view-details').addClass('touch-friendly');
+            }
         });
 
         // Handle order details click
-        $('.view-details').click(function() {
+        $('body').on('click', '.view-details', function() {
             var orderId = $(this).data('order-id');
             $.ajax({
                 url: 'get_order_details.php',
@@ -236,6 +359,17 @@ $conn->close();
                 }
             });
         });
+        
+        // Improve touch experience
+        if ('ontouchstart' in document.documentElement) {
+            $('body').addClass('touch-device');
+            // Increase tap target sizes for touch devices
+            $('.btn, .view-details').css({
+                'min-height': '44px',
+                'min-width': '44px',
+                'padding': '12px 16px'
+            });
+        }
     });
     </script>
 </body>

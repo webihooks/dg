@@ -214,7 +214,7 @@
    <head>
       <meta charset="utf-8" />
       <title>Manage Categories</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
       <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
       <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -222,6 +222,207 @@
       <script src="assets/js/config.js"></script>
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+      <style>
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .card-header h4, .card-header h5 {
+                font-size: 1.2rem;
+            }
+            
+            .form-row-spacing .col-md-6 {
+                margin-bottom: 15px;
+            }
+            
+            .table-responsive {
+                border: 1px solid #dee2e6;
+                font-size: 0.875rem;
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 15px;
+                background: #fff;
+            }
+            
+            .table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border: none;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            
+            .table tbody td:last-child {
+                border-bottom: none;
+            }
+            
+            .table tbody td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left;
+                margin-right: 10px;
+                flex: 0 0 40%;
+            }
+            
+            .mobile-hidden {
+                display: none;
+            }
+            
+            .btn-mobile {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .btn-group-mobile {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+                min-width: 70px;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-body {
+                padding: 15px 10px;
+            }
+            
+            .table tbody td {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 8px 0;
+            }
+            
+            .table tbody td::before {
+                margin-bottom: 5px;
+                flex: 0 0 100%;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+            }
+            
+            .form-control, .form-select {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+        
+        /* Enhanced mobile styles */
+        .mobile-card-view {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-table {
+                display: none;
+            }
+            
+            .mobile-card-view {
+                display: block;
+            }
+            
+            .category-card {
+                border: 1px solid #e9ecef;
+                border-radius: 5px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background: #fff;
+            }
+            
+            .category-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            
+            .category-name {
+                font-weight: bold;
+                font-size: 1.1rem;
+                color: #495057;
+            }
+            
+            .category-type {
+                font-size: 0.8rem;
+            }
+            
+            .category-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .category-detail {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                font-size: 0.8rem;
+                color: #6c757d;
+                margin-bottom: 2px;
+            }
+            
+            .detail-value {
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            
+            .category-description {
+                grid-column: 1 / -1;
+                padding: 10px 0;
+                border-top: 1px solid #f8f9fa;
+            }
+            
+            .category-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: space-between;
+            }
+            
+            .category-actions .btn {
+                flex: 1;
+            }
+        }
+        
+        /* Form improvements for mobile */
+        .form-check {
+            padding-left: 0;
+        }
+        
+        .form-check-input {
+            margin-right: 8px;
+        }
+        .scroll-to-top.show {
+          bottom: 15px;
+        }
+      </style>
    </head>
    <body>
       <div class="wrapper">
@@ -250,7 +451,7 @@
                            <div class="alert alert-danger"><?php echo $error_message; ?></div>
                            <?php endif; ?>
                            <div class="row">
-                              <div class="col-md-12">
+                              <div class="col-md-12 mb-4">
                                  <div class="card">
                                     <div class="card-header">
                                        <h5 class="card-title"><?php echo ($edit_category_id ? 'Edit Category' : 'Add New Category'); ?></h5>
@@ -260,7 +461,7 @@
                                           <?php if ($edit_category_id): ?>
                                           <input type="hidden" name="category_id_to_edit" value="<?php echo htmlspecialchars($edit_category_id); ?>">
                                           <?php endif; ?>
-                                          <div class="row">
+                                          <div class="row form-row-spacing">
                                              <div class="col-md-6 mb-3">
                                                 <label for="name" class="form-label">Category Name</label>
                                                 <input type="text" class="form-control" id="name" name="name" required
@@ -284,12 +485,14 @@
                                                 <?php echo (($edit_category_id && $edit_is_active) || (isset($_POST['is_active']) && $_POST['is_active'] == 1)) ? 'checked' : ''; ?>>
                                              <label class="form-check-label" for="is_active">Is Active</label>
                                           </div>
-                                          <?php if ($edit_category_id): ?>
-                                          <button type="submit" name="update_category" class="btn btn-warning">Update Category</button>
-                                          <a href="ac_category.php" class="btn btn-secondary">Cancel Edit</a>
-                                          <?php else: ?>
-                                          <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
-                                          <?php endif; ?>
+                                          <div class="action-buttons">
+                                              <?php if ($edit_category_id): ?>
+                                              <button type="submit" name="update_category" class="btn btn-warning btn-mobile">Update Category</button>
+                                              <a href="ac_category.php" class="btn btn-secondary btn-mobile">Cancel Edit</a>
+                                              <?php else: ?>
+                                              <button type="submit" name="add_category" class="btn btn-primary btn-mobile">Add Category</button>
+                                              <?php endif; ?>
+                                          </div>
                                        </form>
                                     </div>
                                  </div>
@@ -300,7 +503,8 @@
                                        <h5 class="card-title">Existing Categories</h5>
                                     </div>
                                     <div class="card-body">
-                                       <div class="table-responsive">
+                                       <!-- Desktop Table View -->
+                                       <div class="table-responsive desktop-table">
                                           <table class="table table-striped">
                                              <thead>
                                                 <tr>
@@ -332,11 +536,13 @@
                                                       <?php endif; ?>
                                                    </td>
                                                    <td>
-                                                      <a href="ac_category.php?edit_id=<?php echo htmlspecialchars($category['id']); ?>" class="btn btn-sm btn-info">Edit</a>
-                                                      <form method="POST" action="ac_category.php" style="display:inline-block;" onsubmit="return confirmDelete();">
-                                                         <input type="hidden" name="category_id_to_delete" value="<?php echo htmlspecialchars($category['id']); ?>">
-                                                         <button type="submit" name="delete_category" style="display:none;" class="btn btn-sm btn-danger">Delete</button>
-                                                      </form>
+                                                      <div class="action-buttons">
+                                                         <a href="ac_category.php?edit_id=<?php echo htmlspecialchars($category['id']); ?>" class="btn btn-sm btn-info">Edit</a>
+                                                         <form method="POST" action="ac_category.php" style="display:inline;" onsubmit="return confirmDelete();">
+                                                            <input type="hidden" name="category_id_to_delete" value="<?php echo htmlspecialchars($category['id']); ?>">
+                                                            <button type="submit" name="delete_category" class="btn btn-sm btn-danger">Delete</button>
+                                                         </form>
+                                                      </div>
                                                    </td>
                                                 </tr>
                                                 <?php endforeach; ?>
@@ -347,6 +553,53 @@
                                                 <?php endif; ?>
                                              </tbody>
                                           </table>
+                                       </div>
+
+                                       <!-- Mobile Card View -->
+                                       <div class="mobile-card-view">
+                                           <?php if (!empty($categories_list)): ?>
+                                               <?php foreach ($categories_list as $category): ?>
+                                                   <div class="category-card">
+                                                       <div class="category-header">
+                                                           <span class="category-name"><?php echo htmlspecialchars($category['name']); ?></span>
+                                                           <span class="category-type badge bg-<?php echo $category['type'] === 'income' ? 'success' : 'danger'; ?>">
+                                                               <?php echo ucfirst($category['type']); ?>
+                                                           </span>
+                                                       </div>
+                                                       <div class="category-details">
+                                                           <div class="category-detail">
+                                                               <span class="detail-label">ID</span>
+                                                               <span class="detail-value"><?php echo htmlspecialchars($category['id']); ?></span>
+                                                           </div>
+                                                           <div class="category-detail">
+                                                               <span class="detail-label">Status</span>
+                                                               <span class="detail-value">
+                                                                   <?php if ($category['is_active']): ?>
+                                                                   <span class="badge bg-success">Active</span>
+                                                                   <?php else: ?>
+                                                                   <span class="badge bg-secondary">Inactive</span>
+                                                                   <?php endif; ?>
+                                                               </span>
+                                                           </div>
+                                                           <div class="category-description">
+                                                               <span class="detail-label">Description</span>
+                                                               <span class="detail-value"><?php echo htmlspecialchars($category['description']); ?></span>
+                                                           </div>
+                                                       </div>
+                                                       <div class="category-actions">
+                                                           <a href="ac_category.php?edit_id=<?php echo htmlspecialchars($category['id']); ?>" class="btn btn-sm btn-info">Edit</a>
+                                                           <form method="POST" action="ac_category.php" style="display:inline; flex: 1;" onsubmit="return confirmDelete();">
+                                                               <input type="hidden" name="category_id_to_delete" value="<?php echo htmlspecialchars($category['id']); ?>">
+                                                               <button type="submit" name="delete_category" class="btn btn-sm btn-danger w-100">Delete</button>
+                                                           </form>
+                                                       </div>
+                                                   </div>
+                                               <?php endforeach; ?>
+                                           <?php else: ?>
+                                               <div class="text-center p-4">
+                                                   <p>No categories found.</p>
+                                               </div>
+                                           <?php endif; ?>
                                        </div>
                                     </div>
                                  </div>
@@ -395,6 +648,25 @@
                  unhighlight: function(element, errorClass, validClass) {
                      $(element).removeClass('is-invalid').addClass('is-valid');
                  }
+             });
+
+             // Enhance mobile form experience
+             $('input, select, textarea').on('focus', function() {
+                 $(this).addClass('focus');
+             }).on('blur', function() {
+                 $(this).removeClass('focus');
+             });
+
+             // Auto-hide alerts after 5 seconds
+             setTimeout(function() {
+                 $('.alert').fadeOut('slow');
+             }, 5000);
+
+             // Improve touch experience for buttons
+             $('.btn').on('touchstart', function() {
+                 $(this).addClass('btn-touch');
+             }).on('touchend', function() {
+                 $(this).removeClass('btn-touch');
              });
          });
          

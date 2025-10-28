@@ -140,6 +140,156 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .table-responsive table {
+                min-width: 600px; /* Allow horizontal scrolling on small screens */
+            }
+            
+            .card-header .float-end {
+                float: none !important;
+                margin-top: 10px;
+                text-align: center;
+            }
+            
+            .card-header h4 {
+                text-align: center;
+            }
+            
+            .search-form {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .search-form .d-flex {
+                flex-direction: column;
+            }
+            
+            .search-form input {
+                margin-bottom: 10px;
+                margin-right: 0 !important;
+            }
+            
+            .search-form .btn {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .phone-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .phone-buttons .btn {
+                font-size: 0.8rem;
+                padding: 5px 8px;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .pagination .page-item {
+                margin-bottom: 5px;
+            }
+            
+            .customer-card {
+                border: 1px solid #dee2e6;
+                border-radius: 0.375rem;
+                padding: 15px;
+                margin-bottom: 15px;
+                background-color: #fff;
+            }
+            
+            .customer-card .card-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                border-bottom: 1px solid #f8f9fa;
+                padding-bottom: 8px;
+            }
+            
+            .customer-card .card-row:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            
+            .customer-card .label {
+                font-weight: 600;
+                color: #495057;
+                min-width: 120px;
+            }
+            
+            .customer-card .value {
+                flex: 1;
+                text-align: right;
+            }
+            
+            .customer-card .badge {
+                font-size: 0.75rem;
+            }
+            
+            .whatsapp-share {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .phone-buttons .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .phone-buttons .btn {
+                margin-bottom: 5px;
+                border-radius: 0.375rem !important;
+            }
+        }
+        
+        /* Ensure table is scrollable on mobile */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Hide table on mobile, show cards */
+        @media (max-width: 768px) {
+            .desktop-table {
+                display: none;
+            }
+            
+            .mobile-cards {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-cards {
+                display: none;
+            }
+            
+            .desktop-table {
+                display: block;
+            }
+        }
+        .scroll-to-top.show {
+          bottom: 15px;
+        }
+    </style>
 </head>
 
 <body>
@@ -167,7 +317,7 @@ $conn->close();
                             <div class="card-body">
                                 <div class="row mb-3">
                                     <div class="col-md-12">
-                                        <div class="float-end">
+                                        <div class="search-form">
                                             <form method="GET" class="d-flex">
                                                 <input type="text" name="search" class="form-control me-2"
                                                        placeholder="Search by name, phone, or address"
@@ -192,142 +342,214 @@ $conn->close();
                                         No customer data found.
                                     </div>
                                 <?php else: ?>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            
-<div class="table-responsive">
-        <table class="table table-striped">
+                                    <!-- Desktop Table View -->
+                                    <div class="desktop-table">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr. No.</th>
+                                                        <th>Customer Name</th>
+                                                        <th>Action</th>
+                                                        <th>
+                                                            Phone Number
+                                                            <br>
+                                                            <div class="btn-group mt-1 phone-buttons">
+                                                                <button class="btn btn-sm btn-outline-primary copy-page-phones" 
+                                                                        title="Copy all phone numbers from this page">
+                                                                    <i class="fas fa-copy me-1"></i> Copy Page
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-secondary copy-all-phones" 
+                                                                        title="Copy all phone numbers from all pages">
+                                                                    <i class="fas fa-copy me-1"></i> Copy All
+                                                                </button>
+                                                            </div>
+                                                        </th>
+                                                        
+                                                        <th>Delivery Address</th>
+                                                        <th>Source</th>
+                                                        <th style="display: none;">Last Updated</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php 
+                                                    $sr_no = $offset + 1;
+                                                    foreach ($customer_data as $customer): 
+                                                        $phone = htmlspecialchars($customer['customer_phone'], ENT_QUOTES, 'UTF-8');
+                                                        $name = htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8');
+                                                        
+                                                        // Create WhatsApp share message
+                                                        $greeting = "Hello";
+                                                        if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
+                                                            $greeting .= " " . $name;
+                                                        } else {
+                                                            // Remove "No Name" from the greeting
+                                                            $greeting = "Hello";
+                                                        }
+                                                        
+                                                        $message = $greeting . "! 🍴 We're Now Online! 🎉\nEnjoy exclusive discounts & offers on all your favourite dishes.\nOrder your cravings in just a click!\n\nOrder Now: " . $profile_url;
+                                                        $share_text = urlencode($message);
+                                                    ?>
+                                                        <tr>
+                                                            <td><?php echo $sr_no; ?></td>
+                                                            <td><?php echo $name; ?></td>
 
-
-
-
-
-
-<thead>
-                <tr>
-                    <th>Sr. No.</th>
-                    <th>Customer Name</th>
-                    <th>Action</th>
-                    <th>
-                        Phone Number
-                        <br>
-                        <div class="btn-group mt-1">
-                            <button class="btn btn-sm btn-outline-primary copy-page-phones" 
-                                    title="Copy all phone numbers from this page">
-                                <i class="fas fa-copy me-1"></i> Copy Page wise
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary copy-all-phones" 
-                                    title="Copy all phone numbers from all pages">
-                                <i class="fas fa-copy me-1"></i> Copy All Numbers
-                            </button>
-                        </div>
-                    </th>
-                    
-                    <th>Delivery Address</th>
-                    <th>Source</th>
-                    <th style="display: none;">Last Updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $sr_no = $offset + 1;
-                foreach ($customer_data as $customer): 
-                    $phone = htmlspecialchars($customer['customer_phone'], ENT_QUOTES, 'UTF-8');
-                    $name = htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8');
-                    
-                    // Create WhatsApp share message
-                    $greeting = "Hello";
-                    if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
-                        $greeting .= " " . $name;
-                    } else {
-                        // Remove "No Name" from the greeting
-                        $greeting = "Hello";
-                    }
-                    
-                    $message = $greeting . "! 🍴 We're Now Online! 🎉\nEnjoy exclusive discounts & offers on all your favourite dishes.\nOrder your cravings in just a click!\n\nOrder Now: " . $profile_url;
-                    $share_text = urlencode($message);
-                ?>
-                    <tr>
-                        <td><?php echo $sr_no++; ?></td>
-                        <td><?php echo $name; ?></td>
-
-<td>
-<?php if (!empty($phone) && $phone !== 'N/A'): ?>
-<a href="https://wa.me/+91<?php echo $phone; ?>?text=<?php echo $share_text; ?>" 
-target="_blank" class="btn btn-sm btn-success whatsapp-share" 
-title="Share via WhatsApp">
-<span class="nav-icon">
-<iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
-</span> Share
-</a>
-<?php endif; ?>
-</td>
-
-
-                        <td class="phone-number"><?php echo $phone; ?></td>
-                        
-                        <td>
-                            <?php 
-                            $address = trim($customer['delivery_address']);
-                            echo empty($address) || strtoupper($address) === 'NA' 
-                                ? 'N/A' 
-                                : htmlspecialchars($address, ENT_QUOTES, 'UTF-8');
-                            ?>
-                        </td>
-                        <td>
-                            <span class="badge bg-<?php echo $customer['source'] === 'order' ? 'primary' : 'success'; ?>">
-                                <?php echo ucfirst($customer['source']); ?>
-                            </span>
-                        </td>
-                        <td style="display: none;">
-                            <?php 
-                            if (isset($customer['updated_at'])) {
-                                echo date('d M Y H:i', strtotime($customer['updated_at']));
-                            } else {
-                                echo 'N/A';
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-
-
-
-
-        </table>
-    </div>
-
-                                            <!-- Pagination -->
-                                            <nav aria-label="Page navigation">
-                                                <ul class="pagination justify-content-center mt-1">
-                                                    <?php if ($page > 1): ?>
-                                                        <li class="page-item">
-                                                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>">
-                                                                Previous
+                                                            <td>
+                                                            <?php if (!empty($phone) && $phone !== 'N/A'): ?>
+                                                            <a href="https://wa.me/+91<?php echo $phone; ?>?text=<?php echo $share_text; ?>" 
+                                                            target="_blank" class="btn btn-sm btn-success whatsapp-share" 
+                                                            title="Share via WhatsApp">
+                                                            <span class="nav-icon">
+                                                            <iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+                                                            </span> Share
                                                             </a>
-                                                        </li>
-                                                    <?php endif; ?>
+                                                            <?php endif; ?>
+                                                            </td>
 
-                                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                                        <li class="page-item <?php echo ($i === $page) ? 'active' : ''; ?>">
-                                                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>">
-                                                                <?php echo $i; ?>
-                                                            </a>
-                                                        </li>
-                                                    <?php endfor; ?>
-
-                                                    <?php if ($page < $total_pages): ?>
-                                                        <li class="page-item">
-                                                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>">
-                                                                Next
-                                                            </a>
-                                                        </li>
-                                                    <?php endif; ?>
-                                                </ul>
-                                            </nav>
+                                                            <td class="phone-number"><?php echo $phone; ?></td>
+                                                            
+                                                            <td>
+                                                                <?php 
+                                                                $address = trim($customer['delivery_address']);
+                                                                echo empty($address) || strtoupper($address) === 'NA' 
+                                                                    ? 'N/A' 
+                                                                    : htmlspecialchars($address, ENT_QUOTES, 'UTF-8');
+                                                                ?>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-<?php echo $customer['source'] === 'order' ? 'primary' : 'success'; ?>">
+                                                                    <?php echo ucfirst($customer['source']); ?>
+                                                                </span>
+                                                            </td>
+                                                            <td style="display: none;">
+                                                                <?php 
+                                                                if (isset($customer['updated_at'])) {
+                                                                    echo date('d M Y H:i', strtotime($customer['updated_at']));
+                                                                } else {
+                                                                    echo 'N/A';
+                                                                }
+                                                                ?>
+                                                            </td>
+                                                        </tr>
+                                                        <?php $sr_no++; ?>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Mobile Card View -->
+                                    <div class="mobile-cards">
+                                        <div class="phone-buttons mb-3">
+                                            <div class="btn-group w-100">
+                                                <button class="btn btn-sm btn-outline-primary copy-page-phones" 
+                                                        title="Copy all phone numbers from this page">
+                                                    <i class="fas fa-copy me-1"></i> Copy Page Numbers
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary copy-all-phones" 
+                                                        title="Copy all phone numbers from all pages">
+                                                    <i class="fas fa-copy me-1"></i> Copy All Numbers
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <?php 
+                                        $sr_no = $offset + 1;
+                                        foreach ($customer_data as $customer): 
+                                            $phone = htmlspecialchars($customer['customer_phone'], ENT_QUOTES, 'UTF-8');
+                                            $name = htmlspecialchars($customer['customer_name'], ENT_QUOTES, 'UTF-8');
+                                            
+                                            // Create WhatsApp share message
+                                            $greeting = "Hello";
+                                            if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
+                                                $greeting .= " " . $name;
+                                            } else {
+                                                // Remove "No Name" from the greeting
+                                                $greeting = "Hello";
+                                            }
+                                            
+                                            $message = $greeting . "! 🍴 We're Now Online! 🎉\nEnjoy exclusive discounts & offers on all your favourite dishes.\nOrder your cravings in just a click!\n\nOrder Now: " . $profile_url;
+                                            $share_text = urlencode($message);
+                                        ?>
+                                            <div class="customer-card">
+                                                <div class="card-row">
+                                                    <span class="label">Sr. No.</span>
+                                                    <span class="value"><?php echo $sr_no; ?></span>
+                                                </div>
+                                                <div class="card-row">
+                                                    <span class="label">Customer Name</span>
+                                                    <span class="value"><?php echo $name; ?></span>
+                                                </div>
+                                                <div class="card-row">
+                                                    <span class="label">Phone Number</span>
+                                                    <span class="value"><?php echo $phone; ?></span>
+                                                </div>
+                                                <div class="card-row">
+                                                    <span class="label">Delivery Address</span>
+                                                    <span class="value">
+                                                        <?php 
+                                                        $address = trim($customer['delivery_address']);
+                                                        echo empty($address) || strtoupper($address) === 'NA' 
+                                                            ? 'N/A' 
+                                                            : htmlspecialchars($address, ENT_QUOTES, 'UTF-8');
+                                                        ?>
+                                                    </span>
+                                                </div>
+                                                <div class="card-row">
+                                                    <span class="label">Source</span>
+                                                    <span class="value">
+                                                        <span class="badge bg-<?php echo $customer['source'] === 'order' ? 'primary' : 'success'; ?>">
+                                                            <?php echo ucfirst($customer['source']); ?>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                                <?php if (!empty($phone) && $phone !== 'N/A'): ?>
+                                                <div class="card-row">
+                                                    <span class="label">Action</span>
+                                                    <span class="value">
+                                                        <a href="https://wa.me/+91<?php echo $phone; ?>?text=<?php echo $share_text; ?>" 
+                                                        target="_blank" class="btn btn-sm btn-success whatsapp-share" 
+                                                        title="Share via WhatsApp">
+                                                        <span class="nav-icon">
+                                                        <iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+                                                        </span> Share via WhatsApp
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php $sr_no++; ?>
+                                        <?php endforeach; ?>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-center mt-1">
+                                            <?php if ($page > 1): ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>">
+                                                        Previous
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+
+                                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                                <li class="page-item <?php echo ($i === $page) ? 'active' : ''; ?>">
+                                                    <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>">
+                                                        <?php echo $i; ?>
+                                                    </a>
+                                                </li>
+                                            <?php endfor; ?>
+
+                                            <?php if ($page < $total_pages): ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>">
+                                                        Next
+                                                    </a>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </nav>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -338,10 +560,9 @@ title="Share via WhatsApp">
         </div>
     </div>
 
-
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
-<script>
+    <script>
         // Auto-submit on Enter
         $(document).ready(function () {
             $('input[name="search"]').keypress(function (e) {
@@ -354,12 +575,25 @@ title="Share via WhatsApp">
             // Copy page phone numbers
             $('.copy-page-phones').click(function() {
                 let phoneNumbers = [];
-                $('table tbody tr').each(function() {
-                    const phone = $(this).find('td:eq(2)').text().trim();
-                    if (phone && phone !== 'N/A') {
-                        phoneNumbers.push(phone);
-                    }
-                });
+                
+                // Check if we're on mobile or desktop view
+                if ($('.mobile-cards').is(':visible')) {
+                    // Mobile view - get from cards
+                    $('.customer-card').each(function() {
+                        const phone = $(this).find('.card-row:nth-child(3) .value').text().trim();
+                        if (phone && phone !== 'N/A') {
+                            phoneNumbers.push(phone);
+                        }
+                    });
+                } else {
+                    // Desktop view - get from table
+                    $('table tbody tr').each(function() {
+                        const phone = $(this).find('td:eq(3)').text().trim();
+                        if (phone && phone !== 'N/A') {
+                            phoneNumbers.push(phone);
+                        }
+                    });
+                }
                 
                 if (phoneNumbers.length > 0) {
                     const textToCopy = phoneNumbers.join('\n');
@@ -421,7 +655,6 @@ title="Share via WhatsApp">
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
             }
-            
         });
     </script>
 </body>

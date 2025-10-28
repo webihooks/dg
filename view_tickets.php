@@ -163,6 +163,296 @@ $conn->close();
     <link href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" rel="stylesheet">
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-header {
+                padding: 15px;
+            }
+            
+            .card-header .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+            
+            .card-header .badge {
+                align-self: flex-start;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .ticket-info-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .info-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding: 10px 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .info-item:last-child {
+                border-bottom: none;
+            }
+            
+            .info-label {
+                font-weight: 600;
+                color: #495057;
+                min-width: 120px;
+            }
+            
+            .info-value {
+                text-align: right;
+                flex: 1;
+            }
+            
+            .ticket-message {
+                padding: 15px;
+                margin: 15px 0;
+                background: #f8f9fa;
+                border-radius: 8px;
+                line-height: 1.5;
+            }
+            
+            .attachments-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin: 15px 0;
+            }
+            
+            .attachment-card {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                background: #fff;
+            }
+            
+            .attachment-icon {
+                font-size: 24px;
+                margin-right: 12px;
+                color: #6c757d;
+            }
+            
+            .attachment-info {
+                flex: 1;
+            }
+            
+            .attachment-name {
+                font-weight: 500;
+                margin-bottom: 2px;
+            }
+            
+            .attachment-size {
+                font-size: 0.8rem;
+                color: #6c757d;
+            }
+            
+            .status-update-form .row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .status-update-form .col-md-8,
+            .status-update-form .col-md-4 {
+                width: 100%;
+            }
+            
+            .reply-form .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .reply-form .btn-secondary {
+                margin-top: 0;
+            }
+            
+            /* Timeline for mobile */
+            .timeline-mobile {
+                margin: 20px 0;
+            }
+            
+            .reply-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background: #fff;
+            }
+            
+            .reply-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .reply-user {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .user-badge {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+            
+            .reply-time {
+                font-size: 0.8rem;
+                color: #6c757d;
+            }
+            
+            .reply-content {
+                line-height: 1.5;
+                color: #333;
+            }
+            
+            .admin-reply {
+                border-left: 4px solid #0d6efd;
+                background: #f8fbff;
+            }
+            
+            .user-reply {
+                border-left: 4px solid #198754;
+                background: #f8fff9;
+            }
+            
+            .desktop-timeline {
+                display: none;
+            }
+            
+            .mobile-timeline {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .desktop-timeline {
+                display: block;
+            }
+            
+            .mobile-timeline {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .card-header h4 {
+                font-size: 1.25rem;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .reply-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .reply-time {
+                align-self: flex-start;
+            }
+            
+            .attachment-card {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+            
+            .attachment-icon {
+                margin-bottom: 8px;
+            }
+            
+            .attachment-actions {
+                align-self: flex-end;
+                margin-top: 8px;
+            }
+        }
+        
+        /* Common Styles */
+        .timeline {
+            position: relative;
+            padding-left: 1rem;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item-marker {
+            position: absolute;
+            left: -1rem;
+            width: 2rem;
+            text-align: center;
+        }
+        
+        .timeline-item-marker-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 100%;
+        }
+        
+        .timeline-item-content {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            background-color: #f8f9fa;
+        }
+        
+        .admin-reply-desktop .timeline-item-content {
+            background-color: #e7f5ff;
+            border-left: 3px solid #0d6efd;
+            width: 100%;
+        }
+        
+        .user-reply-desktop .timeline-item-content {
+            background-color: #ebfbee;
+            border-left: 3px solid #198754;
+        }
+        
+        .attachment-item {
+            max-width: 300px;
+        }
+        
+        .timeline-item::before {
+            width: 0;
+        }
+        
+        .ticket-replies .timeline::before {
+            display: none;
+        }
+        
+        .scroll-to-top.show {
+          bottom: 15px;
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -221,26 +511,58 @@ $conn->close();
                                         </div>
                                     </div>
 
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <p><strong>Department:</strong> <?= htmlspecialchars($ticket['department']) ?></p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <p><strong>Priority:</strong> <?= htmlspecialchars($ticket['priority']) ?></p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <p><strong>Submitted By:</strong> <?= htmlspecialchars($ticket['user_name']) ?></p>
+                                    <!-- Desktop Layout -->
+                                    <div class="d-none d-md-block">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <p><strong>Department:</strong> <?= htmlspecialchars($ticket['department']) ?></p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <p><strong>Priority:</strong> <?= htmlspecialchars($ticket['priority']) ?></p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <p><strong>Submitted By:</strong> <?= htmlspecialchars($ticket['user_name']) ?></p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="ticket-message bg-light p-3 rounded mb-3">
+                                    <!-- Mobile Layout -->
+                                    <div class="d-md-none ticket-info-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Department:</span>
+                                            <span class="info-value"><?= htmlspecialchars($ticket['department']) ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Priority:</span>
+                                            <span class="info-value">
+                                                <span class="badge bg-<?= 
+                                                    $ticket['priority'] === 'High' ? 'danger' : 
+                                                    ($ticket['priority'] === 'Medium' ? 'warning' : 'info')
+                                                ?>">
+                                                    <?= htmlspecialchars($ticket['priority']) ?>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Submitted By:</span>
+                                            <span class="info-value"><?= htmlspecialchars($ticket['user_name']) ?></span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Created:</span>
+                                            <span class="info-value"><?= date('M j, Y g:i A', strtotime($ticket['created_at'])) ?></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="ticket-message">
+                                        <h6>Message:</h6>
                                         <p><?= nl2br(htmlspecialchars($ticket['message'])) ?></p>
                                     </div>
 
                                     <?php if (!empty($attachments)): ?>
                                         <div class="attachments mb-4">
                                             <h6>Attachments:</h6>
-                                            <div class="d-flex flex-wrap gap-2">
+                                            <!-- Desktop Layout -->
+                                            <div class="d-none d-md-flex flex-wrap gap-2">
                                                 <?php foreach ($attachments as $attachment): ?>
                                                     <div class="attachment-item border p-2 rounded">
                                                         <?php
@@ -285,6 +607,53 @@ $conn->close();
                                                     </div>
                                                 <?php endforeach; ?>
                                             </div>
+                                            
+                                            <!-- Mobile Layout -->
+                                            <div class="d-md-none attachments-grid">
+                                                <?php foreach ($attachments as $attachment): ?>
+                                                    <div class="attachment-card">
+                                                        <?php
+                                                        $file_icon = '';
+                                                        $file_type = strtolower(pathinfo($attachment['file_name'], PATHINFO_EXTENSION));
+                                                        
+                                                        switch ($file_type) {
+                                                            case 'jpg':
+                                                            case 'jpeg':
+                                                            case 'png':
+                                                            case 'gif':
+                                                                $file_icon = 'mdi-image';
+                                                                break;
+                                                            case 'pdf':
+                                                                $file_icon = 'mdi-file-pdf';
+                                                                break;
+                                                            case 'doc':
+                                                            case 'docx':
+                                                                $file_icon = 'mdi-file-word';
+                                                                break;
+                                                            case 'xls':
+                                                            case 'xlsx':
+                                                            case 'csv':
+                                                                $file_icon = 'mdi-file-excel';
+                                                                break;
+                                                            default:
+                                                                $file_icon = 'mdi-file';
+                                                        }
+                                                        ?>
+                                                        <i class="mdi <?= $file_icon ?> attachment-icon"></i>
+                                                        <div class="attachment-info">
+                                                            <div class="attachment-name"><?= htmlspecialchars($attachment['file_name']) ?></div>
+                                                            <div class="attachment-size"><?= round($attachment['file_size'] / 1024, 1) ?> KB</div>
+                                                        </div>
+                                                        <div class="attachment-actions">
+                                                            <a href="<?= htmlspecialchars($attachment['file_path']) ?>" 
+                                                               class="btn btn-sm btn-outline-primary" 
+                                                               target="_blank" download>
+                                                                <i class="mdi mdi-download"></i> Download
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -317,22 +686,45 @@ $conn->close();
                                     <?php if (empty($replies)): ?>
                                         <div class="alert alert-info">No replies yet.</div>
                                     <?php else: ?>
-                                        <div class="timeline">
-                                            <?php foreach ($replies as $reply): ?>
-                                                <div class="timeline-item <?= $reply['user_role'] === 'admin' ? 'admin-reply' : 'user-reply' ?>">
-                                                    <div class="timeline-item-marker">
-                                                        <div class="timeline-item-marker-indicator bg-<?= $reply['user_role'] === 'admin' ? 'primary' : 'success' ?>"></div>
-                                                    </div>
-                                                    <div class="timeline-item-content">
-                                                        <div class="d-flex justify-content-between mb-1">
-                                                            <span class="fw-bold"><?= htmlspecialchars($reply['user_name']) ?> 
-                                                                <span class="badge bg-<?= $reply['user_role'] === 'admin' ? 'primary' : 'success' ?>">
-                                                                    <?= ucfirst($reply['user_role']) ?>
-                                                                </span>
-                                                            </span>
-                                                            <small class="text-muted"><?= date('M j, Y g:i A', strtotime($reply['created_at'])) ?></small>
+                                        <!-- Desktop Timeline -->
+                                        <div class="desktop-timeline">
+                                            <div class="timeline">
+                                                <?php foreach ($replies as $reply): ?>
+                                                    <div class="timeline-item <?= $reply['user_role'] === 'admin' ? 'admin-reply-desktop' : 'user-reply-desktop' ?>">
+                                                        <div class="timeline-item-marker">
+                                                            <div class="timeline-item-marker-indicator bg-<?= $reply['user_role'] === 'admin' ? 'primary' : 'success' ?>"></div>
                                                         </div>
-                                                        <p><?= nl2br(htmlspecialchars($reply['message'])) ?></p>
+                                                        <div class="timeline-item-content">
+                                                            <div class="d-flex justify-content-between mb-1">
+                                                                <span class="fw-bold"><?= htmlspecialchars($reply['user_name']) ?> 
+                                                                    <span class="badge bg-<?= $reply['user_role'] === 'admin' ? 'primary' : 'success' ?>">
+                                                                        <?= ucfirst($reply['user_role']) ?>
+                                                                    </span>
+                                                                </span>
+                                                                <small class="text-muted"><?= date('M j, Y g:i A', strtotime($reply['created_at'])) ?></small>
+                                                            </div>
+                                                            <p><?= nl2br(htmlspecialchars($reply['message'])) ?></p>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Mobile Timeline -->
+                                        <div class="mobile-timeline">
+                                            <?php foreach ($replies as $reply): ?>
+                                                <div class="reply-card <?= $reply['user_role'] === 'admin' ? 'admin-reply' : 'user-reply' ?>">
+                                                    <div class="reply-header">
+                                                        <div class="reply-user">
+                                                            <span class="fw-bold"><?= htmlspecialchars($reply['user_name']) ?></span>
+                                                            <span class="badge user-badge bg-<?= $reply['user_role'] === 'admin' ? 'primary' : 'success' ?>">
+                                                                <?= ucfirst($reply['user_role']) ?>
+                                                            </span>
+                                                        </div>
+                                                        <small class="reply-time"><?= date('M j, Y g:i A', strtotime($reply['created_at'])) ?></small>
+                                                    </div>
+                                                    <div class="reply-content">
+                                                        <?= nl2br(htmlspecialchars($reply['message'])) ?>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
@@ -344,10 +736,12 @@ $conn->close();
                                     <form method="POST" action="view_tickets.php?id=<?= $ticket_id ?>">
                                         <div class="mb-3">
                                             <label for="reply_message" class="form-label">Add Reply</label>
-                                            <textarea class="form-control" id="reply_message" name="reply_message" rows="4" required></textarea>
+                                            <textarea class="form-control" id="reply_message" name="reply_message" rows="4" required placeholder="Type your reply here..."></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Submit Reply</button>
-                                        <a href="tickets.php" class="btn btn-secondary">Back to Tickets</a>
+                                        <div class="d-grid gap-2 d-md-flex">
+                                            <button type="submit" class="btn btn-primary">Submit Reply</button>
+                                            <a href="tickets.php" class="btn btn-secondary">Back to Tickets</a>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -360,53 +754,52 @@ $conn->close();
         </div>
     </div>
 
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="mdi mdi-chevron-up"></i>
+    </button>
+
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     
-    <style>
-        .timeline {
-            position: relative;
-            padding-left: 1rem;
-        }
-        .timeline-item {
-            position: relative;
-            padding-bottom: 1.5rem;
-        }
-        .timeline-item-marker {
-            position: absolute;
-            left: -1rem;
-            width: 2rem;
-            text-align: center;
-        }
-        .timeline-item-marker-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 100%;
-        }
-        .timeline-item-content {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            background-color: #f8f9fa;
-        }
-        .admin-reply .timeline-item-content {
-            background-color: #e7f5ff;
-            border-left: 3px solid #0d6efd;
-            width: 100%;
-        }
-        .user-reply .timeline-item-content {
-            background-color: #ebfbee;
-            border-left: 3px solid #198754;
-        }
-        .attachment-item {
-            max-width: 300px;
-        }
-        .timeline-item::before {
-            width: 0;
-        }
-        .ticket-replies .timeline::before {
-            display: none;
-        }
-    </style>
+    <script>
+        $(document).ready(function() {
+            // Scroll to top functionality
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            });
+            
+            scrollToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Auto-focus reply textarea
+            $('#reply_message').focus();
+            
+            // Add animation to reply cards on mobile
+            $('.reply-card').each(function(index) {
+                $(this).css({
+                    'opacity': '0',
+                    'transform': 'translateY(20px)'
+                });
+                
+                setTimeout(() => {
+                    $(this).animate({
+                        'opacity': '1',
+                        'transform': 'translateY(0)'
+                    }, 300);
+                }, index * 100);
+            });
+        });
+    </script>
 </body>
 </html>

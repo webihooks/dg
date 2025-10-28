@@ -262,12 +262,273 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
     <style>
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .card-header {
+                padding: 15px;
+            }
+            
+            .card-header .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 15px;
+            }
+            
+            .card-header h4 {
+                font-size: 1.25rem;
+                margin-bottom: 0;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .table-responsive table {
+                min-width: 700px; /* Allow horizontal scrolling */
+            }
+            
+            .addon-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background: #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .addon-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 12px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .addon-id {
+                font-weight: 600;
+                color: #333;
+                font-size: 1.1rem;
+            }
+            
+            .addon-status {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+            
+            .addon-image {
+                text-align: center;
+                margin-bottom: 12px;
+            }
+            
+            .addon-image img {
+                max-height: 120px;
+                width: auto;
+                border-radius: 6px;
+            }
+            
+            .addon-name {
+                font-weight: 600;
+                font-size: 1.1rem;
+                color: #333;
+                margin-bottom: 8px;
+            }
+            
+            .addon-description {
+                color: #666;
+                font-size: 0.9rem;
+                line-height: 1.4;
+                margin-bottom: 12px;
+            }
+            
+            .addon-pricing {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 15px;
+                padding: 12px;
+                background: #f8f9fa;
+                border-radius: 6px;
+            }
+            
+            .price-item {
+                text-align: center;
+            }
+            
+            .price-label {
+                font-size: 0.8rem;
+                color: #666;
+                margin-bottom: 4px;
+            }
+            
+            .price-value {
+                font-weight: 600;
+                font-size: 1rem;
+                color: #333;
+            }
+            
+            .regular-price {
+                color: #dc3545;
+            }
+            
+            .special-price {
+                color: #28a745;
+            }
+            
+            .valid-until {
+                font-size: 0.75rem;
+                color: #6c757d;
+                margin-top: 4px;
+            }
+            
+            .addon-actions {
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+            }
+            
+            .addon-actions .btn {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+                flex: 1;
+            }
+            
+            .empty-state {
+                text-align: center;
+                padding: 40px 20px;
+                color: #666;
+            }
+            
+            .empty-state .mdi {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                color: #ccc;
+            }
+            
+            .empty-state h5 {
+                color: #666;
+                margin-bottom: 10px;
+            }
+            
+            .empty-state p {
+                color: #888;
+                margin-bottom: 20px;
+            }
+            
+            .desktop-table {
+                display: none;
+            }
+            
+            .mobile-cards {
+                display: block;
+            }
+            
+            /* Form improvements for mobile */
+            .form-control, .form-select {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            .img-thumbnail {
+                max-height: 80px;
+                width: auto;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .desktop-table {
+                display: block;
+            }
+            
+            .mobile-cards {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .addon-pricing {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .addon-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .addon-status {
+                align-self: flex-start;
+            }
+            
+            .addon-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .card-header .btn {
+                width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-row .col-md-6 {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .addon-card {
+                padding: 12px;
+            }
+            
+            .addon-image img {
+                max-height: 100px;
+            }
+        }
+        
+        /* Common Styles */
         .img-thumbnail {
             max-height: 100px;
             width: auto;
         }
+        
         .table img {
             max-height: 50px;
+        }
+        
+        .badge-status-active { background-color: #28a745; }
+        .badge-status-inactive { background-color: #dc3545; }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        /* Loading animation for cards */
+        .addon-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .addon-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Price styling */
+        .price-strike {
+            text-decoration: line-through;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        .scroll-to-top.show {
+          bottom: 15px;
         }
     </style>
 </head>
@@ -323,7 +584,7 @@ $conn->close();
                                         <?php endif; ?>
                                     </div>
                                     
-                                    <div class="row">
+                                    <div class="row form-row">
                                         <div class="col-md-6 mb-3">
                                             <label for="price" class="form-label">Regular Price *</label>
                                             <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" 
@@ -369,55 +630,124 @@ $conn->close();
                             </div>
                             <div class="card-body">
                                 <?php if (empty($addons)): ?>
-                                    <div class="alert alert-info">No addons found. Click "Add New" to create one.</div>
+                                    <div class="empty-state">
+                                        <i class="mdi mdi-package-variant"></i>
+                                        <h5>No Addons Found</h5>
+                                        <p>You haven't created any addons yet.</p>
+                                        <a href="addon.php" class="btn btn-primary">
+                                            <i class="mdi mdi-plus"></i> Create Your First Addon
+                                        </a>
+                                    </div>
                                 <?php else: ?>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Image</th>
-                                                    <th>Name</th>
-                                                    <th>Price</th>
-                                                    <th>Special Price</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($addons as $addon): ?>
+                                    <!-- Desktop Table View -->
+                                    <div class="desktop-table">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead>
                                                     <tr>
-                                                        <td><?php echo $addon['id']; ?></td>
-                                                        <td>
-                                                            <?php if (!empty($addon['image'])): ?>
-                                                                <img src="<?php echo $addon['image']; ?>" alt="Addon image" class="img-fluid">
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td><?php echo htmlspecialchars($addon['name']); ?></td>
-                                                        <td>₹<?php echo number_format($addon['price']); ?></td>
-                                                        <td>
-                                                            <?php if ($addon['special_price'] !== null): ?>
-                                                                ₹<?php echo number_format($addon['special_price']); ?>
-                                                                <?php if ($addon['valid_until']): ?>
-                                                                    <br><small class="text-muted">Until: <?php echo date('M d, Y', strtotime($addon['valid_until'])); ?></small>
-                                                                <?php endif; ?>
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-<?php echo $addon['status'] ? 'success' : 'danger'; ?>">
-                                                                <?php echo $addon['status'] ? 'Active' : 'Inactive'; ?>
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <a href="?action=edit&id=<?php echo $addon['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                                                            <a href="?action=delete&id=<?php echo $addon['id']; ?>" 
-                                                               class="btn btn-sm btn-danger" 
-                                                               onclick="return confirm('Are you sure you want to delete this addon?')">Delete</a>
-                                                        </td>
+                                                        <th>ID</th>
+                                                        <th>Image</th>
+                                                        <th>Name</th>
+                                                        <th>Price</th>
+                                                        <th>Special Price</th>
+                                                        <th>Status</th>
+                                                        <th>Actions</th>
                                                     </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($addons as $addon): ?>
+                                                        <tr>
+                                                            <td><?php echo $addon['id']; ?></td>
+                                                            <td>
+                                                                <?php if (!empty($addon['image'])): ?>
+                                                                    <img src="<?php echo $addon['image']; ?>" alt="Addon image" class="img-fluid">
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td><?php echo htmlspecialchars($addon['name']); ?></td>
+                                                            <td>₹<?php echo number_format($addon['price']); ?></td>
+                                                            <td>
+                                                                <?php if ($addon['special_price'] !== null): ?>
+                                                                    ₹<?php echo number_format($addon['special_price']); ?>
+                                                                    <?php if ($addon['valid_until']): ?>
+                                                                        <br><small class="text-muted">Until: <?php echo date('M d, Y', strtotime($addon['valid_until'])); ?></small>
+                                                                    <?php endif; ?>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-status-<?php echo $addon['status'] ? 'active' : 'inactive'; ?>">
+                                                                    <?php echo $addon['status'] ? 'Active' : 'Inactive'; ?>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <a href="?action=edit&id=<?php echo $addon['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                                                <a href="?action=delete&id=<?php echo $addon['id']; ?>" 
+                                                                   class="btn btn-sm btn-danger" 
+                                                                   onclick="return confirm('Are you sure you want to delete this addon?')">Delete</a>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mobile Card View -->
+                                    <div class="mobile-cards">
+                                        <?php foreach ($addons as $addon): ?>
+                                            <div class="addon-card">
+                                                <div class="addon-header">
+                                                    <div class="addon-id">Addon #<?php echo $addon['id']; ?></div>
+                                                    <span class="badge addon-status badge-status-<?php echo $addon['status'] ? 'active' : 'inactive'; ?>">
+                                                        <?php echo $addon['status'] ? 'Active' : 'Inactive'; ?>
+                                                    </span>
+                                                </div>
+                                                
+                                                <?php if (!empty($addon['image'])): ?>
+                                                    <div class="addon-image">
+                                                        <img src="<?php echo $addon['image']; ?>" alt="Addon image" class="img-fluid">
+                                                    </div>
+                                                <?php endif; ?>
+                                                
+                                                <div class="addon-name">
+                                                    <?php echo htmlspecialchars($addon['name']); ?>
+                                                </div>
+                                                
+                                                <?php if (!empty($addon['description'])): ?>
+                                                    <div class="addon-description">
+                                                        <?php echo htmlspecialchars($addon['description']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                
+                                                <div class="addon-pricing">
+                                                    <div class="price-item">
+                                                        <div class="price-label">Regular Price</div>
+                                                        <div class="price-value regular-price">₹<?php echo number_format($addon['price']); ?></div>
+                                                    </div>
+                                                    
+                                                    <?php if ($addon['special_price'] !== null): ?>
+                                                        <div class="price-item">
+                                                            <div class="price-label">Special Price</div>
+                                                            <div class="price-value special-price">₹<?php echo number_format($addon['special_price']); ?></div>
+                                                            <?php if ($addon['valid_until']): ?>
+                                                                <div class="valid-until">Until: <?php echo date('M d, Y', strtotime($addon['valid_until'])); ?></div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="price-item">
+                                                            <div class="price-label">Special Price</div>
+                                                            <div class="price-value text-muted">-</div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                
+                                                <div class="addon-actions">
+                                                    <a href="?action=edit&id=<?php echo $addon['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                                    <a href="?action=delete&id=<?php echo $addon['id']; ?>" 
+                                                       class="btn btn-sm btn-danger" 
+                                                       onclick="return confirm('Are you sure you want to delete this addon?')">Delete</a>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -430,11 +760,49 @@ $conn->close();
         </div>
     </div>
 
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="mdi mdi-chevron-up"></i>
+    </button>
+
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     
     <script>
         $(document).ready(function() {
+            // Scroll to top functionality
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            });
+            
+            scrollToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Add animation to addon cards
+            $('.addon-card').each(function(index) {
+                $(this).css({
+                    'opacity': '0',
+                    'transform': 'translateY(20px)'
+                });
+                
+                setTimeout(() => {
+                    $(this).animate({
+                        'opacity': '1',
+                        'transform': 'translateY(0)'
+                    }, 300);
+                }, index * 100);
+            });
+            
             $("#addonForm").validate({
                 rules: {
                     name: {
