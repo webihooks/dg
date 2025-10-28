@@ -816,6 +816,7 @@ function formatNumber(num) {
     return num % 1 === 0 ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
 }
 
+// Phone number validation
 function validatePhoneNumber(input) {
     // Remove any non-digit characters
     input.value = input.value.replace(/\D/g, '');
@@ -825,12 +826,41 @@ function validatePhoneNumber(input) {
         input.value = input.value.substring(0, 10);
     }
     
-    // Check validity and show error if needed
+    // Check if number starts with 0
+    if (input.value.length > 0 && input.value.startsWith('0')) {
+        input.setCustomValidity('Phone number cannot start with 0');
+        input.reportValidity();
+        return false;
+    }
+    
+    // Check if exactly 10 digits
     if (input.value.length !== 10 && input.value.length > 0) {
         input.setCustomValidity('Phone number must be exactly 10 digits');
-    } else {
-        input.setCustomValidity('');
+        input.reportValidity();
+        return false;
     }
+    
+    // Valid phone number
+    input.setCustomValidity('');
+    return true;
+}
+
+// Enhanced validation for place order
+function validatePhoneForOrder() {
+    const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
+    const phoneInput = isDelivery ? document.getElementById('customerPhone') : document.getElementById('dinningPhone');
+    
+    if (!validatePhoneNumber(phoneInput)) {
+        return false;
+    }
+    
+    if (phoneInput.value.length !== 10) {
+        alert('Please enter a valid 10-digit phone number');
+        phoneInput.focus();
+        return false;
+    }
+    
+    return true;
 }
 
 // Add to cart button click handler with image animation
@@ -1402,6 +1432,11 @@ function calculateSubtotal() {
 function placeOrder() {
     if (cart.length === 0) {
         alert('Your cart is empty');
+        return;
+    }
+
+    // Validate phone number first
+    if (!validatePhoneForOrder()) {
         return;
     }
 
