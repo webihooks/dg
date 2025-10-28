@@ -125,6 +125,7 @@ class OneSignalNotification {
         if (!$conn) return $playerIds;
         
         try {
+            // CRITICAL: Only get ACTIVE devices
             $stmt = $conn->prepare("SELECT player_id FROM user_devices WHERE user_id = ? AND is_active = 1");
             $stmt->bind_param("i", $userId);
             $stmt->execute();
@@ -138,8 +139,11 @@ class OneSignalNotification {
             
             $stmt->close();
             $conn->close();
+            
+            error_log("Active devices for user {$userId}: " . count($playerIds));
+            
         } catch (Exception $e) {
-            error_log("Database error: " . $e->getMessage());
+            error_log("Database error in getUserPlayerIds: " . $e->getMessage());
         }
         
         return $playerIds;

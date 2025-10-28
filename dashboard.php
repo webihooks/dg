@@ -3,10 +3,20 @@
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
+
 // Start the session
 session_start();
 date_default_timezone_set('Asia/Kolkata');
+
+// Include the enhanced session manager
+require_once 'android_session_manager.php';
+$sessionManager = new AndroidSessionManager();
+
+// Let the session manager handle Android session persistence
+$sessionManager->validateAndroidSession();
+
 require_once 'session_check.php';
+
 // Include the database connection file
 require 'db_connection.php';
 
@@ -138,10 +148,39 @@ $conn->close();
                 height: 160px !important;
             }
         }
+        
+        /* Session status indicator */
+        .session-status-android {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .session-status-android.web {
+            background: #17a2b8;
+        }
+        
+        .session-status-android.warning {
+            background: #ffc107;
+            color: #000;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Session Status Indicator -->
+    <div class="session-status-android <?php echo $sessionManager->isAndroidApp() ? 'android' : 'web'; ?>" id="sessionStatusIndicator">
+        <?php echo $sessionManager->isAndroidApp() ? '📱 Android App - Session Active (365 Days)' : '🌐 Web - Session Active'; ?>
+    </div>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
@@ -165,9 +204,22 @@ $conn->close();
                         <!-- Display trial notification if user is on trial -->
                         <?php if (!empty($trial_notification)) echo $trial_notification; ?>
                         
+                        <!-- Session Info Alert for Android -->
+                        <?php if ($sessionManager->isAndroidApp()): ?>
+                        <div class="alert alert-success alert-dismissible fade show mb-3">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            <strong>Android App Session:</strong> Your session is configured to remain active for 365 days. 
+                            You will stay logged in unless you manually log out.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Today's Sales Report - <?php echo date('F j, Y'); ?></h4>
+                                <?php if ($sessionManager->isAndroidApp()): ?>
+                                <span class="badge bg-success float-end">Android App</span>
+                                <?php endif; ?>
                             </div>
                             
                             <div class="card-body">
@@ -359,6 +411,56 @@ $conn->close();
                 });
             <?php endif; ?>
 
+            // Session status indicator management
+            function updateSessionStatus() {
+                const indicator = $('#sessionStatusIndicator');
+                if (indicator.length) {
+                    // Check session status every 30 seconds
+                    setInterval(() => {
+                        $.get('session-keepalive.php', function(data) {
+                            if (data.status === 'success') {
+                                indicator.removeClass('warning').addClass('<?php echo $sessionManager->isAndroidApp() ? "android" : "web"; ?>');
+                                console.log('Session active - last activity:', data.last_activity);
+                            } else {
+                                indicator.removeClass('android web').addClass('warning');
+                                indicator.text('⚠️ Session Warning');
+                            }
+                        }).fail(() => {
+                            indicator.removeClass('android web').addClass('warning');
+                            indicator.text('⚠️ Connection Issue');
+                        });
+                    }, 30000);
+                }
+            }
+
+            // Initialize session status monitoring
+            updateSessionStatus();
+
+            // Android-specific session maintenance
+            function androidSessionMaintenance() {
+                // For Android apps, send periodic keep-alive requests
+                if (navigator.userAgent.includes('WebToNative') || <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>) {
+                    setInterval(() => {
+                        $.ajax({
+                            url: 'session-keepalive.php',
+                            method: 'GET',
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            success: function(data) {
+                                console.log('Android session maintained:', data);
+                            },
+                            error: function(xhr, status, error) {
+                                console.warn('Android session maintenance failed:', error);
+                            }
+                        });
+                    }, 60000); // Every minute for Android apps
+                }
+            }
+
+            // Start Android session maintenance
+            androidSessionMaintenance();
+
             // Check availability button click handler
             $('#checkAvailability').click(function() {
                 const profileUrl = $('#profile_url').val().trim();
@@ -435,171 +537,293 @@ $conn->close();
         });
     </script>
 
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <a href="tel:9004998995" class="floating-btn call-btn" data-tooltip="Call Us: 9004998995">
+            <span class="nav-icon">
+                <iconify-icon icon="material-symbols:add-call-sharp"></iconify-icon>
+            </span>
+        </a>
+        <a href="https://wa.me/919004998995?text=Hello!%20I%20have%20a%20question%20about%20your%20services" 
+           target="_blank" 
+           class="floating-btn whatsapp-btn" 
+           data-tooltip="WhatsApp: 9004998995">
+            <span class="nav-icon">
+                <iconify-icon icon="mingcute:whatsapp-line"></iconify-icon>
+            </span>
+        </a>
+    </div>
 
-
-
-<!-- Floating Action Buttons -->
-<div class="floating-buttons">
-<a href="tel:9004998995" class="floating-btn call-btn" data-tooltip="Call Us: 9004998995">
-<span class="nav-icon">
-<iconify-icon icon="material-symbols:add-call-sharp"></iconify-icon>
-</span>
-
-</a>
-<a href="https://wa.me/919004998995?text=Hello!%20I%20have%20a%20question%20about%20your%20services" 
-target="_blank" 
-class="floating-btn whatsapp-btn" 
-data-tooltip="WhatsApp: 9004998995">
-<span class="nav-icon">
-<iconify-icon icon="mingcute:whatsapp-line"></iconify-icon>
-</span>
-</a>
-</div>    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- OneSignal Integration for Dashboard -->
-<script>
-// OneSignal Dashboard Manager
-class OneSignalDashboardManager {
-    constructor() {
-        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-        this.init();
-    }
-
-    init() {
-        console.log('🚀 Initializing OneSignal on Dashboard for user:', this.userId);
-        
-        if (this.userId) {
-            // Initialize OneSignal registration
-            this.initializeOneSignal();
+    <!-- OneSignal Integration for Dashboard -->
+    <script>
+    // OneSignal Dashboard Manager
+    class OneSignalDashboardManager {
+        constructor() {
+            this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+            this.isAndroidApp = <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>;
+            this.init();
         }
-    }
 
-    initializeOneSignal() {
-        // Check if we have a pending player ID from login
-        const pendingPlayerId = localStorage.getItem('pending_player_id');
-        
-        if (pendingPlayerId) {
-            console.log('🔄 Completing device registration from login...');
-            this.registerDevice(
-                pendingPlayerId,
-                localStorage.getItem('pending_device_type') || 'web_browser',
-                localStorage.getItem('pending_platform') || 'web'
-            );
-        } else {
-            // Initialize fresh OneSignal registration
-            this.detectAndRegister();
-        }
-    }
-
-    detectAndRegister() {
-        // WebToNative environment
-        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
-            console.log('📱 WebToNative detected on dashboard');
-            this.initializeWebToNative();
-        } 
-        // Regular OneSignal environment
-        else if (typeof OneSignal !== 'undefined') {
-            console.log('🌐 Web OneSignal detected on dashboard');
-            this.initializeWebOneSignal();
-        }
-    }
-
-    initializeWebToNative() {
-        const { getPlayerId, setExternalUserId } = WTN.OneSignal;
-        
-        getPlayerId().then((playerId) => {
-            if (playerId) {
-                console.log('✅ WebToNative Player ID on dashboard:', playerId);
-                this.registerDevice(playerId, 'android_webtonative', 'android');
-                setExternalUserId(this.userId.toString());
+        init() {
+            console.log('🚀 Initializing OneSignal on Dashboard for user:', this.userId);
+            console.log('📱 Android App:', this.isAndroidApp);
+            
+            if (this.userId) {
+                // Initialize OneSignal registration
+                this.initializeOneSignal();
             }
-        }).catch(error => {
-            console.error('❌ WebToNative error on dashboard:', error);
-        });
-    }
+        }
 
-    initializeWebOneSignal() {
-        window.OneSignal = window.OneSignal || [];
-        
-        OneSignal.push(() => {
-            OneSignal.init({
-                appId: "9d512a16-1b7c-4d2c-ae9f-07c36c963086",
-                safari_web_id: "",
-                notifyButton: { enable: false },
-                allowLocalhostAsSecureOrigin: true,
-            });
-
-            OneSignal.getUserId((playerId) => {
-                if (playerId) {
-                    console.log('✅ Web OneSignal Player ID on dashboard:', playerId);
-                    this.registerDevice(playerId, 'web_browser', 'web');
-                    OneSignal.setExternalUserId(this.userId.toString());
-                }
-            });
-        });
-    }
-
-    registerDevice(playerId, deviceType, platform) {
-        const payload = {
-            player_id: playerId,
-            device_type: deviceType,
-            platform: platform,
-            user_id: this.userId,
-            source: (deviceType === 'android_webtonative') ? 'webtonative_app' : 'web_browser'
-        };
-
-        fetch('register_device_unified.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('✅ Device registered on dashboard:', data.message);
-                
-                // Clear any pending registration data
-                localStorage.removeItem('pending_player_id');
-                localStorage.removeItem('pending_device_type');
-                localStorage.removeItem('pending_platform');
-                
-                // Store successful registration
-                localStorage.setItem('onesignal_registered', 'true');
-                localStorage.setItem('player_id', playerId);
-                localStorage.setItem('user_id', this.userId.toString());
-                
+        initializeOneSignal() {
+            // Check if we have a pending player ID from login
+            const pendingPlayerId = localStorage.getItem('pending_player_id');
+            
+            if (pendingPlayerId) {
+                console.log('🔄 Completing device registration from login...');
+                this.registerDevice(
+                    pendingPlayerId,
+                    localStorage.getItem('pending_device_type') || 'web_browser',
+                    localStorage.getItem('pending_platform') || 'web'
+                );
             } else {
-                console.error('❌ Device registration failed on dashboard:', data.message);
+                // Initialize fresh OneSignal registration
+                this.detectAndRegister();
             }
-        })
-        .catch(error => {
-            console.error('❌ Device registration request failed on dashboard:', error);
-        });
+        }
+
+        detectAndRegister() {
+            // WebToNative environment
+            if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+                console.log('📱 WebToNative detected on dashboard');
+                this.initializeWebToNative();
+            } 
+            // Regular OneSignal environment
+            else if (typeof OneSignal !== 'undefined') {
+                console.log('🌐 Web OneSignal detected on dashboard');
+                this.initializeWebOneSignal();
+            } else {
+                console.log('ℹ️ No OneSignal environment detected');
+            }
+        }
+
+        initializeWebToNative() {
+            const { getPlayerId, setExternalUserId } = WTN.OneSignal;
+            
+            getPlayerId().then((playerId) => {
+                if (playerId) {
+                    console.log('✅ WebToNative Player ID on dashboard:', playerId);
+                    this.registerDevice(playerId, 'android_webtonative', 'android');
+                    setExternalUserId(this.userId.toString());
+                }
+            }).catch(error => {
+                console.error('❌ WebToNative error on dashboard:', error);
+            });
+        }
+
+        initializeWebOneSignal() {
+            window.OneSignal = window.OneSignal || [];
+            
+            OneSignal.push(() => {
+                OneSignal.init({
+                    appId: "9d512a16-1b7c-4d2c-ae9f-07c36c963086",
+                    safari_web_id: "",
+                    notifyButton: { enable: false },
+                    allowLocalhostAsSecureOrigin: true,
+                });
+
+                OneSignal.getUserId((playerId) => {
+                    if (playerId) {
+                        console.log('✅ Web OneSignal Player ID on dashboard:', playerId);
+                        this.registerDevice(playerId, 'web_browser', 'web');
+                        OneSignal.setExternalUserId(this.userId.toString());
+                    }
+                });
+            });
+        }
+
+        registerDevice(playerId, deviceType, platform) {
+            const payload = {
+                player_id: playerId,
+                device_type: deviceType,
+                platform: platform,
+                user_id: this.userId,
+                source: (deviceType === 'android_webtonative') ? 'webtonative_app' : 'web_browser'
+            };
+
+            fetch('register_device_unified.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('✅ Device registered on dashboard:', data.message);
+                    
+                    // Clear any pending registration data
+                    localStorage.removeItem('pending_player_id');
+                    localStorage.removeItem('pending_device_type');
+                    localStorage.removeItem('pending_platform');
+                    
+                    // Store successful registration
+                    localStorage.setItem('onesignal_registered', 'true');
+                    localStorage.setItem('player_id', playerId);
+                    localStorage.setItem('user_id', this.userId.toString());
+                    
+                } else {
+                    console.error('❌ Device registration failed on dashboard:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Device registration request failed on dashboard:', error);
+            });
+        }
+    }
+
+    // Initialize on dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        if (<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>) {
+            window.oneSignalDashboardManager = new OneSignalDashboardManager();
+        }
+    });
+    </script>
+
+    <!-- SIMPLIFIED OneSignal Registration -->
+    <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
+    <script>
+    // Enhanced Android-Only OneSignal Registration
+    class AndroidOneSignalRegister {
+        constructor() {
+            this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+            console.log('🚀 Android Register - User ID:', this.userId);
+            
+            if (this.userId) {
+                this.startAndroidRegistration();
+            }
+        }
+        
+        startAndroidRegistration() {
+            console.log('🔄 Starting Android-only registration...');
+            
+            // ONLY attempt registration for Android WebToNative
+            if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+                console.log('📱 Android WebToNative detected - registering...');
+                this.registerViaWebToNative();
+            } else {
+                console.log('🌐 Web browser detected - skipping device registration');
+            }
+        }
+        
+        registerViaWebToNative() {
+            WTN.OneSignal.getPlayerId().then(playerId => {
+                if (playerId) {
+                    console.log('✅ Got Android Player ID:', playerId);
+                    this.sendRegistration(playerId, 'android_webtonative', 'android');
+                } else {
+                    console.log('❌ No Player ID from WebToNative');
+                }
+            }).catch(error => {
+                console.error('❌ WebToNative error:', error);
+            });
+        }
+        
+        sendRegistration(playerId, deviceType, platform) {
+            const payload = {
+                player_id: playerId,
+                device_type: deviceType,
+                platform: platform,
+                user_id: this.userId,
+                source: 'android_only_script'
+            };
+            
+            console.log('📨 Sending Android registration:', payload);
+            
+            fetch('register_device_unified.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Registration response:', data);
+                if (data.success) {
+                    if (data.skipped) {
+                        console.log('ℹ️ Registration skipped:', data.reason);
+                    } else {
+                        console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
+                    }
+                } else {
+                    console.error('❌ Registration failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Request failed:', error);
+            });
+        }
+    }
+
+    // Start Android-only registration when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        new AndroidOneSignalRegister();
+    });
+    </script>
+<script>
+// Add to dashboard.php JavaScript section
+// Enhanced session monitoring
+function startEnhancedSessionMonitoring() {
+    const isAndroid = <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>;
+    
+    // Health check every 2 minutes
+    setInterval(() => {
+        $.get('session_health_check.php')
+            .done(data => {
+                if (data.session_active) {
+                    console.log('✅ Session health check passed');
+                    if (data.issues && data.issues.length > 0) {
+                        console.warn('Session issues:', data.issues);
+                    }
+                } else {
+                    console.error('❌ Session health check failed');
+                    // Optionally redirect to login if session is completely dead
+                    if (isAndroid) {
+                        window.location.href = 'login.php?session_expired=true';
+                    }
+                }
+            })
+            .fail(() => {
+                console.error('❌ Health check request failed');
+            });
+    }, 120000); // 2 minutes
+    
+    // More frequent heartbeat for Android
+    if (isAndroid) {
+        setInterval(() => {
+            $.get('heartbeat.php')
+                .done(data => {
+                    if (data.success) {
+                        console.log('❤️ Android heartbeat maintained');
+                    }
+                });
+        }, 300000); // 5 minutes
     }
 }
 
-// Initialize on dashboard
-document.addEventListener('DOMContentLoaded', function() {
-    if (<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>) {
-        window.oneSignalDashboardManager = new OneSignalDashboardManager();
-    }
+// Start enhanced monitoring when dashboard loads
+$(document).ready(function() {
+    startEnhancedSessionMonitoring();
+    
+    // Add device management link to toolbar or menu
+    $('#navbar-nav').append(`
+        <li class="nav-item">
+            <a class="nav-link" href="device_management.php">
+                <span class="nav-icon">
+                    <iconify-icon icon="fas fa-mobile-alt"></iconify-icon>
+                </span>
+                <span class="nav-text">Device Management</span>
+            </a>
+        </li>
+    `);
 });
 </script>
-<!-- OneSignal Integration for Dashboard -->
 </body>
 </html>

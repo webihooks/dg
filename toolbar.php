@@ -1,23 +1,18 @@
 <?php
-// toolbar.php - Enhanced with 365-day session persistence
+// toolbar.php - Enhanced with safe session management for 365-day persistence
 
-// Check if session is already started
+// First, check if we need to start session management
 if (session_status() === PHP_SESSION_NONE) {
-    // Start session with extended configuration only if not already started
-    session_set_cookie_params([
-        'lifetime' => 31536000, // 1 year
-        'path' => '/',
-        'domain' => $_SERVER['HTTP_HOST'],
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'httponly' => true,
-        'samesite' => 'None'
-    ]);
-
-    ini_set('session.gc_maxlifetime', 31536000);
-    session_start();
+    // No session active - use our session manager
+    require_once 'android_session_manager.php';
+    $sessionManager = new AndroidSessionManager();
 } else {
-    // Session already started, just update the activity
-    error_log("Session already active, using existing session");
+    // Session already active - create manager without starting new session
+    require_once 'android_session_manager.php';
+    $sessionManager = new AndroidSessionManager();
+    
+    // Just validate the existing session
+    $sessionManager->validateAndroidSession();
 }
 
 // Update session activity and extend cookie if user is logged in
@@ -25,8 +20,8 @@ if (isset($_SESSION['user_id'])) {
     $_SESSION['last_activity'] = time();
     $_SESSION['session_expires'] = time() + 31536000;
     
-    // Only update cookie if we have write access to headers
-    if (!headers_sent()) {
+    // Only update cookie if we have write access to headers AND session wasn't already active
+    if (!headers_sent() && method_exists($sessionManager, 'wasSessionStartedByManager') && $sessionManager->wasSessionStartedByManager()) {
         setcookie(session_name(), session_id(), [
             'expires' => time() + 31536000,
             'path' => '/',
@@ -74,7 +69,7 @@ if (isset($_SESSION['user_id']) && $conn) {
 }
 
 // Check if we're in Android app context
-$isAndroidApp = isset($_SESSION['is_android_app']) && $_SESSION['is_android_app'] === true;
+$isAndroidApp = $sessionManager->isAndroidApp();
 
 // Set Android-specific session data
 if ($isAndroidApp && isset($_SESSION['user_id'])) {
@@ -93,6 +88,8 @@ class UniversalSessionManager {
         this.keepAliveInterval = 300000; // 5 minutes
         this.isAndroidApp = <?php echo $isAndroidApp ? 'true' : 'false'; ?>;
         this.isTWA = this.detectTWA();
+        this.healthCheckInterval = 120000; // 2 minutes for health checks
+        this.heartbeatInterval = this.isAndroidApp ? 300000 : 600000; // 5 min Android, 10 min Web
         this.init();
     }
 
@@ -106,8 +103,11 @@ class UniversalSessionManager {
         console.log('🚀 Toolbar Session Manager Initialized');
         console.log('📱 Android App:', this.isAndroidApp);
         console.log('🖥️ TWA Environment:', this.isTWA);
+        console.log('❤️ Heartbeat Interval:', this.heartbeatInterval / 1000 + 's');
         
         this.startKeepAlive();
+        this.startHealthChecks();
+        this.startHeartbeat();
         this.setupVisibilityHandler();
         this.setupActivityHandlers();
         this.initializeSession();
@@ -124,6 +124,7 @@ class UniversalSessionManager {
             localStorage.setItem('userAgent', navigator.userAgent);
             localStorage.setItem('sessionStart', new Date().toISOString());
             localStorage.setItem('lastToolbarAccess', Date.now());
+            localStorage.setItem('platform', this.isAndroidApp ? 'android' : 'web');
         }
     }
 
@@ -131,10 +132,89 @@ class UniversalSessionManager {
         // Immediate keep-alive on load
         this.keepSessionAlive();
         
-        // Periodic keep-alive every 5 minutes
+        // Periodic keep-alive
         this.keepAliveTimer = setInterval(() => {
             this.keepSessionAlive();
         }, this.keepAliveInterval);
+    }
+
+    startHealthChecks() {
+        // Health check every 2 minutes
+        this.healthCheckTimer = setInterval(() => {
+            this.performHealthCheck();
+        }, this.healthCheckInterval);
+    }
+
+    startHeartbeat() {
+        // Heartbeat for session maintenance (more frequent for Android)
+        this.heartbeatTimer = setInterval(() => {
+            this.sendHeartbeat();
+        }, this.heartbeatInterval);
+    }
+
+    async performHealthCheck() {
+        try {
+            const response = await fetch('session_health_check.php', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.session_active) {
+                console.log('✅ Session Health Check Passed');
+                
+                // Update session info in storage
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastHealthCheck', Date.now());
+                    localStorage.setItem('sessionHealth', 'healthy');
+                }
+                
+                this.updateSessionStatus('active');
+            } else {
+                console.warn('⚠️ Session Health Check Failed:', data.issues);
+                this.updateSessionStatus('warning');
+                
+                // Try to recover session
+                this.recoverSession();
+            }
+        } catch (error) {
+            console.error('❌ Health Check Request Failed:', error);
+            this.updateSessionStatus('error');
+        }
+    }
+
+    async sendHeartbeat() {
+        try {
+            const response = await fetch('heartbeat.php', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('❤️ Heartbeat maintained - Count:', data.heartbeat_count);
+                
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastHeartbeat', Date.now());
+                    localStorage.setItem('heartbeatCount', data.heartbeat_count);
+                }
+            } else {
+                console.warn('💔 Heartbeat failed:', data.error);
+            }
+        } catch (error) {
+            console.error('💔 Heartbeat request failed:', error);
+        }
     }
 
     async keepSessionAlive() {
@@ -173,12 +253,69 @@ class UniversalSessionManager {
         }
     }
 
+    async recoverSession() {
+        console.log('🔄 Attempting session recovery...');
+        
+        try {
+            // Try to refresh the page first
+            const response = await fetch(window.location.href, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'X-Session-Recovery': 'true'
+                }
+            });
+            
+            if (response.ok) {
+                console.log('✅ Session recovery successful');
+                this.updateSessionStatus('recovered');
+            } else {
+                throw new Error('Page refresh failed');
+            }
+        } catch (error) {
+            console.error('❌ Session recovery failed:', error);
+            this.showSessionRecoveryAlert();
+        }
+    }
+
+    showSessionRecoveryAlert() {
+        // Create a non-intrusive recovery notification
+        const recoveryDiv = document.createElement('div');
+        recoveryDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 10001;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        `;
+        recoveryDiv.innerHTML = `
+            <strong>⚠️ Session Issue Detected</strong>
+            <p style="margin: 8px 0; font-size: 14px;">Your session may have issues. <a href="javascript:location.reload()" style="color: #856404; text-decoration: underline;">Refresh page</a></p>
+            <button onclick="this.parentNode.remove()" style="background: none; border: none; color: #856404; float: right; cursor: pointer;">×</button>
+        `;
+        document.body.appendChild(recoveryDiv);
+        
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (recoveryDiv.parentNode) {
+                recoveryDiv.parentNode.removeChild(recoveryDiv);
+            }
+        }, 10000);
+    }
+
     setupVisibilityHandler() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 // Page became visible - refresh session immediately
                 console.log('🔄 Toolbar Page visible - refreshing session');
                 this.keepSessionAlive();
+                this.performHealthCheck();
                 
                 // Additional session validation
                 this.validateSessionState();
@@ -223,6 +360,7 @@ class UniversalSessionManager {
                 localStorage.setItem('twaSessionPreserved', 'true');
                 localStorage.setItem('twaLastActive', Date.now().toString());
                 localStorage.setItem('lastUrl', window.location.href);
+                localStorage.setItem('sessionPreserved', 'true');
             }
         });
     }
@@ -257,6 +395,7 @@ class UniversalSessionManager {
         console.log('📱 Preparing for background/switch');
         if (typeof(Storage) !== "undefined") {
             localStorage.setItem('lastBackgroundTime', Date.now());
+            localStorage.setItem('wasInBackground', 'true');
         }
     }
 
@@ -275,17 +414,32 @@ class UniversalSessionManager {
         // Update visual indicator if exists
         const statusElement = document.getElementById('sessionStatusIndicator');
         if (statusElement) {
-            // const statusConfig = {
-            //     'active': { text: 'Session Active (365 Days)', color: '#28a745' },
-            //     'warning': { text: 'Session Warning', color: '#ffc107' },
-            //     'error': { text: 'Session Error', color: '#dc3545' },
-            //     'restored': { text: 'Session Restored', color: '#17a2b8' }
-            // };
+            const statusConfig = {
+                'active': { text: 'Session Active (365 Days)', color: '#28a745', icon: '✅' },
+                'warning': { text: 'Session Warning', color: '#ffc107', icon: '⚠️' },
+                'error': { text: 'Session Error', color: '#dc3545', icon: '❌' },
+                'restored': { text: 'Session Restored', color: '#17a2b8', icon: '🔄' }
+            };
             
             const config = statusConfig[status] || statusConfig['active'];
-            statusElement.textContent = config.text;
+            statusElement.innerHTML = `${config.icon} ${config.text}`;
             statusElement.style.backgroundColor = config.color;
         }
+    }
+
+    // Get session statistics for debugging
+    getSessionStats() {
+        if (typeof(Storage) === "undefined") return null;
+        
+        return {
+            platform: localStorage.getItem('platform') || 'unknown',
+            sessionStart: localStorage.getItem('sessionStart'),
+            lastHealthCheck: localStorage.getItem('lastHealthCheck'),
+            lastHeartbeat: localStorage.getItem('lastHeartbeat'),
+            lastKeepAlive: localStorage.getItem('lastKeepAlive'),
+            heartbeatCount: localStorage.getItem('heartbeatCount'),
+            userAgent: localStorage.getItem('userAgent')
+        };
     }
 
     // Cleanup method
@@ -293,6 +447,14 @@ class UniversalSessionManager {
         if (this.keepAliveTimer) {
             clearInterval(this.keepAliveTimer);
         }
+        if (this.healthCheckTimer) {
+            clearInterval(this.healthCheckTimer);
+        }
+        if (this.heartbeatTimer) {
+            clearInterval(this.heartbeatTimer);
+        }
+        
+        console.log('🧹 Toolbar Session Manager Cleaned Up');
     }
 }
 
@@ -306,6 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Toolbar Session Manager Active');
     console.log('📅 Session designed for 365-day persistence');
     console.log('👤 User ID: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'Not logged in'; ?>');
+    console.log('📱 Platform: <?php echo $isAndroidApp ? 'Android App' : 'Web Browser'; ?>');
     
     // Make functions globally available for TWA
     if (typeof window.checkExistingPendingOrders !== 'function') {
@@ -314,6 +477,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // This function can be overridden by specific pages
         };
     }
+    
+    // Debug function to check session status
+    window.getSessionDebugInfo = function() {
+        if (window.toolbarSessionManager) {
+            const stats = window.toolbarSessionManager.getSessionStats();
+            console.log('🔍 Session Debug Info:', stats);
+            return stats;
+        }
+        return null;
+    };
     <?php else: ?>
     console.log('👤 User not logged in - Toolbar Session manager not started');
     <?php endif; ?>
@@ -325,6 +498,11 @@ window.addEventListener('beforeunload', function() {
         localStorage.setItem('sessionPreserved', 'true');
         localStorage.setItem('lastUnload', Date.now());
         localStorage.setItem('toolbarLastAccess', Date.now());
+    }
+    
+    // Clean up session manager
+    if (window.toolbarSessionManager) {
+        window.toolbarSessionManager.destroy();
     }
 });
 
@@ -339,28 +517,22 @@ document.addEventListener('keypress', function() {
 </script>
 
 <!-- Session Status Indicator -->
-<!-- <div id="sessionStatusIndicator" style="
+<div id="sessionStatusIndicator" style="
     position: fixed; 
     top: 10px; 
     right: 10px; 
     background: #28a745; 
     color: white; 
-    padding: 5px 10px; 
-    border-radius: 15px; 
-    font-size: 10px; 
+    padding: 8px 12px; 
+    border-radius: 20px; 
+    font-size: 12px; 
     z-index: 10000; 
     display: none;
     font-weight: bold;
-">Session Active</div> -->
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+">✅ Session Active (365 Days)</div>
 
 <style>
-/*.userid_class {
-    font-size: 11px;
-    opacity: 0.7;
-    display: block;
-    margin-top: 2px;
-}*/
-
 .session-info {
     font-size: 11px;
     opacity: 0.8;
@@ -375,6 +547,13 @@ document.addEventListener('keypress', function() {
     backdrop-filter: blur(10px);
 }
 <?php endif; ?>
+
+/* Session status badge in user dropdown */
+.session-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
 </style>
 
 <header class="topbar">
@@ -406,11 +585,11 @@ document.addEventListener('keypress', function() {
                     </div>
 
                     <!-- Session Status Button -->
-                    <!-- <div class="topbar-item">
+                    <div class="topbar-item">
                          <button type="button" class="topbar-button" id="session-status-btn" title="Session Status">
                               <iconify-icon icon="solar:shield-check-bold" class="fs-24 align-middle"></iconify-icon>
                          </button>
-                    </div> -->
+                    </div>
 
                     <!-- User -->
                     <div class="dropdown topbar-item">
@@ -434,10 +613,13 @@ document.addEventListener('keypress', function() {
 
                               <div class="dropdown-divider my-1"></div>
                               
-                              <!-- Session Info -->
+                              <!-- Enhanced Session Info -->
                               <div class="px-3 py-2 small">
                                   <div class="text-muted">
-                                      <strong>Session Status:</strong> Active<br>
+                                      <strong>Session Status:</strong> 
+                                      <span class="badge session-badge bg-success">Active</span><br>
+                                      <strong>Platform:</strong> 
+                                      <?php echo $isAndroidApp ? '📱 Android App' : '🌐 Web Browser'; ?><br>
                                       <strong>Duration:</strong> 365 Days<br>
                                       <strong>Last Activity:</strong> 
                                       <?php echo isset($_SESSION['last_activity']) ? 
@@ -446,6 +628,12 @@ document.addEventListener('keypress', function() {
                               </div>
 
                               <div class="dropdown-divider my-1"></div>
+
+                              <!-- Device Management Link -->
+                              <a class="dropdown-item" href="device_management.php">
+                                  <i class="fas fa-mobile-alt fs-18 align-middle me-1"></i>
+                                  <span class="align-middle">Manage Devices</span>
+                              </a>
                                 
                               <!-- Logout Option -->
                               <?php
@@ -479,15 +667,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     sessionStatusIndicator.style.display = 'block';
                     setTimeout(() => {
                         sessionStatusIndicator.style.display = 'none';
-                    }, 3000);
+                    }, 5000);
                 } else {
                     sessionStatusIndicator.style.display = 'block';
                 }
             }
             
-            // Trigger immediate keep-alive
+            // Trigger immediate health check
             if (window.toolbarSessionManager) {
+                window.toolbarSessionManager.performHealthCheck();
                 window.toolbarSessionManager.keepSessionAlive();
+                
+                // Show debug info in console
+                const debugInfo = window.getSessionDebugInfo();
+                console.log('🔍 Manual Session Check:', debugInfo);
             }
         });
     }
@@ -496,6 +689,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to logout? This will deactivate all your devices for push notifications.')) {
+                e.preventDefault();
+                return;
+            }
+            
             // Clean up session manager
             if (window.toolbarSessionManager) {
                 window.toolbarSessionManager.destroy();
@@ -506,10 +704,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.removeItem('sessionPreserved');
                 localStorage.removeItem('lastKeepAlive');
                 localStorage.removeItem('sessionInitialized');
+                localStorage.removeItem('heartbeatCount');
             }
             
             // Allow the default logout behavior to proceed
-            // No confirmation dialog - user will be logged out immediately
         });
     }
     
@@ -519,9 +717,19 @@ document.addEventListener('DOMContentLoaded', function() {
             sessionStatusIndicator.style.display = 'block';
             setTimeout(() => {
                 sessionStatusIndicator.style.display = 'none';
-            }, 3000);
+            }, 5000);
         }
-    }, 1000);
+    }, 2000);
+    
+    // Auto-hide session status after 5 seconds
+    setInterval(() => {
+        if (sessionStatusIndicator && sessionStatusIndicator.style.display === 'block') {
+            // Only hide if it's been visible for more than 5 seconds
+            setTimeout(() => {
+                sessionStatusIndicator.style.display = 'none';
+            }, 5000);
+        }
+    }, 10000);
 });
 
 // Make checkExistingPendingOrders available globally
@@ -530,4 +738,22 @@ function checkExistingPendingOrders() {
     // This will be overridden by specific dashboard pages
 }
 window.checkExistingPendingOrders = checkExistingPendingOrders;
+
+// Session debug function
+function debugSession() {
+    if (window.toolbarSessionManager) {
+        const stats = window.toolbarSessionManager.getSessionStats();
+        const sessionInfo = {
+            phpSession: {
+                userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
+                isAndroid: <?php echo $isAndroidApp ? 'true' : 'false'; ?>,
+                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>
+            },
+            javascript: stats
+        };
+        console.log('🔍 Full Session Debug:', sessionInfo);
+        return sessionInfo;
+    }
+    return null;
+}
 </script>

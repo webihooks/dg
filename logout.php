@@ -1,18 +1,14 @@
 <?php
-// logout.php - Enhanced with complete session destruction
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => $_SERVER['HTTP_HOST'],
-    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-    'httponly' => true,
-    'samesite' => 'None'
-]);
+// logout.php - Enhanced with complete device cleanup
+require_once 'android_session_manager.php';
+$sessionManager = new AndroidSessionManager();
 
 session_start();
 
-// Database connection to clear remember token
-if (isset($_SESSION['user_id'])) {
+$userId = $_SESSION['user_id'] ?? null;
+
+// Database connection to clear remember token AND OneSignal devices
+if ($userId) {
     $host = 'localhost';
     $dbname = 'doctorie_webihooks_card';
     $username = 'doctorie_webihooks';
@@ -22,12 +18,18 @@ if (isset($_SESSION['user_id'])) {
         $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
-        // Clear remember token from database
+        // 1. Clear remember token from database
         $stmt = $conn->prepare("UPDATE users SET remember_token = NULL, token_expires = NULL WHERE id = :id");
-        $stmt->bindParam(':id', $_SESSION['user_id']);
+        $stmt->bindParam(':id', $userId);
         $stmt->execute();
         
-        error_log("🚪 User {$_SESSION['user_id']} logged out manually");
+        // 2. DEACTIVATE OneSignal devices for this user
+        $deviceStmt = $conn->prepare("UPDATE user_devices SET is_active = 0 WHERE user_id = :user_id");
+        $deviceStmt->bindParam(':user_id', $userId);
+        $deviceStmt->execute();
+        
+        error_log("🚪 User {$userId} logged out - tokens cleared and devices deactivated");
+        
     } catch (PDOException $e) {
         error_log("Logout database error: " . $e->getMessage());
     }

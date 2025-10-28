@@ -42,31 +42,93 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// ANDROID APP DETECTION AND DEBUGGING
-$isAndroidApp = false;
-$androidDebugInfo = [];
-
-// Detect WebToNative Android App
-if (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
-    isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'com.webtonative.app') {
-    $isAndroidApp = true;
+// ANDROID SESSION MANAGER
+class AndroidSessionManager {
+    private $conn;
     
-    // Store Android-specific session data
-    $_SESSION['is_android_app'] = true;
-    $_SESSION['app_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    public function __construct() {
+        $this->initDB();
+    }
     
-    $androidDebugInfo = [
-        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Not set',
-        'request_method' => $_SERVER['REQUEST_METHOD'],
-        'https' => isset($_SERVER['HTTPS']) ? 'Yes' : 'No',
-        'cookies_received' => isset($_COOKIE[session_name()]) ? 'Yes' : 'No',
-        'session_id' => session_id(),
-        'timestamp' => time()
-    ];
+    private function initDB() {
+        $host = 'localhost';
+        $dbname = 'doctorie_webihooks_card';
+        $username = 'doctorie_webihooks';
+        $password = 'S@g@r4834';
+        
+        try {
+            $this->conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            error_log("AndroidSessionManager DB Error: " . $e->getMessage());
+        }
+    }
+    
+    public function isAndroidApp() {
+        return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
+               isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'com.webtonative.app' ||
+               isset($_SESSION['is_android_app']);
+    }
+    
+    public function maintainAndroidSession($userId) {
+        if (!$this->isAndroidApp()) return false;
+        
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['is_android_app'] = true;
+        $_SESSION['android_last_activity'] = time();
+        $_SESSION['session_expires'] = time() + 31536000;
+        $_SESSION['android_session_created'] = time();
+        
+        // Update session cookie
+        setcookie(session_name(), session_id(), [
+            'expires' => time() + 31536000,
+            'path' => '/',
+            'domain' => $_SERVER['HTTP_HOST'],
+            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'None'
+        ]);
+        
+        error_log("✅ Android session maintained for user: $userId");
+        return true;
+    }
+    
+    public function validateAndroidSession() {
+        if (!$this->isAndroidApp()) return true;
+        
+        // For Android apps, always maintain session if user_id exists
+        if (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+            $this->maintainAndroidSession($_SESSION['user_id']);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public function getDebugInfo() {
+        return [
+            'is_android_app' => $this->isAndroidApp(),
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Not set',
+            'session_user_id' => $_SESSION['user_id'] ?? 'Not set',
+            'session_android' => $_SESSION['is_android_app'] ?? 'Not set',
+            'cookies_received' => isset($_COOKIE[session_name()]) ? 'Yes' : 'No',
+            'session_id' => session_id(),
+            'timestamp' => time()
+        ];
+    }
 }
 
-// Store debug info in session for tracking
+// Initialize Android Session Manager
+$androidSessionManager = new AndroidSessionManager();
+
+// ANDROID APP DETECTION AND DEBUGGING
+$isAndroidApp = $androidSessionManager->isAndroidApp();
+$androidDebugInfo = $androidSessionManager->getDebugInfo();
+
+// Store Android-specific session data
 if ($isAndroidApp) {
+    $_SESSION['is_android_app'] = true;
+    $_SESSION['app_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     $_SESSION['android_debug_info'] = $androidDebugInfo;
     $_SESSION['last_android_access'] = time();
 }
@@ -84,9 +146,7 @@ if (isset($_SESSION['user_id']) && !$forceLoginPage) {
     
     // Android-specific session maintenance
     if ($isAndroidApp) {
-        $_SESSION['android_last_activity'] = time();
-        $_SESSION['android_session_updated'] = true;
-        $_SESSION['android_session_id'] = session_id();
+        $androidSessionManager->maintainAndroidSession($_SESSION['user_id']);
     }
     
     // Update session cookie with extended lifetime
@@ -117,7 +177,7 @@ if (isset($_SESSION['user_id']) && !$forceLoginPage) {
                 header("Location: rider-dashboard.php");
                 exit();
             default:
-                header("Location: subscription.php");
+                header("Location: dashboard.php");
                 exit();
         }
     }
@@ -152,10 +212,9 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$force
             
             // Android app specific data
             if ($isAndroidApp) {
-                $_SESSION['is_android_app'] = true;
+                $androidSessionManager->maintainAndroidSession($user['id']);
                 $_SESSION['android_auto_login'] = true;
                 $_SESSION['android_login_time'] = time();
-                $_SESSION['android_session_id'] = session_id();
             }
             
             // Update session cookie with extended lifetime
@@ -186,7 +245,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$force
                     header("Location: rider-dashboard.php");
                     break;
                 default:
-                    header("Location: subscription.php");
+                    header("Location: dashboard.php");
             }
             exit();
         } else {
@@ -226,10 +285,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Android app specific session data
             if ($isAndroidApp) {
-                $_SESSION['is_android_app'] = true;
+                $androidSessionManager->maintainAndroidSession($user['id']);
                 $_SESSION['android_manual_login'] = true;
                 $_SESSION['android_login_time'] = time();
-                $_SESSION['android_session_id'] = session_id();
                 
                 // Log Android login
                 error_log("Android Manual Login Success: User {$user['id']}");
@@ -302,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header("Location: rider-dashboard.php");
                     break;
                 default:
-                    header("Location: subscription.php");
+                    header("Location: dashboard.php");
             }
             exit();
         } else {
@@ -471,6 +529,11 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('📱 Android App:', typeof WTN !== 'undefined');
     console.log('🍪 Cookies enabled:', navigator.cookieEnabled);
     console.log('📅 Session designed for 365-day persistence');
+    
+    // Debug info for Android
+    <?php if ($isAndroidApp): ?>
+    console.log('🔧 Android Debug Info:', <?php echo json_encode($androidDebugInfo); ?>);
+    <?php endif; ?>
 });
 
 // Handle page unload for session preservation
@@ -512,6 +575,19 @@ window.addEventListener('beforeunload', function() {
     z-index: 10000;
     display: none;
 }
+
+.android-debug {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: #17a2b8;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    z-index: 10000;
+    display: none;
+}
 </style>
      
 </head>
@@ -519,6 +595,11 @@ window.addEventListener('beforeunload', function() {
 <body class="h-100">
      <!-- Session Status Indicator -->
      <!-- <div class="session-status" id="sessionStatus">Session Active (365 Days)</div> -->
+     
+     <!-- Android Debug Indicator -->
+     <?php if ($isAndroidApp): ?>
+     <!-- <div class="android-debug" id="androidDebug">Android App Detected</div> -->
+     <?php endif; ?>
 
      <div class="d-flex flex-column h-100 p-3">
           <div class="d-flex flex-column flex-grow-1">
@@ -556,7 +637,7 @@ window.addEventListener('beforeunload', function() {
                                                        <div class="form-check">
                                                             <input type="checkbox" class="form-check-input" id="checkbox-signin" name="remember_me" checked>
                                                             <label class="form-check-label" for="checkbox-signin">
-                                                                Remember Me(Recommended)
+                                                                Remember Me (Recommended - 365 Days)
                                                             </label>
                                                        </div>
                                                   </div>
@@ -649,6 +730,12 @@ document.getElementById('loginForm').addEventListener('submit', function() {
         status.textContent = 'Setting up 365-day session...';
         status.style.background = '#17a2b8';
     }
+    
+    const androidDebug = document.getElementById('androidDebug');
+    if (androidDebug) {
+        androidDebug.style.display = 'block';
+        androidDebug.textContent = 'Android: Setting up persistent session...';
+    }
 });
 
 // Show session info on page load
@@ -661,8 +748,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 status.style.display = 'none';
             }, 3000);
         }
+        
+        const androidDebug = document.getElementById('androidDebug');
+        if (androidDebug) {
+            androidDebug.style.display = 'block';
+            setTimeout(() => {
+                androidDebug.style.display = 'none';
+            }, 5000);
+        }
     }, 1000);
 });
+
+// Enhanced Android session debugging
+<?php if ($isAndroidApp): ?>
+console.log('📱 Android App Session Debug:');
+console.log('User ID:', <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>);
+console.log('Session ID:', '<?php echo session_id(); ?>');
+console.log('Android Flag:', <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>);
+<?php endif; ?>
 </script>
 
 <!-- ========================================= -->
@@ -678,8 +781,11 @@ class AndroidOneSignalRegister {
         this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
         console.log('🚀 Android Register - User ID:', this.userId);
         
-        if (this.userId) {
+        // Only register if user is logged in
+        if (this.userId && this.userId !== 'null') {
             this.startAndroidRegistration();
+        } else {
+            console.log('⏳ User not logged in - OneSignal registration deferred');
         }
     }
     
@@ -692,7 +798,6 @@ class AndroidOneSignalRegister {
             this.registerViaWebToNative();
         } else {
             console.log('🌐 Web browser detected - skipping device registration');
-            this.showMessage('✅ Ready for orders (Android app required for push notifications)', 'info');
         }
     }
     
@@ -703,11 +808,9 @@ class AndroidOneSignalRegister {
                 this.sendRegistration(playerId, 'android_webtonative', 'android');
             } else {
                 console.log('❌ No Player ID from WebToNative');
-                this.showMessage('⚠️ Android notifications not available', 'warning');
             }
         }).catch(error => {
             console.error('❌ WebToNative error:', error);
-            this.showMessage('❌ Android registration failed', 'error');
         });
     }
     
@@ -733,57 +836,48 @@ class AndroidOneSignalRegister {
             if (data.success) {
                 if (data.skipped) {
                     console.log('ℹ️ Registration skipped:', data.reason);
-                    this.showMessage('ℹ️ ' + data.message, 'info');
                 } else {
                     console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
-                    this.showMessage('✅ Android device registered for push notifications!', 'success');
+                    localStorage.setItem('android_device_registered', 'true');
+                    localStorage.setItem('player_id', playerId);
                 }
             } else {
                 console.error('❌ Registration failed:', data.message);
-                this.showMessage('❌ Registration failed: ' + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('❌ Request failed:', error);
-            this.showMessage('❌ Network error: ' + error.message, 'error');
         });
-    }
-    
-    showMessage(message, type) {
-        // Create a visible notification (optional - remove if not needed)
-        const div = document.createElement('div');
-        div.style.cssText = `
-            position: fixed;
-            display:none;
-            top: 20px;
-            right: 20px;
-            padding: 15px;
-            background: ${type === 'success' ? '#d4edda' : 
-                        type === 'info' ? '#d1ecf1' : 
-                        type === 'warning' ? '#fff3cd' : '#f8d7da'};
-            border: 1px solid ${type === 'success' ? '#c3e6cb' : 
-                              type === 'info' ? '#bee5eb' : 
-                              type === 'warning' ? '#ffeaa7' : '#f5c6cb'};
-            border-radius: 5px;
-            z-index: 10000;
-            color: ${type === 'success' ? '#155724' : 
-                    type === 'info' ? '#0c5460' : 
-                    type === 'warning' ? '#856404' : '#721c24'};
-        `;
-        div.textContent = message;
-        document.body.appendChild(div);
-        
-        setTimeout(() => {
-            if (div.parentNode) {
-                div.parentNode.removeChild(div);
-            }
-        }, 5000);
     }
 }
 
 // Start Android-only registration when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Only initialize if user is logged in
+    <?php if (isset($_SESSION['user_id'])): ?>
     new AndroidOneSignalRegister();
+    <?php else: ?>
+    console.log('⏳ OneSignal registration waiting for login...');
+    <?php endif; ?>
+});
+
+// Re-initialize OneSignal after successful login
+function initOneSignalAfterLogin(userId) {
+    console.log('🔄 Initializing OneSignal after login for user:', userId);
+    setTimeout(() => {
+        new AndroidOneSignalRegister();
+    }, 2000);
+}
+</script>
+
+<!-- Listen for successful login form submission -->
+<script>
+document.getElementById('loginForm').addEventListener('submit', function() {
+    // Set a flag to indicate login is in progress
+    localStorage.setItem('login_in_progress', 'true');
+    
+    // OneSignal will be re-initialized after page redirect
+    console.log('🔐 Login submitted - OneSignal will initialize after redirect');
 });
 </script>
 <!-- ========================================= -->

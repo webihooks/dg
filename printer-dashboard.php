@@ -2,6 +2,13 @@
 // Start the session
 session_start();
 
+// Include the enhanced session manager
+require_once 'android_session_manager.php';
+$sessionManager = new AndroidSessionManager();
+
+// Let the session manager handle Android session persistence
+$sessionManager->validateAndroidSession();
+
 // Include the database connection file
 require 'db_connection.php';
 date_default_timezone_set('Asia/Kolkata');
@@ -350,6 +357,11 @@ $conn->close();
 </head>
 
 <body>
+
+    <!-- Session Status Indicator -->
+    <div class="session-status-android <?php echo $sessionManager->isAndroidApp() ? 'android' : 'web'; ?>" id="sessionStatusIndicator">
+        <?php echo $sessionManager->isAndroidApp() ? '📱 Android App - Session Active' : '🌐 Web - Session Active'; ?>
+    </div>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>

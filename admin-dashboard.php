@@ -2,6 +2,13 @@
 // Start the session
 session_start();
 
+// Include the enhanced session manager
+require_once 'android_session_manager.php';
+$sessionManager = new AndroidSessionManager();
+
+// Let the session manager handle Android session persistence
+$sessionManager->validateAndroidSession();
+
 // Include the database connection file
 require 'db_connection.php';
 
@@ -111,9 +118,33 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <style>
+        .session-status-android {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .session-status-android.web {
+            background: #17a2b8;
+        }
+    </style>
 </head>
 
 <body>
+
+    <!-- Session Status Indicator -->
+    <div class="session-status-android <?php echo $sessionManager->isAndroidApp() ? 'android' : 'web'; ?>" id="sessionStatusIndicator">
+        <?php echo $sessionManager->isAndroidApp() ? '📱 Android App - Session Active' : '🌐 Web - Session Active'; ?>
+    </div>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
@@ -128,12 +159,61 @@ $conn->close();
             <div class="container">
                 <div class="row">
                     <div class="col-xl-12">
+                        
+                        <!-- Session Info Alert for Android -->
+                        <?php if ($sessionManager->isAndroidApp()): ?>
+                        <div class="alert alert-success alert-dismissible fade show mb-3">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            <strong>Android App Session:</strong> Your session is configured to remain active for 365 days. 
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="card">
                             <div class="card-header">
-                                    <h4 class="card-title">Dashboard</h4>
-                                </div>
+                                <h4 class="card-title">Admin Dashboard</h4>
+                                <?php if ($sessionManager->isAndroidApp()): ?>
+                                <span class="badge bg-success float-end">Android App</span>
+                                <?php endif; ?>
+                            </div>
                             <div class="card-body">
+                                <p>Welcome to the admin dashboard. Manage your system from here.</p>
                                 
+                                <!-- Quick Stats -->
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="card bg-primary text-white">
+                                            <div class="card-body text-center">
+                                                <h5>Total Users</h5>
+                                                <h3>0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-success text-white">
+                                            <div class="card-body text-center">
+                                                <h5>Active Orders</h5>
+                                                <h3>0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-info text-white">
+                                            <div class="card-body text-center">
+                                                <h5>Revenue</h5>
+                                                <h3>₹0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-warning text-dark">
+                                            <div class="card-body text-center">
+                                                <h5>Pending Tasks</h5>
+                                                <h3>0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,7 +227,50 @@ $conn->close();
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     
-    
+    <script>
+    $(document).ready(function() {
+        // Session status indicator management
+        function updateSessionStatus() {
+            const indicator = $('#sessionStatusIndicator');
+            if (indicator.length) {
+                // Check session status every 30 seconds
+                setInterval(() => {
+                    $.get('session_health_check.php', function(data) {
+                        if (data.status === 'success') {
+                            console.log('Admin session active');
+                        }
+                    }).fail(() => {
+                        indicator.removeClass('android web').addClass('warning');
+                        indicator.text('⚠️ Connection Issue');
+                    });
+                }, 30000);
+            }
+        }
+
+        // Android-specific session maintenance
+        function androidSessionMaintenance() {
+            // For Android apps, send periodic keep-alive requests
+            if (navigator.userAgent.includes('WebToNative') || <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>) {
+                setInterval(() => {
+                    $.ajax({
+                        url: 'heartbeat.php',
+                        method: 'GET',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        success: function(data) {
+                            console.log('Admin Android session maintained');
+                        }
+                    });
+                }, 300000); // Every 5 minutes for Android apps
+            }
+        }
+
+        // Initialize session monitoring
+        updateSessionStatus();
+        androidSessionMaintenance();
+    });
+    </script>
 
 </body>
 </html>
