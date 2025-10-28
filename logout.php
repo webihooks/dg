@@ -1,14 +1,30 @@
 <?php
-// logout.php - Enhanced with complete device cleanup
-require_once 'android_session_manager.php';
-$sessionManager = new AndroidSessionManager();
+// logout.php - Enhanced with proper error handling and redirects
+error_reporting(0); // Turn off error reporting to prevent output
 
-session_start();
+// Start session FIRST before any output
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'None'
+    ]);
+    session_start();
+} else {
+    session_start();
+}
 
 $userId = $_SESSION['user_id'] ?? null;
+$playerId = $_SESSION['current_player_id'] ?? null;
 
-// Database connection to clear remember token AND OneSignal devices
-if ($userId) {
+// Initialize variables
+$logoutSuccess = false;
+
+// Database connection to clear remember token AND deactivate ONLY current device
+if ($userId && $playerId) {
     $host = 'localhost';
     $dbname = 'doctorie_webihooks_card';
     $username = 'doctorie_webihooks';
@@ -23,33 +39,106 @@ if ($userId) {
         $stmt->bindParam(':id', $userId);
         $stmt->execute();
         
-        // 2. DEACTIVATE OneSignal devices for this user
-        $deviceStmt = $conn->prepare("UPDATE user_devices SET is_active = 0 WHERE user_id = :user_id");
+        // 2. DEACTIVATE ONLY THE CURRENT DEVICE, not all devices
+        $deviceStmt = $conn->prepare("UPDATE user_devices SET is_active = 0 WHERE user_id = :user_id AND player_id = :player_id");
         $deviceStmt->bindParam(':user_id', $userId);
+        $deviceStmt->bindParam(':player_id', $playerId);
         $deviceStmt->execute();
         
-        error_log("🚪 User {$userId} logged out - tokens cleared and devices deactivated");
+        $affectedDevices = $deviceStmt->rowCount();
+        $logoutSuccess = true;
+        
+        error_log("🚪 User {$userId} logged out - Device {$playerId} deactivated. Affected: {$affectedDevices}");
+        
+        // Log the logout event
+        if (file_exists('enhanced_logger.php')) {
+            require_once 'enhanced_logger.php';
+            $logger = new EnhancedSessionLogger($userId);
+            $logger->logSessionEvent('DEVICE_LOGOUT', [
+                'user_id' => $userId,
+                'player_id' => $playerId,
+                'affected_devices' => $affectedDevices
+            ]);
+        }
         
     } catch (PDOException $e) {
         error_log("Logout database error: " . $e->getMessage());
+        // Continue with session destruction even if DB fails
     }
+} else {
+    error_log("Logout attempted without user_id or player_id. User: " . ($userId ?? 'null') . ", Player: " . ($playerId ?? 'null'));
 }
 
-// Destroy all session data
+// Clear all session data
 $_SESSION = [];
 
 // Destroy session cookie
 if (isset($_COOKIE[session_name()])) {
-    setcookie(session_name(), '', time() - 3600, '/', $_SERVER['HTTP_HOST'], true, true);
+    setcookie(session_name(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'None'
+    ]);
 }
 
 // Destroy remember token cookie
-setcookie('remember_token', '', time() - 3600, '/', $_SERVER['HTTP_HOST'], true, true);
+if (isset($_COOKIE['remember_token'])) {
+    setcookie('remember_token', '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'domain' => $_SERVER['HTTP_HOST'],
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'None'
+    ]);
+}
 
-// Destroy session
+// Destroy the session
 session_destroy();
 
-// Redirect to login page
-header('Location: login.php');
-exit();
+// For Android WebView, we need to handle the redirect properly
+$isAndroidApp = strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false;
+
+if ($isAndroidApp) {
+    // For Android apps, use JavaScript redirect to avoid HTTP response issues
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Logging out...</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            // Clear any local storage data
+            if (typeof(Storage) !== "undefined") {
+                localStorage.removeItem('sessionPreserved');
+                localStorage.removeItem('lastKeepAlive');
+                localStorage.removeItem('sessionInitialized');
+                localStorage.removeItem('current_player_id');
+                localStorage.removeItem('heartbeatCount');
+            }
+            
+            // Redirect to login page
+            setTimeout(function() {
+                window.location.href = 'https://deegeecard.com/login.php?logout=success';
+            }, 100);
+        </script>
+    </head>
+    <body>
+        <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+            <h2>Logging out...</h2>
+            <p>Please wait while we securely log you out.</p>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit();
+} else {
+    // For web browsers, use standard redirect
+    header('Location: https://deegeecard.com/login.php?logout=success');
+    exit();
+}
 ?>

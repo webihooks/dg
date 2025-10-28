@@ -458,39 +458,173 @@ class UniversalSessionManager {
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Only initialize if user is logged in
-    <?php if (isset($_SESSION['user_id'])): ?>
-    window.toolbarSessionManager = new UniversalSessionManager();
-    
-    // Store session initialization
-    console.log('🚀 Toolbar Session Manager Active');
-    console.log('📅 Session designed for 365-day persistence');
-    console.log('👤 User ID: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'Not logged in'; ?>');
-    console.log('📱 Platform: <?php echo $isAndroidApp ? 'Android App' : 'Web Browser'; ?>');
-    
-    // Make functions globally available for TWA
-    if (typeof window.checkExistingPendingOrders !== 'function') {
-        window.checkExistingPendingOrders = function() {
-            console.log('🔄 checkExistingPendingOrders called from toolbar');
-            // This function can be overridden by specific pages
-        };
+
+
+
+
+
+
+
+// Enhanced Android-Only OneSignal Registration with Retry Logic
+class AndroidOneSignalRegister {
+    constructor() {
+        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+        this.registrationAttempts = 0;
+        this.maxAttempts = 3;
+        console.log('🚀 Android Register - User ID:', this.userId);
+        
+        if (this.userId) {
+            this.startAndroidRegistration();
+        }
     }
     
-    // Debug function to check session status
-    window.getSessionDebugInfo = function() {
-        if (window.toolbarSessionManager) {
-            const stats = window.toolbarSessionManager.getSessionStats();
-            console.log('🔍 Session Debug Info:', stats);
-            return stats;
+    startAndroidRegistration() {
+        console.log('🔄 Starting Android registration...');
+        
+        // Check if we need to force registration (after login)
+        const needsRegistration = <?php echo isset($_SESSION['needs_device_registration']) ? 'true' : 'false'; ?>;
+        
+        if (needsRegistration) {
+            console.log('🔔 Force registration required after login');
         }
-        return null;
-    };
-    <?php else: ?>
-    console.log('👤 User not logged in - Toolbar Session manager not started');
-    <?php endif; ?>
+        
+        // ONLY attempt registration for Android WebToNative
+        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+            console.log('📱 Android WebToNative detected - registering...');
+            this.registerViaWebToNative();
+        } else {
+            console.log('🌐 Web browser detected - skipping device registration');
+        }
+    }
+    
+    registerViaWebToNative() {
+        WTN.OneSignal.getPlayerId().then(playerId => {
+            if (playerId) {
+                console.log('✅ Got Android Player ID:', playerId);
+                this.sendRegistration(playerId, 'android_webtonative', 'android');
+            } else {
+                console.log('❌ No Player ID from WebToNative');
+                this.retryRegistration();
+            }
+        }).catch(error => {
+            console.error('❌ WebToNative error:', error);
+            this.retryRegistration();
+        });
+    }
+    
+    sendRegistration(playerId, deviceType, platform) {
+        const payload = {
+            player_id: playerId,
+            device_type: deviceType,
+            platform: platform,
+            user_id: this.userId,
+            source: 'android_login_reactivation',
+            force_reactivate: true
+        };
+        
+        console.log('📨 Sending Android registration:', payload);
+        
+        fetch('register_device_unified.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Registration response:', data);
+            if (data.success) {
+                if (data.skipped) {
+                    console.log('ℹ️ Registration skipped:', data.reason);
+                } else {
+                    console.log('🎉 ANDROID DEVICE REGISTERED/REACTIVATED SUCCESSFULLY!');
+                    
+                    // Clear the needs registration flag
+                    if (typeof(Storage) !== "undefined") {
+                        localStorage.setItem('device_registered', 'true');
+                        localStorage.setItem('registration_time', Date.now());
+                    }
+                    
+                    // Show success message for reactivation
+                    if (data.was_reactivated) {
+                        this.showMessage('✅ Device reactivated - You will receive push notifications', 'success');
+                    }
+                }
+            } else {
+                console.error('❌ Registration failed:', data.message);
+                this.retryRegistration();
+            }
+        })
+        .catch(error => {
+            console.error('❌ Request failed:', error);
+            this.retryRegistration();
+        });
+    }
+    
+    retryRegistration() {
+        this.registrationAttempts++;
+        
+        if (this.registrationAttempts < this.maxAttempts) {
+            console.log(`🔄 Retrying registration (attempt ${this.registrationAttempts + 1}/${this.maxAttempts})`);
+            setTimeout(() => {
+                this.startAndroidRegistration();
+            }, 2000 * this.registrationAttempts); // Exponential backoff
+        } else {
+            console.error('❌ Max registration attempts reached');
+            this.showMessage('⚠️ Device registration failed. Notifications may not work.', 'warning');
+        }
+    }
+    
+    showMessage(message, type) {
+        // Create a visible notification
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background: ${type === 'success' ? '#d4edda' : 
+                        type === 'warning' ? '#fff3cd' : '#f8d7da'};
+            border: 1px solid ${type === 'success' ? '#c3e6cb' : 
+                              type === 'warning' ? '#ffeaa7' : '#f5c6cb'};
+            border-radius: 5px;
+            z-index: 10000;
+            color: ${type === 'success' ? '#155724' : 
+                    type === 'warning' ? '#856404' : '#721c24'};
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        `;
+        div.textContent = message;
+        document.body.appendChild(div);
+        
+        setTimeout(() => {
+            if (div.parentNode) {
+                div.parentNode.removeChild(div);
+            }
+        }, 5000);
+    }
+}
+
+// Start Android registration when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we just logged in and need device registration
+    const justLoggedIn = <?php echo isset($_SESSION['needs_device_registration']) ? 'true' : 'false'; ?>;
+    
+    if (justLoggedIn) {
+        console.log('🔔 New login detected - forcing device registration');
+        // Clear the flag
+        <?php unset($_SESSION['needs_device_registration']); ?>
+    }
+    
+    new AndroidOneSignalRegister();
 });
+
+
+
+
+
+
+
+
 
 // Handle page unload for session preservation
 window.addEventListener('beforeunload', function() {
@@ -689,7 +823,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to logout? This will deactivate all your devices for push notifications.')) {
+            if (!confirm('Are you sure you want to logout from this device? Push notifications will stop only on this device.')) {
                 e.preventDefault();
                 return;
             }
@@ -699,12 +833,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.toolbarSessionManager.destroy();
             }
             
-            // Clear session storage
+            // Clear device-specific session storage
             if (typeof(Storage) !== "undefined") {
-                localStorage.removeItem('sessionPreserved');
+                localStorage.removeItem('current_player_id');
                 localStorage.removeItem('lastKeepAlive');
                 localStorage.removeItem('sessionInitialized');
-                localStorage.removeItem('heartbeatCount');
             }
             
             // Allow the default logout behavior to proceed

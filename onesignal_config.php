@@ -1,6 +1,6 @@
 <?php
 /**
- * OneSignal v2 API Implementation - WITH YOUR CHANNEL ID
+ * OneSignal v2 API Implementation - MULTI-DEVICE SUPPORT
  */
 class OneSignalNotification {
     private $appId;
@@ -28,10 +28,10 @@ class OneSignalNotification {
     }
     
     /**
-     * Send notification with YOUR channel ID
+     * Send notification to ALL ACTIVE devices of the user
      */
     public function sendNewOrderNotification($userId, $orderId, $customerName, $totalAmount) {
-        error_log("SENDING NOTIFICATION: User $userId, Order $orderId");
+        error_log("SENDING NOTIFICATION to ALL devices: User $userId, Order $orderId");
         
         try {
             $playerIds = $this->getUserPlayerIds($userId);
@@ -41,7 +41,9 @@ class OneSignalNotification {
                 return ['success' => false, 'message' => 'No registered devices found'];
             }
             
-            error_log("Found " . count($playerIds) . " devices for user $userId");
+            error_log("Found " . count($playerIds) . " ACTIVE devices for user $userId: " . implode(', ', array_map(function($id) {
+                return substr($id, 0, 10) . '...';
+            }, $playerIds)));
             
             // Notification data WITH YOUR CHANNEL ID
             $notificationData = [
@@ -54,7 +56,8 @@ class OneSignalNotification {
                     'type' => 'new_order',
                     'user_id' => $userId,
                     'customer_name' => $customerName,
-                    'total_amount' => $totalAmount
+                    'total_amount' => $totalAmount,
+                    'timestamp' => time()
                 ],
                 'android_channel_id' => '98231266-7763-4604-9817-fd3871a27ca5', // YOUR CHANNEL ID
                 'small_icon' => 'ic_stat_onesignal_default',
@@ -67,11 +70,12 @@ class OneSignalNotification {
             $result = $this->sendCurlRequest($notificationData);
             
             if ($result['success']) {
-                error_log("✅ Notification sent to " . count($playerIds) . " devices");
+                error_log("✅ Notification sent to " . count($playerIds) . " ACTIVE devices for user $userId");
                 return [
                     'success' => true,
                     'message' => 'Notification sent to ' . count($playerIds) . ' device(s)',
-                    'player_ids' => $playerIds
+                    'player_ids' => $playerIds,
+                    'devices_count' => count($playerIds)
                 ];
             } else {
                 error_log("❌ Notification failed: " . $result['error']);
@@ -125,8 +129,8 @@ class OneSignalNotification {
         if (!$conn) return $playerIds;
         
         try {
-            // CRITICAL: Only get ACTIVE devices
-            $stmt = $conn->prepare("SELECT player_id FROM user_devices WHERE user_id = ? AND is_active = 1");
+            // CRITICAL: Get ALL ACTIVE devices for this user
+            $stmt = $conn->prepare("SELECT player_id, device_type, platform FROM user_devices WHERE user_id = ? AND is_active = 1");
             $stmt->bind_param("i", $userId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -150,15 +154,35 @@ class OneSignalNotification {
     }
     
     /**
-     * Test notification with your channel
+     * Get user's device statistics
      */
-    public function sendTestNotification($userId) {
-        return $this->sendNewOrderNotification(
-            $userId, 
-            "TEST-" . time(), 
-            "Test Customer", 
-            "199.00"
-        );
+    public function getUserDeviceStats($userId) {
+        $conn = $this->getDBConnection();
+        if (!$conn) return null;
+        
+        try {
+            $stmt = $conn->prepare("
+                SELECT 
+                    COUNT(*) as total_devices,
+                    SUM(is_active = 1) as active_devices,
+                    SUM(is_active = 0) as inactive_devices,
+                    GROUP_CONCAT(CONCAT(device_type, '(', platform, ')') as device_types
+                FROM user_devices 
+                WHERE user_id = ?
+            ");
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stats = $result->fetch_assoc();
+            
+            $stmt->close();
+            $conn->close();
+            
+            return $stats;
+        } catch (Exception $e) {
+            error_log("Error getting device stats: " . $e->getMessage());
+            return null;
+        }
     }
 }
 ?>

@@ -1,20 +1,20 @@
 <?php
-// register_device_unified.php - ANDROID ONLY REGISTRATION WITH SESSION VALIDATION
+// register_device_unified.php - ENHANCED FOR DEVICE REACTIVATION
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Start session for user validation
-session_start();
-
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
+// Start session to validate user
+session_start();
+
 // Get input
 $input = json_decode(file_get_contents('php://input'), true);
-error_log("REGISTRATION ATTEMPT: " . print_r($input, true));
+error_log("🔔 REGISTRATION ATTEMPT: User " . ($input['user_id'] ?? 'unknown') . ", Player: " . ($input['player_id'] ?? 'unknown'));
 
 if (!$input) {
     echo json_encode(['success' => false, 'message' => 'No data received']);
@@ -26,22 +26,15 @@ if (empty($input['player_id']) || empty($input['user_id'])) {
     exit();
 }
 
-// CRITICAL: Validate that user is actually logged in and matches session
-$sessionUserId = $_SESSION['user_id'] ?? null;
-$requestUserId = intval($input['user_id']);
-
-if (!$sessionUserId || $sessionUserId != $requestUserId) {
-    error_log("REJECTED: User ID mismatch - Session: $sessionUserId, Request: $requestUserId");
+// Validate that the requesting user matches the logged-in user
+if ($input['user_id'] != ($_SESSION['user_id'] ?? null)) {
+    error_log("❌ REJECTED: User ID mismatch. Session: " . ($_SESSION['user_id'] ?? 'none') . ", Request: " . $input['user_id']);
     echo json_encode([
         'success' => false, 
-        'message' => 'User not authenticated properly - please login again',
-        'session_user_id' => $sessionUserId,
-        'request_user_id' => $requestUserId
+        'message' => 'User authentication failed'
     ]);
     exit();
 }
-
-error_log("✅ User authentication validated - Session User ID: $sessionUserId");
 
 // CRITICAL: ONLY ALLOW ANDROID DEVICES
 $platform = $input['platform'] ?? 'unknown';
@@ -49,7 +42,7 @@ $deviceType = $input['device_type'] ?? 'unknown';
 
 // Reject web browser registrations
 if ($platform === 'web' || $deviceType === 'web_browser') {
-    error_log("REJECTED: Web browser registration attempt for user " . $input['user_id']);
+    error_log("❌ REJECTED: Web browser registration attempt for user " . $input['user_id']);
     echo json_encode([
         'success' => true, 
         'message' => 'Web browser registration skipped - Android only',
@@ -62,7 +55,7 @@ if ($platform === 'web' || $deviceType === 'web_browser') {
 // Only allow Android devices
 $allowedPlatforms = ['android', 'android_webtonative'];
 if (!in_array($platform, $allowedPlatforms) && !in_array($deviceType, $allowedPlatforms)) {
-    error_log("REJECTED: Non-Android device registration - Platform: $platform, Device: $deviceType");
+    error_log("❌ REJECTED: Non-Android device registration - Platform: $platform, Device: $deviceType");
     echo json_encode([
         'success' => true,
         'message' => 'Non-Android device registration skipped',
@@ -91,30 +84,28 @@ try {
     $platform = $conn->real_escape_string($platform);
     $source = $conn->real_escape_string($input['source'] ?? 'unknown');
 
-    // First, deactivate any existing devices for this user to prevent duplicates
-    $deactivateSql = "UPDATE user_devices SET is_active = 0 WHERE user_id = $userId AND player_id != '$playerId'";
-    if (!$conn->query($deactivateSql)) {
-        error_log("Warning: Could not deactivate old devices for user $userId");
-    }
-
-    // Check if device exists
-    $checkSql = "SELECT id, is_active FROM user_devices WHERE player_id = '$playerId' AND user_id = $userId";
-    $checkResult = $conn->query($checkSql);
+    // Check if this specific device already exists for this user
+    $check = $conn->query("SELECT id, is_active, updated_at FROM user_devices WHERE player_id = '$playerId' AND user_id = $userId");
     
-    if ($checkResult && $checkResult->num_rows > 0) {
-        $deviceData = $checkResult->fetch_assoc();
+    if ($check->num_rows > 0) {
+        // Device exists - check if it's inactive and needs reactivation
+        $existingDevice = $check->fetch_assoc();
+        $isCurrentlyActive = $existingDevice['is_active'] == 1;
+        $lastUpdated = $existingDevice['updated_at'];
         
-        // Update existing Android device - always set as active
+        // ALWAYS REACTIVATE on login - regardless of current status
         $sql = "UPDATE user_devices SET 
                 device_type = '$deviceType', 
                 platform = '$platform', 
                 source = '$source',
-                is_active = 1,
+                is_active = 1, // FORCE REACTIVATION
                 updated_at = NOW() 
                 WHERE player_id = '$playerId' AND user_id = $userId";
         
-        $action = 'updated';
-        $wasReactivated = $deviceData['is_active'] == 0 ? true : false;
+        $action = $isCurrentlyActive ? 'updated' : 'reactivated';
+        $wasReactivated = !$isCurrentlyActive;
+        
+        error_log("🔄 Device $action for user $userId - Player: $playerId (was active: $isCurrentlyActive)");
         
     } else {
         // Insert new Android device
@@ -125,44 +116,38 @@ try {
         
         $action = 'registered';
         $wasReactivated = false;
+        error_log("✅ New device registered for user $userId - Player: $playerId");
     }
     
     if ($conn->query($sql)) {
-        $message = $wasReactivated ? 
-            "Android device reactivated" : 
-            ($action === 'updated' ? 'Android device updated' : 'Android device registered');
-            
-        error_log("SUCCESS: $message for user $userId - Player ID: $playerId");
+        // Store player ID in session for device-specific logout
+        $_SESSION['current_player_id'] = $playerId;
+        $_SESSION['current_device_type'] = $deviceType;
+        $_SESSION['device_registered_at'] = time();
+        
+        // Get count of active devices for this user
+        $countResult = $conn->query("SELECT COUNT(*) as active_count FROM user_devices WHERE user_id = $userId AND is_active = 1");
+        $activeCount = $countResult->fetch_assoc()['active_count'];
+        
+        error_log("🎯 SUCCESS: Android device $action for user $userId. Active devices: $activeCount");
         
         echo json_encode([
             'success' => true, 
-            'message' => $message,
+            'message' => $wasReactivated ? 'Android device reactivated successfully' : 'Android device registered successfully',
             'action' => $action,
             'user_id' => $userId,
             'player_id' => $playerId,
             'device_type' => $deviceType,
-            'platform' => $platform,
-            'reactivated' => $wasReactivated,
-            'session_validated' => true
+            'active_devices_count' => $activeCount,
+            'was_reactivated' => $wasReactivated,
+            'timestamp' => time()
         ]);
     } else {
         throw new Exception("SQL failed: " . $conn->error);
     }
     
-    if ($checkResult) {
-        $checkResult->free();
-    }
-    
 } catch (Exception $e) {
-    error_log("REGISTRATION ERROR: " . $e->getMessage());
-    echo json_encode([
-        'success' => false, 
-        'message' => 'Error: ' . $e->getMessage(),
-        'session_user_id' => $sessionUserId
-    ]);
-} finally {
-    if (isset($conn)) {
-        $conn->close();
-    }
+    error_log("❌ REGISTRATION ERROR: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>

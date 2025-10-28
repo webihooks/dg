@@ -278,10 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email'] = $user['Email'];
             $_SESSION['login_time'] = time();
             $_SESSION['last_activity'] = time();
-            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-            $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-            $_SESSION['auto_logged_in'] = false;
-            $_SESSION['session_expires'] = time() + 31536000; // 1 year from now
+            $_SESSION['needs_device_registration'] = true; // Flag for device registration
             
             // Android app specific session data
             if ($isAndroidApp) {
