@@ -471,9 +471,6 @@
                     <i class="fas fa-chevron-right"></i>
                 </div>
 <?php
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-
 $clientLogos = [];
 
 try {
@@ -482,7 +479,7 @@ try {
     if (isset($pdo) && $pdo instanceof PDO) {
         // Use LEFT JOIN so users appear even if some details are missing
         $stmt = $pdo->prepare("
-            SELECT 
+            SELECT DISTINCT
                 u.id AS user_id,
                 p.profile_photo,
                 b.business_name,
@@ -496,7 +493,7 @@ try {
               AND p.profile_photo IS NOT NULL 
               AND p.profile_photo != ''
             ORDER BY p.created_at DESC
-            LIMIT 500
+            LIMIT 100
         ");
         $stmt->execute();
         $clientLogos = $stmt->fetchAll(PDO::FETCH_ASSOC);

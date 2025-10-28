@@ -22,52 +22,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = htmlspecialchars($_POST['address']);
     $role = 'user';
     
-    // Calculate trial dates
-    $trialStart = date('Y-m-d H:i:s');
-    $trialEnd = date('Y-m-d H:i:s', strtotime('+7 days'));
-    $isTrial = 1; // 1 for true, user is in trial
+    // Mobile number validation
+    $phone = trim($phone);
+    if (!preg_match('/^[1-9][0-9]{9}$/', $phone)) {
+        echo "<script>alert('Error: Phone number must be exactly 10 digits and cannot start with 0.');</script>";
+    } else {
+        // Calculate trial dates
+        $trialStart = date('Y-m-d H:i:s');
+        $trialEnd = date('Y-m-d H:i:s', strtotime('+7 days'));
+        $isTrial = 1; // 1 for true, user is in trial
 
-    // Begin transaction for atomic operations
-    $conn->beginTransaction();
-    
-    try {
-        // Insert user data into the users table
-        $stmt = $conn->prepare("INSERT INTO users (Name, Email, Password, Phone, Address, Role, is_trial, trial_start, trial_end) 
-                               VALUES (:name, :email, :password, :phone, :address, :role, :is_trial, :trial_start, :trial_end)");
+        // Begin transaction for atomic operations
+        $conn->beginTransaction();
         
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $password);
-        $stmt->bindParam(':phone', $phone);
-        $stmt->bindParam(':address', $address);
-        $stmt->bindParam(':role', $role);
-        $stmt->bindParam(':is_trial', $isTrial);
-        $stmt->bindParam(':trial_start', $trialStart);
-        $stmt->bindParam(':trial_end', $trialEnd);
-        
-        $stmt->execute();
-        
-        // Get the last inserted user ID
-        $userId = $conn->lastInsertId();
-        
-        // Insert trial record into trial_subscriptions table
-        $stmtTrial = $conn->prepare("INSERT INTO trial_subscriptions 
-                                    (user_id, start_date, end_date, is_active) 
-                                    VALUES (:user_id, :start_date, :end_date, 1)");
-        
-        $stmtTrial->bindParam(':user_id', $userId);
-        $stmtTrial->bindParam(':start_date', $trialStart);
-        $stmtTrial->bindParam(':end_date', $trialEnd);
-        $stmtTrial->execute();
-        
-        // Commit the transaction
-        $conn->commit();
-        
-        echo "<script>alert('Registration successful! You have a 7-day free trial.'); window.location.href='login.php';</script>";
-    } catch (PDOException $e) {
-        // Roll back the transaction if something failed
-        $conn->rollBack();
-        echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+        try {
+            // Insert user data into the users table
+            $stmt = $conn->prepare("INSERT INTO users (Name, Email, Password, Phone, Address, Role, is_trial, trial_start, trial_end) 
+                                   VALUES (:name, :email, :password, :phone, :address, :role, :is_trial, :trial_start, :trial_end)");
+            
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':password', $password);
+            $stmt->bindParam(':phone', $phone);
+            $stmt->bindParam(':address', $address);
+            $stmt->bindParam(':role', $role);
+            $stmt->bindParam(':is_trial', $isTrial);
+            $stmt->bindParam(':trial_start', $trialStart);
+            $stmt->bindParam(':trial_end', $trialEnd);
+            
+            $stmt->execute();
+            
+            // Get the last inserted user ID
+            $userId = $conn->lastInsertId();
+            
+            // Insert trial record into trial_subscriptions table
+            $stmtTrial = $conn->prepare("INSERT INTO trial_subscriptions 
+                                        (user_id, start_date, end_date, is_active) 
+                                        VALUES (:user_id, :start_date, :end_date, 1)");
+            
+            $stmtTrial->bindParam(':user_id', $userId);
+            $stmtTrial->bindParam(':start_date', $trialStart);
+            $stmtTrial->bindParam(':end_date', $trialEnd);
+            $stmtTrial->execute();
+            
+            // Commit the transaction
+            $conn->commit();
+            
+            echo "<script>alert('Registration successful! You have a 7-day free trial.'); window.location.href='login.php';</script>";
+        } catch (PDOException $e) {
+            // Roll back the transaction if something failed
+            $conn->rollBack();
+            echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+        }
     }
 }
 ?>
@@ -117,6 +123,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   });
 </script>
 
+<script>
+// Client-side validation for phone number
+function validatePhoneNumber() {
+    const phoneInput = document.getElementById('example-phone');
+    const phone = phoneInput.value.trim();
+    const phoneError = document.getElementById('phone-error');
+    
+    // Remove any non-digit characters
+    const cleanedPhone = phone.replace(/\D/g, '');
+    
+    // Check if phone number is exactly 10 digits and doesn't start with 0
+    if (!/^[1-9][0-9]{9}$/.test(cleanedPhone)) {
+        phoneError.textContent = 'Phone number must be exactly 10 digits and cannot start with 0.';
+        phoneInput.classList.add('is-invalid');
+        return false;
+    } else {
+        phoneError.textContent = '';
+        phoneInput.classList.remove('is-invalid');
+        phoneInput.classList.add('is-valid');
+        // Update the input with cleaned phone number
+        phoneInput.value = cleanedPhone;
+        return true;
+    }
+}
+
+// Form validation before submission
+function validateForm() {
+    const isPhoneValid = validatePhoneNumber();
+    
+    if (!isPhoneValid) {
+        alert('Please fix the phone number field. It must be exactly 10 digits and cannot start with 0.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Add event listeners when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('example-phone');
+    const form = document.querySelector('form');
+    
+    // Real-time validation as user types
+    phoneInput.addEventListener('input', validatePhoneNumber);
+    
+    // Validate on form submission
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 
 </head>
 
@@ -146,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </div>
 
                                         <div>
-                                             <form action="" method="POST" class="authentication-form">
+                                             <form action="" method="POST" class="authentication-form" onsubmit="return validateForm()">
                                                   <div class="mb-1">
                                                        <label class="form-label" for="example-name">Name</label>
                                                        <input type="text" id="example-name" name="name" class="form-control" placeholder="Enter your name" required>
@@ -161,7 +220,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                   </div>
                                                   <div class="mb-1">
                                                        <label class="form-label" for="example-phone">Phone Number</label>
-                                                       <input type="tel" id="example-phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+                                                       <input type="tel" id="example-phone" name="phone" class="form-control" placeholder="Enter 10-digit phone number (cannot start with 0)" 
+                                                              pattern="[1-9][0-9]{9}" 
+                                                              title="Phone number must be exactly 10 digits"
+                                                              maxlength="10"
+                                                              required>
+                                                       <div id="phone-error" class="invalid-feedback"></div>
                                                   </div>
                                                   <div class="mb-1">
                                                        <label class="form-label" for="example-address">Address</label>
@@ -201,5 +265,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="assets/js/app.js"></script>
 
 </body>
-
 </html>

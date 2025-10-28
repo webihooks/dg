@@ -1391,6 +1391,9 @@ th:last-child,
 th:nth-last-child(2) {
   width: 190px;
 }
+.scroll-to-top {
+    bottom: 15px;
+}
 </style>
 
 </head>

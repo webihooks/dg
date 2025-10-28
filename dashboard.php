@@ -130,6 +130,14 @@ $conn->close();
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        @media (max-width: 600px) {
+            .dashboard .col-md-3 {
+                width: 50%;
+            }
+            .dashboard .col-md-3 .card-body {
+                height: 160px !important;
+            }
+        }
     </style>
 </head>
 
@@ -164,7 +172,7 @@ $conn->close();
                             
                             <div class="card-body">
                                 <!-- Summary Cards -->
-                                <div class="row mb-4">
+                                <div class="row mb-4 dashboard">
                                     <div class="col-md-3">
                                         <div class="card card-summary bg-primary text-white">
                                             <div class="card-body">

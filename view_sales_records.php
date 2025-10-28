@@ -327,41 +327,24 @@ $fetch_sales_sql = "SELECT
             display: none;
             position: relative;
             margin-bottom: 20px;
+            overflow: hidden;
+            touch-action: pan-y;
+         }
+         
+         .mobile-slides-wrapper {
+            display: flex;
+            transition: transform 0.3s ease;
+            width: 100%;
          }
          
          .mobile-slide {
-            display: none;
+            flex: 0 0 100%;
             background: white;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-         }
-         
-         .mobile-slide.active {
-            display: block;
-         }
-         
-         .slider-navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-         }
-         
-         .slider-btn {
-            background: #ff6c2f;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-         }
-         
-         .slider-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
          }
          
          .slider-counter {
@@ -371,24 +354,9 @@ $fetch_sales_sql = "SELECT
             color: #666;
          }
 
-         .card-body {
-            position: relative;
-         }
-
+         /* Hide navigation buttons */
          .slider-navigation {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-         }
-
-         #prevBtn {
-            left: -25px;
-            position: absolute;
-         }
-
-         #nextBtn {
-            right: -25px;
-            position: absolute;
+            display: none;
          }
 
          @media (max-width: 767px) {
@@ -612,148 +580,138 @@ $fetch_sales_sql = "SELECT
                                        <!-- Mobile Slider Container -->
                                        <div class="mobile-slider-container" id="mobileSlider">
                                           <?php if (!empty($sales_track_list)): ?>
-                                          <?php foreach ($sales_track_list as $index => $entry): ?>
-                                          <div class="mobile-slide" data-index="<?= $index ?>">
-                                             <div class="slide-content">
-                                                <div class="row">
-                                                   <div class="col-12">
-                                                      <h4><?= htmlspecialchars($entry['restaurant_name']) ?></h4>
-                                                      <div class="mb-2">
-                                                         <strong>Date:</strong> <?= htmlspecialchars($entry['record_date']) ?><br>
-                                                         <strong>Time:</strong> <?= date('h:i A', strtotime($entry['time_stamp'])) ?><br>
-                                                         <strong>Status:</strong> 
-                                                         <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
-                                                         <?= ucfirst($entry['status']) ?>
-                                                         </span>
-                                                      </div>
-                                                      
-                                                      <div class="mb-2">
-                                                         <strong>Contact:</strong> <?= htmlspecialchars($entry['contacted_person']) ?><br>
-                                                         <strong>Phone:</strong> 
+                                          <div class="mobile-slides-wrapper" id="mobileSlidesWrapper">
+                                             <?php foreach ($sales_track_list as $index => $entry): ?>
+                                             <div class="mobile-slide" data-index="<?= $index ?>">
+                                                <div class="slide-content">
+                                                   <div class="row">
+                                                      <div class="col-12">
+                                                         <h4><?= htmlspecialchars($entry['restaurant_name']) ?></h4>
+                                                         <div class="mb-2">
+                                                            <strong>Date:</strong> <?= htmlspecialchars($entry['record_date']) ?><br>
+                                                            <strong>Time:</strong> <?= date('h:i A', strtotime($entry['time_stamp'])) ?><br>
+                                                            <strong>Status:</strong> 
+                                                            <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
+                                                            <?= ucfirst($entry['status']) ?>
+                                                            </span>
+                                                         </div>
+                                                         
+                                                         <div class="mb-2">
+                                                            <strong>Contact:</strong> <?= htmlspecialchars($entry['contacted_person']) ?><br>
+                                                            <strong>Phone:</strong> 
 <a href="tel:<?= htmlspecialchars($entry['phone']) ?>"><?= htmlspecialchars($entry['phone']) ?></a>
-                                                         <button class="whatsapp-btn" 
-                                                                 onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                         </button>
-                                                         <button class="whatsapp-btn hindi-btn" 
-                                                                 onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                         </button>
-                                                      </div>
-                                                      
-                                                      <?php if (!empty($entry['decision_maker_name'])): ?>
-                                                      <div class="mb-2">
-                                                         <strong>Decision Maker:</strong> <?= htmlspecialchars($entry['decision_maker_name']) ?><br>
+                                                            <button class="whatsapp-btn" 
+                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                            </button>
+                                                            <button class="whatsapp-btn hindi-btn" 
+                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                            </button>
+                                                         </div>
+                                                         
+                                                         <?php if (!empty($entry['decision_maker_name'])): ?>
+                                                         <div class="mb-2">
+                                                            <strong>Decision Maker:</strong> <?= htmlspecialchars($entry['decision_maker_name']) ?><br>
 <strong>DM Phone:</strong> 
 <a href="tel:<?= htmlspecialchars($entry['decision_maker_phone']) ?>"><?= htmlspecialchars($entry['decision_maker_phone']) ?></a>
-                                                         <?php if (!empty($entry['decision_maker_phone'])): ?>
-                                                         <button class="whatsapp-btn" 
-                                                                 onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                         </button>
-                                                         <button class="whatsapp-btn hindi-btn" 
-                                                                 onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                         </button>
+                                                            <?php if (!empty($entry['decision_maker_phone'])): ?>
+                                                            <button class="whatsapp-btn" 
+                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                            </button>
+                                                            <button class="whatsapp-btn hindi-btn" 
+                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                            </button>
+                                                            <?php endif; ?>
+                                                         </div>
                                                          <?php endif; ?>
-                                                      </div>
-                                                      <?php endif; ?>
-                                                      
-                                                      <div class="mb-2">
-                                                         <strong>Owner Available:</strong> <?= $entry['owner_available'] ? 'Yes' : 'No' ?><br>
-                                                         <strong>Follow Up:</strong> <?= htmlspecialchars($entry['follow_up_date']) ?><br>
-                                                         <strong>Price:</strong> <?= number_format($entry['package_price']) ?>
-                                                      </div>
-                                                      
-                                                      <div class="mb-2">
-                                                         <strong>Location:</strong><br>
-                                                         <?php
-                                                            $fullAddress = [];
-                                                            if (!empty($entry['location'])) {
-                                                                $fullAddress[] = htmlspecialchars($entry['location']);
-                                                            }
-                                                            if (!empty($entry['street'])) {
-                                                                $fullAddress[] = htmlspecialchars($entry['street']);
-                                                            }
-                                                            if (!empty($entry['city'])) {
-                                                                $fullAddress[] = htmlspecialchars($entry['city']);
-                                                            }
-                                                            if (!empty($entry['state'])) {
-                                                                $fullAddress[] = htmlspecialchars($entry['state']);
-                                                            }
-                                                            echo implode(', ', $fullAddress);
-                                                            ?>
-                                                      </div>
-                                                      
-                                                      <?php if (!empty($entry['remark'])): ?>
-                                                      <div class="mb-2">
-                                                         <strong>Remarks:</strong>
-                                                         <div class="remark-container" style="max-height: 100px; overflow-y: auto;">
-                                                            <?php 
-                                                               $remarks = explode("\n\n", $entry['remark']);
-                                                               $reversed_remarks = array_reverse($remarks);
-                                                               foreach ($reversed_remarks as $remark): 
-                                                                   if (!empty(trim($remark))):
-                                                                       $parts = explode(" - ", $remark, 2);
-                                                            ?>
-                                                            <div class="remark-entry">
-                                                               <?php if (count($parts) > 1): ?>
-                                                               <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
-                                                               <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
-                                                               <?php else: ?>
-                                                               <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
-                                                               <?php endif; ?>
-                                                            </div>
-                                                            <?php 
-                                                                   endif;
-                                                               endforeach; 
+                                                         
+                                                         <div class="mb-2">
+                                                            <strong>Owner Available:</strong> <?= $entry['owner_available'] ? 'Yes' : 'No' ?><br>
+                                                            <strong>Follow Up:</strong> <?= htmlspecialchars($entry['follow_up_date']) ?><br>
+                                                            <strong>Price:</strong> <?= number_format($entry['package_price']) ?>
+                                                         </div>
+                                                         
+                                                         <div class="mb-2">
+                                                            <strong>Location:</strong><br>
+                                                            <?php
+                                                               $fullAddress = [];
+                                                               if (!empty($entry['location'])) {
+                                                                   $fullAddress[] = htmlspecialchars($entry['location']);
+                                                               }
+                                                               if (!empty($entry['street'])) {
+                                                                   $fullAddress[] = htmlspecialchars($entry['street']);
+                                                               }
+                                                               if (!empty($entry['city'])) {
+                                                                   $fullAddress[] = htmlspecialchars($entry['city']);
+                                                               }
+                                                               if (!empty($entry['state'])) {
+                                                                   $fullAddress[] = htmlspecialchars($entry['state']);
+                                                               }
+                                                               echo implode(', ', $fullAddress);
                                                                ?>
                                                          </div>
+                                                         
+                                                         <?php if (!empty($entry['remark'])): ?>
+                                                         <div class="mb-2">
+                                                            <strong>Remarks:</strong>
+                                                            <div class="remark-container" style="max-height: 100px; overflow-y: auto;">
+                                                               <?php 
+                                                                  $remarks = explode("\n\n", $entry['remark']);
+                                                                  $reversed_remarks = array_reverse($remarks);
+                                                                  foreach ($reversed_remarks as $remark): 
+                                                                      if (!empty(trim($remark))):
+                                                                          $parts = explode(" - ", $remark, 2);
+                                                               ?>
+                                                               <div class="remark-entry">
+                                                                  <?php if (count($parts) > 1): ?>
+                                                                  <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
+                                                                  <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
+                                                                  <?php else: ?>
+                                                                  <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
+                                                                  <?php endif; ?>
+                                                               </div>
+                                                               <?php 
+                                                                      endif;
+                                                                  endforeach; 
+                                                                  ?>
+                                                            </div>
+                                                         </div>
+                                                         <?php endif; ?>
+                                                         
+                                                         <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
+                                                         <div class="text-center mt-3">
+                                                            <button class="btn btn-sm btn-outline-primary update-record-btn" 
+                                                                    data-record-id="<?= $entry['id'] ?>"
+                                                                    data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
+                                                                    data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
+                                                                    data-phone="<?= htmlspecialchars($entry['phone']) ?>"
+                                                                    data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
+                                                                    data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
+                                                                    data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
+                                                                    data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
+                                                                    data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
+                                                                    data-status="<?= htmlspecialchars($entry['status']) ?>">
+                                                            <i class="fas fa-edit"></i> Update Record
+                                                            </button>
+                                                         </div>
+                                                         <?php endif; ?>
                                                       </div>
-                                                      <?php endif; ?>
-                                                      
-                                                      <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
-                                                      <div class="text-center mt-3">
-                                                         <button class="btn btn-sm btn-outline-primary update-record-btn" 
-                                                                 data-record-id="<?= $entry['id'] ?>"
-                                                                 data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
-                                                                 data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
-                                                                 data-phone="<?= htmlspecialchars($entry['phone']) ?>"
-                                                                 data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
-                                                                 data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
-                                                                 data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
-                                                                 data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
-                                                                 data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
-                                                                 data-status="<?= htmlspecialchars($entry['status']) ?>">
-                                                         <i class="fas fa-edit"></i> Update Record
-                                                         </button>
-                                                      </div>
-                                                      <?php endif; ?>
                                                    </div>
                                                 </div>
                                              </div>
+                                             <?php endforeach; ?>
                                           </div>
-                                          <?php endforeach; ?>
                                           <?php else: ?>
                                           <div class="mobile-slide active">
                                              <div class="text-center">No records found</div>
                                           </div>
                                           <?php endif; ?>
                                           
-                                          <!-- Navigation Buttons -->
+                                          <!-- Counter remains but navigation buttons are removed -->
                                           <?php if (!empty($sales_track_list)): ?>
-                                          <div class="slider-navigation">
-                                             <button class="slider-btn" id="prevBtn" disabled>
-                                                <span class="nav-icon">
-                                                    <iconify-icon icon="ep:arrow-left-bold"></iconify-icon>
-                                                </span>
-                                             </button>
-                                             <button class="slider-btn" id="nextBtn">
-                                                 <span class="nav-icon">
-                                                    <iconify-icon icon="ep:arrow-right-bold"></iconify-icon>
-                                                </span>
-                                             </button>
-                                          </div>
                                           <div class="slider-counter" id="sliderCounter">1 of <?= count($sales_track_list) ?></div>
                                           <?php endif; ?>
                                        </div>
@@ -1013,180 +971,235 @@ $fetch_sales_sql = "SELECT
 
       <script>
          $(document).ready(function() {
+            // Mobile Slider Functionality with Touch/Swipe
+            let currentSlide = 0;
+            const slides = $('.mobile-slide');
+            const totalSlides = slides.length;
+            const slidesWrapper = $('#mobileSlidesWrapper');
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            
+            function showSlide(index) {
+                if (index >= 0 && index < totalSlides) {
+                    currentSlide = index;
+                    
+                    // Update slider position
+                    const translateX = -index * 100;
+                    slidesWrapper.css('transform', `translateX(${translateX}%)`);
+                    
+                    // Update counter
+                    $('#sliderCounter').text((index + 1) + ' of ' + totalSlides);
+                }
+            }
+            
+            // Initialize first slide
+            if (totalSlides > 0) {
+                showSlide(0);
+            }
+            
+            // Touch event handlers for mobile swipe
+            function handleTouchStart(e) {
+                if (window.innerWidth > 767) return; // Only on mobile
+                
+                const touch = e.originalEvent.touches[0];
+                startX = touch.clientX;
+                currentX = startX;
+                isDragging = true;
+                
+                // Add transition for smooth dragging
+                slidesWrapper.css('transition', 'none');
+            }
+            
+            function handleTouchMove(e) {
+                if (!isDragging || window.innerWidth > 767) return;
+                
+                const touch = e.originalEvent.touches[0];
+                currentX = touch.clientX;
+                
+                // Calculate drag distance
+                const diffX = currentX - startX;
+                
+                // Calculate new position with resistance
+                const resistance = 0.5;
+                const translateX = (-currentSlide * 100) + (diffX / window.innerWidth * 100 * resistance);
+                
+                slidesWrapper.css('transform', `translateX(${translateX}%)`);
+            }
+            
+            function handleTouchEnd(e) {
+                if (!isDragging || window.innerWidth > 767) return;
+                
+                isDragging = false;
+                
+                // Calculate swipe distance and direction
+                const diffX = currentX - startX;
+                const threshold = 50; // Minimum swipe distance in pixels
+                
+                // Add transition back for smooth sliding
+                slidesWrapper.css('transition', 'transform 0.3s ease');
+                
+                // Determine if swipe was significant enough to change slide
+                if (Math.abs(diffX) > threshold) {
+                    if (diffX > 0 && currentSlide > 0) {
+                        // Swipe right - go to previous slide
+                        showSlide(currentSlide - 1);
+                    } else if (diffX < 0 && currentSlide < totalSlides - 1) {
+                        // Swipe left - go to next slide
+                        showSlide(currentSlide + 1);
+                    } else {
+                        // Not enough swipe or at boundary, return to current slide
+                        showSlide(currentSlide);
+                    }
+                } else {
+                    // Not enough swipe, return to current slide
+                    showSlide(currentSlide);
+                }
+            }
+            
+            // Add touch event listeners
+            if (slidesWrapper.length > 0) {
+                slidesWrapper.on('touchstart', handleTouchStart);
+                slidesWrapper.on('touchmove', handleTouchMove);
+                slidesWrapper.on('touchend', handleTouchEnd);
+            }
 
-            // Mobile Slider Functionality
-             let currentSlide = 0;
-             const slides = $('.mobile-slide');
-             const totalSlides = slides.length;
-             
-             function showSlide(index) {
-                 if (index >= 0 && index < totalSlides) {
-                     slides.removeClass('active');
-                     $(slides[index]).addClass('active');
-                     currentSlide = index;
-                     
-                     // Update navigation buttons
-                     $('#prevBtn').prop('disabled', index === 0);
-                     $('#nextBtn').prop('disabled', index === totalSlides - 1);
-                     
-                     // Update counter
-                     $('#sliderCounter').text((index + 1) + ' of ' + totalSlides);
-                 }
-             }
-             
-             // Initialize first slide
-             if (totalSlides > 0) {
-                 showSlide(0);
-             }
-             
-             // Navigation button handlers
-             $('#nextBtn').click(function() {
-                 showSlide(currentSlide + 1);
-             });
-             
-             $('#prevBtn').click(function() {
-                 showSlide(currentSlide - 1);
-             });
-
-
-
-
-             // Handle modal close functionality
-             $(document).on('click', '#updateRecordModal .btn-secondary', function(e) {
-                 e.preventDefault();
-                 $('#updateRecordModal').modal('hide');
-             });
+            // Handle modal close functionality
+            $(document).on('click', '#updateRecordModal .btn-secondary', function(e) {
+                e.preventDefault();
+                $('#updateRecordModal').modal('hide');
+            });
          
-             // Initialize date picker for follow up filter
-             $('#followUpDatePicker').datepicker({
-                 format: 'yyyy-mm-dd',
-                 autoclose: true,
-                 todayHighlight: true,
-                 clearBtn: true
-             });
+            // Initialize date picker for follow up filter
+            $('#followUpDatePicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                clearBtn: true
+            });
          
-             // Clear follow up date filter
-             $(document).on('click', '.clear-follow-up', function(e) {
-                 e.preventDefault();
-                 $('#followUpDatePicker').datepicker('clearDates');
-                 $('#filterForm').submit();
-             });
+            // Clear follow up date filter
+            $(document).on('click', '.clear-follow-up', function(e) {
+                e.preventDefault();
+                $('#followUpDatePicker').datepicker('clearDates');
+                $('#filterForm').submit();
+            });
          
-             // Update record button click handler
-             $(document).on('click', '.update-record-btn', function(e) {
-                 e.preventDefault();
-                 
-                 var recordId = $(this).data('record-id');
-                 var restaurantName = $(this).data('restaurant-name');
-                 var contactedPerson = $(this).data('contacted-person');
-                 var phone = $(this).data('phone');
-                 var ownerAvailable = $(this).data('owner-available') === '1';
-                 var decisionMakerName = $(this).data('decision-maker-name');
-                 var decisionMakerPhone = $(this).data('decision-maker-phone');
-                 var followUpDate = $(this).data('follow-up-date');
-                 var packagePrice = $(this).data('package-price');
-                 var status = $(this).data('status');
-                 
-                 $('#modalRecordId').val(recordId);
-                 $('#modalRestaurantName').val(restaurantName);
-                 $('#modalContactedPerson').val(contactedPerson);
-                 $('#modalPhone').val(phone);
-                 $('#modalOwnerAvailable').prop('checked', ownerAvailable);
-                 $('#modalDecisionMakerName').val(decisionMakerName);
-                 $('#modalDecisionMakerPhone').val(decisionMakerPhone);
-                 $('#modalFollowUpDate').val(followUpDate);
-                 $('#modalPackagePrice').val(packagePrice);
-                 $('#modalStatus').val(status);
-                 $('#modalNewRemark').val('');
+            // Update record button click handler
+            $(document).on('click', '.update-record-btn', function(e) {
+                e.preventDefault();
+                
+                var recordId = $(this).data('record-id');
+                var restaurantName = $(this).data('restaurant-name');
+                var contactedPerson = $(this).data('contacted-person');
+                var phone = $(this).data('phone');
+                var ownerAvailable = $(this).data('owner-available') === '1';
+                var decisionMakerName = $(this).data('decision-maker-name');
+                var decisionMakerPhone = $(this).data('decision-maker-phone');
+                var followUpDate = $(this).data('follow-up-date');
+                var packagePrice = $(this).data('package-price');
+                var status = $(this).data('status');
+                
+                $('#modalRecordId').val(recordId);
+                $('#modalRestaurantName').val(restaurantName);
+                $('#modalContactedPerson').val(contactedPerson);
+                $('#modalPhone').val(phone);
+                $('#modalOwnerAvailable').prop('checked', ownerAvailable);
+                $('#modalDecisionMakerName').val(decisionMakerName);
+                $('#modalDecisionMakerPhone').val(decisionMakerPhone);
+                $('#modalFollowUpDate').val(followUpDate);
+                $('#modalPackagePrice').val(packagePrice);
+                $('#modalStatus').val(status);
+                $('#modalNewRemark').val('');
+        
+                $('#updateRecordModal').modal('show');
+            });
          
-                 $('#updateRecordModal').modal('show');
-             });
+            // Form validation for update record form
+            $("#updateRecordForm").validate({
+                rules: {
+                    contacted_person: {
+                        required: true,
+                        minlength: 2
+                    },
+                    phone: {
+                        required: true,
+                        minlength: 5
+                    },
+                    follow_up_date: {
+                        required: true
+                    },
+                    package_price: {
+                        required: true,
+                        number: true,
+                        min: 0
+                    }
+                },
+                messages: {
+                    contacted_person: {
+                        required: "Please enter contact person name",
+                        minlength: "Name should be at least 2 characters long"
+                    },
+                    phone: {
+                        required: "Please enter phone number",
+                        minlength: "Phone number should be at least 5 characters long"
+                    },
+                    follow_up_date: {
+                        required: "Please select follow up date"
+                    },
+                    package_price: {
+                        required: "Please enter package price",
+                        number: "Please enter a valid number",
+                        min: "Price cannot be negative"
+                    }
+                },
+                errorElement: 'div',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
          
-             // Form validation for update record form
-             $("#updateRecordForm").validate({
-                 rules: {
-                     contacted_person: {
-                         required: true,
-                         minlength: 2
-                     },
-                     phone: {
-                         required: true,
-                         minlength: 5
-                     },
-                     follow_up_date: {
-                         required: true
-                     },
-                     package_price: {
-                         required: true,
-                         number: true,
-                         min: 0
-                     }
-                 },
-                 messages: {
-                     contacted_person: {
-                         required: "Please enter contact person name",
-                         minlength: "Name should be at least 2 characters long"
-                     },
-                     phone: {
-                         required: "Please enter phone number",
-                         minlength: "Phone number should be at least 5 characters long"
-                     },
-                     follow_up_date: {
-                         required: "Please select follow up date"
-                     },
-                     package_price: {
-                         required: "Please enter package price",
-                         number: "Please enter a valid number",
-                         min: "Price cannot be negative"
-                     }
-                 },
-                 errorElement: 'div',
-                 errorPlacement: function(error, element) {
-                     error.addClass('invalid-feedback');
-                     element.closest('.form-group').append(error);
-                 },
-                 highlight: function(element) {
-                     $(element).addClass('is-invalid');
-                 },
-                 unhighlight: function(element) {
-                     $(element).removeClass('is-invalid');
-                 }
-             });
-         
-             // Handle modal hidden event to clear form
-             $('#updateRecordModal').on('hidden.bs.modal', function() {
-                 $('#updateRecordForm')[0].reset();
-                 $('#updateRecordForm').validate().resetForm();
-             });
+            // Handle modal hidden event to clear form
+            $('#updateRecordModal').on('hidden.bs.modal', function() {
+                $('#updateRecordForm')[0].reset();
+                $('#updateRecordForm').validate().resetForm();
+            });
              
-             // Clear search function
-             window.clearSearch = function() {
-                 $('input[name="search"]').val('');
-                 $('#filterForm').submit();
-             };
+            // Clear search function
+            window.clearSearch = function() {
+                $('input[name="search"]').val('');
+                $('#filterForm').submit();
+            };
              
-             // Preserve filters in pagination links
-             $('.pagination a').each(function() {
-                 var href = $(this).attr('href');
-                 if (href && href.indexOf('?') === -1) {
-                     href = '?' + $('#filterForm').serialize();
-                 } else {
-                     // Get current filters
-                     var filters = $('#filterForm').serialize();
-                     // Remove page parameter if exists
-                     filters = filters.replace(/page=\d+&?/, '');
-                     // Add to existing href
-                     href += (href.indexOf('?') === -1 ? '?' : '&') + filters
-                 }
-                 $(this).attr('href', href);
-             });
+            // Preserve filters in pagination links
+            $('.pagination a').each(function() {
+                var href = $(this).attr('href');
+                if (href && href.indexOf('?') === -1) {
+                    href = '?' + $('#filterForm').serialize();
+                } else {
+                    // Get current filters
+                    var filters = $('#filterForm').serialize();
+                    // Remove page parameter if exists
+                    filters = filters.replace(/page=\d+&?/, '');
+                    // Add to existing href
+                    href += (href.indexOf('?') === -1 ? '?' : '&') + filters
+                }
+                $(this).attr('href', href);
+            });
              
-             // Auto-submit form when filter selects change
-             $('select[name="owner_filter"], select[name="sales_person_filter"]').change(function() {
-                 $('#filterForm').submit();
-             });
+            // Auto-submit form when filter selects change
+            $('select[name="owner_filter"], select[name="sales_person_filter"]').change(function() {
+                $('#filterForm').submit();
+            });
          
-             
+            
          });
          
          
@@ -1233,11 +1246,6 @@ $fetch_sales_sql = "SELECT
          function updateButtonLabel() {
            toggleBtn.textContent = isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
          }
-
-
-
-
-
 
 // Function to send WhatsApp message
 function sendWhatsAppMessage(phoneNumber, contactName) {
@@ -1380,19 +1388,14 @@ ${greeting}
     window.open(whatsappUrl, '_blank');
 }
 
-
-
-
-
-
-         // CSV Download functionality
-        $('#downloadCsv').click(function() {
-            // Get current filter parameters
-            var filters = $('#filterForm').serialize();
-            
-            // Open download in new window
-            window.open('download_csv.php?' + filters, '_blank');
-        });
+// CSV Download functionality
+$('#downloadCsv').click(function() {
+    // Get current filter parameters
+    var filters = $('#filterForm').serialize();
+    
+    // Open download in new window
+    window.open('download_csv.php?' + filters, '_blank');
+});
       </script>
       <!-- Then your other scripts -->
       <script src="assets/js/vendor.js"></script>

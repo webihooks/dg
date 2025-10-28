@@ -161,6 +161,7 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdn.webtonative.com/scripts/webtonative.min.js"></script>
     <style>
         /* Mobile-first approach */
 @media (max-width: 767.98px) {
@@ -214,6 +215,44 @@ $conn->close();
   }
 }
     </style>
+
+
+
+<script>
+// Detect if user is accessing from Android app
+function isAndroidApp() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // Common patterns for Android WebView
+    return /android/i.test(userAgent) && 
+           (/wv|webview/i.test(userAgent) || 
+            !/chrome|firefox|safari|opera/i.test(userAgent));
+}
+
+// Apply styles based on detection
+if (isAndroidApp()) {
+    document.documentElement.classList.add('android-app');
+}
+</script>
+
+<style>
+.desktop_view {
+    display: block;
+}
+.mob_view {
+    display: none;
+}
+
+/* Styles for Android app */
+.android-app .desktop_view {
+    display: none;
+}
+.android-app .mob_view {
+    display: block;
+}
+</style>
+
+
 </head>
 
 <body>
@@ -275,11 +314,24 @@ if ($role === 'admin') {
                                 </form>
                                 
                                 <?php if (!empty($current_profile_url)): ?>
-                                <div class="mt-4">
+                                <div class="mt-4 android-app desktop_view">
                                     <h5>Your current profile link:</h5>
                                     <a href="<?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url; ?>" target="_blank">
                                         <?php echo 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url; ?>
                                     </a>
+                                </div>
+
+                                <div class="mt-4 android-app mob_view">
+                                    <h5>Your current profile link:</h5>
+<?php
+$profile_link = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url;
+$external_link = $profile_link . '?loadIn=defaultBrowser';
+?>
+<a href="<?php echo $external_link; ?>" 
+onclick="handleProfileLinkClick('<?php echo $profile_link; ?>'); return false;" 
+class="profile-external-link">
+<?php echo $profile_link; ?>
+</a>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -372,6 +424,26 @@ if ($role === 'admin') {
             });
         });
     </script>
-
+<script>
+    function handleProfileLinkClick(url) {
+        // For Android with WTN support
+        if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
+            WTN.openUrlInBrowser(url);
+        } else {
+            // For iOS or fallback - use the href with loadIn parameter
+            window.location.href = url + '?loadIn=defaultBrowser';
+        }
+    }
+    
+    // Ensure all external links work properly
+    $(document).ready(function() {
+        // Handle profile links with both methods
+        $('a.profile-external-link').on('click', function(e) {
+            e.preventDefault();
+            const url = $(this).attr('href') ? $(this).attr('href').replace('?loadIn=defaultBrowser', '') : $(this).text().trim();
+            handleProfileLinkClick(url);
+        });
+    });
+</script>
 </body>
 </html>

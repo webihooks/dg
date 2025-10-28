@@ -1734,7 +1734,7 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                      <a class="sub-nav-link" href="store_timing.php">Store Timing</a>
                   </li>
                   <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="store_on_off.php">Store ON/OFF</a>
+                     <a class="sub-nav-link" href="store_on_off.php">Dining Tables</a>
                   </li>
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="delivery_charges.php">Delivery Charges</a>

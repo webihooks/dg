@@ -72,7 +72,7 @@
                </li>
 
                <li class="nav-item">
-                    <a class="nav-link" href="ai_image.php">
+                    <a class="nav-link" target="_blank" href="https://gemini.google.com/share/bccb685f59ac">
                          <span class="nav-icon">
                               <iconify-icon icon="hugeicons:ai-image"></iconify-icon>
                          </span>

@@ -186,7 +186,7 @@ $conn->close();
                     <div class="col-xl-9">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Store ON/OFF</h4>
+                                <h4 class="card-title">Dining Tables</h4>
                             </div>
                             <div class="card-body">
                                 <?php if (!empty($message)): ?>
@@ -213,7 +213,7 @@ $conn->close();
                                                 <input class="form-check-input" type="checkbox" name="services_active" id="services_active" 
                                                     <?php echo $services_active ? 'checked' : ''; ?>>
                                                 <label class="form-check-label" for="services_active">
-                                                    Store ON/OFF
+                                                    Store ON/OFF <span style="color:red; font-weight: bold;">(Emergency Store Open/Close)</span>
                                                 </label>
                                             </div>
                                         </div>
