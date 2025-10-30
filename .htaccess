@@ -15,7 +15,7 @@
     RewriteRule ^([a-zA-Z0-9_-]+)/?$ post.php?profile_url=$1 [L,QSA]
 
     # Handle direct access to PHP files
-    RewriteCond %{THE_REQUEST} /dgcard.online/post\.php\?profile_url=([^\s&]+) [NC]
+    RewriteCond %{THE_REQUEST} /deegeecard.com/post\.php\?profile_url=([^\s&]+) [NC]
     RewriteRule ^ /%1? [R=301,L]
 </IfModule>
 

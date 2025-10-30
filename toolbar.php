@@ -82,11 +82,12 @@ if ($isAndroidApp && isset($_SESSION['user_id'])) {
 <!-- Enhanced Session Management - 365 Days -->
 <!-- ========================================= -->
 <script>
-// Enhanced Universal Session Management - 365 Days
+// Enhanced Universal Session Management - 365 Days with WebToNative
 class UniversalSessionManager {
     constructor() {
         this.keepAliveInterval = 300000; // 5 minutes
         this.isAndroidApp = <?php echo $isAndroidApp ? 'true' : 'false'; ?>;
+        this.isWebToNative = typeof WTN !== 'undefined';
         this.isTWA = this.detectTWA();
         this.healthCheckInterval = 120000; // 2 minutes for health checks
         this.heartbeatInterval = this.isAndroidApp ? 300000 : 600000; // 5 min Android, 10 min Web
@@ -102,6 +103,7 @@ class UniversalSessionManager {
     init() {
         console.log('🚀 Toolbar Session Manager Initialized');
         console.log('📱 Android App:', this.isAndroidApp);
+        console.log('🔧 WebToNative:', this.isWebToNative);
         console.log('🖥️ TWA Environment:', this.isTWA);
         console.log('❤️ Heartbeat Interval:', this.heartbeatInterval / 1000 + 's');
         
@@ -111,10 +113,75 @@ class UniversalSessionManager {
         this.setupVisibilityHandler();
         this.setupActivityHandlers();
         this.initializeSession();
+        this.setupWebToNativeFeatures();
         
         if (this.isTWA || this.isAndroidApp) {
             this.setupTWAFeatures();
         }
+    }
+
+    setupWebToNativeFeatures() {
+        if (this.isWebToNative && typeof WTN !== 'undefined') {
+            console.log('🔧 Setting up WebToNative features');
+            
+            // Force cookie update immediately
+            this.forceCookieUpdate();
+            
+            // Set up periodic cookie updates for WebToNative
+            this.cookieUpdateInterval = setInterval(() => {
+                this.forceCookieUpdate();
+            }, 60000); // Every minute for WebToNative
+            
+            // Listen for WebToNative events
+            this.setupWebToNativeEventListeners();
+        }
+    }
+
+    forceCookieUpdate() {
+        if (this.isWebToNative && typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+            console.log('🔧 WebToNative: Forcing cookie update');
+            try {
+                WTN.forceUpdateCookies();
+                
+                // Log successful cookie update
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastCookieUpdate', Date.now());
+                    localStorage.setItem('webtonative_update_count', 
+                        parseInt(localStorage.getItem('webtonative_update_count') || '0') + 1);
+                }
+                
+                console.log('✅ WebToNative: Cookies updated successfully');
+            } catch (error) {
+                console.error('❌ WebToNative: Cookie update failed:', error);
+            }
+        }
+    }
+
+    setupWebToNativeEventListeners() {
+        // Listen for app state changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.isWebToNative) {
+                // App came to foreground - force cookie update
+                setTimeout(() => {
+                    this.forceCookieUpdate();
+                    this.keepSessionAlive();
+                }, 500);
+            }
+        });
+
+        // Listen for any user interaction to trigger cookie updates
+        const interactiveEvents = ['touchstart', 'click', 'scroll', 'keydown'];
+        interactiveEvents.forEach(event => {
+            document.addEventListener(event, () => {
+                if (this.isWebToNative) {
+                    // Debounced cookie update on user interaction
+                    clearTimeout(this.cookieUpdateTimeout);
+                    this.cookieUpdateTimeout = setTimeout(() => {
+                        this.forceCookieUpdate();
+                    }, 1000);
+                }
+            }, { passive: true });
+        });
     }
 
     initializeSession() {
@@ -125,6 +192,7 @@ class UniversalSessionManager {
             localStorage.setItem('sessionStart', new Date().toISOString());
             localStorage.setItem('lastToolbarAccess', Date.now());
             localStorage.setItem('platform', this.isAndroidApp ? 'android' : 'web');
+            localStorage.setItem('webtonative', this.isWebToNative ? 'true' : 'false');
         }
     }
 
@@ -160,7 +228,8 @@ class UniversalSessionManager {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
                 }
             });
             
@@ -176,6 +245,11 @@ class UniversalSessionManager {
                 }
                 
                 this.updateSessionStatus('active');
+                
+                // Force cookie update for WebToNative after health check
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
             } else {
                 console.warn('⚠️ Session Health Check Failed:', data.issues);
                 this.updateSessionStatus('warning');
@@ -196,7 +270,8 @@ class UniversalSessionManager {
                 credentials: 'include',
                 headers: {
                     'Cache-Control': 'no-cache',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
                 }
             });
             
@@ -208,6 +283,11 @@ class UniversalSessionManager {
                 if (typeof(Storage) !== "undefined") {
                     localStorage.setItem('lastHeartbeat', Date.now());
                     localStorage.setItem('heartbeatCount', data.heartbeat_count);
+                }
+                
+                // Force cookie update for WebToNative after heartbeat
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
                 }
             } else {
                 console.warn('💔 Heartbeat failed:', data.error);
@@ -226,7 +306,8 @@ class UniversalSessionManager {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-Toolbar-Request': 'true'
+                    'X-Toolbar-Request': 'true',
+                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
                 }
             });
             
@@ -243,6 +324,11 @@ class UniversalSessionManager {
                 
                 // Update session status indicator
                 this.updateSessionStatus('active');
+                
+                // Force cookie update for WebToNative after keep-alive
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
             } else {
                 console.warn('⚠️ Toolbar Session keep-alive failed');
                 this.updateSessionStatus('warning');
@@ -262,13 +348,19 @@ class UniversalSessionManager {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'X-Session-Recovery': 'true'
+                    'X-Session-Recovery': 'true',
+                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
                 }
             });
             
             if (response.ok) {
                 console.log('✅ Session recovery successful');
                 this.updateSessionStatus('recovered');
+                
+                // Force cookie update after recovery
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
             } else {
                 throw new Error('Page refresh failed');
             }
@@ -326,6 +418,11 @@ class UniversalSessionManager {
                         window.checkExistingPendingOrders();
                     }, 1000);
                 }
+                
+                // Force cookie update for WebToNative
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
             } else {
                 // Page hidden - prepare for background
                 this.prepareForBackground();
@@ -339,6 +436,14 @@ class UniversalSessionManager {
         activities.forEach(activity => {
             document.addEventListener(activity, () => {
                 this.keepSessionAlive();
+                
+                // Force cookie update for WebToNative on user activity
+                if (this.isWebToNative) {
+                    clearTimeout(this.activityCookieTimeout);
+                    this.activityCookieTimeout = setTimeout(() => {
+                        this.forceCookieUpdate();
+                    }, 2000);
+                }
             }, { passive: true });
         });
     }
@@ -361,6 +466,11 @@ class UniversalSessionManager {
                 localStorage.setItem('twaLastActive', Date.now().toString());
                 localStorage.setItem('lastUrl', window.location.href);
                 localStorage.setItem('sessionPreserved', 'true');
+                
+                // Force final cookie update for WebToNative
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
             }
         });
     }
@@ -382,6 +492,11 @@ class UniversalSessionManager {
                             window.checkExistingPendingOrders();
                         }
                     }, 1500);
+                    
+                    // Force cookie update after restore
+                    if (this.isWebToNative) {
+                        this.forceCookieUpdate();
+                    }
                 }
             }
             
@@ -396,6 +511,11 @@ class UniversalSessionManager {
         if (typeof(Storage) !== "undefined") {
             localStorage.setItem('lastBackgroundTime', Date.now());
             localStorage.setItem('wasInBackground', 'true');
+            
+            // Force cookie update before going to background
+            if (this.isWebToNative) {
+                this.forceCookieUpdate();
+            }
         }
     }
 
@@ -415,10 +535,26 @@ class UniversalSessionManager {
         const statusElement = document.getElementById('sessionStatusIndicator');
         if (statusElement) {
             const statusConfig = {
-                'active': { text: 'Session Active (365 Days)', color: '#28a745', icon: '✅' },
-                'warning': { text: 'Session Warning', color: '#ffc107', icon: '⚠️' },
-                'error': { text: 'Session Error', color: '#dc3545', icon: '❌' },
-                'restored': { text: 'Session Restored', color: '#17a2b8', icon: '🔄' }
+                'active': { 
+                    text: this.isWebToNative ? 'WebToNative - Session Active' : 'Session Active (365 Days)', 
+                    color: '#28a745', 
+                    icon: '✅' 
+                },
+                'warning': { 
+                    text: 'Session Warning', 
+                    color: '#ffc107', 
+                    icon: '⚠️' 
+                },
+                'error': { 
+                    text: 'Session Error', 
+                    color: '#dc3545', 
+                    icon: '❌' 
+                },
+                'restored': { 
+                    text: 'Session Restored', 
+                    color: '#17a2b8', 
+                    icon: '🔄' 
+                }
             };
             
             const config = statusConfig[status] || statusConfig['active'];
@@ -433,11 +569,14 @@ class UniversalSessionManager {
         
         return {
             platform: localStorage.getItem('platform') || 'unknown',
+            webtonative: localStorage.getItem('webtonative') || 'false',
             sessionStart: localStorage.getItem('sessionStart'),
             lastHealthCheck: localStorage.getItem('lastHealthCheck'),
             lastHeartbeat: localStorage.getItem('lastHeartbeat'),
             lastKeepAlive: localStorage.getItem('lastKeepAlive'),
+            lastCookieUpdate: localStorage.getItem('lastCookieUpdate'),
             heartbeatCount: localStorage.getItem('heartbeatCount'),
+            cookieUpdateCount: localStorage.getItem('webtonative_update_count'),
             userAgent: localStorage.getItem('userAgent')
         };
     }
@@ -453,178 +592,297 @@ class UniversalSessionManager {
         if (this.heartbeatTimer) {
             clearInterval(this.heartbeatTimer);
         }
+        if (this.cookieUpdateInterval) {
+            clearInterval(this.cookieUpdateInterval);
+        }
+        if (this.cookieUpdateTimeout) {
+            clearTimeout(this.cookieUpdateTimeout);
+        }
+        if (this.activityCookieTimeout) {
+            clearTimeout(this.activityCookieTimeout);
+        }
         
         console.log('🧹 Toolbar Session Manager Cleaned Up');
     }
 }
 
-
-
-
-
-
-
-
-// Enhanced Android-Only OneSignal Registration with Retry Logic
-class AndroidOneSignalRegister {
+// Enhanced WebToNative Session Management
+class WebToNativeSessionManager {
     constructor() {
+        this.isWebToNative = typeof WTN !== 'undefined';
         this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-        this.registrationAttempts = 0;
-        this.maxAttempts = 3;
-        console.log('🚀 Android Register - User ID:', this.userId);
-        
-        if (this.userId) {
-            this.startAndroidRegistration();
+        this.init();
+    }
+
+    init() {
+        if (this.isWebToNative) {
+            console.log('🔧 WebToNative Session Manager Initialized');
+            this.setupWebToNativeSessionHandling();
+            this.startCookieMaintenance();
+            this.setupAppStateHandlers();
+            
+            // Log WebToNative environment info
+            this.logWebToNativeInfo();
         }
     }
-    
-    startAndroidRegistration() {
-        console.log('🔄 Starting Android registration...');
-        
-        // Check if we need to force registration (after login)
-        const needsRegistration = <?php echo isset($_SESSION['needs_device_registration']) ? 'true' : 'false'; ?>;
-        
-        if (needsRegistration) {
-            console.log('🔔 Force registration required after login');
-        }
-        
-        // ONLY attempt registration for Android WebToNative
-        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
-            console.log('📱 Android WebToNative detected - registering...');
-            this.registerViaWebToNative();
-        } else {
-            console.log('🌐 Web browser detected - skipping device registration');
-        }
-    }
-    
-    registerViaWebToNative() {
-        WTN.OneSignal.getPlayerId().then(playerId => {
-            if (playerId) {
-                console.log('✅ Got Android Player ID:', playerId);
-                this.sendRegistration(playerId, 'android_webtonative', 'android');
-            } else {
-                console.log('❌ No Player ID from WebToNative');
-                this.retryRegistration();
-            }
-        }).catch(error => {
-            console.error('❌ WebToNative error:', error);
-            this.retryRegistration();
-        });
-    }
-    
-    sendRegistration(playerId, deviceType, platform) {
-        const payload = {
-            player_id: playerId,
-            device_type: deviceType,
-            platform: platform,
-            user_id: this.userId,
-            source: 'android_login_reactivation',
-            force_reactivate: true
+
+    logWebToNativeInfo() {
+        const info = {
+            wtnAvailable: typeof WTN !== 'undefined',
+            forceUpdateAvailable: typeof WTN !== 'undefined' && typeof WTN.forceUpdateCookies === 'function',
+            userId: this.userId,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString()
         };
+        console.log('🔧 WebToNative Environment:', info);
+    }
+
+    setupWebToNativeSessionHandling() {
+        // Force initial cookie update
+        this.forceCookieUpdate();
         
-        console.log('📨 Sending Android registration:', payload);
+        // Set up periodic session validation
+        setInterval(() => {
+            this.validateWebToNativeSession();
+        }, 30000); // Every 30 seconds
+    }
+
+    startCookieMaintenance() {
+        // Update cookies every minute for WebToNative
+        this.cookieMaintenanceInterval = setInterval(() => {
+            this.forceCookieUpdate();
+        }, 60000);
         
-        fetch('register_device_unified.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('✅ Registration response:', data);
-            if (data.success) {
-                if (data.skipped) {
-                    console.log('ℹ️ Registration skipped:', data.reason);
-                } else {
-                    console.log('🎉 ANDROID DEVICE REGISTERED/REACTIVATED SUCCESSFULLY!');
-                    
-                    // Clear the needs registration flag
-                    if (typeof(Storage) !== "undefined") {
-                        localStorage.setItem('device_registered', 'true');
-                        localStorage.setItem('registration_time', Date.now());
-                    }
-                    
-                    // Show success message for reactivation
-                    if (data.was_reactivated) {
-                        this.showMessage('✅ Device reactivated - You will receive push notifications', 'success');
-                    }
+        // Also update cookies on user activity
+        this.setupActivityBasedUpdates();
+    }
+
+    setupActivityBasedUpdates() {
+        const activities = ['touchstart', 'click', 'scroll', 'keydown', 'mousemove'];
+        activities.forEach(activity => {
+            document.addEventListener(activity, () => {
+                if (this.isWebToNative) {
+                    clearTimeout(this.activityUpdateTimeout);
+                    this.activityUpdateTimeout = setTimeout(() => {
+                        this.forceCookieUpdate();
+                    }, 2000);
                 }
-            } else {
-                console.error('❌ Registration failed:', data.message);
-                this.retryRegistration();
-            }
-        })
-        .catch(error => {
-            console.error('❌ Request failed:', error);
-            this.retryRegistration();
+            }, { passive: true });
         });
     }
-    
-    retryRegistration() {
-        this.registrationAttempts++;
-        
-        if (this.registrationAttempts < this.maxAttempts) {
-            console.log(`🔄 Retrying registration (attempt ${this.registrationAttempts + 1}/${this.maxAttempts})`);
-            setTimeout(() => {
-                this.startAndroidRegistration();
-            }, 2000 * this.registrationAttempts); // Exponential backoff
-        } else {
-            console.error('❌ Max registration attempts reached');
-            this.showMessage('⚠️ Device registration failed. Notifications may not work.', 'warning');
+
+    setupAppStateHandlers() {
+        // Handle app background/foreground transitions
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // App came to foreground - ensure session is fresh
+                console.log('📱 WebToNative: App foreground - refreshing session');
+                this.forceCookieUpdate();
+                this.validateWebToNativeSession();
+            }
+        });
+
+        // Handle page load for WebToNative
+        window.addEventListener('load', () => {
+            if (this.isWebToNative) {
+                console.log('📱 WebToNative: Page loaded - initializing session');
+                setTimeout(() => {
+                    this.forceCookieUpdate();
+                }, 1000);
+            }
+        });
+    }
+
+    forceCookieUpdate() {
+        if (this.isWebToNative && typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+            try {
+                WTN.forceUpdateCookies();
+                console.log('✅ WebToNative: Cookies force updated');
+                
+                // Log the update
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('webtonative_last_cookie_update', Date.now());
+                    localStorage.setItem('webtonative_update_count', 
+                        parseInt(localStorage.getItem('webtonative_update_count') || '0') + 1);
+                }
+            } catch (error) {
+                console.error('❌ WebToNative: Cookie update error:', error);
+            }
         }
     }
-    
-    showMessage(message, type) {
-        // Create a visible notification
-        const div = document.createElement('div');
-        div.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px;
-            background: ${type === 'success' ? '#d4edda' : 
-                        type === 'warning' ? '#fff3cd' : '#f8d7da'};
-            border: 1px solid ${type === 'success' ? '#c3e6cb' : 
-                              type === 'warning' ? '#ffeaa7' : '#f5c6cb'};
-            border-radius: 5px;
-            z-index: 10000;
-            color: ${type === 'success' ? '#155724' : 
-                    type === 'warning' ? '#856404' : '#721c24'};
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        `;
-        div.textContent = message;
-        document.body.appendChild(div);
-        
-        setTimeout(() => {
-            if (div.parentNode) {
-                div.parentNode.removeChild(div);
+
+    async validateWebToNativeSession() {
+        try {
+            const response = await fetch('session-keepalive.php', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'X-WebToNative-Validate': 'true',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                console.log('✅ WebToNative: Session validated');
+                this.forceCookieUpdate(); // Update cookies after validation
+            } else {
+                console.warn('⚠️ WebToNative: Session validation failed');
             }
-        }, 5000);
+        } catch (error) {
+            console.error('❌ WebToNative: Session validation request failed:', error);
+        }
+    }
+
+    // Debug method for WebToNative
+    getWebToNativeDebugInfo() {
+        return {
+            isWebToNative: this.isWebToNative,
+            userId: this.userId,
+            lastCookieUpdate: localStorage.getItem('webtonative_last_cookie_update'),
+            updateCount: localStorage.getItem('webtonative_update_count'),
+            wtnAvailable: typeof WTN !== 'undefined',
+            forceUpdateAvailable: typeof WTN !== 'undefined' && typeof WTN.forceUpdateCookies === 'function',
+            sessionActive: <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>
+        };
+    }
+
+    destroy() {
+        if (this.cookieMaintenanceInterval) {
+            clearInterval(this.cookieMaintenanceInterval);
+        }
+        if (this.activityUpdateTimeout) {
+            clearTimeout(this.activityUpdateTimeout);
+        }
     }
 }
 
-// Start Android registration when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we just logged in and need device registration
-    const justLoggedIn = <?php echo isset($_SESSION['needs_device_registration']) ? 'true' : 'false'; ?>;
-    
-    if (justLoggedIn) {
-        console.log('🔔 New login detected - forcing device registration');
-        // Clear the flag
-        <?php unset($_SESSION['needs_device_registration']); ?>
+// Enhanced Android-only debug console
+class AndroidDebugConsole {
+    constructor() {
+        this.isWebToNative = typeof WTN !== 'undefined';
+        this.debugEnabled = this.isWebToNative; // Only enable for Android WebToNative
+        this.init();
     }
+
+    init() {
+        if (this.debugEnabled) {
+            console.log('🔧 Android Debug Console Initialized - WebToNative Detected');
+            this.setupDebugPanel();
+            this.startSessionMonitoring();
+        }
+    }
+
+    setupDebugPanel() {
+        // Create debug panel that only shows for WebToNative Android
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'androidDebugPanel';
+        debugPanel.style.cssText = `
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 300px;
+            display: ${this.isWebToNative ? 'block' : 'none'};
+            border: 1px solid #00ff00;
+        `;
+
+        debugPanel.innerHTML = `
+            <div style="margin-bottom: 5px;"><strong>📱 WebToNative Android Debug</strong></div>
+            <div id="debugContent"></div>
+            <button onclick="androidDebug.togglePanel()" style="background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 2px 5px; margin-top: 5px; font-size: 10px;">Toggle</button>
+        `;
+
+        document.body.appendChild(debugPanel);
+        this.updateDebugInfo();
+    }
+
+    updateDebugInfo() {
+        if (!this.debugEnabled) return;
+
+        const debugContent = document.getElementById('debugContent');
+        if (debugContent) {
+            const sessionInfo = {
+                userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
+                sessionId: '<?php echo session_id(); ?>',
+                isAndroid: <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>,
+                webToNative: this.isWebToNative,
+                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>,
+                cookieUpdates: localStorage.getItem('webtonative_update_count') || '0',
+                lastCookieUpdate: localStorage.getItem('webtonative_last_cookie_update') || 'Never',
+                sessionAge: <?php echo isset($_SESSION['login_time']) ? time() - $_SESSION['login_time'] : '0'; ?>
+            };
+
+            debugContent.innerHTML = `
+                <div>User ID: ${sessionInfo.userId}</div>
+                <div>Session: ${sessionInfo.sessionId.substring(0, 10)}...</div>
+                <div>Android: ${sessionInfo.isAndroid ? '✅' : '❌'}</div>
+                <div>WebToNative: ${sessionInfo.webToNative ? '✅' : '❌'}</div>
+                <div>Cookie Updates: ${sessionInfo.cookieUpdates}</div>
+                <div>Last Update: ${sessionInfo.lastCookieUpdate !== 'Never' ? new Date(parseInt(sessionInfo.lastCookieUpdate)).toLocaleTimeString() : 'Never'}</div>
+                <div>Last Activity: ${sessionInfo.lastActivity ? new Date(sessionInfo.lastActivity * 1000).toLocaleTimeString() : 'Never'}</div>
+                <div>Session Age: ${Math.round(sessionInfo.sessionAge / 60)} minutes</div>
+            `;
+        }
+
+        // Update every 5 seconds
+        setTimeout(() => this.updateDebugInfo(), 5000);
+    }
+
+    togglePanel() {
+        const panel = document.getElementById('androidDebugPanel');
+        if (panel) {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    startSessionMonitoring() {
+        // Monitor session health
+        setInterval(() => {
+            this.logSessionHealth();
+        }, 30000);
+    }
+
+    logSessionHealth() {
+        const healthInfo = {
+            timestamp: new Date().toISOString(),
+            sessionActive: <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>,
+            cookiesEnabled: navigator.cookieEnabled,
+            webToNativeActive: this.isWebToNative,
+            localStorage: typeof(Storage) !== "undefined",
+            cookieUpdateCount: localStorage.getItem('webtonative_update_count') || '0'
+        };
+
+        console.log('📱 WebToNative Session Health:', healthInfo);
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize main session manager
+    window.toolbarSessionManager = new UniversalSessionManager();
     
-    new AndroidOneSignalRegister();
+    // Initialize WebToNative session manager
+    window.webToNativeSessionManager = new WebToNativeSessionManager();
+    
+    // Initialize Android debug console (only for WebToNative)
+    window.androidDebug = new AndroidDebugConsole();
+    
+    // Store session initialization
+    console.log('🚀 Enhanced Toolbar Session Management Initialized');
+    
+    // Debug info for WebToNative
+    if (typeof WTN !== 'undefined') {
+        console.log('🔧 WebToNative Full Debug Info:', window.webToNativeSessionManager.getWebToNativeDebugInfo());
+    }
 });
-
-
-
-
-
-
-
-
 
 // Handle page unload for session preservation
 window.addEventListener('beforeunload', function() {
@@ -634,9 +892,12 @@ window.addEventListener('beforeunload', function() {
         localStorage.setItem('toolbarLastAccess', Date.now());
     }
     
-    // Clean up session manager
+    // Clean up session managers
     if (window.toolbarSessionManager) {
         window.toolbarSessionManager.destroy();
+    }
+    if (window.webToNativeSessionManager) {
+        window.webToNativeSessionManager.destroy();
     }
 });
 
@@ -688,6 +949,13 @@ document.addEventListener('keypress', function() {
     padding: 2px 6px;
     border-radius: 10px;
 }
+
+/* WebToNative specific styles */
+<?php if ($isAndroidApp): ?>
+#sessionStatusIndicator {
+    border: 2px solid #28a745;
+}
+<?php endif; ?>
 </style>
 
 <header class="topbar">
@@ -705,6 +973,9 @@ document.addEventListener('keypress', function() {
                     <div class="topbar-item">
                          <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">
                          <?php echo $user_name; ?>
+                         <?php if ($isAndroidApp): ?>
+                         <span class="badge bg-success ms-2" style="font-size: 10px;">Android App</span>
+                         <?php endif; ?>
                     </h4>
                     </div>
                </div>
@@ -724,6 +995,15 @@ document.addEventListener('keypress', function() {
                               <iconify-icon icon="solar:shield-check-bold" class="fs-24 align-middle"></iconify-icon>
                          </button>
                     </div>
+
+                    <!-- WebToNative Debug Button -->
+                    <?php if ($isAndroidApp): ?>
+                    <div class="topbar-item">
+                         <button type="button" class="topbar-button" id="webtonative-debug-btn" title="WebToNative Debug">
+                              <iconify-icon icon="solar:bug-bold-duotone" class="fs-24 align-middle"></iconify-icon>
+                         </button>
+                    </div>
+                    <?php endif; ?>
 
                     <!-- User -->
                     <div class="dropdown topbar-item">
@@ -754,6 +1034,10 @@ document.addEventListener('keypress', function() {
                                       <span class="badge session-badge bg-success">Active</span><br>
                                       <strong>Platform:</strong> 
                                       <?php echo $isAndroidApp ? '📱 Android App' : '🌐 Web Browser'; ?><br>
+                                      <?php if ($isAndroidApp): ?>
+                                      <strong>WebToNative:</strong> 
+                                      <span class="badge session-badge bg-info">Enabled</span><br>
+                                      <?php endif; ?>
                                       <strong>Duration:</strong> 365 Days<br>
                                       <strong>Last Activity:</strong> 
                                       <?php echo isset($_SESSION['last_activity']) ? 
@@ -768,6 +1052,14 @@ document.addEventListener('keypress', function() {
                                   <i class="fas fa-mobile-alt fs-18 align-middle me-1"></i>
                                   <span class="align-middle">Manage Devices</span>
                               </a>
+
+                              <!-- WebToNative Debug Link -->
+                              <?php if ($isAndroidApp): ?>
+                              <a class="dropdown-item" href="javascript:void(0)" onclick="androidDebug.togglePanel()">
+                                  <i class="fas fa-bug fs-18 align-middle me-1"></i>
+                                  <span class="align-middle">WebToNative Debug</span>
+                              </a>
+                              <?php endif; ?>
                                 
                               <!-- Logout Option -->
                               <?php
@@ -818,6 +1110,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // WebToNative debug button functionality
+    const webtonativeDebugBtn = document.getElementById('webtonative-debug-btn');
+    if (webtonativeDebugBtn) {
+        webtonativeDebugBtn.addEventListener('click', function() {
+            if (window.androidDebug) {
+                window.androidDebug.togglePanel();
+            }
+            
+            // Force cookie update
+            if (window.webToNativeSessionManager) {
+                window.webToNativeSessionManager.forceCookieUpdate();
+            }
+            
+            // Show WebToNative debug info
+            if (window.webToNativeSessionManager) {
+                const debugInfo = window.webToNativeSessionManager.getWebToNativeDebugInfo();
+                console.log('🔧 WebToNative Debug Info:', debugInfo);
+                alert('WebToNative Debug Info:\n' + JSON.stringify(debugInfo, null, 2));
+            }
+        });
+    }
     
     // Enhanced logout confirmation
     const logoutButton = document.getElementById('logoutButton');
@@ -828,9 +1142,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Clean up session manager
+            // Clean up session managers
             if (window.toolbarSessionManager) {
                 window.toolbarSessionManager.destroy();
+            }
+            if (window.webToNativeSessionManager) {
+                window.webToNativeSessionManager.destroy();
             }
             
             // Clear device-specific session storage
@@ -838,6 +1155,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.removeItem('current_player_id');
                 localStorage.removeItem('lastKeepAlive');
                 localStorage.removeItem('sessionInitialized');
+                localStorage.removeItem('webtonative_update_count');
+                localStorage.removeItem('webtonative_last_cookie_update');
             }
             
             // Allow the default logout behavior to proceed
@@ -880,13 +1199,26 @@ function debugSession() {
             phpSession: {
                 userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
                 isAndroid: <?php echo $isAndroidApp ? 'true' : 'false'; ?>,
-                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>
+                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>,
+                sessionId: '<?php echo session_id(); ?>'
             },
-            javascript: stats
+            javascript: stats,
+            webtonative: window.webToNativeSessionManager ? window.webToNativeSessionManager.getWebToNativeDebugInfo() : null
         };
         console.log('🔍 Full Session Debug:', sessionInfo);
         return sessionInfo;
     }
     return null;
 }
+window.getSessionDebugInfo = debugSession;
+
+// Force WebToNative cookie update (can be called from anywhere)
+function forceWebToNativeCookieUpdate() {
+    if (window.webToNativeSessionManager) {
+        window.webToNativeSessionManager.forceCookieUpdate();
+        return true;
+    }
+    return false;
+}
+window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
 </script>

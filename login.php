@@ -2,6 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// WEBTONATIVE ANDROID APP DETECTION
+function isWebToNativeAndroid() {
+    return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
+           isset($_SERVER['HTTP_X_WEBTONATIVE']) ||
+           (isset($_SESSION['is_android_app']) && $_SESSION['is_android_app'] === true);
+}
+
 // ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
 session_set_cookie_params([
     'lifetime' => 31536000, // 1 year
@@ -27,6 +34,27 @@ ini_set('session.use_only_cookies', 1);
 // Start session only if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// WEBTONATIVE SPECIFIC SESSION HANDLING
+if (isWebToNativeAndroid()) {
+    $_SESSION['is_android_app'] = true;
+    $_SESSION['webtonative_detected'] = true;
+    $_SESSION['android_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    
+    // Force immediate cookie update for WebToNative if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        setcookie(session_name(), session_id(), [
+            'expires' => time() + 31536000,
+            'path' => '/',
+            'domain' => $_SERVER['HTTP_HOST'],
+            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'None'
+        ]);
+        
+        error_log("🔧 WebToNative: Session cookie forced for user " . $_SESSION['user_id']);
+    }
 }
 
 // Database connection
@@ -65,7 +93,8 @@ class AndroidSessionManager {
     }
     
     public function isAndroidApp() {
-        return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
+        return isWebToNativeAndroid() || 
+               strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
                isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'com.webtonative.app' ||
                isset($_SESSION['is_android_app']);
     }
@@ -75,9 +104,11 @@ class AndroidSessionManager {
         
         $_SESSION['user_id'] = $userId;
         $_SESSION['is_android_app'] = true;
+        $_SESSION['webtonative_user'] = true;
         $_SESSION['android_last_activity'] = time();
         $_SESSION['session_expires'] = time() + 31536000;
         $_SESSION['android_session_created'] = time();
+        $_SESSION['webtonative_session_start'] = time();
         
         // Update session cookie
         setcookie(session_name(), session_id(), [
@@ -89,7 +120,7 @@ class AndroidSessionManager {
             'samesite' => 'None'
         ]);
         
-        error_log("✅ Android session maintained for user: $userId");
+        error_log("✅ WebToNative Android session maintained for user: $userId");
         return true;
     }
     
@@ -108,9 +139,11 @@ class AndroidSessionManager {
     public function getDebugInfo() {
         return [
             'is_android_app' => $this->isAndroidApp(),
+            'is_webtonative' => isWebToNativeAndroid(),
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Not set',
             'session_user_id' => $_SESSION['user_id'] ?? 'Not set',
             'session_android' => $_SESSION['is_android_app'] ?? 'Not set',
+            'webtonative_detected' => $_SESSION['webtonative_detected'] ?? 'Not set',
             'cookies_received' => isset($_COOKIE[session_name()]) ? 'Yes' : 'No',
             'session_id' => session_id(),
             'timestamp' => time()
@@ -123,6 +156,7 @@ $androidSessionManager = new AndroidSessionManager();
 
 // ANDROID APP DETECTION AND DEBUGGING
 $isAndroidApp = $androidSessionManager->isAndroidApp();
+$isWebToNative = isWebToNativeAndroid();
 $androidDebugInfo = $androidSessionManager->getDebugInfo();
 
 // Store Android-specific session data
@@ -131,6 +165,11 @@ if ($isAndroidApp) {
     $_SESSION['app_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     $_SESSION['android_debug_info'] = $androidDebugInfo;
     $_SESSION['last_android_access'] = time();
+    
+    if ($isWebToNative) {
+        $_SESSION['webtonative_detected'] = true;
+        $_SESSION['webtonative_init_time'] = time();
+    }
 }
 
 // PREVENT INFINITE REDIRECT - Check if this is a redirect from dashboard
@@ -215,6 +254,10 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$force
                 $androidSessionManager->maintainAndroidSession($user['id']);
                 $_SESSION['android_auto_login'] = true;
                 $_SESSION['android_login_time'] = time();
+                
+                if ($isWebToNative) {
+                    $_SESSION['webtonative_auto_login'] = true;
+                }
             }
             
             // Update session cookie with extended lifetime
@@ -286,8 +329,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['android_manual_login'] = true;
                 $_SESSION['android_login_time'] = time();
                 
+                if ($isWebToNative) {
+                    $_SESSION['webtonative_manual_login'] = true;
+                    $_SESSION['webtonative_force_cookie_update'] = true;
+                }
+                
                 // Log Android login
-                error_log("Android Manual Login Success: User {$user['id']}");
+                error_log("WebToNative Android Manual Login Success: User {$user['id']}");
             }
             
             // ENHANCED REMEMBER ME FOR 365-DAY PERSISTENCE
@@ -314,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($isAndroidApp) {
                     $_SESSION['android_remember_me_set'] = true;
-                    error_log("Android Remember Me Token Set: User {$user['id']}");
+                    error_log("WebToNative Android Remember Me Token Set: User {$user['id']}");
                 }
             } else {
                 // Clear remember token
@@ -409,21 +457,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      <script src="assets/js/config.js"></script>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-<!-- Enhanced Universal Session Management - 365 Days -->
+     <!-- WebToNative Script -->
+     <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
+
+<!-- Enhanced Universal Session Management - 365 Days with WebToNative -->
 <script>
-// Enhanced Universal Session Management - 365 Days
+// Enhanced Universal Session Management - 365 Days with WebToNative
 class UniversalSessionManager {
     constructor() {
         this.keepAliveInterval = 300000; // 5 minutes
-        this.isAndroidApp = typeof WTN !== 'undefined';
+        this.isAndroidApp = <?php echo $isAndroidApp ? 'true' : 'false'; ?>;
+        this.isWebToNative = typeof WTN !== 'undefined';
+        this.cookieUpdateInterval = null;
+        this.cookieUpdateTimeout = null;
         this.init();
     }
 
     init() {
+        console.log('🚀 Universal Session Manager Initialized');
+        console.log('📱 WebToNative Android:', this.isWebToNative);
+        console.log('🤖 WTN Object Available:', typeof WTN !== 'undefined');
+        console.log('🍪 Cookies enabled:', navigator.cookieEnabled);
+        console.log('📅 Session designed for 365-day persistence');
+        
         this.startKeepAlive();
         this.setupVisibilityHandler();
         this.setupActivityHandlers();
         this.initializeSession();
+        this.setupWebToNativeFeatures();
+        
+        <?php if ($isAndroidApp): ?>
+        console.log('🔧 Android Debug Info:', <?php echo json_encode($androidDebugInfo); ?>);
+        <?php endif; ?>
+    }
+
+    setupWebToNativeFeatures() {
+        if (this.isWebToNative && typeof WTN !== 'undefined') {
+            console.log('🔧 Setting up WebToNative features');
+            
+            // Force cookie update immediately
+            this.forceCookieUpdate();
+            
+            // Set up periodic cookie updates for WebToNative
+            this.cookieUpdateInterval = setInterval(() => {
+                this.forceCookieUpdate();
+            }, 60000); // Every minute for WebToNative
+            
+            // Listen for WebToNative events
+            this.setupWebToNativeEventListeners();
+        }
+    }
+
+    forceCookieUpdate() {
+        if (this.isWebToNative && typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+            console.log('🔧 WebToNative: Forcing cookie update');
+            try {
+                WTN.forceUpdateCookies();
+                
+                // Log successful cookie update
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastCookieUpdate', Date.now());
+                    localStorage.setItem('webtonative_update_count', 
+                        parseInt(localStorage.getItem('webtonative_update_count') || '0') + 1);
+                }
+                
+                console.log('✅ WebToNative: Cookies updated successfully');
+            } catch (error) {
+                console.error('❌ WebToNative: Cookie update failed:', error);
+            }
+        }
+    }
+
+    setupWebToNativeEventListeners() {
+        // Listen for app state changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.isWebToNative) {
+                // App came to foreground - force cookie update
+                console.log('📱 WebToNative: App foreground - refreshing session');
+                setTimeout(() => {
+                    this.forceCookieUpdate();
+                    this.keepSessionAlive();
+                }, 500);
+            }
+        });
+
+        // Listen for any user interaction to trigger cookie updates
+        const interactiveEvents = ['touchstart', 'click', 'scroll', 'keydown'];
+        interactiveEvents.forEach(event => {
+            document.addEventListener(event, () => {
+                if (this.isWebToNative) {
+                    // Debounced cookie update on user interaction
+                    clearTimeout(this.cookieUpdateTimeout);
+                    this.cookieUpdateTimeout = setTimeout(() => {
+                        this.forceCookieUpdate();
+                    }, 1000);
+                }
+            }, { passive: true });
+        });
     }
 
     initializeSession() {
@@ -432,6 +562,7 @@ class UniversalSessionManager {
             localStorage.setItem('sessionInitialized', Date.now());
             localStorage.setItem('userAgent', navigator.userAgent);
             localStorage.setItem('sessionStart', new Date().toISOString());
+            localStorage.setItem('isWebToNative', this.isWebToNative.toString());
         }
     }
 
@@ -453,7 +584,8 @@ class UniversalSessionManager {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
                 }
             });
             
@@ -461,6 +593,11 @@ class UniversalSessionManager {
             
             if (data.status === 'success') {
                 console.log('✅ Session kept alive:', new Date().toLocaleTimeString());
+                
+                // Force cookie update for WebToNative after keep-alive
+                if (this.isWebToNative) {
+                    this.forceCookieUpdate();
+                }
                 
                 // Update session info in storage
                 if (typeof(Storage) !== "undefined") {
@@ -514,6 +651,117 @@ class UniversalSessionManager {
         if (this.keepAliveTimer) {
             clearInterval(this.keepAliveTimer);
         }
+        if (this.cookieUpdateInterval) {
+            clearInterval(this.cookieUpdateInterval);
+        }
+        if (this.cookieUpdateTimeout) {
+            clearTimeout(this.cookieUpdateTimeout);
+        }
+    }
+}
+
+// Enhanced Android-only debug console
+class AndroidDebugConsole {
+    constructor() {
+        this.isWebToNative = typeof WTN !== 'undefined';
+        this.debugEnabled = this.isWebToNative; // Only enable for Android
+        this.init();
+    }
+
+    init() {
+        if (this.debugEnabled) {
+            console.log('🔧 Android Debug Console Initialized');
+            this.setupDebugPanel();
+            this.startSessionMonitoring();
+        }
+    }
+
+    setupDebugPanel() {
+        // Create debug panel that only shows for Android
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'androidDebugPanel';
+        debugPanel.style.cssText = `
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 300px;
+            display: ${this.isWebToNative ? 'block' : 'none'};
+            border: 1px solid #00ff00;
+        `;
+
+        debugPanel.innerHTML = `
+            <div style="margin-bottom: 5px;"><strong>📱 WebToNative Session Debug</strong></div>
+            <div id="debugContent"></div>
+            <button onclick="androidDebug.togglePanel()" style="background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 2px 5px; margin-top: 5px; font-size: 10px;">Toggle</button>
+        `;
+
+        document.body.appendChild(debugPanel);
+        this.updateDebugInfo();
+    }
+
+    updateDebugInfo() {
+        if (!this.debugEnabled) return;
+
+        const debugContent = document.getElementById('debugContent');
+        if (debugContent) {
+            const sessionInfo = {
+                userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
+                sessionId: '<?php echo session_id(); ?>',
+                isAndroid: <?php echo $isAndroidApp ? 'true' : 'false'; ?>,
+                webToNative: this.isWebToNative,
+                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>,
+                cookieUpdates: localStorage.getItem('webtonative_update_count') || '0',
+                lastCookieUpdate: localStorage.getItem('lastCookieUpdate') || 'Never',
+                userAgent: '<?php echo $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'; ?>'
+            };
+
+            debugContent.innerHTML = `
+                <div>User ID: ${sessionInfo.userId}</div>
+                <div>Session: ${sessionInfo.sessionId.substring(0, 10)}...</div>
+                <div>Android: ${sessionInfo.isAndroid ? '✅' : '❌'}</div>
+                <div>WebToNative: ${sessionInfo.webToNative ? '✅' : '❌'}</div>
+                <div>Cookie Updates: ${sessionInfo.cookieUpdates}</div>
+                <div>Last Update: ${sessionInfo.lastCookieUpdate !== 'Never' ? new Date(parseInt(sessionInfo.lastCookieUpdate)).toLocaleTimeString() : 'Never'}</div>
+                <div>Last Activity: ${sessionInfo.lastActivity ? new Date(sessionInfo.lastActivity * 1000).toLocaleTimeString() : 'Never'}</div>
+            `;
+        }
+
+        // Update every 5 seconds
+        setTimeout(() => this.updateDebugInfo(), 5000);
+    }
+
+    togglePanel() {
+        const panel = document.getElementById('androidDebugPanel');
+        if (panel) {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    startSessionMonitoring() {
+        // Monitor session health
+        setInterval(() => {
+            this.logSessionHealth();
+        }, 30000);
+    }
+
+    logSessionHealth() {
+        const healthInfo = {
+            timestamp: new Date().toISOString(),
+            sessionActive: <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>,
+            cookiesEnabled: navigator.cookieEnabled,
+            webToNativeActive: this.isWebToNative,
+            localStorage: typeof(Storage) !== "undefined",
+            userAgent: navigator.userAgent
+        };
+
+        console.log('📱 WebToNative Session Health:', healthInfo);
     }
 }
 
@@ -521,16 +769,17 @@ class UniversalSessionManager {
 document.addEventListener('DOMContentLoaded', function() {
     window.sessionManager = new UniversalSessionManager();
     
+    // Initialize Android debug console (only for WebToNative)
+    window.androidDebug = new AndroidDebugConsole();
+    
     // Store session initialization
     console.log('🚀 Universal Session Manager Initialized');
-    console.log('📱 Android App:', typeof WTN !== 'undefined');
-    console.log('🍪 Cookies enabled:', navigator.cookieEnabled);
-    console.log('📅 Session designed for 365-day persistence');
     
-    // Debug info for Android
-    <?php if ($isAndroidApp): ?>
-    console.log('🔧 Android Debug Info:', <?php echo json_encode($androidDebugInfo); ?>);
-    <?php endif; ?>
+    // Debug info for WebToNative
+    if (typeof WTN !== 'undefined') {
+        console.log('🔧 WebToNative Environment Detected');
+        console.log('📱 ForceUpdateCookies available:', typeof WTN.forceUpdateCookies === 'function');
+    }
 });
 
 // Handle page unload for session preservation
@@ -585,11 +834,30 @@ window.addEventListener('beforeunload', function() {
     z-index: 10000;
     display: none;
 }
+
+/* WebToNative specific styles */
+.webtonative-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #ff6b35;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 10px;
+    z-index: 10000;
+    font-weight: bold;
+}
 </style>
      
 </head>
 
 <body class="h-100">
+     <!-- WebToNative Indicator -->
+     <?php if ($isWebToNative): ?>
+     <div class="webtonative-indicator" id="webtonativeIndicator">📱 WebToNative</div>
+     <?php endif; ?>
+
      <!-- Session Status Indicator -->
      <!-- <div class="session-status" id="sessionStatus">Session Active (365 Days)</div> -->
      
@@ -733,6 +1001,12 @@ document.getElementById('loginForm').addEventListener('submit', function() {
         androidDebug.style.display = 'block';
         androidDebug.textContent = 'Android: Setting up persistent session...';
     }
+    
+    // Force cookie update for WebToNative on login
+    if (typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+        console.log('🔧 WebToNative: Forcing cookie update after login');
+        WTN.forceUpdateCookies();
+    }
 });
 
 // Show session info on page load
@@ -753,6 +1027,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 androidDebug.style.display = 'none';
             }, 5000);
         }
+        
+        const webtonativeIndicator = document.getElementById('webtonativeIndicator');
+        if (webtonativeIndicator) {
+            webtonativeIndicator.style.display = 'block';
+            setTimeout(() => {
+                webtonativeIndicator.style.display = 'none';
+            }, 5000);
+        }
     }, 1000);
 });
 
@@ -762,6 +1044,8 @@ console.log('📱 Android App Session Debug:');
 console.log('User ID:', <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>);
 console.log('Session ID:', '<?php echo session_id(); ?>');
 console.log('Android Flag:', <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>);
+console.log('WebToNative Flag:', <?php echo $isWebToNative ? 'true' : 'false'; ?>);
+console.log('User Agent:', '<?php echo $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'; ?>');
 <?php endif; ?>
 </script>
 
@@ -770,13 +1054,14 @@ console.log('Android Flag:', <?php echo isset($_SESSION['is_android_app']) ? 'tr
 <!-- ========================================= -->
 
 <!-- SIMPLIFIED OneSignal Registration -->
-<script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
 <script>
-// Enhanced Android-Only OneSignal Registration
+// Enhanced Android-Only OneSignal Registration with WebToNative Support
 class AndroidOneSignalRegister {
     constructor() {
         this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+        this.isWebToNative = typeof WTN !== 'undefined';
         console.log('🚀 Android Register - User ID:', this.userId);
+        console.log('📱 WebToNative:', this.isWebToNative);
         
         // Only register if user is logged in
         if (this.userId && this.userId !== 'null') {
@@ -790,7 +1075,7 @@ class AndroidOneSignalRegister {
         console.log('🔄 Starting Android-only registration...');
         
         // ONLY attempt registration for Android WebToNative
-        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+        if (this.isWebToNative && WTN.OneSignal) {
             console.log('📱 Android WebToNative detected - registering...');
             this.registerViaWebToNative();
         } else {
@@ -817,7 +1102,8 @@ class AndroidOneSignalRegister {
             device_type: deviceType,
             platform: platform,
             user_id: this.userId,
-            source: 'android_only_script'
+            source: 'android_only_script',
+            webtonative: this.isWebToNative
         };
         
         console.log('📨 Sending Android registration:', payload);
@@ -837,6 +1123,11 @@ class AndroidOneSignalRegister {
                     console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
                     localStorage.setItem('android_device_registered', 'true');
                     localStorage.setItem('player_id', playerId);
+                    
+                    // Force cookie update after successful registration
+                    if (this.isWebToNative && WTN.forceUpdateCookies) {
+                        WTN.forceUpdateCookies();
+                    }
                 }
             } else {
                 console.error('❌ Registration failed:', data.message);
@@ -872,6 +1163,11 @@ function initOneSignalAfterLogin(userId) {
 document.getElementById('loginForm').addEventListener('submit', function() {
     // Set a flag to indicate login is in progress
     localStorage.setItem('login_in_progress', 'true');
+    
+    // Force cookie update for WebToNative
+    if (typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+        WTN.forceUpdateCookies();
+    }
     
     // OneSignal will be re-initialized after page redirect
     console.log('🔐 Login submitted - OneSignal will initialize after redirect');
