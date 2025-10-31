@@ -33,7 +33,7 @@ if (isset($_SESSION['user_id'])) {
         $_SESSION['webtonative_keep_alive'] = true;
         $_SESSION['is_android_app'] = true;
         
-        // Force session cookie update for WebToNative
+        // NEW: Force additional cookie update for WebToNative
         setcookie(session_name(), session_id(), [
             'expires' => time() + 31536000,
             'path' => '/',
@@ -43,6 +43,7 @@ if (isset($_SESSION['user_id'])) {
             'samesite' => 'None'
         ]);
         
+        // NEW: Log WebToNative activity
         error_log("🔧 WebToNative Keep-alive: User {$_SESSION['user_id']}, Session: " . session_id());
     }
     

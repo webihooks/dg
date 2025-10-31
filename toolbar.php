@@ -86,25 +86,18 @@ if ($isAndroidApp && isset($_SESSION['user_id'])) {
 class UniversalSessionManager {
     constructor() {
         this.keepAliveInterval = 300000; // 5 minutes
-        this.isAndroidApp = <?php echo $isAndroidApp ? 'true' : 'false'; ?>;
+        this.isAndroidApp = <?php echo (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false) ? 'true' : 'false'; ?>;
         this.isWebToNative = typeof WTN !== 'undefined';
-        this.isTWA = this.detectTWA();
         this.healthCheckInterval = 120000; // 2 minutes for health checks
         this.heartbeatInterval = this.isAndroidApp ? 300000 : 600000; // 5 min Android, 10 min Web
+        this.androidMonitorInterval = 30000; // 30 seconds for Android
         this.init();
     }
 
-    detectTWA() {
-        return window.navigator.standalone || 
-               document.referrer.includes('android-app://') ||
-               /Chrome/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
-    }
-
     init() {
-        console.log('🚀 Toolbar Session Manager Initialized');
+        console.log('🚀 Universal Session Manager Initialized');
         console.log('📱 Android App:', this.isAndroidApp);
         console.log('🔧 WebToNative:', this.isWebToNative);
-        console.log('🖥️ TWA Environment:', this.isTWA);
         console.log('❤️ Heartbeat Interval:', this.heartbeatInterval / 1000 + 's');
         
         this.startKeepAlive();
@@ -115,8 +108,9 @@ class UniversalSessionManager {
         this.initializeSession();
         this.setupWebToNativeFeatures();
         
-        if (this.isTWA || this.isAndroidApp) {
-            this.setupTWAFeatures();
+        // Aggressive monitoring for Android apps
+        if (this.isAndroidApp) {
+            this.startAndroidAggressiveMonitoring();
         }
     }
 
@@ -135,6 +129,149 @@ class UniversalSessionManager {
             // Listen for WebToNative events
             this.setupWebToNativeEventListeners();
         }
+    }
+
+    startAndroidAggressiveMonitoring() {
+        console.log('📱 Starting aggressive Android session monitoring');
+        
+        // Monitor every 30 seconds for Android
+        this.androidMonitorInterval = setInterval(() => {
+            this.androidSessionHealthCheck();
+        }, this.androidMonitorInterval);
+        
+        // Immediate health check
+        setTimeout(() => {
+            this.androidSessionHealthCheck();
+        }, 5000);
+    }
+
+    async androidSessionHealthCheck() {
+        if (!this.isAndroidApp) return;
+        
+        try {
+            const response = await fetch('session-keepalive.php?android_health_check=true&t=' + Date.now(), {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'X-Android-Health-Check': 'true',
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                console.log('✅ Android Session Health Check Passed');
+                
+                // Force cookie update after health check
+                this.forceCookieUpdate();
+                
+                // Update session info in storage
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('lastAndroidHealthCheck', Date.now());
+                }
+            } else {
+                console.warn('⚠️ Android Session Health Check Failed');
+                this.attemptAndroidSessionRecovery();
+            }
+        } catch (error) {
+            console.error('❌ Android Health Check Request Failed:', error);
+            this.attemptAndroidSessionRecovery();
+        }
+    }
+
+    async attemptAndroidSessionRecovery() {
+        if (!this.isAndroidApp) return;
+        
+        console.log('🔄 Attempting Android session recovery...');
+        
+        try {
+            // Try multiple recovery methods
+            const recoveryPromises = [
+                fetch('session-keepalive.php?android_recovery=true&t=' + Date.now(), {
+                    credentials: 'include'
+                }),
+                fetch('heartbeat.php?android_recovery=true&t=' + Date.now(), {
+                    credentials: 'include'
+                })
+            ];
+            
+            const results = await Promise.allSettled(recoveryPromises);
+            
+            let recoverySuccessful = false;
+            for (const result of results) {
+                if (result.status === 'fulfilled' && result.value.ok) {
+                    const data = await result.value.json();
+                    if (data.success || data.status === 'success') {
+                        recoverySuccessful = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (recoverySuccessful) {
+                console.log('✅ Android session recovery successful');
+                this.forceCookieUpdate();
+                this.updateSessionStatus('recovered');
+            } else {
+                throw new Error('All recovery methods failed');
+            }
+            
+        } catch (error) {
+            console.error('❌ Android session recovery failed:', error);
+            this.showAndroidRecoveryAlert();
+        }
+    }
+
+    showAndroidRecoveryAlert() {
+        // Create Android-specific recovery notification
+        const recoveryDiv = document.createElement('div');
+        recoveryDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 10001;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-family: Arial, sans-serif;
+        `;
+        recoveryDiv.innerHTML = `
+            <strong>⚠️ Android Session Issue</strong>
+            <p style="margin: 8px 0; font-size: 14px;">Your session needs refresh</p>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="location.reload()" style="
+                    background: #856404; 
+                    color: white; 
+                    border: none; 
+                    padding: 8px 15px; 
+                    border-radius: 4px; 
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Refresh App</button>
+                <button onclick="this.parentNode.parentNode.remove()" style="
+                    background: none; 
+                    border: 1px solid #856404; 
+                    color: #856404; 
+                    padding: 8px 15px; 
+                    border-radius: 4px; 
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Dismiss</button>
+            </div>
+        `;
+        document.body.appendChild(recoveryDiv);
+        
+        // Auto-remove after 15 seconds
+        setTimeout(() => {
+            if (recoveryDiv.parentNode) {
+                recoveryDiv.parentNode.removeChild(recoveryDiv);
+            }
+        }, 15000);
     }
 
     forceCookieUpdate() {
@@ -162,9 +299,11 @@ class UniversalSessionManager {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && this.isWebToNative) {
                 // App came to foreground - force cookie update
+                console.log('📱 WebToNative: App foreground - refreshing session');
                 setTimeout(() => {
                     this.forceCookieUpdate();
                     this.keepSessionAlive();
+                    this.androidSessionHealthCheck();
                 }, 500);
             }
         });
@@ -190,9 +329,9 @@ class UniversalSessionManager {
             localStorage.setItem('sessionInitialized', Date.now());
             localStorage.setItem('userAgent', navigator.userAgent);
             localStorage.setItem('sessionStart', new Date().toISOString());
-            localStorage.setItem('lastToolbarAccess', Date.now());
+            localStorage.setItem('isWebToNative', this.isWebToNative.toString());
+            localStorage.setItem('isAndroidApp', this.isAndroidApp.toString());
             localStorage.setItem('platform', this.isAndroidApp ? 'android' : 'web');
-            localStorage.setItem('webtonative', this.isWebToNative ? 'true' : 'false');
         }
     }
 
@@ -222,7 +361,7 @@ class UniversalSessionManager {
 
     async performHealthCheck() {
         try {
-            const response = await fetch('session_health_check.php', {
+            const response = await fetch('session-keepalive.php?health_check=true&t=' + Date.now(), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -235,7 +374,7 @@ class UniversalSessionManager {
             
             const data = await response.json();
             
-            if (data.session_active) {
+            if (data.status === 'success') {
                 console.log('✅ Session Health Check Passed');
                 
                 // Update session info in storage
@@ -265,7 +404,7 @@ class UniversalSessionManager {
 
     async sendHeartbeat() {
         try {
-            const response = await fetch('heartbeat.php', {
+            const response = await fetch('heartbeat.php?t=' + Date.now(), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -299,7 +438,7 @@ class UniversalSessionManager {
 
     async keepSessionAlive() {
         try {
-            const response = await fetch('session-keepalive.php', {
+            const response = await fetch('session-keepalive.php?keep_alive=true&t=' + Date.now(), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -339,68 +478,6 @@ class UniversalSessionManager {
         }
     }
 
-    async recoverSession() {
-        console.log('🔄 Attempting session recovery...');
-        
-        try {
-            // Try to refresh the page first
-            const response = await fetch(window.location.href, {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'X-Session-Recovery': 'true',
-                    'X-WebToNative': this.isWebToNative ? 'true' : 'false'
-                }
-            });
-            
-            if (response.ok) {
-                console.log('✅ Session recovery successful');
-                this.updateSessionStatus('recovered');
-                
-                // Force cookie update after recovery
-                if (this.isWebToNative) {
-                    this.forceCookieUpdate();
-                }
-            } else {
-                throw new Error('Page refresh failed');
-            }
-        } catch (error) {
-            console.error('❌ Session recovery failed:', error);
-            this.showSessionRecoveryAlert();
-        }
-    }
-
-    showSessionRecoveryAlert() {
-        // Create a non-intrusive recovery notification
-        const recoveryDiv = document.createElement('div');
-        recoveryDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            z-index: 10001;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        `;
-        recoveryDiv.innerHTML = `
-            <strong>⚠️ Session Issue Detected</strong>
-            <p style="margin: 8px 0; font-size: 14px;">Your session may have issues. <a href="javascript:location.reload()" style="color: #856404; text-decoration: underline;">Refresh page</a></p>
-            <button onclick="this.parentNode.remove()" style="background: none; border: none; color: #856404; float: right; cursor: pointer;">×</button>
-        `;
-        document.body.appendChild(recoveryDiv);
-        
-        // Auto-remove after 10 seconds
-        setTimeout(() => {
-            if (recoveryDiv.parentNode) {
-                recoveryDiv.parentNode.removeChild(recoveryDiv);
-            }
-        }, 10000);
-    }
-
     setupVisibilityHandler() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -412,11 +489,9 @@ class UniversalSessionManager {
                 // Additional session validation
                 this.validateSessionState();
                 
-                // Check for pending orders if function exists
-                if (typeof window.checkExistingPendingOrders === 'function') {
-                    setTimeout(() => {
-                        window.checkExistingPendingOrders();
-                    }, 1000);
+                // Android-specific: Aggressive session check
+                if (this.isAndroidApp) {
+                    this.androidSessionHealthCheck();
                 }
                 
                 // Force cookie update for WebToNative
@@ -446,64 +521,6 @@ class UniversalSessionManager {
                 }
             }, { passive: true });
         });
-    }
-
-    setupTWAFeatures() {
-        // Enhanced TWA/Android app features
-        console.log('🔧 Setting up TWA/Android features');
-        
-        // Store session state before unload
-        this.setupBeforeUnload();
-        
-        // Restore session state on load
-        this.restoreSessionState();
-    }
-
-    setupBeforeUnload() {
-        window.addEventListener('beforeunload', () => {
-            if (typeof(Storage) !== "undefined") {
-                localStorage.setItem('twaSessionPreserved', 'true');
-                localStorage.setItem('twaLastActive', Date.now().toString());
-                localStorage.setItem('lastUrl', window.location.href);
-                localStorage.setItem('sessionPreserved', 'true');
-                
-                // Force final cookie update for WebToNative
-                if (this.isWebToNative) {
-                    this.forceCookieUpdate();
-                }
-            }
-        });
-    }
-
-    restoreSessionState() {
-        if (typeof(Storage) !== "undefined") {
-            const sessionPreserved = localStorage.getItem('twaSessionPreserved');
-            const lastActive = localStorage.getItem('twaLastActive');
-            
-            if (sessionPreserved === 'true' && lastActive) {
-                const timeSinceLastActive = Date.now() - parseInt(lastActive);
-                if (timeSinceLastActive < 300000) { // 5 minutes
-                    console.log('🔄 TWA session restored from background');
-                    this.updateSessionStatus('restored');
-                    
-                    // Trigger pending orders check
-                    setTimeout(() => {
-                        if (typeof window.checkExistingPendingOrders === 'function') {
-                            window.checkExistingPendingOrders();
-                        }
-                    }, 1500);
-                    
-                    // Force cookie update after restore
-                    if (this.isWebToNative) {
-                        this.forceCookieUpdate();
-                    }
-                }
-            }
-            
-            // Clean up
-            localStorage.removeItem('twaSessionPreserved');
-            localStorage.removeItem('twaLastActive');
-        }
     }
 
     prepareForBackground() {
@@ -536,7 +553,7 @@ class UniversalSessionManager {
         if (statusElement) {
             const statusConfig = {
                 'active': { 
-                    text: this.isWebToNative ? 'WebToNative - Session Active' : 'Session Active (365 Days)', 
+                    text: this.isWebToNative ? '📱 Android - Session Active (365 Days)' : '🌐 Web - Session Active (365 Days)', 
                     color: '#28a745', 
                     icon: '✅' 
                 },
@@ -550,7 +567,7 @@ class UniversalSessionManager {
                     color: '#dc3545', 
                     icon: '❌' 
                 },
-                'restored': { 
+                'recovered': { 
                     text: 'Session Restored', 
                     color: '#17a2b8', 
                     icon: '🔄' 
@@ -570,8 +587,10 @@ class UniversalSessionManager {
         return {
             platform: localStorage.getItem('platform') || 'unknown',
             webtonative: localStorage.getItem('webtonative') || 'false',
+            androidApp: localStorage.getItem('isAndroidApp') || 'false',
             sessionStart: localStorage.getItem('sessionStart'),
             lastHealthCheck: localStorage.getItem('lastHealthCheck'),
+            lastAndroidHealthCheck: localStorage.getItem('lastAndroidHealthCheck'),
             lastHeartbeat: localStorage.getItem('lastHeartbeat'),
             lastKeepAlive: localStorage.getItem('lastKeepAlive'),
             lastCookieUpdate: localStorage.getItem('lastCookieUpdate'),
@@ -595,6 +614,9 @@ class UniversalSessionManager {
         if (this.cookieUpdateInterval) {
             clearInterval(this.cookieUpdateInterval);
         }
+        if (this.androidMonitorInterval) {
+            clearInterval(this.androidMonitorInterval);
+        }
         if (this.cookieUpdateTimeout) {
             clearTimeout(this.cookieUpdateTimeout);
         }
@@ -606,282 +628,24 @@ class UniversalSessionManager {
     }
 }
 
-// Enhanced WebToNative Session Management
-class WebToNativeSessionManager {
-    constructor() {
-        this.isWebToNative = typeof WTN !== 'undefined';
-        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-        this.init();
-    }
-
-    init() {
-        if (this.isWebToNative) {
-            console.log('🔧 WebToNative Session Manager Initialized');
-            this.setupWebToNativeSessionHandling();
-            this.startCookieMaintenance();
-            this.setupAppStateHandlers();
-            
-            // Log WebToNative environment info
-            this.logWebToNativeInfo();
-        }
-    }
-
-    logWebToNativeInfo() {
-        const info = {
-            wtnAvailable: typeof WTN !== 'undefined',
-            forceUpdateAvailable: typeof WTN !== 'undefined' && typeof WTN.forceUpdateCookies === 'function',
-            userId: this.userId,
-            userAgent: navigator.userAgent,
-            timestamp: new Date().toISOString()
-        };
-        console.log('🔧 WebToNative Environment:', info);
-    }
-
-    setupWebToNativeSessionHandling() {
-        // Force initial cookie update
-        this.forceCookieUpdate();
-        
-        // Set up periodic session validation
-        setInterval(() => {
-            this.validateWebToNativeSession();
-        }, 30000); // Every 30 seconds
-    }
-
-    startCookieMaintenance() {
-        // Update cookies every minute for WebToNative
-        this.cookieMaintenanceInterval = setInterval(() => {
-            this.forceCookieUpdate();
-        }, 60000);
-        
-        // Also update cookies on user activity
-        this.setupActivityBasedUpdates();
-    }
-
-    setupActivityBasedUpdates() {
-        const activities = ['touchstart', 'click', 'scroll', 'keydown', 'mousemove'];
-        activities.forEach(activity => {
-            document.addEventListener(activity, () => {
-                if (this.isWebToNative) {
-                    clearTimeout(this.activityUpdateTimeout);
-                    this.activityUpdateTimeout = setTimeout(() => {
-                        this.forceCookieUpdate();
-                    }, 2000);
-                }
-            }, { passive: true });
-        });
-    }
-
-    setupAppStateHandlers() {
-        // Handle app background/foreground transitions
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                // App came to foreground - ensure session is fresh
-                console.log('📱 WebToNative: App foreground - refreshing session');
-                this.forceCookieUpdate();
-                this.validateWebToNativeSession();
-            }
-        });
-
-        // Handle page load for WebToNative
-        window.addEventListener('load', () => {
-            if (this.isWebToNative) {
-                console.log('📱 WebToNative: Page loaded - initializing session');
-                setTimeout(() => {
-                    this.forceCookieUpdate();
-                }, 1000);
-            }
-        });
-    }
-
-    forceCookieUpdate() {
-        if (this.isWebToNative && typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
-            try {
-                WTN.forceUpdateCookies();
-                console.log('✅ WebToNative: Cookies force updated');
-                
-                // Log the update
-                if (typeof(Storage) !== "undefined") {
-                    localStorage.setItem('webtonative_last_cookie_update', Date.now());
-                    localStorage.setItem('webtonative_update_count', 
-                        parseInt(localStorage.getItem('webtonative_update_count') || '0') + 1);
-                }
-            } catch (error) {
-                console.error('❌ WebToNative: Cookie update error:', error);
-            }
-        }
-    }
-
-    async validateWebToNativeSession() {
-        try {
-            const response = await fetch('session-keepalive.php', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'X-WebToNative-Validate': 'true',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.status === 'success') {
-                console.log('✅ WebToNative: Session validated');
-                this.forceCookieUpdate(); // Update cookies after validation
-            } else {
-                console.warn('⚠️ WebToNative: Session validation failed');
-            }
-        } catch (error) {
-            console.error('❌ WebToNative: Session validation request failed:', error);
-        }
-    }
-
-    // Debug method for WebToNative
-    getWebToNativeDebugInfo() {
-        return {
-            isWebToNative: this.isWebToNative,
-            userId: this.userId,
-            lastCookieUpdate: localStorage.getItem('webtonative_last_cookie_update'),
-            updateCount: localStorage.getItem('webtonative_update_count'),
-            wtnAvailable: typeof WTN !== 'undefined',
-            forceUpdateAvailable: typeof WTN !== 'undefined' && typeof WTN.forceUpdateCookies === 'function',
-            sessionActive: <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>
-        };
-    }
-
-    destroy() {
-        if (this.cookieMaintenanceInterval) {
-            clearInterval(this.cookieMaintenanceInterval);
-        }
-        if (this.activityUpdateTimeout) {
-            clearTimeout(this.activityUpdateTimeout);
-        }
-    }
-}
-
-// Enhanced Android-only debug console
-class AndroidDebugConsole {
-    constructor() {
-        this.isWebToNative = typeof WTN !== 'undefined';
-        this.debugEnabled = this.isWebToNative; // Only enable for Android WebToNative
-        this.init();
-    }
-
-    init() {
-        if (this.debugEnabled) {
-            console.log('🔧 Android Debug Console Initialized - WebToNative Detected');
-            this.setupDebugPanel();
-            this.startSessionMonitoring();
-        }
-    }
-
-    setupDebugPanel() {
-        // Create debug panel that only shows for WebToNative Android
-        const debugPanel = document.createElement('div');
-        debugPanel.id = 'androidDebugPanel';
-        debugPanel.style.cssText = `
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 9999;
-            max-width: 300px;
-            display: ${this.isWebToNative ? 'block' : 'none'};
-            border: 1px solid #00ff00;
-        `;
-
-        debugPanel.innerHTML = `
-            <div style="margin-bottom: 5px;"><strong>📱 WebToNative Android Debug</strong></div>
-            <div id="debugContent"></div>
-            <button onclick="androidDebug.togglePanel()" style="background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 2px 5px; margin-top: 5px; font-size: 10px;">Toggle</button>
-        `;
-
-        document.body.appendChild(debugPanel);
-        this.updateDebugInfo();
-    }
-
-    updateDebugInfo() {
-        if (!this.debugEnabled) return;
-
-        const debugContent = document.getElementById('debugContent');
-        if (debugContent) {
-            const sessionInfo = {
-                userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
-                sessionId: '<?php echo session_id(); ?>',
-                isAndroid: <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>,
-                webToNative: this.isWebToNative,
-                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>,
-                cookieUpdates: localStorage.getItem('webtonative_update_count') || '0',
-                lastCookieUpdate: localStorage.getItem('webtonative_last_cookie_update') || 'Never',
-                sessionAge: <?php echo isset($_SESSION['login_time']) ? time() - $_SESSION['login_time'] : '0'; ?>
-            };
-
-            debugContent.innerHTML = `
-                <div>User ID: ${sessionInfo.userId}</div>
-                <div>Session: ${sessionInfo.sessionId.substring(0, 10)}...</div>
-                <div>Android: ${sessionInfo.isAndroid ? '✅' : '❌'}</div>
-                <div>WebToNative: ${sessionInfo.webToNative ? '✅' : '❌'}</div>
-                <div>Cookie Updates: ${sessionInfo.cookieUpdates}</div>
-                <div>Last Update: ${sessionInfo.lastCookieUpdate !== 'Never' ? new Date(parseInt(sessionInfo.lastCookieUpdate)).toLocaleTimeString() : 'Never'}</div>
-                <div>Last Activity: ${sessionInfo.lastActivity ? new Date(sessionInfo.lastActivity * 1000).toLocaleTimeString() : 'Never'}</div>
-                <div>Session Age: ${Math.round(sessionInfo.sessionAge / 60)} minutes</div>
-            `;
-        }
-
-        // Update every 5 seconds
-        setTimeout(() => this.updateDebugInfo(), 5000);
-    }
-
-    togglePanel() {
-        const panel = document.getElementById('androidDebugPanel');
-        if (panel) {
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-    }
-
-    startSessionMonitoring() {
-        // Monitor session health
-        setInterval(() => {
-            this.logSessionHealth();
-        }, 30000);
-    }
-
-    logSessionHealth() {
-        const healthInfo = {
-            timestamp: new Date().toISOString(),
-            sessionActive: <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>,
-            cookiesEnabled: navigator.cookieEnabled,
-            webToNativeActive: this.isWebToNative,
-            localStorage: typeof(Storage) !== "undefined",
-            cookieUpdateCount: localStorage.getItem('webtonative_update_count') || '0'
-        };
-
-        console.log('📱 WebToNative Session Health:', healthInfo);
-    }
-}
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize main session manager
     window.toolbarSessionManager = new UniversalSessionManager();
     
-    // Initialize WebToNative session manager
-    window.webToNativeSessionManager = new WebToNativeSessionManager();
-    
-    // Initialize Android debug console (only for WebToNative)
-    window.androidDebug = new AndroidDebugConsole();
-    
     // Store session initialization
     console.log('🚀 Enhanced Toolbar Session Management Initialized');
     
-    // Debug info for WebToNative
-    if (typeof WTN !== 'undefined') {
-        console.log('🔧 WebToNative Full Debug Info:', window.webToNativeSessionManager.getWebToNativeDebugInfo());
-    }
+    // Show session status on first load
+    setTimeout(() => {
+        const statusElement = document.getElementById('sessionStatusIndicator');
+        if (statusElement) {
+            statusElement.style.display = 'block';
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+    }, 2000);
 });
 
 // Handle page unload for session preservation
@@ -896,9 +660,6 @@ window.addEventListener('beforeunload', function() {
     if (window.toolbarSessionManager) {
         window.toolbarSessionManager.destroy();
     }
-    if (window.webToNativeSessionManager) {
-        window.webToNativeSessionManager.destroy();
-    }
 });
 
 // Enhanced activity monitoring
@@ -909,6 +670,44 @@ document.addEventListener('mousemove', function() {
 document.addEventListener('keypress', function() {
     lastActivityTime = Date.now();
 });
+
+// Make checkExistingPendingOrders available globally
+function checkExistingPendingOrders() {
+    console.log('🔄 Default pending orders check - override this in specific pages');
+    // This will be overridden by specific dashboard pages
+}
+window.checkExistingPendingOrders = checkExistingPendingOrders;
+
+// Session debug function
+function debugSession() {
+    if (window.toolbarSessionManager) {
+        const stats = window.toolbarSessionManager.getSessionStats();
+        const sessionInfo = {
+            phpSession: {
+                userId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
+                isAndroid: <?php echo (strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false) ? 'true' : 'false'; ?>,
+                lastActivity: <?php echo isset($_SESSION['last_activity']) ? $_SESSION['last_activity'] : 'null'; ?>,
+                sessionId: '<?php echo session_id(); ?>'
+            },
+            javascript: stats,
+            timestamp: new Date().toISOString()
+        };
+        console.log('🔍 Full Session Debug:', sessionInfo);
+        return sessionInfo;
+    }
+    return null;
+}
+window.getSessionDebugInfo = debugSession;
+
+// Force WebToNative cookie update (can be called from anywhere)
+function forceWebToNativeCookieUpdate() {
+    if (window.toolbarSessionManager) {
+        window.toolbarSessionManager.forceCookieUpdate();
+        return true;
+    }
+    return false;
+}
+window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
 </script>
 
 <!-- Session Status Indicator -->
@@ -1149,6 +948,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.webToNativeSessionManager) {
                 window.webToNativeSessionManager.destroy();
             }
+            if (window.webToNativeCookieManager) {
+                window.webToNativeCookieManager.destroy();
+            }
             
             // Clear device-specific session storage
             if (typeof(Storage) !== "undefined") {
@@ -1214,8 +1016,8 @@ window.getSessionDebugInfo = debugSession;
 
 // Force WebToNative cookie update (can be called from anywhere)
 function forceWebToNativeCookieUpdate() {
-    if (window.webToNativeSessionManager) {
-        window.webToNativeSessionManager.forceCookieUpdate();
+    if (window.webToNativeCookieManager) {
+        window.webToNativeCookieManager.forceCookieUpdate();
         return true;
     }
     return false;

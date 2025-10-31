@@ -51,8 +51,8 @@ class AndroidSessionManager {
     private function initDB() {
         $host = 'localhost';
         $dbname = 'doctorie_webihooks_card';
-        $username = 'doctorie_webihooks';
-        $password = 'S@g@r4834';
+        $username = 'root';
+        $password = '';
         
         try {
             $this->conn = new mysqli($host, $username, $password, $dbname);
@@ -159,6 +159,79 @@ class AndroidSessionManager {
         ]);
         
         return true;
+    }
+    
+    // NEW METHOD: Handle WebToNative session persistence
+    public function handleWebToNativeSessionPersistence() {
+        if (!$this->isWebToNative()) {
+            return false;
+        }
+        
+        // Force session write and cookie update
+        session_write_close();
+        session_start();
+        
+        // Update all session timestamps
+        $_SESSION['webtonative_last_activity'] = time();
+        $_SESSION['last_activity'] = time();
+        $_SESSION['session_expires'] = time() + 31536000;
+        
+        // Force cookie update
+        $this->updateSessionCookie();
+        
+        $this->logger->logAndroidEvent('WEBTONATIVE_SESSION_PERSISTENCE', [
+            'user_id' => $_SESSION['user_id'] ?? null,
+            'session_id' => session_id(),
+            'timestamp' => time()
+        ]);
+        
+        return true;
+    }
+    
+    // NEW METHOD: Restore WebToNative session from remember token
+    public function restoreWebToNativeSession() {
+        if (!isset($_COOKIE['remember_token'])) {
+            return false;
+        }
+
+        $remember_token = $_COOKIE['remember_token'];
+        $current_time = time();
+        
+        // Query the database for the user with this remember token
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE remember_token = ? AND token_expires > ?");
+        $stmt->bind_param("si", $remember_token, $current_time);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user) {
+            // Restore the session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['email'] = $user['Email'];
+            $_SESSION['login_time'] = time();
+            $_SESSION['last_activity'] = time();
+            $_SESSION['is_android_app'] = true;
+            $_SESSION['webtonative_detected'] = true;
+            $_SESSION['webtonative_user'] = true;
+            $_SESSION['webtonative_session_start'] = time();
+            $_SESSION['webtonative_last_activity'] = time();
+            $_SESSION['android_last_activity'] = time();
+            $_SESSION['session_expires'] = time() + 31536000;
+
+            // Update the session cookie
+            $this->updateSessionCookie();
+
+            $this->logger->logAndroidEvent('WEBTONATIVE_SESSION_RESTORED', [
+                'user_id' => $user['id'],
+                'session_id' => session_id(),
+                'timestamp' => time()
+            ]);
+
+            return true;
+        }
+
+        return false;
     }
     
     private function updateSessionCookie() {

@@ -126,6 +126,10 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- WebToNative Script -->
+    <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
+    
     <style>
         .card-summary {
             transition: all 0.3s ease;
@@ -290,6 +294,169 @@ $conn->close();
 
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
+    
+    <!-- Enhanced Android Session Protection for Dashboard -->
+    <script>
+    // Enhanced Android Session Protection for Dashboard
+    function setupDashboardSessionProtection() {
+        if (typeof WTN === 'undefined') return;
+        
+        console.log('📱 Dashboard: Setting up Android session protection');
+        
+        // Force immediate cookie update
+        setTimeout(() => {
+            if (WTN.forceUpdateCookies) {
+                WTN.forceUpdateCookies();
+                console.log('🔧 Dashboard: Initial cookie update completed');
+            }
+        }, 1000);
+        
+        // Additional protection for page transitions
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted && WTN.forceUpdateCookies) {
+                setTimeout(() => {
+                    WTN.forceUpdateCookies();
+                    console.log('🔧 Dashboard: Page restored from cache - cookies updated');
+                }, 500);
+            }
+        });
+        
+        // Enhanced visibility change handling for dashboard
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && typeof WTN !== 'undefined' && WTN.forceUpdateCookies) {
+                // Dashboard became visible - force cookie update
+                setTimeout(() => {
+                    WTN.forceUpdateCookies();
+                    console.log('📱 Dashboard: Visibility change - cookies updated');
+                }, 300);
+            }
+        });
+        
+        // Additional protection for order system interactions
+        const originalAddEventListener = EventTarget.prototype.addEventListener;
+        EventTarget.prototype.addEventListener = function(type, listener, options) {
+            if (type === 'click' && this.classList && (
+                this.classList.contains('order-popup') || 
+                this.id && this.id.includes('acceptOrder') || 
+                this.id && this.id.includes('rejectOrder')
+            )) {
+                // Order system interaction - update cookies
+                setTimeout(() => {
+                    if (WTN.forceUpdateCookies) {
+                        WTN.forceUpdateCookies();
+                        console.log('🔧 Dashboard: Order interaction - cookies updated');
+                    }
+                }, 100);
+            }
+            return originalAddEventListener.call(this, type, listener, options);
+        };
+    }
+
+    // Initialize dashboard protection
+    document.addEventListener('DOMContentLoaded', function() {
+        setupDashboardSessionProtection();
+        
+        // Additional protection for order system
+        if (typeof WTN !== 'undefined') {
+            // Override order system functions to include cookie updates
+            const originalInitOrderSystem = window.initOrderSystem;
+            if (originalInitOrderSystem) {
+                window.initOrderSystem = function() {
+                    if (WTN.forceUpdateCookies) {
+                        WTN.forceUpdateCookies();
+                        console.log('🔧 Order System: Cookies updated before initialization');
+                    }
+                    return originalInitOrderSystem.apply(this, arguments);
+                };
+            }
+            
+            // Enhanced session monitoring for dashboard
+            setInterval(() => {
+                if (WTN.forceUpdateCookies) {
+                    WTN.forceUpdateCookies();
+                    console.log('📱 Dashboard: Periodic cookie update');
+                }
+            }, 60000); // Every minute for dashboard
+            
+            // Update cookies on any significant dashboard activity
+            const dashboardActivities = ['mousemove', 'keydown', 'scroll', 'touchstart'];
+            dashboardActivities.forEach(activity => {
+                document.addEventListener(activity, () => {
+                    setTimeout(() => {
+                        if (WTN.forceUpdateCookies) {
+                            WTN.forceUpdateCookies();
+                        }
+                    }, 2000);
+                }, { passive: true });
+            });
+        }
+    });
+
+    // Enhanced dashboard-specific session management
+    class DashboardSessionManager {
+        constructor() {
+            this.isAndroidApp = <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>;
+            this.isWebToNative = typeof WTN !== 'undefined';
+            this.init();
+        }
+
+        init() {
+            if (this.isWebToNative) {
+                console.log('📱 Dashboard Session Manager: WebToNative detected');
+                this.startDashboardSessionMaintenance();
+            }
+        }
+
+        startDashboardSessionMaintenance() {
+            // More frequent updates for dashboard (every 30 seconds)
+            setInterval(() => {
+                this.maintainDashboardSession();
+            }, 30000);
+        }
+
+        maintainDashboardSession() {
+            if (!this.isWebToNative) return;
+
+            // Update cookies
+            if (WTN.forceUpdateCookies) {
+                WTN.forceUpdateCookies();
+            }
+
+            // Send session ping
+            this.sendDashboardPing();
+        }
+
+        async sendDashboardPing() {
+            try {
+                await fetch('session-keepalive.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'X-Dashboard-Ping': 'true',
+                        'X-WebToNative': 'true'
+                    }
+                });
+                console.log('📱 Dashboard: Session ping sent');
+            } catch (error) {
+                console.log('📱 Dashboard: Ping failed (app may be in background)');
+            }
+        }
+
+        // Force session refresh for dashboard
+        forceDashboardSessionRefresh() {
+            if (this.isWebToNative && WTN.forceUpdateCookies) {
+                WTN.forceUpdateCookies();
+                this.sendDashboardPing();
+                console.log('🔧 Dashboard: Forced session refresh');
+            }
+        }
+    }
+
+    // Initialize dashboard session manager
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dashboardSessionManager = new DashboardSessionManager();
+    });
+    </script>
     
     <script>
         $(document).ready(function() {
@@ -807,23 +974,6 @@ function startEnhancedSessionMonitoring() {
         }, 300000); // 5 minutes
     }
 }
-
-// Start enhanced monitoring when dashboard loads
-$(document).ready(function() {
-    startEnhancedSessionMonitoring();
-    
-    // Add device management link to toolbar or menu
-    $('#navbar-nav').append(`
-        <li class="nav-item">
-            <a class="nav-link" href="device_management.php">
-                <span class="nav-icon">
-                    <iconify-icon icon="fas fa-mobile-alt"></iconify-icon>
-                </span>
-                <span class="nav-text">Device Management</span>
-            </a>
-        </li>
-    `);
-});
 </script>
 </body>
 </html>

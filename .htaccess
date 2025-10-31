@@ -19,6 +19,15 @@
     RewriteRule ^ /%1? [R=301,L]
 </IfModule>
 
+# =========================================
+# 365-DAY SESSION CONFIGURATION
+# =========================================
+# Force 365-day session lifetime
+php_value session.gc_maxlifetime 31536000
+php_value session.cookie_lifetime 31536000
+php_value session.gc_probability 0
+php_value session.gc_divisor 1
+
 # Security headers - ###### Commented code for iframe not loading ######
 <IfModule mod_headers.c>
     # Header set X-Content-Type-Options "nosniff"
@@ -34,6 +43,14 @@
         Header set Content-Type "audio/mpeg"
         Header set Access-Control-Allow-Origin "*"
     </Files>
+
+    # Android App Specific Headers
+    <If "req('User-Agent') =~ /WebToNative/">
+        Header set X-Android-App "true"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </If>
 </IfModule>
 
 # Performance optimizations
@@ -75,25 +92,25 @@ Options -Indexes
 # To make changes to this file, use the cPanel MultiPHP INI Editor (Home >> Software >> MultiPHP INI Editor)
 # For more information, read our documentation (https://go.cpanel.net/EA4ModifyINI)
 <IfModule php8_module>
-   php_flag display_errors Off
+   php_flag display_errors On
    php_value max_execution_time 60
    php_value max_input_time 60
    php_value max_input_vars 1000
    php_value memory_limit 512M
    php_value post_max_size 516M
-   php_value session.gc_maxlifetime 1440
+   php_value session.gc_maxlifetime 31536000
    php_value session.save_path "/var/cpanel/php/sessions/ea-php83"
    php_value upload_max_filesize 512M
    php_flag zlib.output_compression Off
 </IfModule>
 <IfModule lsapi_module>
-   php_flag display_errors Off
+   php_flag display_errors On
    php_value max_execution_time 60
    php_value max_input_time 60
    php_value max_input_vars 1000
    php_value memory_limit 512M
    php_value post_max_size 516M
-   php_value session.gc_maxlifetime 1440
+   php_value session.gc_maxlifetime 31536000
    php_value session.save_path "/var/cpanel/php/sessions/ea-php83"
    php_value upload_max_filesize 512M
    php_flag zlib.output_compression Off
@@ -101,7 +118,7 @@ Options -Indexes
 # END cPanel-generated php ini directives, do not edit
 
 # php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php83” package as the default “PHP” programming language.
+# Set the "ea-php83" package as the default "PHP" programming language.
 <IfModule mime_module>
   AddHandler application/x-httpd-ea-php83___lsphp .php .php8 .phtml
 </IfModule>

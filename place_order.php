@@ -1,5 +1,5 @@
 <?php
-// place_order.php - Complete Working Version with OneSignal
+// place_order.php - Fixed Version
 
 // List of allowed domains
 $allowedDomains = [
@@ -9,7 +9,7 @@ $allowedDomains = [
     'https://www.swadishtrasoi.in', 
     'https://tastespecial.in',
     'https://www.tastespecial.in',
-    'http://localhost:3000' // For development
+    'http://localhost:3000'
 ];
 
 // Get the origin of the request
@@ -21,32 +21,53 @@ if (in_array($requestOrigin, $allowedDomains)) {
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
     header("Access-Control-Allow-Credentials: true");
-    header("Access-Control-Max-Age: 86400"); // 24 hours
+    header("Access-Control-Max-Age: 86400");
 }
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
     exit(0);
 }
 
-error_log("Received order data: " . print_r($input, true));
+// Set content type FIRST and suppress unexpected output
 header('Content-Type: application/json');
+ob_start(); // Start output buffering to catch any unexpected output
+
+// Now include your database connection
 require_once 'config/db_connection.php';
 
 // Get JSON input
-$input = json_decode(file_get_contents('php://input'), true);
+$jsonInput = file_get_contents('php://input');
+$input = json_decode($jsonInput, true);
 
-// Debug: Log exactly what we receive
-error_log("Raw input: " . file_get_contents('php://input'));
-error_log("Discount amount received: " . (isset($input['discount_amount']) ? $input['discount_amount'] : 'NOT SET'));
-error_log("Discount type received: " . (isset($input['discount_type']) ? $input['discount_type'] : 'NOT SET'));
+// Clear any buffered output
+ob_clean();
 
-if (!$input) {
+// Debug logging (but don't output to response)
+error_log("Raw input received: " . $jsonInput);
+
+if (!$input || json_last_error() !== JSON_ERROR_NONE) {
+    http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'Invalid input data'
+        'message' => 'Invalid JSON input: ' . json_last_error_msg(),
+        'received_data' => $jsonInput
     ]);
     exit();
+}
+
+// Validate required fields
+$requiredFields = ['user_id', 'order_type', 'customer_name', 'customer_phone', 'items'];
+foreach ($requiredFields as $field) {
+    if (!isset($input[$field])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => "Missing required field: $field"
+        ]);
+        exit();
+    }
 }
 
 try {
@@ -68,7 +89,7 @@ try {
         delivery_charge, 
         total_amount,
         status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
     
     // Calculate order totals
     $subtotal = array_reduce($input['items'], function($sum, $item) {
@@ -132,16 +153,11 @@ try {
             $item['price'],
             $item['quantity']
         ]);
-        
-        // Optional: Update product stock if you have inventory management
-        // $updateStockStmt = $conn->prepare("UPDATE products SET quantity = quantity - ? WHERE product_name = ? AND user_id = ?");
-        // $updateStockStmt->execute([$item['quantity'], $item['name'], $input['user_id']]);
     }
     
     // 3. Record coupon redemption if coupon was used
     if (!empty($input['coupon_data']) && !empty($input['customer_phone'])) {
         try {
-            // Get coupon details
             $couponStmt = $conn->prepare("
                 SELECT id, usage_limit, times_used 
                 FROM coupons 
@@ -155,7 +171,6 @@ try {
             $coupon = $couponStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($coupon) {
-                // Insert redemption record
                 $redemptionStmt = $conn->prepare("
                     INSERT INTO coupon_redemptions (
                         coupon_id,
@@ -175,7 +190,6 @@ try {
                     $discountAmount
                 ]);
                 
-                // Update coupon usage count
                 $updateCouponStmt = $conn->prepare("
                     UPDATE coupons 
                     SET times_used = times_used + 1 
@@ -188,21 +202,16 @@ try {
             }
         } catch (PDOException $e) {
             error_log("Coupon redemption error: " . $e->getMessage());
-            // Don't fail the whole order because of redemption error
         }
     }
 
     // Commit the transaction
     $conn->commit();
     
-    // Log successful order
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
-    // =========================================================================
-    // ONE SIGNAL NOTIFICATION - WORKING VERSION
-    // =========================================================================
+    // Send notification (non-blocking)
     if ($orderId) {
-        // Use fast non-blocking HTTP request instead of shell_exec
         $notificationUrl = 'https://deegeecard.com/send_onesignal_notification.php';
         $notificationData = [
             'user_id' => $input['user_id'],
@@ -212,13 +221,12 @@ try {
             'order_type' => $input['order_type']
         ];
         
-        // Use fast async request that doesn't wait for response
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',
                 'header' => 'Content-Type: application/x-www-form-urlencoded',
                 'content' => http_build_query($notificationData),
-                'timeout' => 1, // 1 second timeout - don't wait
+                'timeout' => 1,
                 'ignore_errors' => true
             ],
             'ssl' => [
@@ -227,14 +235,11 @@ try {
             ]
         ]);
         
-        // Trigger without waiting for response
         @file_get_contents($notificationUrl, false, $context);
-        
         error_log("📱 Notification triggered for order: $orderId");
     }
-    // =========================================================================
     
-    // Return success with order ID
+    // Return success
     echo json_encode([
         'success' => true,
         'order_id' => $orderId,
@@ -244,12 +249,10 @@ try {
             'customer_name' => $input['customer_name'],
             'total_amount' => $total,
             'order_type' => $input['order_type'],
-            'status' => 'pending'
+            'status' => 'Pending'
         ]
     ]);
 
-    exit();
-    
 } catch (PDOException $e) {
     if (isset($conn)) {
         $conn->rollBack();
@@ -257,12 +260,12 @@ try {
     
     error_log("Order placement error: " . $e->getMessage());
     
+    http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to place order. Please try again.',
+        'message' => 'Database error: Failed to place order. Please try again.',
         'error' => $e->getMessage()
     ]);
-    exit();
 } catch (Exception $e) {
     if (isset($conn)) {
         $conn->rollBack();
@@ -270,10 +273,14 @@ try {
     
     error_log("General order placement error: " . $e->getMessage());
     
+    http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'An unexpected error occurred. Please try again.',
         'error' => $e->getMessage()
     ]);
-    exit();
 }
+
+// Ensure no extra output
+ob_end_flush();
+exit();

@@ -3,6 +3,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
+// Enhanced Android Session Protection
+require_once 'enhanced_android_manager.php';
+
+// Force session maintenance for Android
+if (isset($_SESSION['user_id'])) {
+    $androidSessionManager->maintainAndroidSession();
+}
 date_default_timezone_set('Asia/Kolkata');
 
 require 'db_connection.php';
