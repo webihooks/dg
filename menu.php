@@ -1,49 +1,3 @@
-<script>
-// Debug function to check OneSignal status
-function debugOneSignal() {
-    let status = {};
-    
-    if (window.oneSignalLoginManager) {
-        status.loginManager = window.oneSignalLoginManager.getRegistrationStatus();
-    }
-    
-    if (window.oneSignalDashboardManager) {
-        status.dashboardManager = {
-            userId: window.oneSignalDashboardManager.userId,
-            initialized: true
-        };
-    }
-    
-    status.localStorage = {
-        pendingPlayerId: localStorage.getItem('pending_player_id'),
-        playerId: localStorage.getItem('player_id'),
-        userId: localStorage.getItem('user_id'),
-        registered: localStorage.getItem('onesignal_registered')
-    };
-    
-    status.session = {
-        phpUserId: <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>,
-        isAndroidApp: <?php echo isset($_SESSION['is_android_app']) ? 'true' : 'false'; ?>
-    };
-    
-    console.log('🔍 OneSignal Full Debug Info:', status);
-    alert('OneSignal Debug Info:\n' + JSON.stringify(status, null, 2));
-}
-
-// Add debug button to your page (optional)
-<button onclick="debugOneSignal()" class="btn btn-info">Debug OneSignal</button>
-</script>
-
-
-
-
-
-
-
-
-
-
-
 <!-- OneSignal Integration for Dashboard -->
 <script>
 // Dashboard OneSignal Maintenance
@@ -359,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global polling configuration
 const POLLING_CONFIG = {
-    interval: 1000,
+    interval: 15000,
     active: true,
     lastOrderId: 0,
     isReloading: false,

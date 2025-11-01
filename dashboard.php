@@ -124,7 +124,7 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- WebToNative Script -->
@@ -721,219 +721,11 @@ $conn->close();
         </a>
     </div>
 
-    <!-- OneSignal Integration for Dashboard -->
-    <script>
-    // OneSignal Dashboard Manager
-    class OneSignalDashboardManager {
-        constructor() {
-            this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-            this.isAndroidApp = <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>;
-            this.init();
-        }
 
-        init() {
-            console.log('🚀 Initializing OneSignal on Dashboard for user:', this.userId);
-            console.log('📱 Android App:', this.isAndroidApp);
-            
-            if (this.userId) {
-                // Initialize OneSignal registration
-                this.initializeOneSignal();
-            }
-        }
 
-        initializeOneSignal() {
-            // Check if we have a pending player ID from login
-            const pendingPlayerId = localStorage.getItem('pending_player_id');
-            
-            if (pendingPlayerId) {
-                console.log('🔄 Completing device registration from login...');
-                this.registerDevice(
-                    pendingPlayerId,
-                    localStorage.getItem('pending_device_type') || 'web_browser',
-                    localStorage.getItem('pending_platform') || 'web'
-                );
-            } else {
-                // Initialize fresh OneSignal registration
-                this.detectAndRegister();
-            }
-        }
 
-        detectAndRegister() {
-            // WebToNative environment
-            if (typeof WTN !== 'undefined' && WTN.OneSignal) {
-                console.log('📱 WebToNative detected on dashboard');
-                this.initializeWebToNative();
-            } 
-            // Regular OneSignal environment
-            else if (typeof OneSignal !== 'undefined') {
-                console.log('🌐 Web OneSignal detected on dashboard');
-                this.initializeWebOneSignal();
-            } else {
-                console.log('ℹ️ No OneSignal environment detected');
-            }
-        }
 
-        initializeWebToNative() {
-            const { getPlayerId, setExternalUserId } = WTN.OneSignal;
-            
-            getPlayerId().then((playerId) => {
-                if (playerId) {
-                    console.log('✅ WebToNative Player ID on dashboard:', playerId);
-                    this.registerDevice(playerId, 'android_webtonative', 'android');
-                    setExternalUserId(this.userId.toString());
-                }
-            }).catch(error => {
-                console.error('❌ WebToNative error on dashboard:', error);
-            });
-        }
 
-        initializeWebOneSignal() {
-            window.OneSignal = window.OneSignal || [];
-            
-            OneSignal.push(() => {
-                OneSignal.init({
-                    appId: "9d512a16-1b7c-4d2c-ae9f-07c36c963086",
-                    safari_web_id: "",
-                    notifyButton: { enable: false },
-                    allowLocalhostAsSecureOrigin: true,
-                });
-
-                OneSignal.getUserId((playerId) => {
-                    if (playerId) {
-                        console.log('✅ Web OneSignal Player ID on dashboard:', playerId);
-                        this.registerDevice(playerId, 'web_browser', 'web');
-                        OneSignal.setExternalUserId(this.userId.toString());
-                    }
-                });
-            });
-        }
-
-        registerDevice(playerId, deviceType, platform) {
-            const payload = {
-                player_id: playerId,
-                device_type: deviceType,
-                platform: platform,
-                user_id: this.userId,
-                source: (deviceType === 'android_webtonative') ? 'webtonative_app' : 'web_browser'
-            };
-
-            fetch('register_device_unified.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('✅ Device registered on dashboard:', data.message);
-                    
-                    // Clear any pending registration data
-                    localStorage.removeItem('pending_player_id');
-                    localStorage.removeItem('pending_device_type');
-                    localStorage.removeItem('pending_platform');
-                    
-                    // Store successful registration
-                    localStorage.setItem('onesignal_registered', 'true');
-                    localStorage.setItem('player_id', playerId);
-                    localStorage.setItem('user_id', this.userId.toString());
-                    
-                } else {
-                    console.error('❌ Device registration failed on dashboard:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('❌ Device registration request failed on dashboard:', error);
-            });
-        }
-    }
-
-    // Initialize on dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-        if (<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>) {
-            window.oneSignalDashboardManager = new OneSignalDashboardManager();
-        }
-    });
-    </script>
-
-    <!-- SIMPLIFIED OneSignal Registration -->
-    <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
-    <script>
-    // Enhanced Android-Only OneSignal Registration
-    class AndroidOneSignalRegister {
-        constructor() {
-            this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-            console.log('🚀 Android Register - User ID:', this.userId);
-            
-            if (this.userId) {
-                this.startAndroidRegistration();
-            }
-        }
-        
-        startAndroidRegistration() {
-            console.log('🔄 Starting Android-only registration...');
-            
-            // ONLY attempt registration for Android WebToNative
-            if (typeof WTN !== 'undefined' && WTN.OneSignal) {
-                console.log('📱 Android WebToNative detected - registering...');
-                this.registerViaWebToNative();
-            } else {
-                console.log('🌐 Web browser detected - skipping device registration');
-            }
-        }
-        
-        registerViaWebToNative() {
-            WTN.OneSignal.getPlayerId().then(playerId => {
-                if (playerId) {
-                    console.log('✅ Got Android Player ID:', playerId);
-                    this.sendRegistration(playerId, 'android_webtonative', 'android');
-                } else {
-                    console.log('❌ No Player ID from WebToNative');
-                }
-            }).catch(error => {
-                console.error('❌ WebToNative error:', error);
-            });
-        }
-        
-        sendRegistration(playerId, deviceType, platform) {
-            const payload = {
-                player_id: playerId,
-                device_type: deviceType,
-                platform: platform,
-                user_id: this.userId,
-                source: 'android_only_script'
-            };
-            
-            console.log('📨 Sending Android registration:', payload);
-            
-            fetch('register_device_unified.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ Registration response:', data);
-                if (data.success) {
-                    if (data.skipped) {
-                        console.log('ℹ️ Registration skipped:', data.reason);
-                    } else {
-                        console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
-                    }
-                } else {
-                    console.error('❌ Registration failed:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('❌ Request failed:', error);
-            });
-        }
-    }
-
-    // Start Android-only registration when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        new AndroidOneSignalRegister();
-    });
-    </script>
 <script>
 // Add to dashboard.php JavaScript section
 // Enhanced session monitoring
@@ -974,6 +766,11 @@ function startEnhancedSessionMonitoring() {
         }, 300000); // 5 minutes
     }
 }
+
+// Initialize enhanced monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    startEnhancedSessionMonitoring();
+});
 </script>
 </body>
 </html>

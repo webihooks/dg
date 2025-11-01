@@ -28,6 +28,23 @@ php_value session.cookie_lifetime 31536000
 php_value session.gc_probability 0
 php_value session.gc_divisor 1
 
+# Prevent session ID regeneration
+php_value session.use_strict_mode 1
+php_value session.use_cookies 1
+php_value session.use_only_cookies 1
+
+# Android-specific headers
+<IfModule mod_headers.c>
+    <If "req('User-Agent') =~ /WebToNative/">
+        Header set X-Android-App "true"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+        Header set X-Session-Persistent "365-days"
+    </If>
+</IfModule>
+
+
 # Security headers - ###### Commented code for iframe not loading ######
 <IfModule mod_headers.c>
     # Header set X-Content-Type-Options "nosniff"
