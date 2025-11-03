@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // WEBTONATIVE ANDROID APP DETECTION
 function isWebToNativeAndroid() {
     return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
@@ -786,7 +783,7 @@ setupLoginCookieManagement();
                                                        <div class="form-check">
                                                             <input type="checkbox" class="form-check-input" id="checkbox-signin" name="remember_me" checked>
                                                             <label class="form-check-label" for="checkbox-signin">
-                                                                Remember Me (Recommended - 365 Days)
+                                                                Remember Me
                                                             </label>
                                                        </div>
                                                   </div>
@@ -797,10 +794,10 @@ setupLoginCookieManagement();
                                              </form>
                                         </div>
 
-                                        <p class="text-danger text-center">Don't have an account? <a href="register.php" class="text-dark fw-bold ms-1">Sign Up</a></p>
+                                        <!-- <p class="text-danger text-center">Don't have an account? <a href="register.php" class="text-dark fw-bold ms-1">Sign Up</a></p> -->
 
                                         <!-- Download Our Partner Android App Section -->
-                                        <div class="mt-1 border-top pt-4 mb-5">
+                                        <!-- <div class="mt-1 border-top pt-4 mb-5">
                                             <h5 class="text-center mb-3">Download Our Partner App</h5>
                                             <div class="row g-2">
 
@@ -817,7 +814,7 @@ setupLoginCookieManagement();
                                                 </div>
                                                 
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <!-- Download Our Partner Android App Section -->
 
                                    </div>

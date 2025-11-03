@@ -160,7 +160,7 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <script src="https://cdn.webtonative.com/scripts/webtonative.min.js"></script>
     <style>
         /* Mobile-first approach */
@@ -300,10 +300,13 @@ if ($role === 'admin') {
                                         <label for="profile_url" class="form-label">Your Profile URL</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><?php echo $_SERVER['HTTP_HOST']; ?>/</span>
-                                            <input type="text" class="form-control" id="profile_url" name="profile_url" 
-                                                   value="<?php echo htmlspecialchars($current_profile_url); ?>" 
-                                                   pattern="[a-zA-Z0-9-]+" 
-                                                   title="Only letters, numbers, and hyphens are allowed" required>
+
+
+
+
+<input type="text" class="form-control" id="profile_url" name="profile_url" 
+       value="<?php echo htmlspecialchars($current_profile_url); ?>" 
+       required>
                                             <button type="button" class="btn btn-outline-secondary" id="checkAvailability">Check Availability</button>
                                         </div>
                                         <div id="availabilityMessage" class="mt-2"></div>
@@ -380,12 +383,14 @@ class="profile-external-link">
                 });
             });
             
+
             // Form validation
             $('#profileUrlForm').validate({
                 rules: {
                     profile_url: {
                         required: true,
-                        pattern: /^[a-zA-Z0-9-]+$/
+                        // Use string pattern instead of regex literal
+                        pattern: "^[a-zA-Z0-9-]+$"
                     }
                 },
                 messages: {

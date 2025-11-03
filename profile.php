@@ -71,7 +71,7 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
 </head>
 
 <body>
@@ -166,96 +166,97 @@ $conn->close();
             <?php include 'footer.php'; ?>
         </div>
     </div>
+
     <script>
-        $(document).ready(function () {
-            $("#profileForm").validate({
-                rules: {
-                    name: {
-                        required: true,
-                        minlength: 3
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    },
-                    phone: {
-                        required: true,
-                        digits: true,
-                        minlength: 10,
-                        maxlength: 10
-                    }
-                    address: {
-                        required: true,
-                        minlength: 5,
-                        noLineBreaks: true  // Custom rule to block line breaks
-                    }
-                },
-                messages: {
-                    name: {
-                        required: "Please enter your name.",
-                        minlength: "Your name must be at least 3 characters long."
-                    },
-                    email: {
-                        required: "Please enter your email.",
-                        email: "Please enter a valid email address."
-                    },
-                    phone: {
-                        required: "Please enter your phone number.",
-                        digits: "Phone number must contain only digits.",
-                        minlength: "Phone number must be exactly 10 digits.",
-                        maxlength: "Phone number must be exactly 10 digits."
-                    },
-                    address: {
-                        required: "Please enter your address.",
-                        minlength: "Address must be at least 5 characters long.",
-                        noLineBreaks: "Line breaks are not allowed in the address."
-                    }
-                }
-            });
+$(document).ready(function () {
+    $("#profileForm").validate({
+        rules: {
+            name: {
+                required: true,
+                minlength: 3
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            phone: {
+                required: true,
+                digits: true,
+                minlength: 10,
+                maxlength: 10
+            }, // Added missing comma here
+            address: {
+                required: true,
+                minlength: 5,
+                noLineBreaks: true  // Custom rule to block line breaks
+            }
+        },
+        messages: {
+            name: {
+                required: "Please enter your name.",
+                minlength: "Your name must be at least 3 characters long."
+            },
+            email: {
+                required: "Please enter your email.",
+                email: "Please enter a valid email address."
+            },
+            phone: {
+                required: "Please enter your phone number.",
+                digits: "Phone number must contain only digits.",
+                minlength: "Phone number must be exactly 10 digits.",
+                maxlength: "Phone number must be exactly 10 digits."
+            },
+            address: {
+                required: "Please enter your address.",
+                minlength: "Address must be at least 5 characters long.",
+                noLineBreaks: "Line breaks are not allowed in the address."
+            }
+        }
+    });
 
-            // Add custom method for exact length validation
-            $.validator.addMethod("exactlength", function(value, element, param) {
-                return this.optional(element) || value.length == param;
-            }, $.validator.format("Please enter exactly {0} characters."));
+    // Add custom method for exact length validation
+    $.validator.addMethod("exactlength", function(value, element, param) {
+        return this.optional(element) || value.length == param;
+    }, $.validator.format("Please enter exactly {0} characters."));
 
-            // Custom validation method to block line breaks
-            $.validator.addMethod("noLineBreaks", function(value, element) {
-            return !/[\\n\\r]/.test(value); // Returns false if line breaks exist
-            });                
+    // Custom validation method to block line breaks - FIXED this function
+    $.validator.addMethod("noLineBreaks", function(value, element) {
+        return !/[\n\r]/.test(value); // Returns false if line breaks exist
+    }); // Added missing closing brace and parenthesis here
             
-            $("#passwordForm").validate({
-                rules: {
-                    current_password: {
-                        required: true,
-                        minlength: 6
-                    },
-                    new_password: {
-                        required: true,
-                        minlength: 6
-                    },
-                    confirm_password: {
-                        required: true,
-                        minlength: 6,
-                        equalTo: "#new_password"
-                    }
-                },
-                messages: {
-                    current_password: {
-                        required: "Please enter your current password.",
-                        minlength: "Password must be at least 6 characters long."
-                    },
-                    new_password: {
-                        required: "Please enter a new password.",
-                        minlength: "Password must be at least 6 characters long."
-                    },
-                    confirm_password: {
-                        required: "Please confirm your new password.",
-                        minlength: "Password must be at least 6 characters long.",
-                        equalTo: "Passwords do not match."
-                    }
-                }
-            });
-        });
+    $("#passwordForm").validate({
+        rules: {
+            current_password: {
+                required: true,
+                minlength: 6
+            },
+            new_password: {
+                required: true,
+                minlength: 6
+            },
+            confirm_password: {
+                required: true,
+                minlength: 6,
+                equalTo: "#new_password"
+            }
+        },
+        messages: {
+            current_password: {
+                required: "Please enter your current password.",
+                minlength: "Password must be at least 6 characters long."
+            },
+            new_password: {
+                required: "Please enter a new password.",
+                minlength: "Password must be at least 6 characters long."
+            },
+            confirm_password: {
+                required: "Please confirm your new password.",
+                minlength: "Password must be at least 6 characters long.",
+                equalTo: "Passwords do not match."
+            }
+        }
+    });
+});
     </script>
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>

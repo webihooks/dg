@@ -79,49 +79,55 @@ if ($conn) {
     $conn->set_charset("utf8mb4");
 }
 
-// Function to close the database connection (optional)
-function closeConnection($conn) {
-    if ($conn) {
-        $conn->close();
+// Function to close the database connection (optional) - CHECK IF NOT ALREADY DEFINED
+if (!function_exists('closeConnection')) {
+    function closeConnection($conn) {
+        if ($conn) {
+            $conn->close();
+        }
     }
 }
 
 // =========================================
 // ANDROID SESSION HELPER FUNCTIONS
 // =========================================
-function isAndroidApp() {
-    return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
-           isset($_SERVER['HTTP_X_WEBTONATIVE']) ||
-           isset($_SESSION['is_android_app']);
+if (!function_exists('isAndroidApp')) {
+    function isAndroidApp() {
+        return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
+               isset($_SERVER['HTTP_X_WEBTONATIVE']) ||
+               isset($_SESSION['is_android_app']);
+    }
 }
 
-function maintainAndroidSession($userId = null) {
-    if (!isAndroidApp()) return false;
-    
-    if ($userId) {
-        $_SESSION['user_id'] = $userId;
-    }
-    
-    if (isset($_SESSION['user_id'])) {
-        $_SESSION['is_android_app'] = true;
-        $_SESSION['android_last_activity'] = time();
-        $_SESSION['session_expires'] = time() + 31536000;
-        $_SESSION['last_activity'] = time();
+if (!function_exists('maintainAndroidSession')) {
+    function maintainAndroidSession($userId = null) {
+        if (!isAndroidApp()) return false;
         
-        // Force cookie update
-        setcookie(session_name(), session_id(), [
-            'expires' => time() + 31536000,
-            'path' => '/',
-            'domain' => $_SERVER['HTTP_HOST'],
-            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-            'httponly' => true,
-            'samesite' => 'None'
-        ]);
+        if ($userId) {
+            $_SESSION['user_id'] = $userId;
+        }
         
-        return true;
+        if (isset($_SESSION['user_id'])) {
+            $_SESSION['is_android_app'] = true;
+            $_SESSION['android_last_activity'] = time();
+            $_SESSION['session_expires'] = time() + 31536000;
+            $_SESSION['last_activity'] = time();
+            
+            // Force cookie update
+            setcookie(session_name(), session_id(), [
+                'expires' => time() + 31536000,
+                'path' => '/',
+                'domain' => $_SERVER['HTTP_HOST'],
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'None'
+            ]);
+            
+            return true;
+        }
+        
+        return false;
     }
-    
-    return false;
 }
 
 // Auto-maintain Android session if user is logged in

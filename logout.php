@@ -23,8 +23,8 @@ $playerId = $_SESSION['current_player_id'] ?? null;
 // Initialize variables
 $logoutSuccess = false;
 
-// Database connection to clear remember token AND deactivate ONLY current device
-if ($userId && $playerId) {
+// Database connection - ONLY clear remember token, DO NOT deactivate device
+if ($userId) {
     $host = 'localhost';
     $dbname = 'doctorie_webihooks_card';
     $username = 'doctorie_webihooks';
@@ -34,30 +34,27 @@ if ($userId && $playerId) {
         $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
-        // 1. Clear remember token from database
+        // 1. Clear remember token from database ONLY
         $stmt = $conn->prepare("UPDATE users SET remember_token = NULL, token_expires = NULL WHERE id = :id");
         $stmt->bindParam(':id', $userId);
         $stmt->execute();
         
-        // 2. DEACTIVATE ONLY THE CURRENT DEVICE, not all devices
-        $deviceStmt = $conn->prepare("UPDATE user_devices SET is_active = 0 WHERE user_id = :user_id AND player_id = :player_id");
-        $deviceStmt->bindParam(':user_id', $userId);
-        $deviceStmt->bindParam(':player_id', $playerId);
-        $deviceStmt->execute();
+        // 2. DO NOT deactivate the device - keep is_active = 1 for push notifications
+        // This ensures push notifications continue after logout
         
-        $affectedDevices = $deviceStmt->rowCount();
         $logoutSuccess = true;
         
-        error_log("🚪 User {$userId} logged out - Device {$playerId} deactivated. Affected: {$affectedDevices}");
+        error_log("🚪 User {$userId} logged out - Device {$playerId} REMAINS ACTIVE for push notifications");
         
         // Log the logout event
         if (file_exists('enhanced_logger.php')) {
             require_once 'enhanced_logger.php';
             $logger = new EnhancedSessionLogger($userId);
-            $logger->logSessionEvent('DEVICE_LOGOUT', [
+            $logger->logSessionEvent('DEVICE_LOGOUT_SESSION_ONLY', [
                 'user_id' => $userId,
                 'player_id' => $playerId,
-                'affected_devices' => $affectedDevices
+                'device_remains_active' => true,
+                'push_notifications_continue' => true
             ]);
         }
         
@@ -66,7 +63,7 @@ if ($userId && $playerId) {
         // Continue with session destruction even if DB fails
     }
 } else {
-    error_log("Logout attempted without user_id or player_id. User: " . ($userId ?? 'null') . ", Player: " . ($playerId ?? 'null'));
+    error_log("Logout attempted without user_id. User: " . ($userId ?? 'null'));
 }
 
 // Clear all session data
@@ -131,6 +128,7 @@ if ($isAndroidApp) {
         <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
             <h2>Logging out...</h2>
             <p>Please wait while we securely log you out.</p>
+            <p><small>Push notifications will continue to work on this device.</small></p>
         </div>
     </body>
     </html>

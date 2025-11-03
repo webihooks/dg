@@ -17,8 +17,7 @@ $sessionManager->validateAndroidSession();
 
 require_once 'session_check.php';
 
-// Include the database connection file
-require 'db_connection.php';
+require_once 'db_connection.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -181,11 +180,6 @@ $conn->close();
 
 <body>
 
-    <!-- Session Status Indicator -->
-    <div class="session-status-android <?php echo $sessionManager->isAndroidApp() ? 'android' : 'web'; ?>" id="sessionStatusIndicator">
-        <?php echo $sessionManager->isAndroidApp() ? '📱 Android App - Session Active (365 Days)' : '🌐 Web - Session Active'; ?>
-    </div>
-
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         
@@ -208,22 +202,10 @@ $conn->close();
                         <!-- Display trial notification if user is on trial -->
                         <?php if (!empty($trial_notification)) echo $trial_notification; ?>
                         
-                        <!-- Session Info Alert for Android -->
-                        <?php if ($sessionManager->isAndroidApp()): ?>
-                        <div class="alert alert-success alert-dismissible fade show mb-3">
-                            <i class="fas fa-mobile-alt me-2"></i>
-                            <strong>Android App Session:</strong> Your session is configured to remain active for 365 days. 
-                            You will stay logged in unless you manually log out.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <?php endif; ?>
                         
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Today's Sales Report - <?php echo date('F j, Y'); ?></h4>
-                                <?php if ($sessionManager->isAndroidApp()): ?>
-                                <span class="badge bg-success float-end">Android App</span>
-                                <?php endif; ?>
                             </div>
                             
                             <div class="card-body">

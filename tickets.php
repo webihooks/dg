@@ -270,6 +270,21 @@ $conn->close();
             }
         }
         
+        .badge {
+          display: inline-block;
+          padding: 0.25rem 0.75rem;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-align: center;
+          border-radius: 0.375rem;
+          text-transform: uppercase;
+          letter-spacing: 0.025em;
+        }
+
+        .badge-priority-urgent {
+          background-color: orange;
+          color: white;
+        }
         /* Common Styles */
         .badge-priority-low { background-color: #28a745; }
         .badge-priority-medium { background-color: #ffc107; color: #000; }
@@ -289,6 +304,7 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>

@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+
 $user_id = $_SESSION['user_id'];
 $success_message = '';
 $error_message = '';
@@ -214,7 +215,7 @@ $conn->close();
       <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
       <script src="assets/js/config.js"></script>
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+      <script src="assets/js/jquery.validate.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <style>
         /* Mobile Responsive Styles */

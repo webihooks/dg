@@ -37,11 +37,15 @@ $stmt->bind_result($user_name);
 $stmt->fetch();
 $stmt->close();
 
+// Get current month and year
+$current_month = date('m');
+$current_year = date('Y');
+
 // Get filter parameters
 $filter_user = isset($_GET['user_filter']) ? $_GET['user_filter'] : '';
 $filter_date = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
 
-// Base query
+// Base query - Only show current month orders by default
 $orders_sql = "SELECT o.*, 
                       u.id as user_id, 
                       u.name as user_name, 
@@ -50,7 +54,9 @@ $orders_sql = "SELECT o.*,
                FROM orders o 
                JOIN users u ON o.user_id = u.id 
                LEFT JOIN profile_url_details p ON u.id = p.user_id
-               WHERE u.id != 28";
+               WHERE u.id != 28 
+               AND MONTH(o.created_at) = ? 
+               AND YEAR(o.created_at) = ?";
 
 // Add filters to query
 if (!empty($filter_user)) {
@@ -61,7 +67,12 @@ if (!empty($filter_date)) {
 }
 
 $orders_sql .= " ORDER BY o.created_at DESC";
-$orders_result = $conn->query($orders_sql);
+
+// Prepare and execute the orders query
+$orders_stmt = $conn->prepare($orders_sql);
+$orders_stmt->bind_param("ii", $current_month, $current_year);
+$orders_stmt->execute();
+$orders_result = $orders_stmt->get_result();
 
 // Fetch all users for filter dropdown
 $users_sql = "SELECT id, name FROM users WHERE id != 28 ORDER BY name";
@@ -111,7 +122,7 @@ $conn->close();
             background-color: #cce5ff;
             color: #004085;
         }
-        .dataTables_wrapper .dataTables_filter input {
+        .dataTables_wrapper .dataFilters_filter input {
             margin-left: 0.5em;
             border: 1px solid #dee2e6;
             padding: 5px 10px;
@@ -141,6 +152,41 @@ $conn->close();
         .filter-btn {
             margin-right: 10px;
         }
+        th, td {
+          padding: 3px !important;
+          font-size: 12px !important;
+        }
+        .order-status {
+          padding: 5px;
+          border-radius: 20px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+        th:nth-child(11), th:nth-child(12) {
+            width: 75px !important;
+        }
+        .btn-primary {
+            font-size: 10px !important;
+        }
+        .scroll-to-top {
+            bottom: 15px;
+        }
+        /* Remove pagination styling */
+        .dataTables_paginate {
+            display: none !important;
+        }
+        .dataTables_info {
+            padding-top: 10px !important;
+        }
+        .current-month-notice {
+            background-color: #e7f3ff;
+            border-left: 4px solid #3b5de7;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -156,10 +202,15 @@ $conn->close();
                     <div class="col-xl-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">All Orders</h4>
-                                <p class="card-title-desc">View and manage all customer orders with user details</p>
+                                <h4 class="card-title">All Orders - <?php echo date('F Y'); ?></h4>
+                                <p class="card-title-desc">View and manage all customer orders for current month</p>
                             </div>
                             <div class="card-body">
+                                <!-- Current Month Notice -->
+                                <div class="current-month-notice">
+                                    <strong>Note:</strong> Currently showing orders for <?php echo date('F Y'); ?> only. Use date filter to view orders from specific dates.
+                                </div>
+
                                 <!-- Filter Section -->
                                 <div class="filter-section">
                                     <form method="GET" action="">
@@ -195,7 +246,7 @@ $conn->close();
                                 
                                 <!-- Orders Table -->
                                 <div class="table-responsive">
-                                    <table id="ordersTable" class="table table-striped table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                    <table id="ordersTable" class="table" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th>Sr. No.</th>
@@ -274,27 +325,31 @@ $conn->close();
                 allowInput: true
             });
 
-            // Initialize DataTable
+            // Initialize DataTable with proper configuration
             $('#ordersTable').DataTable({
                 responsive: true,
-                order: [[1000, 'desc']], // Default sort by date descending (column index changed due to added Sr. No.)
+                paging: false, // Remove pagination
+                info: true, // Keep showing "Showing X of Y entries"
+                ordering: true,
+                order: [[11, 'desc']], // Sort by date column (index 11) descending
                 columnDefs: [
                     { responsivePriority: 1, targets: 1 }, // Order ID
                     { responsivePriority: 2, targets: 3 }, // User Name
                     { responsivePriority: 3, targets: 5 }, // Customer Name
                     { responsivePriority: 4, targets: 10 }, // Status
                     { responsivePriority: 5, targets: 12 }, // Actions
-                    { orderable: false, targets: 0 } // Make Sr. No. column not sortable
+                    { orderable: false, targets: [0, 12] }, // Make Sr. No. and Actions columns not sortable
+                    { searchable: false, targets: [0, 12] } // Make Sr. No. and Actions columns not searchable
                 ],
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search orders...",
-                    lengthMenu: "Show _MENU_ orders per page",
-                    zeroRecords: "No orders found",
-                    info: "Showing _START_ to _END_ of _TOTAL_ orders",
+                    info: "Showing _TOTAL_ orders",
                     infoEmpty: "No orders available",
-                    infoFiltered: "(filtered from _MAX_ total orders)"
-                }
+                    infoFiltered: "(filtered from _MAX_ total orders)",
+                    zeroRecords: "No orders found"
+                },
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
         });
     </script>

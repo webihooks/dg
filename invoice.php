@@ -16,6 +16,7 @@ $success_message = '';
 $error_message = '';
 $current_profile_url = '';
 
+
 // Get user role
 $role_sql = "SELECT role FROM users WHERE id = ?";
 $role_stmt = $conn->prepare($role_sql);
@@ -110,7 +111,7 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <style>
 /* Flexible height iframe container */
 .iframe-container {

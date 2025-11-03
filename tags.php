@@ -170,6 +170,7 @@ $conn->close();
     </style>
 </head>
 
+
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
@@ -281,7 +282,7 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     

@@ -294,16 +294,6 @@ if (isAndroidApp()) {
 
 
 
-
-
-
-
-
-
-
-
-
-
                                                     <td><?php echo htmlspecialchars($row['email']); ?></td>
                                                     <td><?php echo htmlspecialchars($row['package_name'] ?? 'N/A'); ?></td>
                                                     <td><?php echo htmlspecialchars($row['start_date'] ?? 'N/A'); ?></td>
@@ -376,29 +366,31 @@ if (isAndroidApp()) {
             dateFormat: "Y-m",
             defaultDate: "<?php echo htmlspecialchars($month_filter); ?>"
         });
+
+        function handleProfileLinkClick(url) {
+            // For Android with WTN support
+            if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
+                WTN.openUrlInBrowser(url);
+            } else {
+                // For iOS or fallback - use the href with loadIn parameter
+                window.location.href = url + '?loadIn=defaultBrowser';
+            }
+        }
+
+        // Ensure all external links work properly
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle profile links with both methods - using vanilla JavaScript instead of jQuery
+            var profileLinks = document.querySelectorAll('a.profile-external-link');
+            profileLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var url = this.getAttribute('href') ? 
+                              this.getAttribute('href').replace('?loadIn=defaultBrowser', '') : 
+                              this.textContent.trim();
+                    handleProfileLinkClick(url);
+                });
+            });
+        });
     </script>
-
-
-<script>
-function handleProfileLinkClick(url) {
-    // For Android with WTN support
-    if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
-        WTN.openUrlInBrowser(url);
-    } else {
-        // For iOS or fallback - use the href with loadIn parameter
-        window.location.href = url + '?loadIn=defaultBrowser';
-    }
-}
-
-// Ensure all external links work properly
-$(document).ready(function() {
-    // Handle profile links with both methods
-    $('a.profile-external-link').on('click', function(e) {
-        e.preventDefault();
-        const url = $(this).attr('href') ? $(this).attr('href').replace('?loadIn=defaultBrowser', '') : $(this).text().trim();
-        handleProfileLinkClick(url);
-    });
-});
-</script>
 </body>
 </html>

@@ -454,6 +454,7 @@ $stmt->close();
 $conn->close();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -466,7 +467,7 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         select[multiple]{min-height:100px}.table th{background-color:#f8f9fa;font-weight:600}.product-table{width:100%;border-collapse:collapse}.product-table td,.product-table th{padding:12px;border:1px solid #dee2e6;vertical-align:middle}.product-img{max-width:60px;max-height:60px;border-radius:4px}.action-buttons{display:flex;gap:8px}.btn-sm{padding:5px 10px;font-size:12px}.search-container{display:flex;margin-bottom:20px;gap:10px}.search-container input{flex:1}.no-results{text-align:center;padding:20px;font-style:italic;color:#6c757d}.status-toggle{display:inline-block;width:80px;text-align:center}.form-check-input{margin-top:.3rem}.status-col{width:100px}@media (max-width:1200px){.card-header{flex-direction:column;align-items:flex-start!important}.card-header .input-group{width:100%;margin-top:15px}}@media (max-width:992px){.table-responsive{overflow-x:auto}.product-table{min-width:800px}.action-buttons{flex-wrap:nowrap}.action-buttons .btn{white-space:nowrap}}@media (max-width:768px){.form-row,.search-container,.search-form{flex-direction:column}.col-md-4,.col-md-6{width:100%;margin-bottom:15px}.card-header h4{margin-bottom:15px}.btn-group-responsive{display:flex;flex-direction:column;gap:10px}.btn-group-responsive .btn{width:100%;margin-bottom:5px}.action-buttons{flex-direction:row;flex-wrap:wrap;justify-content:center}.search-form .btn{margin-top:10px;margin-left:0!important}}@media (max-width:576px){.container{padding-left:10px;padding-right:10px}.card-body{padding:15px}.product-table td,.product-table th{padding:8px}.btn{padding:8px 12px;font-size:14px}.action-buttons{flex-direction:row;flex-wrap:nowrap;justify-content:center}.action-buttons .btn{padding:6px 10px;font-size:12px}.modal-dialog{margin:10px}.status-toggle{width:70px;font-size:12px}}.mobile-product-card{display:none;border:1px solid #dee2e6;border-radius:5px;padding:15px;margin-bottom:15px;background:#fff}.mobile-product-field{display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f1f1f1}.mobile-product-field:last-child{border-bottom:none}.mobile-field-label{font-weight:700;color:#495057;min-width:100px}.mobile-field-value{flex:1;text-align:right}@media (max-width:992px){.product-table{display:none}.mobile-product-card{display:block}}.search-form{display:flex;width:100%}.mobile-actions{display:flex;justify-content:center;gap:8px;margin-top:15px;flex-wrap:wrap}.mobile-actions .btn{flex:1;min-width:80px;max-width:120px}

@@ -239,7 +239,7 @@ $conn->close();
     
     <!-- Other JS -->
     <script src="assets/js/config.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.19.3/jquery.validate.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     

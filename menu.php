@@ -62,125 +62,135 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
 <!-- SIMPLIFIED OneSignal Registration -->
 <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
 <script>
-// Enhanced Android-Only OneSignal Registration
-class AndroidOneSignalRegister {
-    constructor() {
-        this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
-        console.log('🚀 Android Register - User ID:', this.userId);
-        
-        if (this.userId) {
-            this.startAndroidRegistration();
-        }
-    }
-    
-    startAndroidRegistration() {
-        console.log('🔄 Starting Android-only registration...');
-        
-        // ONLY attempt registration for Android WebToNative
-        if (typeof WTN !== 'undefined' && WTN.OneSignal) {
-            console.log('📱 Android WebToNative detected - registering...');
-            this.registerViaWebToNative();
-        } else {
-            console.log('🌐 Web browser detected - skipping device registration');
-            this.showMessage('✅ Ready for orders (Android app required for push notifications)', 'info');
-        }
-    }
-    
-    registerViaWebToNative() {
-        WTN.OneSignal.getPlayerId().then(playerId => {
-            if (playerId) {
-                console.log('✅ Got Android Player ID:', playerId);
-                this.sendRegistration(playerId, 'android_webtonative', 'android');
-            } else {
-                console.log('❌ No Player ID from WebToNative');
-                this.showMessage('⚠️ Android notifications not available', 'warning');
-            }
-        }).catch(error => {
-            console.error('❌ WebToNative error:', error);
-            this.showMessage('❌ Android registration failed', 'error');
-        });
-    }
-    
-    sendRegistration(playerId, deviceType, platform) {
-        const payload = {
-            player_id: playerId,
-            device_type: deviceType,
-            platform: platform,
-            user_id: this.userId,
-            source: 'android_only_script'
-        };
-        
-        console.log('📨 Sending Android registration:', payload);
-        
-        fetch('register_device_unified.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('✅ Registration response:', data);
-            if (data.success) {
-                if (data.skipped) {
-                    console.log('ℹ️ Registration skipped:', data.reason);
-                    this.showMessage('ℹ️ ' + data.message, 'info');
-                } else {
-                    console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
-                    this.showMessage('✅ Android device registered for push notifications!', 'success');
-                }
-            } else {
-                console.error('❌ Registration failed:', data.message);
-                this.showMessage('❌ Registration failed: ' + data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('❌ Request failed:', error);
-            this.showMessage('❌ Network error: ' + error.message, 'error');
-        });
-    }
-    
-    showMessage(message, type) {
-        // Create a visible notification (optional - remove if not needed)
-        const div = document.createElement('div');
-        div.style.cssText = `
-            position: fixed;
-            display: none;
-            top: 20px;
-            right: 20px;
-            padding: 15px;
-            background: ${type === 'success' ? '#d4edda' : 
-                        type === 'info' ? '#d1ecf1' : 
-                        type === 'warning' ? '#fff3cd' : '#f8d7da'};
-            border: 1px solid ${type === 'success' ? '#c3e6cb' : 
-                              type === 'info' ? '#bee5eb' : 
-                              type === 'warning' ? '#ffeaa7' : '#f5c6cb'};
-            border-radius: 5px;
-            z-index: 10000;
-            color: ${type === 'success' ? '#155724' : 
-                    type === 'info' ? '#0c5460' : 
-                    type === 'warning' ? '#856404' : '#721c24'};
-        `;
-        div.textContent = message;
-        document.body.appendChild(div);
-        
-        setTimeout(() => {
-            if (div.parentNode) {
-                div.parentNode.removeChild(div);
-            }
-        }, 5000);
-    }
+// Detect Android WebView
+function isAndroidWebView() {
+    return navigator.userAgent.toLowerCase().indexOf("wv") > -1 || 
+           (navigator.userAgent.toLowerCase().indexOf("android") > -1 && 
+            navigator.userAgent.toLowerCase().indexOf("chrome") === -1);
 }
 
-// Start Android-only registration when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    new AndroidOneSignalRegister();
-});
+// Hide download button if in Android WebView
+if (isAndroidWebView()) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // start
+        class AndroidOneSignalRegister {
+            constructor() {
+                this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+                console.log('🚀 Android Register - User ID:', this.userId);
+                
+                if (this.userId) {
+                    this.startAndroidRegistration();
+                }
+            }
+            
+            startAndroidRegistration() {
+                console.log('🔄 Starting Android-only registration...');
+                
+                // ONLY attempt registration for Android WebToNative
+                if (typeof WTN !== 'undefined' && WTN.OneSignal) {
+                    console.log('📱 Android WebToNative detected - registering...');
+                    this.registerViaWebToNative();
+                } else {
+                    console.log('🌐 Web browser detected - skipping device registration');
+                    this.showMessage('✅ Ready for orders (Android app required for push notifications)', 'info');
+                }
+            }
+            
+            registerViaWebToNative() {
+                WTN.OneSignal.getPlayerId().then(playerId => {
+                    if (playerId) {
+                        console.log('✅ Got Android Player ID:', playerId);
+                        this.sendRegistration(playerId, 'android_webtonative', 'android');
+                    } else {
+                        console.log('❌ No Player ID from WebToNative');
+                        this.showMessage('⚠️ Android notifications not available', 'warning');
+                    }
+                }).catch(error => {
+                    console.error('❌ WebToNative error:', error);
+                    this.showMessage('❌ Android registration failed', 'error');
+                });
+            }
+            
+            sendRegistration(playerId, deviceType, platform) {
+                const payload = {
+                    player_id: playerId,
+                    device_type: deviceType,
+                    platform: platform,
+                    user_id: this.userId,
+                    source: 'android_only_script'
+                };
+                
+                console.log('📨 Sending Android registration:', payload);
+                
+                fetch('register_device_unified.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Registration response:', data);
+                    if (data.success) {
+                        if (data.skipped) {
+                            console.log('ℹ️ Registration skipped:', data.reason);
+                            this.showMessage('ℹ️ ' + data.message, 'info');
+                        } else {
+                            console.log('🎉 ANDROID DEVICE REGISTERED SUCCESSFULLY!');
+                            this.showMessage('✅ Android device registered for push notifications!', 'success');
+                        }
+                    } else {
+                        console.error('❌ Registration failed:', data.message);
+                        this.showMessage('❌ Registration failed: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Request failed:', error);
+                    this.showMessage('❌ Network error: ' + error.message, 'error');
+                });
+            }
+            
+            showMessage(message, type) {
+                // Create a visible notification (optional - remove if not needed)
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    position: fixed;
+                    display: none;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px;
+                    background: ${type === 'success' ? '#d4edda' : 
+                                type === 'info' ? '#d1ecf1' : 
+                                type === 'warning' ? '#fff3cd' : '#f8d7da'};
+                    border: 1px solid ${type === 'success' ? '#c3e6cb' : 
+                                      type === 'info' ? '#bee5eb' : 
+                                      type === 'warning' ? '#ffeaa7' : '#f5c6cb'};
+                    border-radius: 5px;
+                    z-index: 10000;
+                    color: ${type === 'success' ? '#155724' : 
+                            type === 'info' ? '#0c5460' : 
+                            type === 'warning' ? '#856404' : '#721c24'};
+                `;
+                div.textContent = message;
+                document.body.appendChild(div);
+                
+                setTimeout(() => {
+                    if (div.parentNode) {
+                        div.parentNode.removeChild(div);
+                    }
+                }, 5000);
+            }
+        }
+        // 
+        new AndroidOneSignalRegister();
+        // End
+    });
+}
 </script>
-
-
 
 
 

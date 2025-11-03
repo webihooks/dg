@@ -654,7 +654,7 @@ class UniversalSessionManager {
 
     async keepSessionAlive() {
         try {
-            const response = await fetch('session-keepalive.php?keep_alive=true&t=' + Date.now(), {
+            const response = await fetch('/session-keepalive.php?keep_alive=true&t=' + Date.now(), {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -721,20 +721,18 @@ class UniversalSessionManager {
         });
     }
 
+    // In setupActivityHandlers(), add error suppression:
     setupActivityHandlers() {
-        // Refresh session on user activity
-        const activities = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        const activities = ['scroll', 'touchstart', 'click'];
         activities.forEach(activity => {
             document.addEventListener(activity, () => {
-                this.keepSessionAlive();
-                
-                // Force cookie update for WebToNative on user activity
-                if (this.isWebToNative) {
-                    clearTimeout(this.activityCookieTimeout);
-                    this.activityCookieTimeout = setTimeout(() => {
-                        this.forceCookieUpdate();
-                    }, 2000);
-                }
+                // Use debouncing to prevent rapid consecutive calls
+                clearTimeout(this.activityTimeout);
+                this.activityTimeout = setTimeout(() => {
+                    this.keepSessionAlive().catch(() => {
+                        // Silent fail - don't log network errors to console
+                    });
+                }, 1000); // 1 second debounce
             }, { passive: true });
         });
     }
@@ -926,22 +924,6 @@ function forceWebToNativeCookieUpdate() {
 window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
 </script>
 
-<!-- Session Status Indicator -->
-<div id="sessionStatusIndicator" style="
-    position: fixed; 
-    top: 10px; 
-    right: 10px; 
-    background: #28a745; 
-    color: white; 
-    padding: 8px 12px; 
-    border-radius: 20px; 
-    font-size: 12px; 
-    z-index: 10000; 
-    display: none;
-    font-weight: bold;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-">✅ Session Active (365 Days)</div>
-
 <style>
 .session-info {
     font-size: 11px;
@@ -973,9 +955,6 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
                     <div class="topbar-item">
                          <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">
                          <?php echo $user_name; ?>
-                         <?php if ($isAndroidApp): ?>
-                         <span class="badge bg-success ms-2" style="font-size: 10px;">Android App</span>
-                         <?php endif; ?>
                     </h4>
                     </div>
                </div>
@@ -996,26 +975,12 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
                          </button>
                     </div>
 
-                    <!-- WebToNative Debug Button -->
-                    <?php if ($isAndroidApp): ?>
-                    <div class="topbar-item">
-                         <button type="button" class="topbar-button" id="webtonative-debug-btn" title="WebToNative Debug">
-                              <iconify-icon icon="solar:bug-bold-duotone" class="fs-24 align-middle"></iconify-icon>
-                         </button>
-                    </div>
-                    <?php endif; ?>
-
                     <!-- User -->
                     <div class="dropdown topbar-item">
                         <a type="button" class="topbar-button" id="page-header-user-dropdown" 
                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <span class="d-flex align-items-center">
                                    <img class="rounded-circle" width="32" src="assets/images/users/dummy-avatar.jpg" alt="avatar-3">
-                                   <?php if ($isAndroidApp): ?>
-                                   <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle">
-                                        <span class="visually-hidden">Android App</span>
-                                   </span>
-                                   <?php endif; ?>
                               </span>
                          </a>
                          <div class="dropdown-menu dropdown-menu-end">
@@ -1026,40 +991,6 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
                               </h6>
 
                               <div class="dropdown-divider my-1"></div>
-                              
-                              <!-- Enhanced Session Info -->
-                              <div class="px-3 py-2 small">
-                                  <div class="text-muted">
-                                      <strong>Session Status:</strong> 
-                                      <span class="badge session-badge bg-success">Active</span><br>
-                                      <strong>Platform:</strong> 
-                                      <?php echo $isAndroidApp ? '📱 Android App' : '🌐 Web Browser'; ?><br>
-                                      <?php if ($isAndroidApp): ?>
-                                      <strong>WebToNative:</strong> 
-                                      <span class="badge session-badge bg-info">Enabled</span><br>
-                                      <?php endif; ?>
-                                      <strong>Duration:</strong> 365 Days<br>
-                                      <strong>Last Activity:</strong> 
-                                      <?php echo isset($_SESSION['last_activity']) ? 
-                                          date('M j, g:i A', $_SESSION['last_activity']) : 'Just now'; ?>
-                                  </div>
-                              </div>
-
-                              <div class="dropdown-divider my-1"></div>
-
-                              <!-- Device Management Link -->
-                              <a class="dropdown-item" href="device_management.php">
-                                  <i class="fas fa-mobile-alt fs-18 align-middle me-1"></i>
-                                  <span class="align-middle">Manage Devices</span>
-                              </a>
-
-                              <!-- WebToNative Debug Link -->
-                              <?php if ($isAndroidApp): ?>
-                              <a class="dropdown-item" href="javascript:void(0)" onclick="if(typeof androidDebug !== 'undefined') androidDebug.togglePanel()">
-                                  <i class="fas fa-bug fs-18 align-middle me-1"></i>
-                                  <span class="align-middle">WebToNative Debug</span>
-                              </a>
-                              <?php endif; ?>
                                 
                               <!-- Logout Option -->
                               <?php
@@ -1131,14 +1062,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Enhanced logout confirmation
+    // Enhanced logout - NO CONFIRMATION, device remains active
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to logout from this device? Push notifications will stop only on this device.')) {
-                e.preventDefault();
-                return;
-            }
+            // NO CONFIRMATION DIALOG - proceed directly to logout
             
             // Clean up session managers
             if (window.toolbarSessionManager) {
@@ -1155,6 +1083,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Allow the default logout behavior to proceed
+            // Device remains active in database for push notifications
         });
     }
     

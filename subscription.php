@@ -11,7 +11,7 @@ if (isset($_SESSION['user_id'])) {
     $androidSessionManager->maintainAndroidSession();
 }
 require 'config.php';
-require 'db_connection.php';
+require_once 'db_connection.php';
 
 // Redirect to login if user is not authenticated
 if (!isset($_SESSION['user_id'])) {
