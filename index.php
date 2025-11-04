@@ -412,7 +412,7 @@
                     <a href="contact.php" class="text-gray-600 hover:text-primary font-medium">Contact</a>
                     <a href="help.php" class="text-gray-600 hover:text-primary font-medium">Help</a>
                     <a href="login.php" class="text-gray-600 hover:text-primary font-medium">Login</a>
-                    <a href="register.php" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary font-medium">Register</a>
+                    <!-- <a href="register.php" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary font-medium">Register</a> -->
                 </nav>
 
                 <!-- Mobile menu button -->

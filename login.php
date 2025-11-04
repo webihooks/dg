@@ -209,8 +209,8 @@ if (isset($_SESSION['user_id']) && !$forceLoginPage) {
             case 'printer':
                 header("Location: printer-dashboard.php");
                 exit();
-            case 'rider':
-                header("Location: rider-dashboard.php");
+            case 'room':
+                header("Location: room-dashboard.php");
                 exit();
             default:
                 header("Location: dashboard.php");
@@ -281,8 +281,8 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$force
                 case 'printer':
                     header("Location: printer-dashboard.php");
                     break;
-                case 'rider':
-                    header("Location: rider-dashboard.php");
+                case 'room':
+                    header("Location: room-dashboard.php");
                     break;
                 default:
                     header("Location: dashboard.php");
@@ -398,8 +398,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 'printer':
                     header("Location: printer-dashboard.php");
                     break;
-                case 'rider':
-                    header("Location: rider-dashboard.php");
+                case 'room':
+                    header("Location: room-dashboard.php");
                     break;
                 default:
                     header("Location: dashboard.php");

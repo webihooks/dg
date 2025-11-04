@@ -40,9 +40,9 @@
               <a class="nav-link" href="help.php">Help</a>
             </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
               <a class="nav-link" href="register.php">Register</a>
-            </li>
+            </li> -->
 
             <li class="nav-item">
               <div class="btn_block">
