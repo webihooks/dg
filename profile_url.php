@@ -164,95 +164,91 @@ $conn->close();
     <script src="https://cdn.webtonative.com/scripts/webtonative.min.js"></script>
     <style>
         /* Mobile-first approach */
-@media (max-width: 767.98px) {
-  .mb-3 {
-    margin-bottom: 1rem !important;
-  }
-  
-  .input-group {
-    flex-direction: column;
-  }
-  
-  .input-group-text {
-    border-radius: 0.25rem 0.25rem 0 0 !important;
-    padding: 0.375rem 0.75rem;
-    border-bottom: 0;
-    text-align: center;
-    width: 100%;
-  }
-  
-  .form-control {
-    border-radius: 0 !important;
-    width: 100% !important;
-  }
-  
-  #checkAvailability {
-    border-radius: 0 0 0.25rem 0.25rem !important;
-    width: 100%;
-    margin-top: -1px; /* Removes double border */
-    padding: 0.5rem;
-  }
-  
-  #availabilityMessage {
-    font-size: 0.875rem;
-  }
-  
-  .text-muted {
-    font-size: 0.75rem;
-  }
-}
+        @media (max-width: 767.98px) {
+            .mb-3 {
+                margin-bottom: 1rem !important;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group-text {
+                border-radius: 0.25rem 0.25rem 0 0 !important;
+                padding: 0.375rem 0.75rem;
+                border-bottom: 0;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .form-control {
+                border-radius: 0 !important;
+                width: 100% !important;
+            }
+            
+            #checkAvailability {
+                border-radius: 0 0 0.25rem 0.25rem !important;
+                width: 100%;
+                margin-top: -1px; /* Removes double border */
+                padding: 0.5rem;
+            }
+            
+            #availabilityMessage {
+                font-size: 0.875rem;
+            }
+            
+            .text-muted {
+                font-size: 0.75rem;
+            }
+        }
 
-/* Optional: Adjustments for very small screens */
-@media (max-width: 400px) {
-  .input-group-text {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-  }
-  
-  .form-control, #checkAvailability {
-    font-size: 0.875rem;
-    padding: 0.375rem 0.5rem;
-  }
-}
+        /* Optional: Adjustments for very small screens */
+        @media (max-width: 400px) {
+            .input-group-text {
+                font-size: 0.875rem;
+                padding: 0.25rem 0.5rem;
+            }
+            
+            .form-control, #checkAvailability {
+                font-size: 0.875rem;
+                padding: 0.375rem 0.5rem;
+            }
+        }
     </style>
 
+    <script>
+    // Detect if user is accessing from Android app
+    function isAndroidApp() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        
+        // Common patterns for Android WebView
+        return /android/i.test(userAgent) && 
+               (/wv|webview/i.test(userAgent) || 
+                !/chrome|firefox|safari|opera/i.test(userAgent));
+    }
 
+    // Apply styles based on detection
+    if (isAndroidApp()) {
+        document.documentElement.classList.add('android-app');
+    }
+    </script>
 
-<script>
-// Detect if user is accessing from Android app
-function isAndroidApp() {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
-    // Common patterns for Android WebView
-    return /android/i.test(userAgent) && 
-           (/wv|webview/i.test(userAgent) || 
-            !/chrome|firefox|safari|opera/i.test(userAgent));
-}
+    <style>
+        .desktop_view {
+            display: block;
+        }
+        .mob_view {
+            display: none;
+        }
 
-// Apply styles based on detection
-if (isAndroidApp()) {
-    document.documentElement.classList.add('android-app');
-}
-</script>
-
-<style>
-.desktop_view {
-    display: block;
-}
-.mob_view {
-    display: none;
-}
-
-/* Styles for Android app */
-.android-app .desktop_view {
-    display: none;
-}
-.android-app .mob_view {
-    display: block;
-}
-</style>
-
-
+        /* Styles for Android app */
+        .android-app .desktop_view {
+            display: none;
+        }
+        .android-app .mob_view {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -260,19 +256,22 @@ if (isAndroidApp()) {
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         
-
-<?php
-if ($role === 'admin') {
-    include 'admin_menu.php';
-} else {
-    if ($has_active_subscription || ($is_trial && strtotime($trial_end) > time())) {
-        include 'menu.php';
-    } else {
-        include 'unsubscriber_menu.php';
-    }
-}
-?>
-
+        <?php
+        // Updated menu inclusion logic
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'room') {
+            // Show room management menu for room users
+            include 'room_management_menu.php';
+        } else {
+            // For regular users, check subscription status
+            if ($has_active_subscription || ($is_trial && strtotime($trial_end) > time())) {
+                include 'menu.php';
+            } else {
+                include 'unsubscriber_menu.php';
+            }
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -284,6 +283,9 @@ if ($role === 'admin') {
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Profile URL</h4>
+                                <?php if ($role === 'room'): ?>
+                                    <span class="badge bg-info float-end">Room Management</span>
+                                <?php endif; ?>
                             </div>
                             
                             <div class="card-body">
@@ -300,13 +302,9 @@ if ($role === 'admin') {
                                         <label for="profile_url" class="form-label">Your Profile URL</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><?php echo $_SERVER['HTTP_HOST']; ?>/</span>
-
-
-
-
-<input type="text" class="form-control" id="profile_url" name="profile_url" 
-       value="<?php echo htmlspecialchars($current_profile_url); ?>" 
-       required>
+                                            <input type="text" class="form-control" id="profile_url" name="profile_url" 
+                                                   value="<?php echo htmlspecialchars($current_profile_url); ?>" 
+                                                   required>
                                             <button type="button" class="btn btn-outline-secondary" id="checkAvailability">Check Availability</button>
                                         </div>
                                         <div id="availabilityMessage" class="mt-2"></div>
@@ -326,16 +324,24 @@ if ($role === 'admin') {
 
                                 <div class="mt-4 android-app mob_view">
                                     <h5>Your current profile link:</h5>
-<?php
-$profile_link = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url;
-$external_link = $profile_link . '?loadIn=defaultBrowser';
-?>
-<a href="<?php echo $external_link; ?>" 
-onclick="handleProfileLinkClick('<?php echo $profile_link; ?>'); return false;" 
-class="profile-external-link">
-<?php echo $profile_link; ?>
-</a>
+                                    <?php
+                                    $profile_link = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $current_profile_url;
+                                    $external_link = $profile_link . '?loadIn=defaultBrowser';
+                                    ?>
+                                    <a href="<?php echo $external_link; ?>" 
+                                       onclick="handleProfileLinkClick('<?php echo $profile_link; ?>'); return false;" 
+                                       class="profile-external-link">
+                                        <?php echo $profile_link; ?>
+                                    </a>
                                 </div>
+                                <?php endif; ?>
+
+                                <!-- Room Management Note -->
+                                <?php if ($role === 'room'): ?>
+                                    <div class="mt-4 alert alert-info">
+                                        <h6><i class="fas fa-hotel me-2"></i>Room Management Profile</h6>
+                                        <p class="mb-0">Your profile URL will be used for your room management system. Customers can use this link to view your rooms and make bookings.</p>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -383,7 +389,6 @@ class="profile-external-link">
                 });
             });
             
-
             // Form validation
             $('#profileUrlForm').validate({
                 rules: {
@@ -429,26 +434,27 @@ class="profile-external-link">
             });
         });
     </script>
-<script>
-    function handleProfileLinkClick(url) {
-        // For Android with WTN support
-        if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
-            WTN.openUrlInBrowser(url);
-        } else {
-            // For iOS or fallback - use the href with loadIn parameter
-            window.location.href = url + '?loadIn=defaultBrowser';
-        }
-    }
     
-    // Ensure all external links work properly
-    $(document).ready(function() {
-        // Handle profile links with both methods
-        $('a.profile-external-link').on('click', function(e) {
-            e.preventDefault();
-            const url = $(this).attr('href') ? $(this).attr('href').replace('?loadIn=defaultBrowser', '') : $(this).text().trim();
-            handleProfileLinkClick(url);
+    <script>
+        function handleProfileLinkClick(url) {
+            // For Android with WTN support
+            if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
+                WTN.openUrlInBrowser(url);
+            } else {
+                // For iOS or fallback - use the href with loadIn parameter
+                window.location.href = url + '?loadIn=defaultBrowser';
+            }
+        }
+        
+        // Ensure all external links work properly
+        $(document).ready(function() {
+            // Handle profile links with both methods
+            $('a.profile-external-link').on('click', function(e) {
+                e.preventDefault();
+                const url = $(this).attr('href') ? $(this).attr('href').replace('?loadIn=defaultBrowser', '') : $(this).text().trim();
+                handleProfileLinkClick(url);
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>

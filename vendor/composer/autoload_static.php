@@ -10,6 +10,8 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '941748b3c8cae4466c827dfb5ca9602a' => __DIR__ . '/..' . '/rmccue/requests/library/Deprecated.php',
+        '13906c19e3d8fcd1341b24ed4d51cf72' => __DIR__ . '/..' . '/razorpay/razorpay/Deprecated.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -17,9 +19,18 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             'onesignal\\client\\' => 17,
         ),
+        'W' => 
+        array (
+            'WpOrg\\Requests\\' => 15,
+        ),
         'S' => 
         array (
             'SpomkyLabs\\Pki\\' => 15,
+        ),
+        'R' => 
+        array (
+            'Razorpay\\Tests\\' => 15,
+            'Razorpay\\Api\\' => 13,
         ),
         'P' => 
         array (
@@ -69,9 +80,21 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
         array (
             0 => __DIR__ . '/..' . '/onesignal/onesignal-php-api/lib',
         ),
+        'WpOrg\\Requests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rmccue/requests/src',
+        ),
         'SpomkyLabs\\Pki\\' => 
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/pki-framework/src',
+        ),
+        'Razorpay\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/razorpay/razorpay/tests',
+        ),
+        'Razorpay\\Api\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/razorpay/razorpay/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -146,6 +169,7 @@ class ComposerStaticInit19dce85914a0d40ff610e42a7553729f
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Requests' => __DIR__ . '/..' . '/rmccue/requests/library/Requests.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

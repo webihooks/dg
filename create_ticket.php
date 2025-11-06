@@ -159,10 +159,13 @@ $conn->close();
         <?php include 'toolbar.php'; ?>
         
         <?php
+        // Enhanced menu selection with room role support
         if ($role === 'admin') {
             include 'admin_menu.php';
         } elseif ($role === 'sales_person') {
             include 'sales_menu.php';
+        } elseif ($role === 'room') {
+            include 'room_management_menu.php';
         } else {
             include 'menu.php';
         }
@@ -175,6 +178,9 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Create Support Ticket</h4>
+                                <?php if ($role === 'room'): ?>
+                                    <p class="card-subtitle text-muted">Room Management Support</p>
+                                <?php endif; ?>
                             </div>
 
                             <div class="card-body">
@@ -212,6 +218,11 @@ $conn->close();
                                                 <option value="Billing" <?php echo (isset($department) && $department == 'Billing') ? 'selected' : ''; ?>>Billing</option>
                                                 <option value="Sales" <?php echo (isset($department) && $department == 'Sales') ? 'selected' : ''; ?>>Sales</option>
                                                 <option value="General" <?php echo (isset($department) && $department == 'General') ? 'selected' : ''; ?>>General</option>
+                                                <?php if ($role === 'room'): ?>
+                                                    <option value="Room Management" <?php echo (isset($department) && $department == 'Room Management') ? 'selected' : ''; ?>>Room Management</option>
+                                                    <option value="Booking System" <?php echo (isset($department) && $department == 'Booking System') ? 'selected' : ''; ?>>Booking System</option>
+                                                    <option value="Housekeeping" <?php echo (isset($department) && $department == 'Housekeeping') ? 'selected' : ''; ?>>Housekeeping</option>
+                                                <?php endif; ?>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -229,6 +240,11 @@ $conn->close();
                                     <div class="mb-3">
                                         <label for="message" class="form-label">Message</label>
                                         <textarea class="form-control" id="message" name="message" rows="5" required><?php echo isset($message) ? htmlspecialchars($message) : ''; ?></textarea>
+                                        <?php if ($role === 'room'): ?>
+                                            <div class="form-text">
+                                                For room management issues, please include: Room numbers, Booking references, Specific dates/times, and any error messages you're seeing.
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -240,12 +256,57 @@ $conn->close();
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <button type="submit" class="btn btn-primary">Submit Ticket</button>
-                                        <button type="reset" class="btn btn-secondary ms-2" id="resetButton">Reset</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="mdi mdi-ticket-confirmation me-1"></i>Submit Ticket
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary ms-2" id="resetButton">
+                                            <i class="mdi mdi-refresh me-1"></i>Reset
+                                        </button>
+                                        <?php if ($role === 'room'): ?>
+                                            <a href="room-dashboard.php" class="btn btn-outline-primary ms-2">
+                                                <i class="mdi mdi-arrow-left me-1"></i>Back to Dashboard
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="dashboard.php" class="btn btn-outline-primary ms-2">
+                                                <i class="mdi mdi-arrow-left me-1"></i>Back to Dashboard
+                                            </a>
+                                        <?php endif; ?>
                                     </div>
                                 </form>
                             </div>
                         </div>
+
+                        <!-- Quick Help Section for Room Users -->
+                        <?php if ($role === 'room'): ?>
+                        <div class="card mt-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="mdi mdi-help-circle me-2"></i>Room Management Support
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Common Issues</h6>
+                                        <ul class="list-unstyled">
+                                            <li><i class="mdi mdi-check-circle text-success me-2"></i>Booking system errors</li>
+                                            <li><i class="mdi mdi-check-circle text-success me-2"></i>Room status updates</li>
+                                            <li><i class="mdi mdi-check-circle text-success me-2"></i>Payment processing</li>
+                                            <li><i class="mdi mdi-check-circle text-success me-2"></i>Housekeeping schedules</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Quick Tips</h6>
+                                        <ul class="list-unstyled">
+                                            <li><i class="mdi mdi-information text-primary me-2"></i>Include room numbers in your message</li>
+                                            <li><i class="mdi mdi-information text-primary me-2"></i>Attach screenshots of errors</li>
+                                            <li><i class="mdi mdi-information text-primary me-2"></i>Mention booking references if applicable</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -352,7 +413,7 @@ $conn->close();
                     message: "required",
                     "attachments[]": {
                         accept: "image/jpeg,image/jpg,image/png,application/pdf,application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        filesize: 10485760 // 5MB in bytes
+                        filesize: 10485760 // 10MB in bytes
                     }
                 },
                 messages: {

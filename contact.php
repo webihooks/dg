@@ -96,7 +96,7 @@
                         <img src="images/call_icon.webp" alt="image">
                       </div>
                       <div class="text">
-                        <span>Inayat Shaikh (CEO)</span>
+                        <span>Inayat Shaikh (FOUNDER & CEO)</span>
                         <a href="tel:919819411026"> +91 98194 11026 </a>
                       </div>
                     </li>
@@ -106,7 +106,7 @@
                         <img src="images/call_icon.webp" alt="image">
                       </div>
                       <div class="text">
-                        <span>Sagar Pawar (CTO)</span>
+                        <span>Sagar Pawar (FOUNDER & CTO)</span>
                         <a href="tel:919373501199"> +91 93735 01199 </a>
                       </div>
                     </li>

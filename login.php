@@ -729,6 +729,14 @@ setupLoginCookieManagement();
     z-index: 10000;
     font-weight: bold;
 }
+.btn-outline-success {
+    border-color: #ff6c2f;
+    color: #ff6c2f;
+}
+.btn-outline-success:hover {
+    background-color: #ff6c2f;
+    border-color: #ff6c2f;
+}
 </style>
      
 </head>
@@ -797,24 +805,24 @@ setupLoginCookieManagement();
                                         <!-- <p class="text-danger text-center">Don't have an account? <a href="register.php" class="text-dark fw-bold ms-1">Sign Up</a></p> -->
 
                                         <!-- Download Our Partner Android App Section -->
-                                        <!-- <div class="mt-1 border-top pt-4 mb-5">
+                                        <div class="mt-1 border-top pt-4 mb-5">
                                             <h5 class="text-center mb-3">Download Our Partner App</h5>
                                             <div class="row g-2">
 
-                                               <div class="col-6">
+                                               <div class="col-12">
                                                     <a href="downloads/Deegeecard-Partner-App.apk" class="download_btn btn btn-outline-success w-100" download>
                                                         <i class="bi bi-android2"></i> DeeGeeCard Partner App
                                                     </a>
                                                 </div>
 
-                                                <div class="col-6">
+                                                <!-- <div class="col-6">
                                                     <a href="downloads/Deegeecard-Partner-Dining-App.apk" class="download_btn btn btn-outline-primary w-100" download>
                                                         <i class="bi bi-android2"></i> DeeGeeCard Partner App - Dining
                                                     </a>
-                                                </div>
+                                                </div> -->
                                                 
                                             </div>
-                                        </div> -->
+                                        </div>
                                         <!-- Download Our Partner Android App Section -->
 
                                    </div>

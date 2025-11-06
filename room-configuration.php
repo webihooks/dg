@@ -32,7 +32,7 @@ $user_stmt->bind_result($user_name, $role);
 $user_stmt->fetch();
 $user_stmt->close();
 
-// First, ensure user_config table exists
+// First, ensure user_config table exists with proper structure
 createUserConfigTable($conn);
 
 // Check if room tables exist
@@ -64,48 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = "Failed to create tables. They may already exist.";
         }
     }
-    elseif (isset($_POST['update_config'])) {
-        // Update room configuration
-        $hotel_name = $conn->real_escape_string($_POST['hotel_name']);
-        $check_in_time = $conn->real_escape_string($_POST['check_in_time']);
-        $check_out_time = $conn->real_escape_string($_POST['check_out_time']);
-        $currency = $conn->real_escape_string($_POST['currency']);
-        $timezone = $conn->real_escape_string($_POST['timezone']);
-        $tax_rate = floatval($_POST['tax_rate']);
-        $service_charge = floatval($_POST['service_charge']);
-        
-        // Store configuration in user_config table
-        $config_sql = "INSERT INTO user_config (user_id, config_key, config_value, created_at, updated_at) 
-                      VALUES (?, ?, ?, NOW(), NOW())
-                      ON DUPLICATE KEY UPDATE config_value = VALUES(config_value), updated_at = NOW()";
-        
-        $config_data = [
-            ['hotel_name', $hotel_name],
-            ['check_in_time', $check_in_time],
-            ['check_out_time', $check_out_time],
-            ['currency', $currency],
-            ['timezone', $timezone],
-            ['tax_rate', $tax_rate],
-            ['service_charge', $service_charge]
-        ];
-        
-        $stmt = $conn->prepare($config_sql);
-        $success_count = 0;
-        
-        foreach ($config_data as $data) {
-            $stmt->bind_param("iss", $user_id, $data[0], $data[1]);
-            if ($stmt->execute()) {
-                $success_count++;
-            }
-        }
-        $stmt->close();
-        
-        if ($success_count > 0) {
-            $success_message = "Configuration updated successfully!";
-        } else {
-            $error_message = "Failed to update configuration.";
-        }
-    }
     elseif (isset($_POST['add_sample_data'])) {
         // Add sample room types and rooms
         $sample_added = addSampleData($user_id, $conn);
@@ -117,47 +75,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get current configuration
-$current_config = [];
-try {
-    $config_sql = "SELECT config_key, config_value FROM user_config WHERE user_id = ?";
-    $stmt = $conn->prepare($config_sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    while ($row = $result->fetch_assoc()) {
-        $current_config[$row['config_key']] = $row['config_value'];
-    }
-    $stmt->close();
-} catch (Exception $e) {
-    // If user_config table doesn't exist, create it
-    createUserConfigTable($conn);
-    error_log("Configuration table error: " . $e->getMessage());
-}
+// Load current configuration
+$current_config = loadCurrentConfig($user_id, $conn);
+
+// Check if configuration is complete (now only tables matter)
+$config_complete = $tables_exist;
+
+// Calculate progress - 100% when tables are created
+$progress = $tables_exist ? 100 : 0;
 
 $conn->close();
 
-// Function to create user_config table
+// Function to load current configuration
+function loadCurrentConfig($user_id, $conn) {
+    $config = [];
+    try {
+        $config_sql = "SELECT config_key, config_value FROM user_config WHERE user_id = ?";
+        $stmt = $conn->prepare($config_sql);
+        if ($stmt) {
+            $stmt->bind_param("i", $user_id);
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $config[$row['config_key']] = $row['config_value'];
+                }
+            }
+            $stmt->close();
+        }
+    } catch (Exception $e) {
+        error_log("Configuration retrieval error: " . $e->getMessage());
+    }
+    return $config;
+}
+
+// Function to create user_config table with proper structure
 function createUserConfigTable($conn) {
     $user_config_table = "
         CREATE TABLE IF NOT EXISTS `user_config` (
             `id` INT(11) NOT NULL AUTO_INCREMENT,
             `user_id` INT(11) NOT NULL,
             `config_key` VARCHAR(100) NOT NULL,
-            `config_value` TEXT,
-            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            `config_value` TEXT DEFAULT NULL,
+            `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
-            UNIQUE KEY `user_config_key` (`user_id`, `config_key`),
-            KEY `user_id` (`user_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            UNIQUE KEY `unique_user_config` (`user_id`, `config_key`),
+            KEY `idx_user_id` (`user_id`),
+            KEY `idx_config_key` (`config_key`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ";
     
     try {
-        $conn->query($user_config_table);
-        return true;
+        $result = $conn->query($user_config_table);
+        if ($result === FALSE) {
+            error_log("Error creating user_config table: " . $conn->error);
+            return false;
+        }
+        
+        // Check if table was created or already exists
+        $check_table = "SHOW TABLES LIKE 'user_config'";
+        $table_result = $conn->query($check_table);
+        return $table_result->num_rows > 0;
+        
     } catch (Exception $e) {
-        error_log("Error creating user_config table: " . $e->getMessage());
+        error_log("Exception creating user_config table: " . $e->getMessage());
         return false;
     }
 }
@@ -171,48 +152,61 @@ function createUserTables($user_id, $conn) {
                 `room_number` VARCHAR(20) NOT NULL,
                 `room_type_id` INT(11) NOT NULL,
                 `floor` VARCHAR(10) DEFAULT NULL,
+                `wing` VARCHAR(50) DEFAULT NULL,
                 `status` ENUM('available', 'occupied', 'maintenance', 'cleaning', 'reserved') DEFAULT 'available',
                 `rate_per_night` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-                `amenities` TEXT,
-                `description` TEXT,
-                `images` TEXT,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `amenities` TEXT DEFAULT NULL,
+                `description` TEXT DEFAULT NULL,
+                `images` TEXT DEFAULT NULL,
+                `is_active` TINYINT(1) DEFAULT 1,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `room_number` (`room_number`),
                 KEY `room_type_id` (`room_type_id`),
-                KEY `status` (`status`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                KEY `status` (`status`),
+                KEY `is_active` (`is_active`),
+                KEY `floor_wing` (`floor`,`wing`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         ",
         
         "room_types_$user_id" => "
             CREATE TABLE IF NOT EXISTS `room_types_$user_id` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(100) NOT NULL,
-                `description` TEXT,
+                `description` TEXT DEFAULT NULL,
                 `base_rate` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
                 `max_occupancy` INT(3) DEFAULT 1,
-                `amenities` TEXT,
-                `images` TEXT,
+                `size_sqft` INT(5) DEFAULT NULL,
+                `bed_type` VARCHAR(50) DEFAULT NULL,
+                `amenities` TEXT DEFAULT NULL,
+                `images` TEXT DEFAULT NULL,
                 `is_active` TINYINT(1) DEFAULT 1,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `name` (`name`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                UNIQUE KEY `name` (`name`),
+                KEY `is_active` (`is_active`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         ",
         
         "bookings_$user_id" => "
             CREATE TABLE IF NOT EXISTS `bookings_$user_id` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `booking_reference` VARCHAR(50) NOT NULL,
+                `guest_id` INT(11) DEFAULT NULL,
                 `guest_name` VARCHAR(255) NOT NULL,
                 `guest_phone` VARCHAR(20) NOT NULL,
                 `guest_email` VARCHAR(255) DEFAULT NULL,
-                `guest_address` TEXT,
+                `guest_address` TEXT DEFAULT NULL,
+                `id_proof_type` VARCHAR(50) DEFAULT NULL,
+                `id_proof_number` VARCHAR(100) DEFAULT NULL,
                 `room_id` INT(11) NOT NULL,
+                `room_number` VARCHAR(20) NOT NULL,
                 `check_in_date` DATE NOT NULL,
                 `check_out_date` DATE NOT NULL,
+                `actual_check_in` DATETIME DEFAULT NULL,
+                `actual_check_out` DATETIME DEFAULT NULL,
                 `adults` INT(2) DEFAULT 1,
                 `children` INT(2) DEFAULT 0,
                 `total_nights` INT(3) DEFAULT 1,
@@ -220,22 +214,31 @@ function createUserTables($user_id, $conn) {
                 `subtotal` DECIMAL(10,2) NOT NULL,
                 `tax_amount` DECIMAL(10,2) DEFAULT 0.00,
                 `discount_amount` DECIMAL(10,2) DEFAULT 0.00,
+                `additional_charges` DECIMAL(10,2) DEFAULT 0.00,
                 `total_amount` DECIMAL(10,2) NOT NULL,
                 `advance_paid` DECIMAL(10,2) DEFAULT 0.00,
-                `payment_status` ENUM('pending', 'paid', 'partial', 'refunded') DEFAULT 'pending',
-                `status` ENUM('reserved', 'checked_in', 'checked_out', 'cancelled', 'no_show') DEFAULT 'reserved',
-                `special_requests` TEXT,
-                `cancellation_reason` TEXT,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `balance_due` DECIMAL(10,2) DEFAULT 0.00,
+                `payment_method` VARCHAR(50) DEFAULT NULL,
+                `payment_status` ENUM('pending','paid','partial','refunded') DEFAULT 'pending',
+                `status` ENUM('reserved','checked_in','checked_out','cancelled','no_show') DEFAULT 'reserved',
+                `source` ENUM('website','walk_in','phone','agent','online') DEFAULT 'walk_in',
+                `special_requests` TEXT DEFAULT NULL,
+                `additional_notes` TEXT DEFAULT NULL,
+                `cancellation_reason` TEXT DEFAULT NULL,
+                `created_by` INT(11) DEFAULT NULL,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `booking_reference` (`booking_reference`),
                 KEY `room_id` (`room_id`),
+                KEY `guest_id` (`guest_id`),
                 KEY `check_in_date` (`check_in_date`),
                 KEY `check_out_date` (`check_out_date`),
                 KEY `status` (`status`),
-                KEY `guest_phone` (`guest_phone`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                KEY `guest_phone` (`guest_phone`),
+                KEY `payment_status` (`payment_status`),
+                KEY `source` (`source`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         ",
         
         "guests_$user_id" => "
@@ -244,18 +247,28 @@ function createUserTables($user_id, $conn) {
                 `name` VARCHAR(255) NOT NULL,
                 `phone` VARCHAR(20) NOT NULL,
                 `email` VARCHAR(255) DEFAULT NULL,
-                `address` TEXT,
+                `address` TEXT DEFAULT NULL,
+                `city` VARCHAR(100) DEFAULT NULL,
+                `state` VARCHAR(100) DEFAULT NULL,
+                `country` VARCHAR(100) DEFAULT NULL,
                 `id_proof_type` VARCHAR(50) DEFAULT NULL,
                 `id_proof_number` VARCHAR(100) DEFAULT NULL,
                 `id_proof_image` VARCHAR(255) DEFAULT NULL,
                 `loyalty_points` INT(11) DEFAULT 0,
-                `preferences` TEXT,
-                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `total_stays` INT(11) DEFAULT 0,
+                `total_spent` DECIMAL(15,2) DEFAULT 0.00,
+                `preferences` TEXT DEFAULT NULL,
+                `special_notes` TEXT DEFAULT NULL,
+                `is_blacklisted` TINYINT(1) DEFAULT 0,
+                `blacklist_reason` TEXT DEFAULT NULL,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `phone` (`phone`),
-                KEY `email` (`email`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                UNIQUE KEY `email` (`email`),
+                KEY `is_blacklisted` (`is_blacklisted`),
+                KEY `loyalty_points` (`loyalty_points`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         "
     ];
 
@@ -264,10 +277,11 @@ function createUserTables($user_id, $conn) {
         try {
             if ($conn->query($query) === TRUE) {
                 $created_tables[] = $table_name;
+            } else {
+                error_log("Error creating table $table_name: " . $conn->error);
             }
         } catch (Exception $e) {
-            // Log error but continue
-            error_log("Error creating table $table_name: " . $e->getMessage());
+            error_log("Exception creating table $table_name: " . $e->getMessage());
         }
     }
     
@@ -294,7 +308,9 @@ function addSampleData($user_id, $conn) {
     
     foreach ($room_types as $type) {
         $type_stmt->bind_param("ssdis", $type[0], $type[1], $type[2], $type[3], $type[4]);
-        $type_stmt->execute();
+        if (!$type_stmt->execute()) {
+            error_log("Error inserting room type: " . $type_stmt->error);
+        }
     }
     $type_stmt->close();
 
@@ -311,7 +327,9 @@ function addSampleData($user_id, $conn) {
     
     foreach ($rooms as $room) {
         $room_stmt->bind_param("sissds", $room[0], $room[1], $room[2], $room[3], $room[4], $room[5]);
-        $room_stmt->execute();
+        if (!$room_stmt->execute()) {
+            error_log("Error inserting room: " . $room_stmt->error);
+        }
     }
     $room_stmt->close();
 
@@ -326,7 +344,7 @@ function addSampleData($user_id, $conn) {
     <title>Room Configuration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
@@ -401,6 +419,17 @@ function addSampleData($user_id, $conn) {
         .status-healthy { background: #d4edda; border: 1px solid #c3e6cb; }
         .status-warning { background: #fff3cd; border: 1px solid #ffeaa7; }
         .status-error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .success-card {
+            border-left: 4px solid #28a745;
+        }
+        .action-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -415,6 +444,7 @@ function addSampleData($user_id, $conn) {
                         <!-- Notifications -->
                         <?php if (!empty($success_message)): ?>
                             <div class="alert alert-success alert-dismissible fade show">
+                                <i class="fas fa-check-circle me-2"></i>
                                 <?php echo $success_message; ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
@@ -422,32 +452,26 @@ function addSampleData($user_id, $conn) {
                         
                         <?php if (!empty($error_message)): ?>
                             <div class="alert alert-danger alert-dismissible fade show">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
                                 <?php echo $error_message; ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         <?php endif; ?>
 
                         <!-- System Status -->
-                        <div class="system-status <?php 
-                            echo $tables_exist && !empty($current_config) ? 'status-healthy' : 
-                                 ($tables_exist ? 'status-warning' : 'status-error'); 
-                        ?>">
+                        <div class="system-status <?php echo $progress == 100 ? 'status-healthy' : 'status-error'; ?>">
                             <div class="row align-items-center">
                                 <div class="col-md-8">
                                     <h5 class="mb-1">
-                                        <?php if ($tables_exist && !empty($current_config)): ?>
-                                            ✅ System Ready
-                                        <?php elseif ($tables_exist): ?>
-                                            ⚠️ System Partially Configured
+                                        <?php if ($progress == 100): ?>
+                                            <i class="fas fa-check-circle me-2"></i>System Ready
                                         <?php else: ?>
-                                            ❌ System Setup Required
+                                            <i class="fas fa-times-circle me-2"></i>System Setup Required
                                         <?php endif; ?>
                                     </h5>
                                     <p class="mb-0">
-                                        <?php if ($tables_exist && !empty($current_config)): ?>
+                                        <?php if ($progress == 100): ?>
                                             Your room management system is fully configured and ready to use.
-                                        <?php elseif ($tables_exist): ?>
-                                            Database tables are ready. Please complete the configuration.
                                         <?php else: ?>
                                             Please create the database tables to start using the room management system.
                                         <?php endif; ?>
@@ -455,13 +479,7 @@ function addSampleData($user_id, $conn) {
                                 </div>
                                 <div class="col-md-4 text-end">
                                     <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar 
-                                            <?php 
-                                                $progress = 0;
-                                                if ($tables_exist) $progress += 50;
-                                                if (!empty($current_config)) $progress += 50;
-                                                echo $progress == 100 ? 'bg-success' : ($progress >= 50 ? 'bg-warning' : 'bg-danger');
-                                            ?>" 
+                                        <div class="progress-bar <?php echo $progress == 100 ? 'bg-success' : 'bg-danger'; ?>" 
                                             style="width: <?php echo $progress; ?>%">
                                         </div>
                                     </div>
@@ -472,40 +490,38 @@ function addSampleData($user_id, $conn) {
 
                         <!-- Setup Wizard -->
                         <div class="setup-wizard">
-                            <h4>🏨 Room Management Setup Wizard</h4>
-                            <p class="mb-0">Complete these steps to set up your room management system</p>
+                            <h4><i class="fas fa-hotel me-2"></i>Room Management Setup Wizard</h4>
+                            <p class="mb-0">Complete this step to set up your room management system</p>
                             
                             <div class="step-indicator">
                                 <div class="step <?php echo $tables_exist ? 'active' : ''; ?>">
                                     <div class="step-number">1</div>
                                     <div>Create Tables</div>
                                 </div>
-                                <div class="step <?php echo !empty($current_config) ? 'active' : ''; ?>">
+                                <div class="step <?php echo $tables_exist ? 'active' : ''; ?>">
                                     <div class="step-number">2</div>
-                                    <div>Configuration</div>
-                                </div>
-                                <div class="step <?php echo $tables_exist && !empty($current_config) ? 'active' : ''; ?>">
-                                    <div class="step-number">3</div>
-                                    <div>Add Rooms</div>
-                                </div>
-                                <div class="step <?php echo $tables_exist && !empty($current_config) ? 'active' : ''; ?>">
-                                    <div class="step-number">4</div>
                                     <div>Ready</div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Main Content -->
+                        <?php if (!$tables_exist): ?>
+                        <!-- Database Setup Required -->
                         <div class="row">
-                            <!-- Database Setup Card -->
-                            <div class="col-md-6">
+                            <div class="col-md-8 mx-auto">
                                 <div class="card config-card">
                                     <div class="card-header">
-                                        <h5 class="card-title mb-0">📊 Database Setup</h5>
+                                        <h5 class="card-title mb-0"><i class="fas fa-database me-2"></i>Database Setup Required</h5>
                                     </div>
-                                    <div class="card-body">
-                                        <p class="text-muted">Your user-specific database tables will be created:</p>
+                                    <div class="card-body text-center">
+                                        <div class="mb-4">
+                                            <i class="fas fa-database fa-4x text-primary mb-3"></i>
+                                            <h4>Create Your Database Tables</h4>
+                                            <p class="text-muted">Your user-specific database tables need to be created before you can use the room management system.</p>
+                                        </div>
                                         
-                                        <div class="table-responsive">
+                                        <div class="table-responsive mb-4">
                                             <table class="table table-sm">
                                                 <thead>
                                                     <tr>
@@ -518,8 +534,8 @@ function addSampleData($user_id, $conn) {
                                                         <tr>
                                                             <td><code><?php echo $table; ?></code></td>
                                                             <td>
-                                                                <span class="table-status <?php echo in_array($table, $existing_tables) ? 'table-exists' : 'table-missing'; ?>">
-                                                                    <?php echo in_array($table, $existing_tables) ? '✓ Exists' : '✗ Missing'; ?>
+                                                                <span class="table-status table-missing">
+                                                                    ✗ Missing
                                                                 </span>
                                                             </td>
                                                         </tr>
@@ -528,138 +544,133 @@ function addSampleData($user_id, $conn) {
                                             </table>
                                         </div>
 
-                                        <?php if (!$tables_exist): ?>
-                                            <form method="POST" class="mt-3">
-                                                <button type="submit" name="create_tables" class="btn btn-primary">
-                                                    🚀 Create My Database Tables
-                                                </button>
-                                                <small class="form-text text-muted d-block mt-2">
-                                                    This will create all necessary tables for your room management system.
-                                                </small>
-                                            </form>
-                                        <?php else: ?>
-                                            <div class="alert alert-success mt-3">
-                                                <strong>✓ All tables are ready!</strong> Your database is properly set up.
-                                            </div>
-                                        <?php endif; ?>
+                                        <form method="POST">
+                                            <button type="submit" name="create_tables" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-rocket me-2"></i>Create My Database Tables
+                                            </button>
+                                            <small class="form-text text-muted d-block mt-2">
+                                                This will create all necessary tables for your room management system.
+                                            </small>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Configuration Card -->
-                            <div class="col-md-6">
-                                <div class="card config-card">
+                        </div>
+                        <?php else: ?>
+                        <!-- System Ready -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card success-card">
                                     <div class="card-header">
-                                        <h5 class="card-title mb-0">⚙️ Hotel Configuration</h5>
+                                        <h5 class="card-title mb-0 text-success">
+                                            <i class="fas fa-check-circle me-2"></i>System Successfully Configured
+                                        </h5>
                                     </div>
                                     <div class="card-body">
-                                        <form method="POST">
-                                            <div class="row">
-                                                <div class="col-md-12 mb-3">
-                                                    <label for="hotel_name" class="form-label">Hotel Name *</label>
-                                                    <input type="text" class="form-control" id="hotel_name" name="hotel_name" 
-                                                           value="<?php echo $current_config['hotel_name'] ?? ''; ?>" required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="alert alert-success">
+                                                    <h5><i class="fas fa-thumbs-up me-2"></i>All Set!</h5>
+                                                    <p class="mb-0">Your room management system is ready to use. You can now start adding rooms and managing bookings.</p>
                                                 </div>
                                                 
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="check_in_time" class="form-label">Check-in Time *</label>
-                                                    <input type="time" class="form-control" id="check_in_time" name="check_in_time" 
-                                                           value="<?php echo $current_config['check_in_time'] ?? '14:00'; ?>" required>
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="check_out_time" class="form-label">Check-out Time *</label>
-                                                    <input type="time" class="form-control" id="check_out_time" name="check_out_time" 
-                                                           value="<?php echo $current_config['check_out_time'] ?? '12:00'; ?>" required>
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="currency" class="form-label">Currency *</label>
-                                                    <select class="form-control" id="currency" name="currency" required>
-                                                        <option value="INR" <?php echo ($current_config['currency'] ?? 'INR') === 'INR' ? 'selected' : ''; ?>>₹ Indian Rupee (INR)</option>
-                                                        <option value="USD" <?php echo ($current_config['currency'] ?? '') === 'USD' ? 'selected' : ''; ?>>$ US Dollar (USD)</option>
-                                                        <option value="EUR" <?php echo ($current_config['currency'] ?? '') === 'EUR' ? 'selected' : ''; ?>>€ Euro (EUR)</option>
-                                                    </select>
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="timezone" class="form-label">Timezone *</label>
-                                                    <select class="form-control" id="timezone" name="timezone" required>
-                                                        <option value="Asia/Kolkata" <?php echo ($current_config['timezone'] ?? 'Asia/Kolkata') === 'Asia/Kolkata' ? 'selected' : ''; ?>>India (Asia/Kolkata)</option>
-                                                        <option value="America/New_York" <?php echo ($current_config['timezone'] ?? '') === 'America/New_York' ? 'selected' : ''; ?>>New York (America/New_York)</option>
-                                                        <option value="Europe/London" <?php echo ($current_config['timezone'] ?? '') === 'Europe/London' ? 'selected' : ''; ?>>London (Europe/London)</option>
-                                                    </select>
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="tax_rate" class="form-label">Tax Rate (%)</label>
-                                                    <input type="number" class="form-control" id="tax_rate" name="tax_rate" 
-                                                           value="<?php echo $current_config['tax_rate'] ?? '18'; ?>" step="0.01" min="0" max="50">
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="service_charge" class="form-label">Service Charge (%)</label>
-                                                    <input type="number" class="form-control" id="service_charge" name="service_charge" 
-                                                           value="<?php echo $current_config['service_charge'] ?? '5'; ?>" step="0.01" min="0" max="20">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Table Name</th>
+                                                                <th>Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($required_tables as $table): ?>
+                                                                <tr>
+                                                                    <td><code><?php echo $table; ?></code></td>
+                                                                    <td>
+                                                                        <span class="table-status table-exists">
+                                                                            ✓ Ready
+                                                                        </span>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endforeach; ?>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
-                                            
-                                            <button type="submit" name="update_config" class="btn btn-success" <?php echo !$tables_exist ? 'disabled' : ''; ?>>
-                                                💾 Save Configuration
-                                            </button>
-                                            
-                                            <?php if (!$tables_exist): ?>
-                                                <small class="form-text text-muted d-block mt-2">
-                                                    Please create database tables first before configuring settings.
-                                                </small>
-                                            <?php endif; ?>
-                                        </form>
+                                            <div class="col-md-6">
+                                                <div class="card bg-light">
+                                                    <div class="card-body">
+                                                        <h5><i class="fas fa-info-circle me-2"></i>Next Steps</h5>
+                                                        <ul class="list-unstyled">
+                                                            <li class="mb-2">
+                                                                <i class="fas fa-arrow-right text-success me-2"></i>
+                                                                <strong>Add Room Types:</strong> Define different types of rooms (Standard, Deluxe, Suite, etc.)
+                                                            </li>
+                                                            <li class="mb-2">
+                                                                <i class="fas fa-arrow-right text-success me-2"></i>
+                                                                <strong>Add Rooms:</strong> Create individual rooms with room numbers and rates
+                                                            </li>
+                                                            <li class="mb-2">
+                                                                <i class="fas fa-arrow-right text-success me-2"></i>
+                                                                <strong>Manage Bookings:</strong> Start accepting and managing guest bookings
+                                                            </li>
+                                                            <li class="mb-2">
+                                                                <i class="fas fa-arrow-right text-success me-2"></i>
+                                                                <strong>Track Guests:</strong> Maintain guest records and preferences
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Quick Actions -->
-                        <?php if ($tables_exist): ?>
                         <div class="row mt-4">
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5 class="card-title mb-0">🚀 Quick Setup Actions</h5>
+                                        <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Quick Setup Actions</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="card bg-light">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card action-card bg-light h-100">
                                                     <div class="card-body text-center">
-                                                        <h5>🛏️ Add Sample Data</h5>
+                                                        <i class="fas fa-magic fa-2x text-primary mb-3"></i>
+                                                        <h5>Add Sample Data</h5>
                                                         <p class="text-muted">Add sample room types and rooms to get started quickly</p>
-                                                        <form method="POST">
+                                                        <form method="POST" class="mt-3">
                                                             <button type="submit" name="add_sample_data" class="btn btn-outline-primary">
-                                                                Add Sample Data
+                                                                <i class="fas fa-plus me-1"></i>Add Sample Data
                                                             </button>
                                                         </form>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="card bg-light">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card action-card bg-light h-100">
                                                     <div class="card-body text-center">
-                                                        <h5>📝 Manage Rooms</h5>
+                                                        <i class="fas fa-edit fa-2x text-success mb-3"></i>
+                                                        <h5>Manage Rooms</h5>
                                                         <p class="text-muted">Add and manage your rooms and room types</p>
-                                                        <a href="manage-rooms.php" class="btn btn-outline-primary">
-                                                            Go to Rooms
+                                                        <a href="manage-rooms.php" class="btn btn-outline-success mt-3">
+                                                            <i class="fas fa-arrow-right me-1"></i>Go to Rooms
                                                         </a>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="card bg-light">
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card action-card bg-light h-100">
                                                     <div class="card-body text-center">
-                                                        <h5>📊 View Dashboard</h5>
+                                                        <i class="fas fa-tachometer-alt fa-2x text-info mb-3"></i>
+                                                        <h5>View Dashboard</h5>
                                                         <p class="text-muted">Check your room management dashboard</p>
-                                                        <a href="room-dashboard.php" class="btn btn-outline-primary">
-                                                            Go to Dashboard
+                                                        <a href="room-dashboard.php" class="btn btn-outline-info mt-3">
+                                                            <i class="fas fa-arrow-right me-1"></i>Go to Dashboard
                                                         </a>
                                                     </div>
                                                 </div>
@@ -676,7 +687,7 @@ function addSampleData($user_id, $conn) {
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5 class="card-title mb-0">ℹ️ System Information</h5>
+                                        <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
@@ -703,28 +714,34 @@ function addSampleData($user_id, $conn) {
                                             <div class="col-md-6">
                                                 <table class="table table-sm">
                                                     <tr>
-                                                        <th>Configuration Status:</th>
-                                                        <td>
-                                                            <span class="badge bg-<?php echo !empty($current_config) ? 'success' : 'warning'; ?>">
-                                                                <?php echo !empty($current_config) ? 'Configured' : 'Not Configured'; ?>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
                                                         <th>Setup Progress:</th>
                                                         <td>
                                                             <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar 
-                                                                    <?php 
-                                                                        $progress = 0;
-                                                                        if ($tables_exist) $progress += 50;
-                                                                        if (!empty($current_config)) $progress += 50;
-                                                                        echo $progress == 100 ? 'bg-success' : ($progress >= 50 ? 'bg-warning' : 'bg-danger');
-                                                                    ?>" 
+                                                                <div class="progress-bar <?php echo $progress == 100 ? 'bg-success' : 'bg-danger'; ?>" 
                                                                     style="width: <?php echo $progress; ?>%">
                                                                 </div>
                                                             </div>
                                                             <small class="text-muted"><?php echo $progress; ?>% Complete</small>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Current Status:</th>
+                                                        <td>
+                                                            <?php if ($progress == 100): ?>
+                                                                <span class="text-success"><i class="fas fa-check-circle me-1"></i>Ready to Use</span>
+                                                            <?php else: ?>
+                                                                <span class="text-danger"><i class="fas fa-times-circle me-1"></i>Setup Required</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Required Action:</th>
+                                                        <td>
+                                                            <?php if (!$tables_exist): ?>
+                                                                <span class="text-danger">Create database tables</span>
+                                                            <?php else: ?>
+                                                                <span class="text-success">No action required</span>
+                                                            <?php endif; ?>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -751,26 +768,6 @@ function addSampleData($user_id, $conn) {
             const submitBtn = $(this).find('button[type="submit"]');
             submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Processing...');
         });
-
-        // Auto-suggest hotel name based on user name
-        const userName = "<?php echo $user_name; ?>";
-        if (userName && !$('#hotel_name').val()) {
-            $('#hotel_name').val(userName + "'s Hotel");
-        }
-
-        // Update progress bar color based on progress
-        function updateProgress() {
-            const progress = <?php 
-                $progress = 0;
-                if ($tables_exist) $progress += 50;
-                if (!empty($current_config)) $progress += 50;
-                echo $progress;
-            ?>;
-            
-            $('.progress-bar').css('width', progress + '%');
-        }
-
-        updateProgress();
     });
     </script>
 </body>

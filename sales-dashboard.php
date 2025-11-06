@@ -38,65 +38,109 @@ if ($role !== 'sales_person') {
     exit();
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['profile_url'])) {
-        $profile_url = trim($_POST['profile_url']);
-        
-        // Basic validation
-        if (empty($profile_url)) {
-            $error_message = "Profile URL cannot be empty";
-        } elseif (!preg_match('/^[a-zA-Z0-9-]+$/', $profile_url)) {
-            $error_message = "Profile URL can only contain letters, numbers, and hyphens";
-        } else {
-            // Check if URL is available
-            $check_sql = "SELECT user_id FROM profile_url_details WHERE profile_url = ?";
-            $check_stmt = $conn->prepare($check_sql);
-            $check_stmt->bind_param("s", $profile_url);
-            $check_stmt->execute();
-            $check_result = $check_stmt->get_result();
-            
-            if ($check_result->num_rows > 0) {
-                $existing_user = $check_result->fetch_assoc();
-                if ($existing_user['user_id'] != $user_id) {
-                    $error_message = "This profile URL is already taken";
-                }
-            }
-            $check_stmt->close();
-            
-            // If no errors, save the profile URL
-            if (empty($error_message)) {
-                // Check if user already has a profile URL
-                $existing_sql = "SELECT profile_url FROM profile_url_details WHERE user_id = ?";
-                $existing_stmt = $conn->prepare($existing_sql);
-                $existing_stmt->bind_param("i", $user_id);
-                $existing_stmt->execute();
-                $existing_result = $existing_stmt->get_result();
-                
-                if ($existing_result->num_rows > 0) {
-                    // Update existing record
-                    $update_sql = "UPDATE profile_url_details SET profile_url = ?, updated_at = NOW() WHERE user_id = ?";
-                    $stmt = $conn->prepare($update_sql);
-                    $stmt->bind_param("si", $profile_url, $user_id);
-                } else {
-                    // Insert new record
-                    $insert_sql = "INSERT INTO profile_url_details (user_id, profile_url, created_at, updated_at) VALUES (?, ?, NOW(), NOW())";
-                    $stmt = $conn->prepare($insert_sql);
-                    $stmt->bind_param("is", $user_id, $profile_url);
-                }
-                
-                if ($stmt->execute()) {
-                    $success_message = "Profile URL saved successfully!";
-                    $current_profile_url = $profile_url;
-                } else {
-                    $error_message = "Error saving profile URL: " . $conn->error;
-                }
-                $stmt->close();
-            }
-        }
-    }
-}
+// Fetch sales data for charts
+$sales_data = [];
+$leads_data = [];
+$conversion_data = [];
 
+// Get today's sales
+$today_sales_sql = "SELECT COUNT(*) as count, COALESCE(SUM(package_price), 0) as total 
+                   FROM sales_track 
+                   WHERE user_id = ? AND DATE(record_date) = CURDATE() AND status = 'completed'";
+$today_stmt = $conn->prepare($today_sales_sql);
+$today_stmt->bind_param("i", $user_id);
+$today_stmt->execute();
+$today_result = $today_stmt->get_result();
+$today_data = $today_result->fetch_assoc();
+$today_sales_count = $today_data['count'];
+$today_sales_total = $today_data['total'];
+$today_stmt->close();
+
+// Get monthly sales data for chart
+$monthly_sales_sql = "SELECT 
+                        DATE_FORMAT(record_date, '%Y-%m') as month,
+                        COUNT(*) as count,
+                        COALESCE(SUM(package_price), 0) as total
+                      FROM sales_track 
+                      WHERE user_id = ? AND status = 'completed'
+                      GROUP BY DATE_FORMAT(record_date, '%Y-%m')
+                      ORDER BY month DESC
+                      LIMIT 6";
+$monthly_stmt = $conn->prepare($monthly_sales_sql);
+$monthly_stmt->bind_param("i", $user_id);
+$monthly_stmt->execute();
+$monthly_result = $monthly_stmt->get_result();
+$monthly_sales = [];
+while ($row = $monthly_result->fetch_assoc()) {
+    $monthly_sales[] = $row;
+}
+$monthly_stmt->close();
+
+// Get leads data by status
+$leads_sql = "SELECT status, COUNT(*) as count 
+              FROM sales_track 
+              WHERE user_id = ?
+              GROUP BY status";
+$leads_stmt = $conn->prepare($leads_sql);
+$leads_stmt->bind_param("i", $user_id);
+$leads_stmt->execute();
+$leads_result = $leads_stmt->get_result();
+$leads_by_status = [];
+while ($row = $leads_result->fetch_assoc()) {
+    $leads_by_status[$row['status']] = $row['count'];
+}
+$leads_stmt->close();
+
+// Get conversion rate data
+$conversion_sql = "SELECT 
+                    COUNT(*) as total_leads,
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as converted_leads
+                   FROM sales_track 
+                   WHERE user_id = ?";
+$conversion_stmt = $conn->prepare($conversion_sql);
+$conversion_stmt->bind_param("i", $user_id);
+$conversion_stmt->execute();
+$conversion_result = $conversion_stmt->get_result();
+$conversion_data = $conversion_result->fetch_assoc();
+$conversion_stmt->close();
+
+// Calculate conversion rate
+$total_leads = $conversion_data['total_leads'] ?: 1; // Avoid division by zero
+$converted_leads = $conversion_data['converted_leads'] ?: 0;
+$conversion_rate = ($converted_leads / $total_leads) * 100;
+
+// Get top performing locations
+$locations_sql = "SELECT city, COUNT(*) as count 
+                  FROM sales_track 
+                  WHERE user_id = ? AND city IS NOT NULL
+                  GROUP BY city 
+                  ORDER BY count DESC 
+                  LIMIT 5";
+$locations_stmt = $conn->prepare($locations_sql);
+$locations_stmt->bind_param("i", $user_id);
+$locations_stmt->execute();
+$locations_result = $locations_stmt->get_result();
+$top_locations = [];
+while ($row = $locations_result->fetch_assoc()) {
+    $top_locations[] = $row;
+}
+$locations_stmt->close();
+
+// Get recent sales
+$recent_sales_sql = "SELECT restaurant_name, package_price, record_date, status 
+                     FROM sales_track 
+                     WHERE user_id = ? 
+                     ORDER BY record_date DESC 
+                     LIMIT 5";
+$recent_stmt = $conn->prepare($recent_sales_sql);
+$recent_stmt->bind_param("i", $user_id);
+$recent_stmt->execute();
+$recent_result = $recent_stmt->get_result();
+$recent_sales = [];
+while ($row = $recent_result->fetch_assoc()) {
+    $recent_sales[] = $row;
+}
+$recent_stmt->close();
 
 // Fetch user name
 $sql = "SELECT name FROM users WHERE id = ?";
@@ -124,6 +168,8 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .session-status-android {
             position: fixed;
@@ -142,15 +188,54 @@ $conn->close();
         .session-status-android.web {
             background: #17a2b8;
         }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .progress {
+            height: 10px;
+        }
+        
+        .recent-sales-table {
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-in-process {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-not-interested {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- Session Status Indicator -->
-    <div class="session-status-android <?php echo $sessionManager->isAndroidApp() ? 'android' : 'web'; ?>" id="sessionStatusIndicator">
-        <?php echo $sessionManager->isAndroidApp() ? '📱 Android App - Session Active' : '🌐 Web - Session Active'; ?>
-    </div>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
@@ -167,58 +252,148 @@ $conn->close();
             <div class="container">
                 <div class="row">
                     <div class="col-xl-12">
-                        
-                        <!-- Session Info Alert for Android -->
-                        <?php if ($sessionManager->isAndroidApp()): ?>
-                        <div class="alert alert-success alert-dismissible fade show mb-3">
-                            <i class="fas fa-mobile-alt me-2"></i>
-                            <strong>Android App Session:</strong> Your session is configured to remain active for 365 days. 
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <?php endif; ?>
-                        
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Sales Dashboard</h4>
-                                <?php if ($sessionManager->isAndroidApp()): ?>
-                                <span class="badge bg-success float-end">Android App</span>
-                                <?php endif; ?>
+                                <p class="text-muted mb-0">Welcome back, <?php echo htmlspecialchars($user_name); ?>! Here's your sales performance overview.</p>
                             </div>
-                            <div class="card-body">
-                                <p>Welcome to the sales dashboard. Manage your sales activities from here.</p>
-                                
-                                <!-- Sales Quick Stats -->
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="card bg-primary text-white">
-                                            <div class="card-body text-center">
-                                                <h5>Today's Sales</h5>
-                                                <h3>₹0</h3>
-                                            </div>
+                        </div>
+                        
+                        <!-- Sales Quick Stats -->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card stat-card bg-primary text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Today's Sales</h5>
+                                        <h3>₹<?php echo number_format($today_sales_total); ?></h3>
+                                        <p class="mb-0"><?php echo $today_sales_count; ?> deals</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Total Leads</h5>
+                                        <h3><?php echo $total_leads; ?></h3>
+                                        <p class="mb-0">All time</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Conversion Rate</h5>
+                                        <h3><?php echo number_format($conversion_rate, 1); ?>%</h3>
+                                        <p class="mb-0"><?php echo $converted_leads; ?> converted</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card bg-warning text-dark">
+                                    <div class="card-body text-center">
+                                        <h5>Active Leads</h5>
+                                        <h3><?php echo isset($leads_by_status['in process']) ? $leads_by_status['in process'] : 0; ?></h3>
+                                        <p class="mb-0">In process</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Charts Row -->
+                        <div class="row mt-4">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Monthly Sales Performance</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="salesChart"></canvas>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="card bg-success text-white">
-                                            <div class="card-body text-center">
-                                                <h5>Leads</h5>
-                                                <h3>0</h3>
-                                            </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Leads by Status</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="leadsChart"></canvas>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="card bg-info text-white">
-                                            <div class="card-body text-center">
-                                                <h5>Conversions</h5>
-                                                <h3>0%</h3>
-                                            </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Charts Row -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Top Performing Locations</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="locationsChart"></canvas>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="card bg-warning text-dark">
-                                            <div class="card-body text-center">
-                                                <h5>Target</h5>
-                                                <h3>₹0</h3>
-                                            </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Monthly Conversion Rate</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container">
+                                            <canvas id="conversionChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Sales Table -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Recent Sales Activity</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover recent-sales-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Restaurant</th>
+                                                        <th>Package Value</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if (count($recent_sales) > 0): ?>
+                                                        <?php foreach ($recent_sales as $sale): ?>
+                                                            <tr>
+                                                                <td><?php echo htmlspecialchars($sale['restaurant_name']); ?></td>
+                                                                <td>₹<?php echo number_format($sale['package_price'], 2); ?></td>
+                                                                <td><?php echo date('M j, Y', strtotime($sale['record_date'])); ?></td>
+                                                                <td>
+                                                                    <span class="status-badge status-<?php echo str_replace(' ', '-', strtolower($sale['status'])); ?>">
+                                                                        <?php echo ucfirst($sale['status']); ?>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="4" class="text-center">No recent sales activity</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -237,6 +412,174 @@ $conn->close();
     
     <script>
     $(document).ready(function() {
+        // Monthly Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: [<?php 
+                    $labels = [];
+                    foreach(array_reverse($monthly_sales) as $sale) {
+                        $labels[] = "'" . date('M Y', strtotime($sale['month'] . '-01')) . "'";
+                    }
+                    echo implode(', ', $labels);
+                ?>],
+                datasets: [{
+                    label: 'Sales Amount (₹)',
+                    data: [<?php 
+                        $data = [];
+                        foreach(array_reverse($monthly_sales) as $sale) {
+                            $data[] = $sale['total'];
+                        }
+                        echo implode(', ', $data);
+                    ?>],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Number of Deals',
+                    data: [<?php 
+                        $countData = [];
+                        foreach(array_reverse($monthly_sales) as $sale) {
+                            $countData[] = $sale['count'];
+                        }
+                        echo implode(', ', $countData);
+                    ?>],
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    type: 'line',
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Sales Amount (₹)'
+                        }
+                    },
+                    y1: {
+                        position: 'right',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Deals'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Leads by Status Chart
+        const leadsCtx = document.getElementById('leadsChart').getContext('2d');
+        const leadsChart = new Chart(leadsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['In Process', 'Completed', 'Not Interested'],
+                datasets: [{
+                    data: [
+                        <?php echo isset($leads_by_status['in process']) ? $leads_by_status['in process'] : 0; ?>,
+                        <?php echo isset($leads_by_status['completed']) ? $leads_by_status['completed'] : 0; ?>,
+                        <?php echo isset($leads_by_status['not interested']) ? $leads_by_status['not interested'] : 0; ?>
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Top Locations Chart
+        const locationsCtx = document.getElementById('locationsChart').getContext('2d');
+        const locationsChart = new Chart(locationsCtx, {
+            type: 'bar',
+            data: {
+                labels: [<?php 
+                    $locationLabels = [];
+                    $locationData = [];
+                    foreach($top_locations as $location) {
+                        $locationLabels[] = "'" . $location['city'] . "'";
+                        $locationData[] = $location['count'];
+                    }
+                    echo implode(', ', $locationLabels);
+                ?>],
+                datasets: [{
+                    label: 'Number of Leads',
+                    data: [<?php echo implode(', ', $locationData); ?>],
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Conversion Rate Chart (Sample data - in a real app, you'd calculate this from your data)
+        const conversionCtx = document.getElementById('conversionChart').getContext('2d');
+        const conversionChart = new Chart(conversionCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Conversion Rate (%)',
+                    data: [15, 22, 18, 25, 30, 28],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Conversion Rate (%)'
+                        }
+                    }
+                }
+            }
+        });
+        
         // Session status indicator management
         function updateSessionStatus() {
             const indicator = $('#sessionStatusIndicator');

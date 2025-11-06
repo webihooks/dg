@@ -46,12 +46,12 @@ if (isset($_SESSION['password_error'])) {
     unset($_SESSION['password_error']);
 }
 
-// Fetch Users Details
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";  // Added role to SELECT
+// Fetch Users Details with role
+$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);  // Added role to bind_result
+$stmt->bind_result($user_name, $email, $phone, $address, $role);
 $stmt->fetch();
 $stmt->close();
 
@@ -81,6 +81,8 @@ $conn->close();
         // Include the appropriate menu based on user role
         if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'room') {
+            include 'room_management_menu.php';
         } else {
             include 'menu.php';
         }
@@ -118,6 +120,9 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Profile</h4>
+                                <?php if ($role === 'room'): ?>
+                                    <span class="badge bg-info float-end">Room Management User</span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <form id="profileForm" method="POST" action="update_profile.php">
@@ -184,7 +189,7 @@ $(document).ready(function () {
                 digits: true,
                 minlength: 10,
                 maxlength: 10
-            }, // Added missing comma here
+            },
             address: {
                 required: true,
                 minlength: 5,
@@ -219,10 +224,10 @@ $(document).ready(function () {
         return this.optional(element) || value.length == param;
     }, $.validator.format("Please enter exactly {0} characters."));
 
-    // Custom validation method to block line breaks - FIXED this function
+    // Custom validation method to block line breaks
     $.validator.addMethod("noLineBreaks", function(value, element) {
         return !/[\n\r]/.test(value); // Returns false if line breaks exist
-    }); // Added missing closing brace and parenthesis here
+    });
             
     $("#passwordForm").validate({
         rules: {

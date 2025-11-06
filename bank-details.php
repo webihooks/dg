@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'user';
 $success_message = '';
 $error_message = '';
 $is_edit_mode = false;
@@ -116,14 +117,20 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
+    <style>.bank-form input[type="text"]{text-transform:uppercase}.action-btns .btn{margin:2px}@media (max-width:768px){.action-btns .btn{display:block;width:100%;margin-bottom:5px}}</style>
 </head>
-
 
 <body>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        <?php 
+        if ($role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -143,7 +150,7 @@ $conn->close();
                                     <div class="alert alert-danger"><?php echo $error_message; ?></div>
                                 <?php endif; ?>
                                 
-                                <form id="bankForm" method="POST" action="bank-details.php">
+                                <form id="bankForm" method="POST" action="bank-details.php" class="bank-form">
                                     <input type="hidden" name="bank_id" value="<?php echo $is_edit_mode ? $bank_data['id'] : ''; ?>">
                                     
                                     <div class="mb-3">
@@ -154,7 +161,7 @@ $conn->close();
                                     
                                     <div class="mb-3">
                                         <label for="bank_name" class="form-label">Bank Name</label>
-                                        <input style="text-transform: uppercase;" type="text" class="form-control" id="bank_name" name="bank_name" 
+                                        <input type="text" class="form-control" id="bank_name" name="bank_name" 
                                             value="<?php echo $is_edit_mode ? htmlspecialchars($bank_data['bank_name']) : ''; ?>" required>
                                     </div>
                                     
@@ -175,7 +182,7 @@ $conn->close();
                                     
                                     <div class="mb-3">
                                         <label for="ifsc_code" class="form-label">IFSC Code</label>
-                                        <input style="text-transform: uppercase;" type="text" class="form-control" id="ifsc_code" name="ifsc_code" 
+                                        <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" 
                                             value="<?php echo $is_edit_mode ? htmlspecialchars($bank_data['ifsc_code']) : ''; ?>" required>
                                     </div>
                                     
@@ -219,7 +226,7 @@ $conn->close();
                                                         <td><?php echo htmlspecialchars($bank['account_number']); ?></td>
                                                         <td><?php echo htmlspecialchars($bank['account_type']); ?></td>
                                                         <td><?php echo htmlspecialchars($bank['ifsc_code']); ?></td>
-                                                        <td>
+                                                        <td class="action-btns">
                                                             <a href="bank-details.php?edit=<?php echo $bank['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
                                                             <a href="bank-details.php?delete=<?php echo $bank['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this bank account?')">Delete</a>
                                                         </td>

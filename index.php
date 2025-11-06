@@ -572,6 +572,22 @@ try {
                     <h3 class="text-xl font-bold mb-4">Admin Management App</h3>
                     <p class="text-white">Accept/reject orders, update menus & prices in real-time from your phone.</p>
                 </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-receipt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">KOT & Bill Printing</h3>
+                    <p class="text-white">Generate kitchen order tickets and bills in just one click.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Full Store Control</h3>
+                    <p class="text-white">Set store timings, delivery charges, GST, discounts, coupon codes, and menu categories easily.</p>
+                </div>
                 
                 <!-- Feature 4 -->
                 <div class="feature-card">
@@ -588,7 +604,7 @@ try {
                         <i class="fab fa-whatsapp text-2xl text-white"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-4">Bulk WhatsApp Marketing</h3>
-                    <p class="text-white">10,000 FREE WhatsApp marketing credits to send offers directly to customers.</p>
+                    <p class="text-white">FREE 10,000 WhatsApp marketing credits to send offers directly to customers.</p>
                 </div>
                 
                 <!-- Feature 6 -->
@@ -598,6 +614,14 @@ try {
                     </div>
                     <h3 class="text-xl font-bold mb-4">Direct Payments</h3>
                     <p class="text-white">Receive money via UPI/Cards instantly with 0% platform fee directly to your account.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comment-dots text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Reply to Reviews Instantly</h3>
+                    <p class="text-white">Respond to customer reviews directly via WhatsApp in one click.</p>
                 </div>
             </div>
             
@@ -634,27 +658,16 @@ try {
             <div class="text-center mb-12">
                 <h3 class="text-5xl font-bold mb-6">All this for just ₹9,999/year</h3>
                 <p class="text-3xl mb-8">We set everything up for you. Go live the same day!</p>
-                <a href="tel:+919004998995" class="cta-button">CALL US NOW TO GET STARTED</a>
+                <a href="tel:+919819411026" class="cta-button">CALL US NOW TO GET STARTED</a>
+                <br>
+                <br>
+                <a href="https://wa.me/919819411026?text=Hi%20Team%20DeeGeeCard%20%F0%9F%91%8B%2C%20I%E2%80%99m%20ready%20to%20grow%20my%20restaurant%20with%20ZERO%20commission%20orders%21%20Please%20help%20me%20get%20started." target="_blank" class="cta-button">WHATSAPP US NOW TO GET STARTED</a>
             </div>
             
-            <!-- <div id="contact" class="bg-white text-gray-800 rounded-2xl p-8">
-                <h3 class="text-2xl font-bold mb-6 text-center">Contact Us Now</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="text-center">
-                        <p class="font-bold mb-2">Inayat Shaikh</p>
-                        <a href="tel:9819411026" class="text-primary text-xl font-bold">9819411026</a>
-                    </div>
-                    <div class="text-center">
-                        <p class="font-bold mb-2">Sagar Pawar</p>
-                        <a href="tel:9004998995" class="text-primary text-xl font-bold">9004998995</a>
-                    </div>
-                </div>
-                
-                <div class="mt-8 text-center">
-                    <p class="mb-4">Visit our website: <a href="https://www.deegeecard.com" class="text-primary font-bold">www.deegeecard.com</a></p>
-                    <p>Email us: <a href="mailto:support@deegeecard.com" class="text-primary font-bold">support@deegeecard.com</a></p>
-                </div>
-            </div> -->
+
+
+
+
         </div>
     </section>
 

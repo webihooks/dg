@@ -47,7 +47,7 @@
                          <span class="nav-icon">
                               <iconify-icon icon="lsicon:sales-return-outline"></iconify-icon>
                          </span>
-                         <span class="nav-text"> All Sales Records </span>
+                         <span class="nav-text"> View Sales Records </span>
                     </a>
                </li>
 
@@ -58,6 +58,15 @@
                               <iconify-icon icon="la:file-invoice-dollar"></iconify-icon>
                          </span>
                          <span class="nav-text"> Invoice </span>
+                    </a>
+               </li>
+
+               <li class="nav-item">
+                    <a class="nav-link" href="https://deegeecard.com/register.php">
+                         <span class="nav-icon">
+                              <iconify-icon icon="mdi:register-outline"></iconify-icon>
+                         </span>
+                         <span class="nav-text"> Register </span>
                     </a>
                </li>
                
@@ -80,6 +89,9 @@
                      </ul>
                   </div>
                </li>
+
+
+               
 
 
 

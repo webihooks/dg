@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'] ?? 'user'; // Get user role
 $success_message = '';
 $error_message = '';
 
@@ -157,13 +158,20 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
+    <style>.qr-img{max-width:80px;max-height:80px}.badge.bg-success,.btn-sm{margin:2px}@media (max-width:768px){.btn-sm{display:block;width:100%;margin-bottom:5px}}</style>
 </head>
-
 
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        <?php 
+        // Show room management menu for room role, otherwise show regular menu
+        if ($user_role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -251,8 +259,7 @@ $conn->close();
                                                         <td>
                                                             <img src="uploads/qrcodes/<?php echo htmlspecialchars($qr['upload_qr_code']); ?>" 
                                                                  alt="QR Code" 
-                                                                 style="max-width: 80px; max-height: 80px;"
-                                                                 class="img-thumbnail">
+                                                                 class="img-thumbnail qr-img">
                                                         </td>
                                                         <td><?php echo htmlspecialchars($qr['mobile_number']); ?></td>
                                                         <td><?php echo htmlspecialchars($qr['upi_id']); ?></td>

@@ -3,6 +3,7 @@ session_start();
 require 'config.php';
 require 'db_connection.php';
 
+
 // Enable error logging
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);

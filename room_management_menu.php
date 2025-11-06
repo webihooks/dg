@@ -195,11 +195,11 @@ if (isAndroidWebView()) {
     text-transform: uppercase;
 }
 
-.room-status-available { background-color: #28a745; color: white; }
+/*.room-status-available { background-color: #28a745; color: white; }
 .room-status-occupied { background-color: #dc3545; color: white; }
 .room-status-maintenance { background-color: #ffc107; color: #000; }
 .room-status-cleaning { background-color: #17a2b8; color: white; }
-.room-status-reserved { background-color: #6f42c1; color: white; }
+.room-status-reserved { background-color: #6f42c1; color: white; }*/
 
 .booking-status-checked_in { background-color: #28a745; color: white; }
 .booking-status-reserved { background-color: #007bff; color: white; }
@@ -541,7 +541,18 @@ function highlightCurrentRoomPage() {
             </a>
          </li>
 
-         <li class="menu-title">Room Operations</li>
+
+
+
+
+
+
+
+
+
+         
+
+         <!-- <li class="menu-title">Room Operations</li>
          
          <li class="nav-item">
             <a class="nav-link" href="add-booking.php">
@@ -568,7 +579,7 @@ function highlightCurrentRoomPage() {
                </span>
                <span class="nav-text">Quick Check-Out</span>
             </a>
-         </li>
+         </li> -->
          
          <li class="nav-item">
             <a class="nav-link" href="walkin-customers.php">
@@ -675,14 +686,14 @@ function highlightCurrentRoomPage() {
             </a>
          </li>
          
-         <li class="nav-item">
+         <!-- <li class="nav-item">
             <a class="nav-link" href="loyalty-program.php">
                <span class="nav-icon">
                   <iconify-icon icon="mdi:crown"></iconify-icon>
                </span>
                <span class="nav-text">Loyalty Program</span>
             </a>
-         </li>
+         </li> -->
 
          <li class="menu-title">Reports & Analytics</li>
          
@@ -722,34 +733,11 @@ function highlightCurrentRoomPage() {
             </a>
          </li>
 
-         <li class="menu-title">Settings & Configuration</li>
+
          
-         <li class="nav-item">
-            <a class="nav-link menu-arrow" href="#room-settings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="room-settings">
-               <span class="nav-icon">
-                  <iconify-icon icon="mdi:cog"></iconify-icon>
-               </span>
-               <span class="nav-text">Room Settings</span>
-            </a>
-            <div class="collapse" id="room-settings">
-               <ul class="nav sub-navbar-nav">
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="room-configuration.php">Configuration</a>
-                  </li>
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="seasonal-rates.php">Seasonal Rates</a>
-                  </li>
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="tax-settings.php">Tax Settings</a>
-                  </li>
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="payment-methods.php">Payment Methods</a>
-                  </li>
-               </ul>
-            </div>
-         </li>
          
-         <li class="nav-item">
+         
+         <!-- <li class="nav-item">
             <a class="nav-link menu-arrow" href="#notifications" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="notifications">
                <span class="nav-icon">
                   <iconify-icon icon="mdi:bell"></iconify-icon>
@@ -769,23 +757,166 @@ function highlightCurrentRoomPage() {
                   </li>
                </ul>
             </div>
-         </li>
+         </li> -->
 
-         <li class="nav-item">
+         <!-- <li class="nav-item">
             <a class="nav-link" href="room-maintenance.php">
                <span class="nav-icon">
                   <iconify-icon icon="mdi:toolbox"></iconify-icon>
                </span>
                <span class="nav-text">Maintenance</span>
             </a>
-         </li>
+         </li> -->
          
-         <li class="nav-item">
+         <!-- <li class="nav-item">
             <a class="nav-link" href="housekeeping.php">
                <span class="nav-icon">
                   <iconify-icon icon="mdi:broom"></iconify-icon>
                </span>
                <span class="nav-text">Housekeeping</span>
+            </a>
+         </li> -->
+
+
+         <li class="nav-item">
+            <a class="nav-link" href="whatsapp_marketing.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="ic:sharp-whatsapp"></iconify-icon>
+               </span>
+               <span class="nav-text">Bulk WhatsApp Marketing</span>
+            </a>
+         </li>
+
+
+
+
+        <li class="nav-item">
+            <a class="nav-link menu-arrow" href="#personal" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="personal">
+               <span class="nav-icon">
+                  <iconify-icon icon="mdi:card-account-details-outline"></iconify-icon>
+               </span>
+               <span class="nav-text"> Personal </span>
+            </a>
+            <div class="collapse" id="personal">
+               <ul class="nav sub-navbar-nav">
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="profile_url.php">Profile URL</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="profile.php">Profile</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="profile-cover-photo.php">Profile & Cover Photo</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="social.php">Social Sites</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="theme.php">Themes</a>
+                  </li>
+               </ul>
+            </div>
+        </li>
+
+        
+
+
+         
+
+         <li class="nav-item">
+            <a class="nav-link menu-arrow" href="#business" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="business">
+               <span class="nav-icon">
+                  <iconify-icon icon="vaadin:shop"></iconify-icon>
+               </span>
+               <span class="nav-text"> Business </span>
+            </a>
+            <div class="collapse" id="business">
+               <ul class="nav sub-navbar-nav">
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="business.php">Business</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="bank-details.php">Bank Details</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="qr-code-details.php">QR Code Details</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="upload_apk.php">Upload APK</a>
+                  </li>
+               </ul>
+            </div>
+         </li>
+
+         <li class="nav-item">
+            <a class="nav-link" href="customer_data.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="streamline:information-desk-customer"></iconify-icon>
+               </span>
+               <span class="nav-text">Customer Data</span>
+            </a>
+         </li>
+
+         
+         <li class="nav-item">
+            <a class="nav-link" href="customer-reviews.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:bill-list-line-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">Customer Reviews</span>
+            </a>
+         </li>
+
+         <li class="nav-item">
+            <a class="nav-link menu-arrow" href="#room-settings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="room-settings">
+               <span class="nav-icon">
+                  <iconify-icon icon="mdi:cog"></iconify-icon>
+               </span>
+               <span class="nav-text">Tax & Payment Method</span>
+            </a>
+            <div class="collapse" id="room-settings">
+               <ul class="nav sub-navbar-nav">
+                  <!-- <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="room-configuration.php">Configuration</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="seasonal-rates.php">Seasonal Rates</a>
+                  </li> -->
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="tax-settings.php">Tax Settings</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="payment-methods.php">Payment Methods</a>
+                  </li>
+               </ul>
+            </div>
+         </li>
+
+         <li class="nav-item">
+            <a class="nav-link menu-arrow" href="#ticket" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="ticket">
+               <span class="nav-icon">
+                  <iconify-icon icon="material-symbols:help-outline"></iconify-icon>
+               </span>
+               <span class="nav-text"> Ticket </span>
+            </a>
+            <div class="collapse" id="ticket">
+               <ul class="nav sub-navbar-nav">
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="create_ticket.php">Create Ticket</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="view_tickets.php">View Tickets</a>
+                  </li>
+               </ul>
+            </div>
+         </li>
+
+         <li class="nav-item">
+            <a class="nav-link" href="subscription.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="streamline:subscription-cashflow"></iconify-icon>
+               </span>
+               <span class="nav-text">Subscription</span>
             </a>
          </li>
 
@@ -795,7 +926,7 @@ function highlightCurrentRoomPage() {
 </div>
 
 <!-- Floating Action Buttons for Room Management -->
-<div class="room-floating-buttons">
+<!-- <div class="room-floating-buttons">
    <a href="quick-checkin.php" class="room-floating-btn quick-checkin" data-tooltip="Quick Check-In">
       <iconify-icon icon="mdi:login"></iconify-icon>
    </a>
@@ -808,7 +939,7 @@ function highlightCurrentRoomPage() {
    <a href="manage-rooms.php" class="room-floating-btn quick-room" data-tooltip="Manage Rooms">
       <iconify-icon icon="mdi:bed"></iconify-icon>
    </a>
-</div>
+</div> -->
 
 <script>
 // Tooltip initialization for floating buttons

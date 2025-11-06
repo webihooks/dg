@@ -14,15 +14,15 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $error = '';
 
-// Fetch user name
-$sql_name = "SELECT name FROM users WHERE id = ?";
+// Fetch user name and role
+$sql_name = "SELECT name, role FROM users WHERE id = ?";
 $stmt_name = $conn->prepare($sql_name);
 if ($stmt_name === false) {
     die("Prepare failed: " . $conn->error);
 }
 $stmt_name->bind_param("i", $user_id);
 $stmt_name->execute();
-$stmt_name->bind_result($user_name);
+$stmt_name->bind_result($user_name, $user_role);
 $stmt_name->fetch();
 $stmt_name->close();
 
@@ -120,6 +120,12 @@ $conn->close();
             margin-left: 10px;
             vertical-align: middle;
         }
+        .role-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 
@@ -128,15 +134,24 @@ $conn->close();
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        
+        <?php
+        // Show appropriate menu based on user role
+        if ($user_role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-9">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header position-relative">
                                 <h4 class="card-title">Theme Settings</h4>
+                                <span class="badge bg-info role-badge">Role: <?php echo ucfirst($user_role); ?></span>
                             </div>
                             <div class="card-body">
                                 <?php if (isset($_SESSION['message'])): ?>
@@ -177,6 +192,16 @@ $conn->close();
                                     </div>
                                     
                                     <button type="submit" class="btn btn-primary">Save Theme</button>
+                                    
+                                    <?php if ($user_role === 'room'): ?>
+                                        <a href="room-dashboard.php" class="btn btn-secondary ms-2">
+                                            <i class="fas fa-arrow-left me-1"></i>Back to Room Dashboard
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="dashboard.php" class="btn btn-secondary ms-2">
+                                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                                        </a>
+                                    <?php endif; ?>
                                 </form>
                             </div>
                         </div>

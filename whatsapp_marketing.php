@@ -84,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
 // Fetch user name
 $sql = "SELECT name FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
@@ -107,48 +106,11 @@ $conn->close();
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/style.css" rel="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
-    <style>
-/* Flexible height iframe container */
-.iframe-container {
-    width: 100%;
-    height: 70vh; /* 70% of viewport height */
-    min-height: 500px; /* Minimum height */
-    max-height: 800px; /* Maximum height */
-    overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    background: #f8f9fa;
-}
-
-.iframe-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-@media (max-width: 992px) {
-    .iframe-container {
-        height: 60vh;
-        min-height: 400px;
-    }
-}
-
-@media (max-width: 768px) {
-    .iframe-container {
-        height: 65vh;
-        min-height: 300px;
-        border-radius: 0;
-        margin-left: -15px;
-        margin-right: -15px;
-        width: calc(100% + 30px);
-    }
-}
-    </style>
+    <style>.iframe-container{width:100%;height:70vh;min-height:500px;max-height:800px;overflow:hidden;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:20px;background:#f8f9fa}.iframe-container iframe{width:100%;height:100%;border:none}@media (max-width:992px){.iframe-container{height:60vh;min-height:400px}}@media (max-width:768px){.iframe-container{height:65vh;min-height:300px;border-radius:0;margin-left:-15px;margin-right:-15px;width:calc(100% + 30px)}}</style>
 </head>
 
 <body>
@@ -159,6 +121,8 @@ $conn->close();
         // Include the appropriate menu based on user role
         if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'room') {
+            include 'room_management_menu.php';
         } else {
             include 'menu.php';
         }

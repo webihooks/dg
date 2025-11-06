@@ -17,12 +17,12 @@ $error_message = '';
 $is_edit_mode = false;
 $business_data = null;
 
-// Fetch user name
-$sql = "SELECT name FROM users WHERE id = ?";
+// Fetch user name and role
+$sql = "SELECT name, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name);
+$stmt->bind_result($user_name, $user_role);
 $stmt->fetch();
 $stmt->close();
 
@@ -183,12 +183,20 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
+    <style>.business-form .form-control:focus{border-color:#007bff;box-shadow:0 0 0 0.2rem rgba(0,123,255,.25)}.business-table tr:hover{background-color:#f8f9fa}.action-btn{margin:2px}.table-responsive{overflow-x:auto}@media (max-width:768px){.action-btn{display:block;width:100%;margin-bottom:5px}}</style>
 </head>
 <body>
 
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        <?php 
+        // Show different menu based on user role
+        if ($user_role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -198,7 +206,7 @@ $conn->close();
                             <div class="card-header">
                                 <h4 class="card-title">Business</h4>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body business-form">
                                 <h4 class="header-title mb-3"><?php echo $is_edit_mode ? 'Edit' : 'Add'; ?> Business Information</h4>
                                 
                                 <?php if ($success_message): ?>
@@ -268,7 +276,7 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                             <div class="card-body">
                                 <h4 class="header-title mb-3">Your Businesses</h4>
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-hover">
+                                    <table class="table table-striped table-hover business-table">
                                         <thead>
                                             <tr>
                                                 <th>Business Name</th>
@@ -299,7 +307,7 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <a href="business.php?edit=<?php echo $business['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                                    <a href="business.php?edit=<?php echo $business['id']; ?>" class="btn btn-sm btn-primary action-btn">Edit</a>
                                                 </td>
                                             </tr>
                                             <?php endforeach; ?>

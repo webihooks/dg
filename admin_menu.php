@@ -72,7 +72,7 @@
                </li>
 
                <li class="nav-item">
-                    <a class="nav-link" target="_blank" href="https://gemini.google.com/share/bccb685f59ac">
+                    <a class="nav-link open_in_browser" target="_blank" href="https://gemini.google.com/share/bccb685f59ac">
                          <span class="nav-icon">
                               <iconify-icon icon="hugeicons:ai-image"></iconify-icon>
                          </span>
@@ -221,11 +221,20 @@
                </li>
 
                <li class="nav-item">
-                    <a class="nav-link" href="invoice.php">
+                    <a class="nav-link open_in_browser" href="https://deegeecardinvoicegenerator.netlify.app">
                          <span class="nav-icon">
                               <iconify-icon icon="la:file-invoice-dollar"></iconify-icon>
                          </span>
                          <span class="nav-text"> Invoice </span>
+                    </a>
+               </li>
+
+               <li class="nav-item">
+                    <a class="nav-link" href="https://deegeecard.com/register.php">
+                         <span class="nav-icon">
+                              <iconify-icon icon="mdi:register-outline"></iconify-icon>
+                         </span>
+                         <span class="nav-text"> Register </span>
                     </a>
                </li>
 
@@ -246,7 +255,7 @@
                          <span class="nav-icon">
                               <iconify-icon icon="lsicon:sales-return-outline"></iconify-icon>
                          </span>
-                         <span class="nav-text"> All Sales Records </span>
+                         <span class="nav-text"> View Sales Records </span>
                     </a>
                </li>
 
@@ -292,3 +301,26 @@
           </ul>
      </div>
 </div>
+
+
+<script>
+    function handleProfileLinkClick(url) {
+        // For Android with WTN support
+        if (typeof WTN !== 'undefined' && WTN.openUrlInBrowser) {
+            WTN.openUrlInBrowser(url);
+        } else {
+            // For iOS or fallback - use the href with loadIn parameter
+            window.location.href = url + '?loadIn=defaultBrowser';
+        }
+    }
+    
+    // Ensure all external links work properly
+    $(document).ready(function() {
+        // Handle profile links with both methods
+        $('a.open_in_browser').on('click', function(e) {
+            e.preventDefault();
+            const url = $(this).attr('href') ? $(this).attr('href').replace('?loadIn=defaultBrowser', '') : $(this).text().trim();
+            handleProfileLinkClick(url);
+        });
+    });
+</script>

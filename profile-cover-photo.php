@@ -13,12 +13,12 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch Users Details
-$user_sql = "SELECT name FROM users WHERE id = ?";
+// Fetch Users Details including role
+$user_sql = "SELECT name, role FROM users WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
-$user_stmt->bind_result($user_name);
+$user_stmt->bind_result($user_name, $user_role);
 $user_stmt->fetch();
 $user_stmt->close();
 
@@ -170,7 +170,15 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        
+        <?php
+        // Show different menu based on user role
+        if ($user_role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -179,6 +187,9 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Profile & Cover Photo</h4>
+                                <?php if ($user_role === 'room'): ?>
+                                    <span class="badge bg-info" style="float: right;">Room Management User</span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <!-- Cover Photo Section -->
@@ -225,6 +236,7 @@ $conn->close();
                                     </div>
                                     
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -236,5 +248,83 @@ $conn->close();
     
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
+    
+    <script>
+    // Enhanced file upload with preview
+    document.addEventListener('DOMContentLoaded', function() {
+        // Profile photo preview
+        const profileUpload = document.getElementById('profile-upload');
+        if (profileUpload) {
+            profileUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Show preview before upload
+                        if (confirm('Update profile photo?')) {
+                            profileUpload.form.submit();
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Cover photo preview
+        const coverUpload = document.getElementById('cover-upload');
+        if (coverUpload) {
+            coverUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Show preview before upload
+                        if (confirm('Update cover photo?')) {
+                            coverUpload.form.submit();
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Add loading state for uploads
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin me-1"></i>Uploading...';
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+    });
+
+    // Android session protection for room users
+    function setupRoomUserSessionProtection() {
+        if (typeof WTN === 'undefined') return;
+        
+        console.log('🏨 Room User Profile: Setting up Android session protection');
+        
+        setTimeout(() => {
+            if (WTN.forceUpdateCookies) {
+                WTN.forceUpdateCookies();
+            }
+        }, 1000);
+        
+        setInterval(() => {
+            if (WTN.forceUpdateCookies) {
+                WTN.forceUpdateCookies();
+            }
+        }, 45000);
+    }
+
+    <?php if ($user_role === 'room'): ?>
+    document.addEventListener('DOMContentLoaded', function() {
+        setupRoomUserSessionProtection();
+    });
+    <?php endif; ?>
+    </script>
 </body>
 </html>

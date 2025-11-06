@@ -48,7 +48,7 @@ $occupancy_sql = "SELECT
                     SUM(CASE WHEN r.status = 'occupied' THEN 1 ELSE 0 END) as occupied_rooms,
                     SUM(CASE WHEN r.status = 'available' THEN 1 ELSE 0 END) as available_rooms,
                     SUM(CASE WHEN r.status IN ('maintenance', 'cleaning') THEN 1 ELSE 0 END) as out_of_service_rooms,
-                    ROUND((SUM(CASE WHEN r.status = 'occupied' THEN 1 ELSE 0 END) / COUNT(r.id)) * 100, 2) as occupancy_rate,
+                    ROUND((SUM(CASE WHEN r.status = 'occupied' THEN 1 ELSE 0 END) / COUNT(r.id)) * 100) as occupancy_rate,
                     AVG(r.rate_per_night) as avg_rate
                   FROM rooms_$user_id r
                   LEFT JOIN room_types_$user_id rt ON r.room_type_id = rt.id
@@ -75,7 +75,7 @@ $revenue_sql = "SELECT
                   SUM(b.total_amount) as total_revenue,
                   AVG(b.total_amount) as avg_booking_value,
                   SUM(b.total_nights) as total_nights_sold,
-                  ROUND(SUM(b.total_amount) / COUNT(b.id), 2) as rev_per_booking
+                  ROUND(SUM(b.total_amount) / COUNT(b.id)) as rev_per_booking
                 FROM bookings_$user_id b
                 LEFT JOIN rooms_$user_id r ON b.room_id = r.id
                 LEFT JOIN room_types_$user_id rt ON r.room_type_id = rt.id
@@ -103,7 +103,7 @@ $daily_sql = "SELECT
                 DATE(b.check_in_date) as occupancy_date,
                 COUNT(DISTINCT b.room_id) as occupied_rooms,
                 (SELECT COUNT(*) FROM rooms_$user_id WHERE status != 'maintenance') as total_rooms,
-                ROUND((COUNT(DISTINCT b.room_id) / (SELECT COUNT(*) FROM rooms_$user_id WHERE status != 'maintenance')) * 100, 2) as occupancy_rate,
+                ROUND((COUNT(DISTINCT b.room_id) / (SELECT COUNT(*) FROM rooms_$user_id WHERE status != 'maintenance')) * 100) as occupancy_rate,
                 SUM(b.total_amount) as daily_revenue
               FROM bookings_$user_id b
               WHERE b.status IN ('checked_in', 'checked_out')
@@ -127,7 +127,7 @@ $overall_stats_sql = "SELECT
                         COUNT(*) as total_rooms,
                         SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as current_occupied,
                         SUM(CASE WHEN status = 'available' THEN 1 ELSE 0 END) as current_available,
-                        ROUND((SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as current_occupancy_rate
+                        ROUND((SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) / COUNT(*)) * 100) as current_occupancy_rate
                       FROM rooms_$user_id";
 $overall_stats = $conn->query($overall_stats_sql)->fetch_assoc();
 
@@ -374,7 +374,7 @@ $conn->close();
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td>₹<?php echo number_format($row['avg_rate'] ?? 0, 2); ?></td>
+                                                    <td>₹<?php echo number_format($row['avg_rate'] ?? 0); ?></td>
                                                     <td>
                                                         <span class="<?php echo $performance_class; ?>">
                                                             <?php echo $performance_text; ?>
@@ -417,10 +417,10 @@ $conn->close();
                                                     <td><?php echo $revenue['total_bookings']; ?></td>
                                                     <td><?php echo $revenue['total_nights_sold']; ?></td>
                                                     <td class="text-success">
-                                                        <strong>₹<?php echo number_format($revenue['total_revenue'] ?? 0, 2); ?></strong>
+                                                        <strong>₹<?php echo number_format($revenue['total_revenue'] ?? 0); ?></strong>
                                                     </td>
-                                                    <td>₹<?php echo number_format($revenue['avg_booking_value'] ?? 0, 2); ?></td>
-                                                    <td>₹<?php echo number_format($revenue['rev_per_booking'] ?? 0, 2); ?></td>
+                                                    <td>₹<?php echo number_format($revenue['avg_booking_value'] ?? 0); ?></td>
+                                                    <td>₹<?php echo number_format($revenue['rev_per_booking'] ?? 0); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                             <?php if (empty($revenue_data)): ?>
@@ -457,7 +457,7 @@ $conn->close();
                         label: 'Occupancy Rate (%)',
                         data: <?php echo json_encode(array_column($daily_occupancy, 'occupancy_rate')); ?>,
                         borderColor: '#007bff',
-                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        backgroundColor: 'rgba(0, 12355, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4

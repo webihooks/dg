@@ -18,7 +18,7 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = '';
 
-// Fetch user details
+// Fetch user details including role
 $sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -141,165 +141,22 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            .table-responsive table {
-                min-width: 600px; /* Allow horizontal scrolling on small screens */
-            }
-            
-            .card-header .float-end {
-                float: none !important;
-                margin-top: 10px;
-                text-align: center;
-            }
-            
-            .card-header h4 {
-                text-align: center;
-            }
-            
-            .search-form {
-                width: 100%;
-                margin-bottom: 15px;
-            }
-            
-            .search-form .d-flex {
-                flex-direction: column;
-            }
-            
-            .search-form input {
-                margin-bottom: 10px;
-                margin-right: 0 !important;
-            }
-            
-            .search-form .btn {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-            
-            .phone-buttons {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .phone-buttons .btn {
-                font-size: 0.8rem;
-                padding: 5px 8px;
-            }
-            
-            .pagination {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .pagination .page-item {
-                margin-bottom: 5px;
-            }
-            
-            .customer-card {
-                border: 1px solid #dee2e6;
-                border-radius: 0.375rem;
-                padding: 15px;
-                margin-bottom: 15px;
-                background-color: #fff;
-            }
-            
-            .customer-card .card-row {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 8px;
-                border-bottom: 1px solid #f8f9fa;
-                padding-bottom: 8px;
-            }
-            
-            .customer-card .card-row:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
-            
-            .customer-card .label {
-                font-weight: 600;
-                color: #495057;
-                min-width: 120px;
-            }
-            
-            .customer-card .value {
-                flex: 1;
-                text-align: right;
-            }
-            
-            .customer-card .badge {
-                font-size: 0.75rem;
-            }
-            
-            .whatsapp-share {
-                width: 100%;
-                margin-top: 5px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .container-fluid {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            .phone-buttons .btn-group {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .phone-buttons .btn {
-                margin-bottom: 5px;
-                border-radius: 0.375rem !important;
-            }
-        }
-        
-        /* Ensure table is scrollable on mobile */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Hide table on mobile, show cards */
-        @media (max-width: 768px) {
-            .desktop-table {
-                display: none;
-            }
-            
-            .mobile-cards {
-                display: block;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .mobile-cards {
-                display: none;
-            }
-            
-            .desktop-table {
-                display: block;
-            }
-        }
-        .scroll-to-top.show {
-          bottom: 15px;
-        }
+        @media (max-width:768px){.table-responsive table{min-width:600px}.card-header .float-end{float:none!important;margin-top:10px;text-align:center}.card-header h4{text-align:center}.search-form{width:100%;margin-bottom:15px}.search-form .d-flex{flex-direction:column}.search-form input{margin-bottom:10px;margin-right:0!important}.search-form .btn{width:100%;margin-bottom:5px}.phone-buttons{display:flex;flex-direction:column;gap:5px}.phone-buttons .btn{font-size:.8rem;padding:5px 8px}.pagination{flex-wrap:wrap;justify-content:center}.pagination .page-item{margin-bottom:5px}.customer-card{border:1px solid #dee2e6;border-radius:.375rem;padding:15px;margin-bottom:15px;background-color:#fff}.customer-card .card-row{display:flex;justify-content:space-between;margin-bottom:8px;border-bottom:1px solid #f8f9fa;padding-bottom:8px}.customer-card .card-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}.customer-card .label{font-weight:600;color:#495057;min-width:120px}.customer-card .value{flex:1;text-align:right}.customer-card .badge{font-size:.75rem}.whatsapp-share{width:100%;margin-top:5px}}@media (max-width:576px){.container-fluid{padding-left:10px;padding-right:10px}.card-body{padding:15px}.phone-buttons .btn-group{flex-direction:column;width:100%}.phone-buttons .btn{margin-bottom:5px;border-radius:.375rem!important}}.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}@media (max-width:768px){.desktop-table{display:none}.mobile-cards{display:block}}@media (min-width:769px){.mobile-cards{display:none}.desktop-table{display:block}}.scroll-to-top.show{bottom:15px}
     </style>
 </head>
 
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php if ($role === 'admin') {
+        <?php 
+        if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'room') {
+            include 'room_management_menu.php';
         } else {
             include 'menu.php';
-        } ?>
+        } 
+        ?>
 
         <div class="page-content">
             <div class="container-fluid">

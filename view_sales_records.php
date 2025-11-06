@@ -36,6 +36,18 @@ header("Expires: 0");
        $user_info_stmt->close();
    }
    
+   // Phone validation function
+   function isValidPhone($phone) {
+       // Remove any non-digit characters
+       $cleaned_phone = preg_replace('/[^0-9]/', '', $phone);
+       
+       // Check if it's exactly 10 digits and first digit is not zero
+       if (strlen($cleaned_phone) === 10 && $cleaned_phone[0] != '0' && is_numeric($cleaned_phone)) {
+           return true;
+       }
+       return false;
+   }
+   
    // Handle updating record
    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_record'])) {
        $record_id = (int)$_POST['record_id'];
@@ -62,63 +74,70 @@ header("Expires: 0");
            if ($role !== 'admin' && $record_user_id != $user_id) {
                $error_message = "You don't have permission to update this record";
            } else {
-               // Get existing remark
-               $get_remark_sql = "SELECT remark FROM sales_track WHERE id = ?";
-               $get_remark_stmt = $conn->prepare($get_remark_sql);
-               $get_remark_stmt->bind_param("i", $record_id);
-               $get_remark_stmt->execute();
-               $get_remark_stmt->bind_result($existing_remark);
-               $get_remark_stmt->fetch();
-               $get_remark_stmt->close();
-               
-               $updated_remark = $existing_remark;
-               
-               if (!empty($new_remark)) {
-                   if (!empty($existing_remark)) {
-                       $updated_remark .= "\n\n";
-                   }
-                   $updated_remark .= date('Y-m-d h:i A') . " - " . $user_name . ": " . $new_remark;
-               }
-               
-               $update_sql = "UPDATE sales_track SET 
-                   contacted_person = ?, 
-                   phone = ?, 
-                   owner_available = ?, 
-                   decision_maker_name = ?, 
-                   decision_maker_phone = ?, 
-                   follow_up_date = ?, 
-                   package_price = ?, 
-                   remark = ?,
-                   status = ?,
-                   record_date = CURDATE(),
-                   time_stamp = CURRENT_TIME()
-                   WHERE id = ?";
-   
-               $update_stmt = $conn->prepare($update_sql);
-   
-               if ($update_stmt) {
-                   $update_stmt->bind_param("ssisssdssi", 
-                       $contacted_person,
-                       $phone,
-                       $owner_available,
-                       $decision_maker_name,
-                       $decision_maker_phone,
-                       $follow_up_date,
-                       $package_price,
-                       $updated_remark,
-                       $status,
-                       $record_id);
-                   
-                   if ($update_stmt->execute()) {
-                       $success_message = "Record updated successfully!";
-                       header("Location: ".$_SERVER['PHP_SELF']);
-                       exit();
-                   } else {
-                       $error_message = "Error updating record: " . $update_stmt->error;
-                   }
-                   $update_stmt->close();
+               // Validate phone numbers
+               if (!isValidPhone($phone)) {
+                   $error_message = "Phone number must be exactly 10 digits and cannot start with zero.";
+               } elseif (!empty($decision_maker_phone) && !isValidPhone($decision_maker_phone)) {
+                   $error_message = "Decision Maker's phone number must be exactly 10 digits and cannot start with zero.";
                } else {
-                   $error_message = "Error preparing update statement: " . $conn->error;
+                   // Get existing remark
+                   $get_remark_sql = "SELECT remark FROM sales_track WHERE id = ?";
+                   $get_remark_stmt = $conn->prepare($get_remark_sql);
+                   $get_remark_stmt->bind_param("i", $record_id);
+                   $get_remark_stmt->execute();
+                   $get_remark_stmt->bind_result($existing_remark);
+                   $get_remark_stmt->fetch();
+                   $get_remark_stmt->close();
+                   
+                   $updated_remark = $existing_remark;
+                   
+                   if (!empty($new_remark)) {
+                       if (!empty($existing_remark)) {
+                           $updated_remark .= "\n\n";
+                       }
+                       $updated_remark .= date('Y-m-d h:i A') . " - " . $user_name . ": " . $new_remark;
+                   }
+                   
+                   $update_sql = "UPDATE sales_track SET 
+                       contacted_person = ?, 
+                       phone = ?, 
+                       owner_available = ?, 
+                       decision_maker_name = ?, 
+                       decision_maker_phone = ?, 
+                       follow_up_date = ?, 
+                       package_price = ?, 
+                       remark = ?,
+                       status = ?,
+                       record_date = CURDATE(),
+                       time_stamp = CURRENT_TIME()
+                       WHERE id = ?";
+   
+                   $update_stmt = $conn->prepare($update_sql);
+   
+                   if ($update_stmt) {
+                       $update_stmt->bind_param("ssisssdssi", 
+                           $contacted_person,
+                           $phone,
+                           $owner_available,
+                           $decision_maker_name,
+                           $decision_maker_phone,
+                           $follow_up_date,
+                           $package_price,
+                           $updated_remark,
+                           $status,
+                           $record_id);
+                       
+                       if ($update_stmt->execute()) {
+                           $success_message = "Record updated successfully!";
+                           header("Location: ".$_SERVER['PHP_SELF']);
+                           exit();
+                       } else {
+                           $error_message = "Error updating record: " . $update_stmt->error;
+                       }
+                       $update_stmt->close();
+                   } else {
+                       $error_message = "Error preparing update statement: " . $conn->error;
+                   }
                }
            }
        } else {
@@ -420,6 +439,21 @@ $fetch_sales_sql = "SELECT
             .whatsapp-btn.hindi-btn {
                 margin-top: 5px;
             }
+         }
+
+         /* Phone validation styles */
+         .is-valid {
+            border-color: #28a745 !important;
+         }
+         
+         .is-invalid {
+            border-color: #dc3545 !important;
+         }
+         
+         .phone-help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
          }
       </style>
 
@@ -902,8 +936,9 @@ $fetch_sales_sql = "SELECT
                         </div>
                         <div class="col-md-6">
                            <div class="form-group">
-                              <label for="phone">Phone</label>
-                              <input type="text" class="form-control" name="phone" id="modalPhone">
+                              <label for="phone">Phone <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="phone" id="modalPhone" maxlength="10" required>
+                              <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero</small>
                            </div>
                         </div>
                      </div>
@@ -917,7 +952,8 @@ $fetch_sales_sql = "SELECT
                         <div class="col-md-6">
                            <div class="form-group">
                               <label for="decision_maker_phone">Decision Maker Phone</label>
-                              <input type="text" class="form-control" name="decision_maker_phone" id="modalDecisionMakerPhone">
+                              <input type="text" class="form-control" name="decision_maker_phone" id="modalDecisionMakerPhone" maxlength="10">
+                              <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero (if provided)</small>
                            </div>
                         </div>
                      </div>
@@ -971,6 +1007,15 @@ $fetch_sales_sql = "SELECT
 
       <script>
          $(document).ready(function() {
+            // Custom phone validation method
+            $.validator.addMethod("validPhone", function(value, element) {
+                // Remove any non-digit characters
+                var cleaned = value.replace(/[^0-9]/g, '');
+                
+                // Check if it's exactly 10 digits and first digit is not zero
+                return cleaned.length === 10 && cleaned.charAt(0) !== '0';
+            }, "Phone number must be exactly 10 digits and cannot start with zero");
+
             // Mobile Slider Functionality with Touch/Swipe
             let currentSlide = 0;
             const slides = $('.mobile-slide');
@@ -1124,7 +1169,10 @@ $fetch_sales_sql = "SELECT
                     },
                     phone: {
                         required: true,
-                        minlength: 5
+                        validPhone: true
+                    },
+                    decision_maker_phone: {
+                        validPhone: true
                     },
                     follow_up_date: {
                         required: true
@@ -1141,8 +1189,10 @@ $fetch_sales_sql = "SELECT
                         minlength: "Name should be at least 2 characters long"
                     },
                     phone: {
-                        required: "Please enter phone number",
-                        minlength: "Phone number should be at least 5 characters long"
+                        required: "Please enter phone number"
+                    },
+                    decision_maker_phone: {
+                        validPhone: "Phone number must be exactly 10 digits and cannot start with zero"
                     },
                     follow_up_date: {
                         required: "Please select follow up date"
@@ -1165,11 +1215,67 @@ $fetch_sales_sql = "SELECT
                     $(element).removeClass('is-invalid');
                 }
             });
+
+            // Strict 10-digit phone input handling for modal
+            $('#modalPhone, #modalDecisionMakerPhone').on('input', function() {
+                var value = $(this).val();
+                
+                // Remove any non-digit characters
+                var cleaned = value.replace(/[^0-9]/g, '');
+                
+                // Limit to 10 digits only
+                if (cleaned.length > 10) {
+                    cleaned = cleaned.substring(0, 10);
+                }
+                
+                $(this).val(cleaned);
+                
+                // Real-time validation feedback
+                if (cleaned.length > 0) {
+                    if (cleaned.length === 10 && cleaned.charAt(0) !== '0') {
+                        $(this).removeClass('is-invalid').addClass('is-valid');
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                } else {
+                    $(this).removeClass('is-valid is-invalid');
+                }
+            });
+
+            // Prevent paste with more than 10 digits
+            $('#modalPhone, #modalDecisionMakerPhone').on('paste', function(e) {
+                var pasteData = e.originalEvent.clipboardData.getData('text');
+                var cleaned = pasteData.replace(/[^0-9]/g, '');
+                
+                if (cleaned.length > 10) {
+                    e.preventDefault();
+                    // Auto-trim to 10 digits
+                    var trimmed = cleaned.substring(0, 10);
+                    $(this).val(trimmed);
+                    
+                    // Trigger validation
+                    $(this).trigger('input');
+                }
+            });
+
+            // Prevent entering more than 10 digits
+            $('#modalPhone, #modalDecisionMakerPhone').on('keypress', function(e) {
+                var currentValue = $(this).val();
+                
+                // If already 10 digits, prevent additional input
+                if (currentValue.replace(/[^0-9]/g, '').length >= 10 && 
+                    e.key.match(/[0-9]/)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
          
             // Handle modal hidden event to clear form
             $('#updateRecordModal').on('hidden.bs.modal', function() {
                 $('#updateRecordForm')[0].reset();
                 $('#updateRecordForm').validate().resetForm();
+                // Clear validation classes
+                $('#modalPhone, #modalDecisionMakerPhone').removeClass('is-valid is-invalid');
             });
              
             // Clear search function
@@ -1247,6 +1353,9 @@ $fetch_sales_sql = "SELECT
            toggleBtn.textContent = isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
          }
 
+
+
+
 // Function to send WhatsApp message
 function sendWhatsAppMessage(phoneNumber, contactName) {
     // Clean the phone number (remove any non-digit characters)
@@ -1267,41 +1376,45 @@ function sendWhatsAppMessage(phoneNumber, contactName) {
     const message = `
 ${greeting}
 
-Stop of losing your profits to S.w.i.g.g.y / Z.o.m.a.t.o Commissions? 💸
+Tired of losing your profits to S.w.i.g.g.y / Z.o.m.a.t.o commissions? 💸
 
-*Introducing DeeGeeCard* – Your own branded food ordering system with *ZERO commission, forever!*
+Introducing DeeGeeCard – Your own branded food ordering system with ZERO commission, forever!
 
-Launch your own Ordering Website + Android App + Admin App in just 60 mins! 🚀
+🚀 Launch your own Ordering Website + Android App + Admin App in just 60 mins!
 
-*Here's what you get:*
+Here's what you get:
 
-✅ *Your Own Ordering Website:* Just like S.w.i.g.g.y / Z.o.m.a.t.o, but branded for YOUR restaurant. Zero commission fees.
+✅ Your Own Ordering Website (Personalized Domain): Just like S.w.i.g.g.y / Z.o.m.a.t.o – but branded for your restaurant, with zero commissions.
 
-✅ *Your Own Android App:* Increase loyalty with a seamless app under your name.
+✅ Your Own Android App: Build customer loyalty with a dedicated app under your restaurant name.
 
-✅ *Admin Management App:* Accept/reject orders, update menus & prices in real-time from your phone.
+✅ Admin Management App: Accept/reject orders, update menu & prices instantly from your phone.
 
-✅ *1000 Personalized QR Code Visiting Cards & 8 Personalized QR Table Standees(Scan & Order):* Place your Personalized QR Code cards in delivery boxes or hand them out to turn every customer into a direct online order and your table standees will enable self-ordering at tables, improve service speed, and reduce staff workload.
+✅ KOT & Bill Printing: Generate kitchen order tickets and bills in just one click. 🧾
 
-✅ *Bulk WhatsApp Marketing Panel:* 10,000 FREE WhatsApp Marketing Credits, send offers & updates directly to your customers.
+✅ Full Store Control: Set store timings, delivery charges, GST, discounts, coupon codes, and menu categories easily. ⚙️
 
-✅ *Direct Payments:* Receive money via UPI/Cards instantly and directly to your account with 0% platform fee.
+✅ 1000 Personalized QR Visiting Cards & 8 QR Table Standees: Let customers order directly or from their table — boost reorders & speed up service.
 
-*Plus FREE Integrations:* Google, Instagram, Facebook, Youtube and Maps so customers find you easily with just a click.
+✅ Bulk WhatsApp Marketing Panel: Get 10,000 FREE credits to send offers & updates to your customers directly. 📢
+
+✅ Direct Payments: Receive UPI/card payments instantly in your account — 0% platform fee.
+
+✅ Reply to Reviews Instantly: Respond to customer reviews directly via WhatsApp in one click. 💬
+
+💡 Free Integrations: Google, Instagram, Facebook, YouTube & Maps – make your restaurant easily discoverable.
 
 🔥 Stop paying commissions. Start keeping 100% of your profits.
-Your complete restaurant digital revolution is here!
+Your restaurant's digital revolution starts TODAY!
 
-Ready to take back control?
-We set everything up for you. *Go live the same day!*
+All this for just ₹9,999/year (No Hidden Costs)
 
-*All this for just ₹9,999/year (No Hidden Costs!).*
+📞 Call us NOW:
+Inayat Shaikh – 9819411026
+Sagar Pawar – 9004998995
 
-*📞 Call us NOW to get started and stop sharing your profits:*
-*Inayat Shaikh* : 9819411026
-*Sagar Pawar* : 9004998995
+🌐 https://www.deegeecard.com
 
-🌐 www.deegeecard.com
 📧 support@deegeecard.com
 
 🌟 Empowering Restaurants. Eliminating Commissions.
@@ -1337,45 +1450,47 @@ function sendWhatsAppMessageHindi(phoneNumber, contactName) {
     const message = `
 ${greeting}
 
-क्या आप भी S.w.i.g.g.y / Z.o.m.a.t.o को कमीशन देकर अपना मुनाफ़ा खो रहे हैं? 💸
+क्या आप अपनी मेहनत की कमाई *S.w.i.g.g.y / Z.o.m.a.t.o* कमीशन में गंवा रहे हैं? 💸
 
-*पेश है DeeGeeCard – आपका अपना ब्रांडेड फ़ूड ऑर्डरिंग सिस्टम, जिसमें जीरो कमीशन – हमेशा के लिए!*
+अब पेश है *DeeGeeCard* – आपका खुद का ब्रांडेड फूड ऑर्डरिंग सिस्टम, जिसमें है *ZERO कमीशन – हमेशा के लिए!*
 
-सिर्फ 60 मिनट में लॉन्च करें अपना ऑर्डरिंग वेबसाइट + एंड्रॉइड ऐप + एडमिन ऐप! 🚀
+🚀 *सिर्फ 60 मिनट में लॉन्च करें – अपनी खुद की वेबसाइट + एंड्रॉइड ऐप + एडमिन ऐप!*
 
-*आपको क्या मिलेगा:*
+यह सब आपको मिलेगा 👇
 
-✅ *आपकी अपनी ऑर्डरिंग वेबसाइट:* बिल्कुल S.w.i.g.g.y / Z.o.m.a.t.o जैसी, लेकिन आपके रेस्टोरेंट के नाम से। कोई कमीशन नहीं।
+✅ *आपकी खुद की वेबसाइट (पर्सनलाइज़्ड डोमेन):* बिल्कुल S.w.i.g.g.y / Z.o.m.a.t.o जैसी वेबसाइट, लेकिन आपके रेस्टोरेंट के नाम से – बिना किसी कमीशन के।
 
-✅ *आपका अपना एंड्रॉइड ऐप:* आपके नाम से ऑर्डरिंग ऐप – कस्टमर लॉयल्टी बढ़ाएँ।
+✅ *आपका खुद का एंड्रॉइड ऐप:* अपने रेस्टोरेंट के नाम से ऐप बनवाएं और ग्राहकों की वफादारी बढ़ाएं।
 
-✅ *एडमिन मैनेजमेंट ऐप:* अपने मोबाइल से ही ऑर्डर स्वीकार/रद्द करें, मेन्यू और दाम तुरंत बदलें।
+✅ *एडमिन मैनेजमेंट ऐप:* मोबाइल से ही ऑर्डर स्वीकारें/रिजेक्ट करें, मेनू और दाम तुरंत अपडेट करें।
 
-✅ *1000 पर्सनलाइज़्ड QR कोड विज़िटिंग कार्ड्स और 8 पर्सनलाइज़्ड QR टेबल स्टैंडीज़ (स्कैन करें और ऑर्डर करें):* अपने पर्सनलाइज़्ड QR कोड कार्ड्स को डिलीवरी बॉक्स में रखें या ग्राहकों को दें ताकि हर ग्राहक सीधा ऑनलाइन ऑर्डर कर सके। आपकी टेबल-स्टैंडीज़ टेबल पर सेल्फ-ऑर्डरिंग की सुविधा देंगी, सर्विस की गति बढ़ाएँगी और स्टाफ का काम कम करेंगी।
+✅ *KOT और बिल प्रिंटिंग:* सिर्फ एक क्लिक में किचन ऑर्डर टिकट और बिल निकालें। 🧾
 
-✅ *बल्क व्हाट्सऐप मार्केटिंग पैनल:* 10,000 मुफ़्त व्हाट्सऐप क्रेडिट – ऑफ़र और अपडेट सीधे कस्टमर तक भेजें।
+✅ *फुल स्टोर कंट्रोल:* स्टोर टाइमिंग, डिलीवरी चार्ज, GST, डिस्काउंट, कूपन कोड और कैटेगरी – सबकुछ आसानी से सेट करें। ⚙️
 
-✅ *डायरेक्ट पेमेंट्स:* UPI/कार्ड से पैसे सीधे आपके अकाउंट में – 0% प्लेटफ़ॉर्म फ़ीस।
+✅ *1000 QR विजिटिंग कार्ड और 8 QR टेबल स्टैंडीज़ FREE:* ग्राहक QR स्कैन करके डायरेक्ट ऑर्डर कर सकेंगे।
 
-साथ ही मुफ़्त इंटीग्रेशन: Google, Instagram, Facebook, YouTube, Maps – ताकि कस्टमर आपको आसानी से एक क्लिक में ढूंढ सकें।
+✅ *बुल्क व्हाट्सएप मार्केटिंग पैनल:* 10,000 फ्री क्रेडिट्स के साथ ऑफर्स और अपडेट भेजें। 📢
 
-🔥 कमीशन देना बंद करें। अपने मुनाफ़े का 100% अपने पास रखें।
-आपके रेस्टोरेंट की डिजिटल क्रांति यहीं से शुरू होती है!
+✅ *डायरेक्ट पेमेंट्स:* UPI या कार्ड से पेमेंट सीधे आपके अकाउंट में – बिना किसी प्लेटफ़ॉर्म चार्ज के।
 
-क्या आप अपना कंट्रोल वापस लेने के लिए तैयार हैं?
-हम सबकुछ सेटअप कर देते हैं। उसी दिन लाइव हो जाइए!
+✅ *कस्टमर रिव्यू का जवाब व्हाट्सएप पर दें:* सिर्फ एक क्लिक में ग्राहकों को रिप्लाई करें। 💬        
 
-*ये सब सिर्फ ₹9,999/साल में (बिलकुल बिना किसी छुपे चार्ज के!)*
+💡 *फ्री इंटीग्रेशन:* Google, Instagram, Facebook, YouTube और Maps – ताकि ग्राहक आपको आसानी से ढूंढ सकें।
 
-📞 अभी कॉल करें और अपना मुनाफ़ा बचाना शुरू करें:
-इनायत शेख : 9819411026
-सागर पवार : 9004998995
+🔥 *अब कमीशन देना बंद करें। अपनी 100% कमाई अपने पास रखें।*
+आज ही शुरू करें अपने रेस्टोरेंट की डिजिटल क्रांति!
 
-🌐 *www.deegeecard.com*
+💰 *सिर्फ ₹9,999/साल (कोई छुपा चार्ज नहीं)*
 
+📞 *कॉल करें अभी:*
+इनायत शेख – 9819411026
+सागर पवार – 9004998995
+
+🌐 https://www.deegeecard.com
 📧 support@deegeecard.com
 
-🌟 *रेस्टोरेंट्स को सशक्त बनाना। कमीशन खत्म करना।*
+🌟 *रेस्टोरेंट्स को सशक्त बनाना। कमीशन को खत्म करना।*
 `;
     
     // Encode the message for URL
@@ -1387,6 +1502,13 @@ ${greeting}
     // Open the URL in a new tab
     window.open(whatsappUrl, '_blank');
 }
+
+
+
+
+
+
+
 
 // CSV Download functionality
 $('#downloadCsv').click(function() {

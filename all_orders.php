@@ -43,9 +43,21 @@ $current_year = date('Y');
 
 // Get filter parameters
 $filter_user = isset($_GET['user_filter']) ? $_GET['user_filter'] : '';
-$filter_date = isset($_GET['date_filter']) ? $_GET['date_filter'] : '';
+$filter_month = isset($_GET['month_filter']) ? $_GET['month_filter'] : '';
 
-// Base query - Only show current month orders by default
+// If month filter is provided, parse it
+if (!empty($filter_month)) {
+    $filter_date = DateTime::createFromFormat('Y-m', $filter_month);
+    $filter_month_num = $filter_date->format('m');
+    $filter_year_num = $filter_date->format('Y');
+} else {
+    // Default to current month
+    $filter_month_num = $current_month;
+    $filter_year_num = $current_year;
+    $filter_month = date('Y-m');
+}
+
+// Base query - Show orders based on month filter
 $orders_sql = "SELECT o.*, 
                       u.id as user_id, 
                       u.name as user_name, 
@@ -58,19 +70,16 @@ $orders_sql = "SELECT o.*,
                AND MONTH(o.created_at) = ? 
                AND YEAR(o.created_at) = ?";
 
-// Add filters to query
+// Add user filter to query
 if (!empty($filter_user)) {
     $orders_sql .= " AND u.name LIKE '%" . $conn->real_escape_string($filter_user) . "%'";
-}
-if (!empty($filter_date)) {
-    $orders_sql .= " AND DATE(o.created_at) = '" . $conn->real_escape_string($filter_date) . "'";
 }
 
 $orders_sql .= " ORDER BY o.created_at DESC";
 
 // Prepare and execute the orders query
 $orders_stmt = $conn->prepare($orders_sql);
-$orders_stmt->bind_param("ii", $current_month, $current_year);
+$orders_stmt->bind_param("ii", $filter_month_num, $filter_year_num);
 $orders_stmt->execute();
 $orders_result = $orders_stmt->get_result();
 
@@ -202,13 +211,13 @@ $conn->close();
                     <div class="col-xl-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">All Orders - <?php echo date('F Y'); ?></h4>
-                                <p class="card-title-desc">View and manage all customer orders for current month</p>
+                                <h4 class="card-title">All Orders - <?php echo date('F Y', strtotime($filter_month . '-01')); ?></h4>
+                                <p class="card-title-desc">View and manage all customer orders</p>
                             </div>
                             <div class="card-body">
                                 <!-- Current Month Notice -->
                                 <div class="current-month-notice">
-                                    <strong>Note:</strong> Currently showing orders for <?php echo date('F Y'); ?> only. Use date filter to view orders from specific dates.
+                                    <strong>Note:</strong> Currently showing orders for <?php echo date('F Y', strtotime($filter_month . '-01')); ?>. Use month filter to view orders from different months.
                                 </div>
 
                                 <!-- Filter Section -->
@@ -220,7 +229,11 @@ $conn->close();
                                                     <label for="user_filter">Filter by User:</label>
                                                     <select class="form-control" id="user_filter" name="user_filter">
                                                         <option value="">All Users</option>
-                                                        <?php while ($user = $users_result->fetch_assoc()): ?>
+                                                        <?php 
+                                                        // Reset users result pointer
+                                                        $users_result->data_seek(0);
+                                                        while ($user = $users_result->fetch_assoc()): 
+                                                        ?>
                                                         <option value="<?php echo htmlspecialchars($user['name']); ?>" <?php echo ($filter_user == $user['name']) ? 'selected' : ''; ?>>
                                                             <?php echo htmlspecialchars($user['name']); ?>
                                                         </option>
@@ -230,8 +243,8 @@ $conn->close();
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="date_filter">Filter by Date:</label>
-                                                    <input type="date" class="form-control" id="date_filter" name="date_filter" value="<?php echo htmlspecialchars($filter_date); ?>">
+                                                    <label for="month_filter">Filter by Month:</label>
+                                                    <input type="month" class="form-control" id="month_filter" name="month_filter" value="<?php echo htmlspecialchars($filter_month); ?>">
                                                 </div>
                                             </div>
                                             <div class="col-md-4 d-flex align-items-end">
@@ -257,7 +270,7 @@ $conn->close();
                                                 <th>Customer</th>
                                                 <th>Phone</th>
                                                 <th>Type</th>
-                                                <th>Subtotal</th>
+                                                <!-- <th>Subtotal</th> -->
                                                 <th>Total</th>
                                                 <th>Status</th>
                                                 <th>Date</th>
@@ -288,8 +301,8 @@ $conn->close();
                                                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                                                 <td><?php echo htmlspecialchars($order['customer_phone']); ?></td>
                                                 <td><?php echo htmlspecialchars(ucfirst($order['order_type'])); ?></td>
-                                                <td>₹<?php echo number_format($order['subtotal'], 2); ?></td>
-                                                <td>₹<?php echo number_format($order['total_amount'], 2); ?></td>
+                                                <!-- <td>₹<?php //echo number_format($order['subtotal']); ?></td> -->
+                                                <td>₹<?php echo number_format($order['total_amount']); ?></td>
                                                 <td>
                                                     <span class="order-status status-<?php echo strtolower($order['status']); ?>">
                                                         <?php echo ucfirst($order['status']); ?>
@@ -319,12 +332,6 @@ $conn->close();
     
     <script>
         $(document).ready(function() {
-            // Initialize date picker
-            flatpickr("#date_filter", {
-                dateFormat: "Y-m-d",
-                allowInput: true
-            });
-
             // Initialize DataTable with proper configuration
             $('#ordersTable').DataTable({
                 responsive: true,

@@ -159,16 +159,21 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>.upload-card{border:2px dashed #dee2e6;border-radius:10px;transition:all .3s}.upload-card:hover{border-color:#007bff;transform:translateY(-2px)}.template-btn:hover{transform:scale(1.05)}@media (max-width:768px){.upload-card{margin:10px 0}.btn-group{flex-direction:column;gap:5px}}</style>
 </head>
 
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php if ($role === 'admin') {
+        <?php 
+        if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'room') {
+            include 'room_management_menu.php';
         } else {
             include 'menu.php';
-        } ?>
+        } 
+        ?>
 
         <div class="page-content">
             <div class="container-fluid">
@@ -187,24 +192,23 @@ $conn->close();
                                 
                                 <div class="row">
                                     <div class="col-md-8 offset-md-2">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Upload CSV File</h5>
-                                                <p class="card-text">
-                                                    Please upload a CSV file with the following columns:<br>
-                                                    <strong>customer_name, customer_phone, delivery_address</strong>
+                                        <div class="card upload-card">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">📁 Upload CSV File</h5>
+                                                <p class="card-text text-muted">
+                                                    Upload a CSV file with columns:<br>
+                                                    <code>customer_name, customer_phone, delivery_address</code>
                                                 </p>
                                                 
                                                 <form method="POST" enctype="multipart/form-data">
                                                     <div class="mb-3">
-                                                        <label for="csv_file" class="form-label">CSV File</label>
                                                         <input class="form-control" type="file" id="csv_file" name="csv_file" accept=".csv" required>
                                                     </div>
                                                     
-                                                    <div class="text-center">
-                                                        <button type="submit" class="btn btn-primary">Import Data</button>
-                                                        <a href="customer_data.php" class="btn btn-secondary">View Customer Data</a>
-                                                        <button type="button" id="download-template" class="btn btn-info">Download Example CSV</button>
+                                                    <div class="btn-group">
+                                                        <button type="submit" class="btn btn-primary">📤 Import Data</button>
+                                                        <a href="customer_data.php" class="btn btn-secondary">👥 View Customers</a>
+                                                        <button type="button" id="download-template" class="btn btn-info template-btn">📥 Download Template</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -224,7 +228,6 @@ $conn->close();
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     <script>
-        // Simple file validation
         $(document).ready(function() {
             $('form').on('submit', function(e) {
                 const fileInput = $('#csv_file')[0];
@@ -244,26 +247,14 @@ $conn->close();
                 }
             });
             
-            // Download CSV template
             $('#download-template').on('click', function() {
-                // Create CSV content
-                const csvContent = "customer_name,customer_phone,delivery_address\n" +
-                                   "John Doe,5551234567,123 Main St\n" +
-                                   "Jane Smith,5559876543,456 Oak Ave\n" +
-                                   "Robert Johnson,5554567890,789 Pine Rd";
-                
-                // Create a Blob object with the CSV content
+                const csvContent = "customer_name,customer_phone,delivery_address\nJohn Doe,5551234567,123 Main St\nJane Smith,5559876543,456 Oak Ave\nRobert Johnson,5554567890,789 Pine Rd";
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                
-                // Create a download link
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
-                
                 link.setAttribute('href', url);
                 link.setAttribute('download', 'customer_data_template.csv');
                 link.style.visibility = 'hidden';
-                
-                // Add to document, trigger click, then remove
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);

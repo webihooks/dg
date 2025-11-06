@@ -362,6 +362,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
@@ -667,8 +668,8 @@ $conn->close();
                                                                 </td>
                                                                 <?php endif; ?>
                                                                 <td>
-                                                                    <div class="btn-group btn-group-sm">
-                                                                        <a href="tax-settings.php?edit=<?php echo $tax['id']; ?>" class="btn btn-primary">
+                                                                    <div>
+                                                                        <a href="tax-settings.php?edit=<?php echo $tax['id']; ?>" class="btn btn-danger">
                                                                             <i class="fas fa-edit"></i>
                                                                         </a>
                                                                         <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this tax setting?');">

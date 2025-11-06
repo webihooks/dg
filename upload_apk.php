@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'user'; // Get user role
 $message = '';
 $error = '';
 
@@ -108,63 +109,97 @@ $conn->close();
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>.apk-card{max-width:600px;margin:0 auto}.apk-alert{border-left:4px solid #007bff}.file-info{background:#f8f9fa;border-radius:5px;padding:15px}</style>
 </head>
 
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        
+        <!-- Role-based menu inclusion -->
+        <?php if ($role === 'room'): ?>
+            <?php include 'room_management_menu.php'; ?>
+        <?php else: ?>
+            <?php include 'menu.php'; ?>
+        <?php endif; ?>
 
         <div class="page-content">
             <div class="container">
-                <div class="row">
-                    <div class="col-xl-9">
-                        <div class="card">
+                <div class="row justify-content-center">
+                    <div class="col-xl-8">
+                        <div class="card apk-card">
                             <div class="card-header">
-                                <h4 class="card-title">APK Upload</h4>
-                                <p class="text-muted mb-0">You can upload only one APK file (max 100MB)</p>
+                                <h4 class="card-title">📱 APK Upload</h4>
+                                <p class="text-muted mb-0">Upload your Android application package file</p>
                             </div>
                             <div class="card-body">
                                 <?php if (!empty($message)): ?>
-                                    <div class="alert alert-success"><?php echo $message; ?></div>
+                                    <div class="alert alert-success alert-dismissible fade show">
+                                        <i class="fas fa-check-circle me-2"></i><?php echo $message; ?>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
                                 <?php endif; ?>
                                 
                                 <?php if (!empty($error)): ?>
-                                    <div class="alert alert-danger"><?php echo $error; ?></div>
+                                    <div class="alert alert-danger alert-dismissible fade show">
+                                        <i class="fas fa-exclamation-triangle me-2"></i><?php echo $error; ?>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($currentApk): ?>
-                                    <div class="alert alert-info mb-4">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong>Current APK:</strong> 
-                                                <?php echo htmlspecialchars($currentApk['file_name']); ?>
-                                                <small class="text-muted">
-                                                    (uploaded <?php echo date('M j, Y H:i', strtotime($currentApk['upload_date'])); ?>)
-                                                </small>
+                                    <div class="alert alert-info apk-alert">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                            <div class="mb-2 mb-md-0">
+                                                <h6 class="mb-1">📦 Current APK File</h6>
+                                                <div class="file-info">
+                                                    <strong>File Name:</strong> <?php echo htmlspecialchars($currentApk['file_name']); ?><br>
+                                                    <strong>Uploaded:</strong> <?php echo date('M j, Y g:i A', strtotime($currentApk['upload_date'])); ?>
+                                                </div>
                                             </div>
-                                            <div>
+                                            <div class="d-flex gap-2">
                                                 <a href="<?php echo htmlspecialchars($currentApk['file_path']); ?>" 
-                                                   class="btn btn-sm btn-success me-2" download>
-                                                    Download
+                                                   class="btn btn-success btn-sm" download>
+                                                    <i class="fas fa-download me-1"></i>Download
                                                 </a>
                                                 <a href="delete_apk.php" 
-                                                   class="btn btn-sm btn-danger" 
-                                                   onclick="return confirm('Are you sure you want to delete your APK?')">
-                                                    Delete
+                                                   class="btn btn-danger btn-sm" 
+                                                   onclick="return confirm('Are you sure you want to delete your APK file?')">
+                                                    <i class="fas fa-trash me-1"></i>Delete
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">To upload a new APK, please delete the current one first.</small>
+                                    </div>
                                 <?php else: ?>
-                                    <form method="POST" action="upload_apk.php" enctype="multipart/form-data">
-                                        <div class="mb-3">
-                                            <label for="apk_file" class="form-label">Select APK File</label>
-                                            <input class="form-control" type="file" id="apk_file" name="apk_file" accept=".apk" required>
-                                            <div class="form-text">Maximum file size: 100MB. Only .apk files allowed.</div>
+                                    <form method="POST" action="upload_apk.php" enctype="multipart/form-data" id="apkUploadForm">
+                                        <div class="mb-4">
+                                            <label for="apk_file" class="form-label fw-bold">Select APK File</label>
+                                            <input class="form-control form-control-lg" type="file" id="apk_file" name="apk_file" accept=".apk" required>
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Maximum file size: 100MB | Only .apk files allowed
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Upload APK</button>
+                                        
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-upload me-2"></i>Upload APK
+                                            </button>
+                                        </div>
                                     </form>
+                                    
+                                    <div class="mt-4 p-3 bg-light rounded">
+                                        <h6 class="mb-2">📋 Requirements:</h6>
+                                        <ul class="list-unstyled mb-0 small">
+                                            <li><i class="fas fa-check text-success me-2"></i>File must have .apk extension</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>Maximum file size: 100MB</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>Only one APK file per user</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>File will be available for download</li>
+                                        </ul>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -178,5 +213,34 @@ $conn->close();
 
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
+    <script>
+    // File size validation
+    document.getElementById('apk_file')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+        
+        if (file && file.size > maxSize) {
+            alert('File size must be less than 100MB');
+            e.target.value = '';
+        }
+        
+        // Validate file extension
+        const fileName = file.name.toLowerCase();
+        if (!fileName.endsWith('.apk')) {
+            alert('Only APK files are allowed');
+            e.target.value = '';
+        }
+    });
+
+    // Form submission handling
+    document.getElementById('apkUploadForm')?.addEventListener('submit', function(e) {
+        const fileInput = document.getElementById('apk_file');
+        if (!fileInput.value) {
+            e.preventDefault();
+            alert('Please select an APK file');
+            return false;
+        }
+    });
+    </script>
 </body>
 </html>

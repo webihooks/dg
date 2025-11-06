@@ -147,4 +147,4 @@
     </footer>
     <!-- Footer-Section end -->
 
-<a href="https://api.whatsapp.com/send?phone=919004998995&amp;text=Hello Deegeecard,%20I%20am%20visitor%20of%20your%20website,%20want%20some%20information%20about%20your%20Services." target="_blank"><span class="whatsapp_icon bounce2">Whatsapp Support</span></a>    
+<a href="https://wa.me/919819411026?text=Hi%20Team%20DeeGeeCard%20%F0%9F%91%8B%2C%20I%E2%80%99m%20ready%20to%20grow%20my%20restaurant%20with%20ZERO%20commission%20orders%21%20Please%20help%20me%20get%20started." target="_blank"><span class="whatsapp_icon bounce2">Whatsapp Support</span></a>    

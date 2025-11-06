@@ -149,6 +149,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/config.js"></script>
@@ -164,11 +165,6 @@ $conn->close();
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
-        .room-status-available { border-left: 4px solid #28a745; }
-        .room-status-occupied { border-left: 4px solid #dc3545; }
-        .room-status-maintenance { border-left: 4px solid #ffc107; }
-        .room-status-cleaning { border-left: 4px solid #17a2b8; }
-        .room-status-reserved { border-left: 4px solid #6f42c1; }
         
         .status-badge {
             padding: 4px 8px;
@@ -210,6 +206,9 @@ $conn->close();
             font-size: 48px;
             margin-bottom: 15px;
             opacity: 0.5;
+        }
+        .card-title, .card-text {
+            color: #fff;
         }
     </style>
 </head>
@@ -360,7 +359,7 @@ $conn->close();
                                                         <td><?php echo htmlspecialchars($room['floor'] ?: 'N/A'); ?></td>
                                                         <td><?php echo htmlspecialchars($room['room_type_name'] ?: 'Not Set'); ?></td>
                                                         <td>
-                                                            <strong>₹<?php echo number_format($room['rate_per_night'], 2); ?></strong>
+                                                            <strong>₹<?php echo number_format($room['rate_per_night']); ?></strong>
                                                             <?php if ($room['type_base_rate'] != $room['rate_per_night']): ?>
                                                                 <br><small class="text-success">Custom Rate</small>
                                                             <?php endif; ?>
@@ -431,7 +430,7 @@ $conn->close();
                                 <div class="mb-3">
                                     <label class="form-label">Room Number *</label>
                                     <input type="text" class="form-control" name="room_number" required 
-                                           placeholder="e.g., 101, 201A">
+                                           placeholder="e.g., 10101A">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -451,7 +450,7 @@ $conn->close();
                                         <option value="">Select Room Type</option>
                                         <?php foreach ($room_types as $type): ?>
                                             <option value="<?php echo $type['id']; ?>" data-base-rate="<?php echo $type['base_rate']; ?>">
-                                                <?php echo htmlspecialchars($type['name']); ?> (₹<?php echo number_format($type['base_rate'], 2); ?>)
+                                                <?php echo htmlspecialchars($type['name']); ?> (₹<?php echo number_format($type['base_rate']); ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -524,7 +523,7 @@ $conn->close();
                                         <option value="">Select Room Type</option>
                                         <?php foreach ($room_types as $type): ?>
                                             <option value="<?php echo $type['id']; ?>" data-base-rate="<?php echo $type['base_rate']; ?>">
-                                                <?php echo htmlspecialchars($type['name']); ?> (₹<?php echo number_format($type['base_rate'], 2); ?>)
+                                                <?php echo htmlspecialchars($type['name']); ?> (₹<?php echo number_format($type['base_rate']); ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

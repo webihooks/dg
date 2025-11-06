@@ -20,19 +20,19 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-
 $user_id = $_SESSION['user_id'];
 $message = '';
 $error = '';
 
-// Fetch user details
+// Fetch user details including role
 $user_name = '';
-$sql_name = "SELECT name FROM users WHERE id = ?";
+$user_role = '';
+$sql_name = "SELECT name, role FROM users WHERE id = ?";
 $stmt_name = $conn->prepare($sql_name);
 if ($stmt_name) {
     $stmt_name->bind_param("i", $user_id);
     $stmt_name->execute();
-    $stmt_name->bind_result($user_name);
+    $stmt_name->bind_result($user_name, $user_role);
     $stmt_name->fetch();
     $stmt_name->close();
 }
@@ -65,8 +65,19 @@ if ($stmt_sub) {
 $packages = [];
 $current_package_id = $current_subscription['package_id'] ?? null;
 
+// Check if user has room role and current package is 4
+$is_room_with_package_4 = ($user_role === 'room' && $current_package_id == 4);
+
+if ($is_room_with_package_4) {
+    // Only show package ID 4 for room users with current package 4
+    $sql_room_package = "SELECT id, name, price, description, duration FROM packages WHERE id = 4";
+    $result_room_package = $conn->query($sql_room_package);
+    if ($row = $result_room_package->fetch_assoc()) {
+        $packages[] = $row;
+    }
+} 
 // If user has Delivery (1) or Dining (2) package, show their current package and Premium as upgrade
-if ($current_package_id == 1 || $current_package_id == 2) {
+elseif ($current_package_id == 1 || $current_package_id == 2) {
     // Get current package (show even if inactive)
     $sql_current = "SELECT id, name, price, description, duration FROM packages WHERE id = ?";
     $stmt_current = $conn->prepare($sql_current);
@@ -209,9 +220,16 @@ $conn->close();
         <?php
         // Check subscription or active trial (not expired) status
         $is_active_trial = $is_trial && (strtotime($trial_end) > time());
-        if ($has_active_subscription || $is_active_trial) {
+        
+        // Determine which menu to show based on user role and subscription status
+        if ($user_role === 'room') {
+            // User has room role - show room management menu
+            include 'room_management_menu.php';
+        } else if ($has_active_subscription || $is_active_trial) {
+            // Regular user with active subscription or trial
             include 'menu.php';
         } else {
+            // User without active subscription
             include 'unsubscriber_menu.php';
         }
         ?>
@@ -223,6 +241,9 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Subscription Management</h4>
+                                <?php if ($user_role === 'room'): ?>
+                                    <span class="badge bg-info float-end">Room Management Account</span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <?php if (isset($_SESSION['message'])): ?>
@@ -244,7 +265,7 @@ $conn->close();
                                                     <strong>Start Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['start_date'])); ?><br>
                                                     <strong>Renewal Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['end_date'])); ?>
                                                 </p>
-                                                <?php if ($current_package_id != 3): // Don't show cancel for Premium ?>
+                                                <?php if ($current_package_id != 3 && !$is_room_with_package_4): // Don't show cancel for Premium or Room package 4 ?>
                                                     <form method="post">
                                                         <button type="submit" name="cancel_subscription" class="btn btn-danger" style="display:none;">Cancel Subscription</button>
                                                     </form>

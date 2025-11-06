@@ -344,6 +344,31 @@ if (isAndroidWebView()) {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     transition: background 0.3s;
 }
+.tag-btn {
+    border-color:<?= $primary_color ?>;
+    background-color: <?= $primary_color ?>;
+    opacity: 0.6;
+    color: #fff;
+}
+.tag-btn:hover {
+    border-color:<?= $primary_color ?>;
+    background-color: <?= $primary_color ?>;
+    opacity: 1;
+    color: #fff;
+}
+.tag-btn.active {
+    opacity: 1;
+}
+#productSearch {
+    border:2px solid <?= $primary_color ?>;
+}
+#clearSearch {
+    border-color:<?= $primary_color ?>;
+    background-color: <?= $primary_color ?>;
+    color: #fff;
+}
+
+
     </style>
 </head>
 <body class="restaurant">

@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'user'; // Get user role
 $success_message = '';
 $error_message = '';
 
@@ -48,210 +49,26 @@ $conn->close();
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/style.css" rel="text/css" />
     <link href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" rel="stylesheet">
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
     <style>
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            .container {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-            
-            .card-header h4 {
-                text-align: center;
-                font-size: 1.25rem;
-            }
-            
-            .table-responsive table {
-                min-width: 700px; /* Allow horizontal scrolling */
-            }
-            
-            .review-card {
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 15px;
-                background-color: #fff;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .review-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 10px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #f0f0f0;
-            }
-            
-            .reviewer-info {
-                flex: 1;
-            }
-            
-            .reviewer-name {
-                font-weight: 600;
-                font-size: 1.1rem;
-                color: #333;
-                margin-bottom: 5px;
-            }
-            
-            .reviewer-contact {
-                font-size: 0.9rem;
-                color: #666;
-            }
-            
-            .review-rating {
-                text-align: center;
-                min-width: 100px;
-            }
-            
-            .stars {
-                font-size: 1.2rem;
-                margin-bottom: 5px;
-            }
-            
-            .rating-text {
-                font-size: 0.8rem;
-                color: #666;
-            }
-            
-            .review-feedback {
-                margin-top: 10px;
-                padding-top: 10px;
-                border-top: 1px solid #f0f0f0;
-            }
-            
-            .feedback-label {
-                font-weight: 600;
-                color: #333;
-                margin-bottom: 5px;
-                display: block;
-            }
-            
-            .feedback-content {
-                color: #555;
-                line-height: 1.4;
-            }
-            
-            .empty-state {
-                text-align: center;
-                padding: 40px 20px;
-                color: #666;
-            }
-            
-            .empty-state .mdi {
-                font-size: 3rem;
-                margin-bottom: 15px;
-                color: #ccc;
-            }
-            
-            .sr-no-badge {
-                background-color: #f8f9fa;
-                color: #495057;
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.8rem;
-                font-weight: 600;
-                margin-right: 10px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .review-header {
-                flex-direction: column;
-            }
-            
-            .review-rating {
-                margin-top: 10px;
-                align-self: flex-start;
-            }
-            
-            .reviewer-contact {
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-        }
-        
-        /* Ensure table is scrollable on mobile */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Hide table on mobile, show cards */
-        @media (max-width: 768px) {
-            .desktop-table {
-                display: none;
-            }
-            
-            .mobile-cards {
-                display: block;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .mobile-cards {
-                display: none;
-            }
-            
-            .desktop-table {
-                display: block;
-            }
-        }
-        
-        /* Star rating styles */
-        .mdi-star {
-            color: #ffc107;
-        }
-        
-        .mdi-star-outline {
-            color: #ddd;
-        }
-        
-        /* No reviews state */
-        .no-reviews {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .no-reviews .mdi {
-            font-size: 4rem;
-            color: #e0e0e0;
-            margin-bottom: 20px;
-        }
-        
-        .no-reviews h5 {
-            color: #666;
-            margin-bottom: 10px;
-        }
-        
-        .no-reviews p {
-            color: #888;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .scroll-to-top.show {
-          bottom: 15px;
-        }
+        @media (max-width:768px){.container{padding:0 10px}.card-header h4{text-align:center;font-size:1.25rem}.table-responsive table{min-width:700px}.review-card{border:1px solid #e0e0e0;border-radius:8px;padding:15px;margin-bottom:15px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.1)}.review-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}.reviewer-info{flex:1}.reviewer-name{font-weight:600;font-size:1.1rem;color:#333;margin-bottom:5px}.reviewer-contact{font-size:.9rem;color:#666}.review-rating{text-align:center;min-width:100px}.stars{font-size:1.2rem;margin-bottom:5px}.rating-text{font-size:.8rem;color:#666}.review-feedback{margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0}.feedback-label{font-weight:600;color:#333;margin-bottom:5px;display:block}.feedback-content{color:#555;line-height:1.4}.empty-state{text-align:center;padding:40px 20px;color:#666}.empty-state .mdi{font-size:3rem;margin-bottom:15px;color:#ccc}.sr-no-badge{background:#f8f9fa;color:#495057;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;margin-right:10px}.whatsapp-btn{width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}}@media (max-width:576px){.review-header{flex-direction:column}.review-rating{margin-top:10px;align-self:flex-start}.reviewer-contact{display:flex;flex-direction:column;gap:3px}.card-body{padding:15px}}.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}@media (max-width:768px){.desktop-table{display:none}.mobile-cards{display:block}}@media (min-width:769px){.mobile-cards{display:none}.desktop-table{display:block}}.mdi-star{color:#ffc107}.mdi-star-outline{color:#ddd}.no-reviews{text-align:center;padding:40px 20px}.no-reviews .mdi{font-size:4rem;color:#e0e0e0;margin-bottom:20px}.no-reviews h5{color:#666;margin-bottom:10px}.no-reviews p{color:#888;max-width:400px;margin:0 auto}.whatsapp-btn{background:#25D366;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:.875rem;font-weight:500;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}.whatsapp-btn:hover{background:#128C7E;color:#fff;text-decoration:none}.whatsapp-btn .mdi{font-size:1.1rem}.table-whatsapp-btn{background:#25D366;color:#fff;border:none;padding:4px 12px;border-radius:4px;font-size:.8rem;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:4px;text-decoration:none}.table-whatsapp-btn:hover{background:#128C7E;color:#fff;text-decoration:none}.scroll-to-top.show{bottom:15px}
     </style>
 </head>
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        <?php
+        // Show room management menu for room role, otherwise show regular menu
+        if ($role === 'room') {
+            include 'room_management_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">
@@ -292,6 +109,7 @@ $conn->close();
                                                         <th>Phone</th>
                                                         <th width="100">Rating</th>
                                                         <th>Feedback</th>
+                                                        <th width="120">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -315,6 +133,20 @@ $conn->close();
                                                                 <small class="text-muted d-block mt-1">(<?php echo $rating['rating']; ?>/5)</small>
                                                             </td>
                                                             <td><?php echo htmlspecialchars($rating['feedback']); ?></td>
+                                                            <td>
+                                                                <?php if (!empty($rating['reviewer_phone'])): ?>
+                                                                    <?php
+                                                                    $message = rawurlencode("Hi " . $rating['reviewer_name'] . " 👋\n\nThank you for sharing your feedback with us! 🌟\nWe truly appreciate your time and support. Your review helps us improve and serve you better each day.\n\nHope to see you again soon! 😊\n– " . $user_name);
+                                                                    $whatsapp_url = "https://wa.me/" . preg_replace('/[^0-9]/', '', $rating['reviewer_phone']) . "?text=" . $message;
+                                                                    ?>
+                                                                    <a href="<?php echo $whatsapp_url; ?>" target="_blank" class="table-whatsapp-btn">
+                                                                        <i class="mdi mdi-whatsapp"></i>
+                                                                        Reply
+                                                                    </a>
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No phone</span>
+                                                                <?php endif; ?>
+                                                            </td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -379,6 +211,17 @@ $conn->close();
                                                             <?php echo htmlspecialchars($rating['feedback']); ?>
                                                         </div>
                                                     </div>
+                                                <?php endif; ?>
+                                                
+                                                <?php if (!empty($rating['reviewer_phone'])): ?>
+                                                    <?php
+                                                    $message = rawurlencode("Hi " . $rating['reviewer_name'] . " 👋\n\nThank you for sharing your feedback with us! 🌟\nWe truly appreciate your time and support. Your review helps us improve and serve you better each day.\n\nHope to see you again soon! 😊\n– " . $user_name);
+                                                    $whatsapp_url = "https://wa.me/" . preg_replace('/[^0-9]/', '', $rating['reviewer_phone']) . "?text=" . $message;
+                                                    ?>
+                                                    <a href="<?php echo $whatsapp_url; ?>" target="_blank" class="whatsapp-btn">
+                                                        <i class="mdi mdi-whatsapp"></i>
+                                                        Reply on WhatsApp
+                                                    </a>
                                                 <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>

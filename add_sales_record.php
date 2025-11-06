@@ -57,10 +57,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_sales_track'])) {
     $owner_available        = isset($_POST['owner_available']) ? 1 : 0;
     $record_date            = date('Y-m-d');
 
+    // Phone validation function
+    function isValidPhone($phone) {
+        // Remove any non-digit characters
+        $cleaned_phone = preg_replace('/[^0-9]/', '', $phone);
+        
+        // Check if it's exactly 10 digits and first digit is not zero
+        if (strlen($cleaned_phone) === 10 && $cleaned_phone[0] != '0' && is_numeric($cleaned_phone)) {
+            return true;
+        }
+        return false;
+    }
+
     // Validate required fields
     if (empty($restaurant_name) || empty($contacted_person) || empty($phone) || empty($location) || empty($raw_remark)) {
         $error_message = "Restaurant Name, Contacted Person, Phone, Location, and Remark are required fields.";
     } 
+    // Validate phone number
+    elseif (!isValidPhone($phone)) {
+        $error_message = "Phone number must be exactly 10 digits and cannot start with zero.";
+    }
+    // Validate decision maker phone if provided
+    elseif (!empty($decision_maker_phone) && !isValidPhone($decision_maker_phone)) {
+        $error_message = "Decision Maker's phone number must be exactly 10 digits and cannot start with zero.";
+    }
     // Validate package price range
     elseif ($package_price > $max_package_price) {
         $error_message = "Package price cannot exceed " . number_format($max_package_price, 2);
@@ -237,7 +257,9 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Phone <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" required>
+                                                    <input type="text" class="form-control" name="phone" id="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" 
+                                                           maxlength="10" pattern="[1-9]{1}[0-9]{9}" required>
+                                                    <small class="text-muted">Must be exactly 10 digits and cannot start with zero</small>
                                                 </div>
                                             </div>
 
@@ -248,7 +270,9 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Decision Maker's Phone</label>
-                                                    <input type="text" class="form-control" name="decision_maker_phone" value="<?= htmlspecialchars($_POST['decision_maker_phone'] ?? '') ?>">
+                                                    <input type="text" class="form-control" name="decision_maker_phone" id="decision_maker_phone" 
+                                                           value="<?= htmlspecialchars($_POST['decision_maker_phone'] ?? '') ?>" maxlength="10" pattern="[1-9]{1}[0-9]{9}">
+                                                    <small class="text-muted">Must be exactly 10 digits and cannot start with zero (if provided)</small>
                                                 </div>
                                             </div>
 
@@ -320,6 +344,15 @@ $conn->close();
 
     <script>
         $(document).ready(function() {
+            // Custom phone validation method
+            $.validator.addMethod("validPhone", function(value, element) {
+                // Remove any non-digit characters
+                var cleaned = value.replace(/[^0-9]/g, '');
+                
+                // Check if it's exactly 10 digits and first digit is not zero
+                return cleaned.length === 10 && cleaned.charAt(0) !== '0';
+            }, "Phone number must be exactly 10 digits and cannot start with zero");
+
             // Location detection
             $('#detectLocation').click(function() {
                 $('#locationStatus').html('<div class="alert alert-info">Detecting your location...</div>');
@@ -394,7 +427,10 @@ $conn->close();
                     },
                     phone: {
                         required: true,
-                        minlength: 6
+                        validPhone: true
+                    },
+                    decision_maker_phone: {
+                        validPhone: true
                     },
                     location: {
                         required: true,
@@ -421,8 +457,10 @@ $conn->close();
                         minlength: "Name should be at least 2 characters long"
                     },
                     phone: {
-                        required: "Please enter phone number",
-                        minlength: "Phone number should be at least 6 characters long"
+                        required: "Please enter phone number"
+                    },
+                    decision_maker_phone: {
+                        validPhone: "Phone number must be exactly 10 digits and cannot start with zero"
                     },
                     location: {
                         required: "Please enter location",
@@ -442,13 +480,67 @@ $conn->close();
                 errorElement: 'div',
                 errorPlacement: function(error, element) {
                     error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
+                    element.closest('.mb-3').append(error);
                 },
                 highlight: function(element) {
                     $(element).addClass('is-invalid');
                 },
                 unhighlight: function(element) {
                     $(element).removeClass('is-invalid');
+                }
+            });
+
+            // Strict 10-digit phone input handling
+            $('#phone, #decision_maker_phone').on('input', function() {
+                var value = $(this).val();
+                
+                // Remove any non-digit characters
+                var cleaned = value.replace(/[^0-9]/g, '');
+                
+                // Limit to 10 digits only
+                if (cleaned.length > 10) {
+                    cleaned = cleaned.substring(0, 10);
+                }
+                
+                $(this).val(cleaned);
+                
+                // Real-time validation feedback
+                if (cleaned.length > 0) {
+                    if (cleaned.length === 10 && cleaned.charAt(0) !== '0') {
+                        $(this).removeClass('is-invalid').addClass('is-valid');
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                } else {
+                    $(this).removeClass('is-valid is-invalid');
+                }
+            });
+
+            // Prevent paste with more than 10 digits
+            $('#phone, #decision_maker_phone').on('paste', function(e) {
+                var pasteData = e.originalEvent.clipboardData.getData('text');
+                var cleaned = pasteData.replace(/[^0-9]/g, '');
+                
+                if (cleaned.length > 10) {
+                    e.preventDefault();
+                    // Auto-trim to 10 digits
+                    var trimmed = cleaned.substring(0, 10);
+                    $(this).val(trimmed);
+                    
+                    // Trigger validation
+                    $(this).trigger('input');
+                }
+            });
+
+            // Prevent entering more than 10 digits
+            $('#phone, #decision_maker_phone').on('keypress', function(e) {
+                var currentValue = $(this).val();
+                
+                // If already 10 digits, prevent additional input
+                if (currentValue.replace(/[^0-9]/g, '').length >= 10 && 
+                    e.key.match(/[0-9]/)) {
+                    e.preventDefault();
+                    return false;
                 }
             });
         });
