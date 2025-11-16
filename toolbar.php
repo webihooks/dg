@@ -520,7 +520,7 @@ class UniversalSessionManager {
                     this.forceCookieUpdate();
                     this.keepSessionAlive();
                     this.androidSessionHealthCheck();
-                }, 500);
+                }, 10000);
             }
         });
 
@@ -533,7 +533,7 @@ class UniversalSessionManager {
                     clearTimeout(this.cookieUpdateTimeout);
                     this.cookieUpdateTimeout = setTimeout(() => {
                         this.forceCookieUpdate();
-                    }, 1000);
+                    }, 20000);
                 }
             }, { passive: true });
         });

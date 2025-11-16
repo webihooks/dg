@@ -5,250 +5,276 @@ header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-   // Start the session to access user data
-   error_reporting(E_ALL);
-   ini_set('display_errors', 1);
-   session_start();
-   date_default_timezone_set('Asia/Kolkata'); // for Indian Standard Time
-   
-   require 'db_connection.php';
-   
-   if (!isset($_SESSION['user_id'])) {
-       header("Location: login.php");
-       exit();
-   }
-   
-   $user_id = $_SESSION['user_id'];
-   $success_message = '';
-   $error_message = '';
-   
-   // Fetch user's name and role
-   $role = '';
-   $user_name = 'User';
-   $user_info_sql = "SELECT name, role FROM users WHERE id = ?";
-   $user_info_stmt = $conn->prepare($user_info_sql);
-   
-   if ($user_info_stmt) {
-       $user_info_stmt->bind_param("i", $user_id);
-       $user_info_stmt->execute();
-       $user_info_stmt->bind_result($user_name, $role);
-       $user_info_stmt->fetch();
-       $user_info_stmt->close();
-   }
-   
-   // Phone validation function
-   function isValidPhone($phone) {
-       // Remove any non-digit characters
-       $cleaned_phone = preg_replace('/[^0-9]/', '', $phone);
-       
-       // Check if it's exactly 10 digits and first digit is not zero
-       if (strlen($cleaned_phone) === 10 && $cleaned_phone[0] != '0' && is_numeric($cleaned_phone)) {
-           return true;
-       }
-       return false;
-   }
-   
-   // Handle updating record
-   if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_record'])) {
-       $record_id = (int)$_POST['record_id'];
-       $contacted_person = trim($_POST['contacted_person']);
-       $phone = trim($_POST['phone']);
-       $owner_available = isset($_POST['owner_available']) ? 1 : 0;
-       $decision_maker_name = trim($_POST['decision_maker_name']);
-       $decision_maker_phone = trim($_POST['decision_maker_phone']);
-       $follow_up_date = trim($_POST['follow_up_date']);
-       $package_price = trim($_POST['package_price']);
-       $new_remark = trim($_POST['new_remark']);
-       $status = trim($_POST['status']); // New status field
-       
-       if ($record_id > 0) {
-           // First verify the user has permission to update this record
-           $verify_sql = "SELECT user_id FROM sales_track WHERE id = ?";
-           $verify_stmt = $conn->prepare($verify_sql);
-           $verify_stmt->bind_param("i", $record_id);
-           $verify_stmt->execute();
-           $verify_stmt->bind_result($record_user_id);
-           $verify_stmt->fetch();
-           $verify_stmt->close();
-           
-           if ($role !== 'admin' && $record_user_id != $user_id) {
-               $error_message = "You don't have permission to update this record";
-           } else {
-               // Validate phone numbers
-               if (!isValidPhone($phone)) {
-                   $error_message = "Phone number must be exactly 10 digits and cannot start with zero.";
-               } elseif (!empty($decision_maker_phone) && !isValidPhone($decision_maker_phone)) {
-                   $error_message = "Decision Maker's phone number must be exactly 10 digits and cannot start with zero.";
-               } else {
-                   // Get existing remark
-                   $get_remark_sql = "SELECT remark FROM sales_track WHERE id = ?";
-                   $get_remark_stmt = $conn->prepare($get_remark_sql);
-                   $get_remark_stmt->bind_param("i", $record_id);
-                   $get_remark_stmt->execute();
-                   $get_remark_stmt->bind_result($existing_remark);
-                   $get_remark_stmt->fetch();
-                   $get_remark_stmt->close();
-                   
-                   $updated_remark = $existing_remark;
-                   
-                   if (!empty($new_remark)) {
-                       if (!empty($existing_remark)) {
-                           $updated_remark .= "\n\n";
-                       }
-                       $updated_remark .= date('Y-m-d h:i A') . " - " . $user_name . ": " . $new_remark;
-                   }
-                   
-                   $update_sql = "UPDATE sales_track SET 
-                       contacted_person = ?, 
-                       phone = ?, 
-                       owner_available = ?, 
-                       decision_maker_name = ?, 
-                       decision_maker_phone = ?, 
-                       follow_up_date = ?, 
-                       package_price = ?, 
-                       remark = ?,
-                       status = ?,
-                       record_date = CURDATE(),
-                       time_stamp = CURRENT_TIME()
-                       WHERE id = ?";
-   
-                   $update_stmt = $conn->prepare($update_sql);
-   
-                   if ($update_stmt) {
-                       $update_stmt->bind_param("ssisssdssi", 
-                           $contacted_person,
-                           $phone,
-                           $owner_available,
-                           $decision_maker_name,
-                           $decision_maker_phone,
-                           $follow_up_date,
-                           $package_price,
-                           $updated_remark,
-                           $status,
-                           $record_id);
-                       
-                       if ($update_stmt->execute()) {
-                           $success_message = "Record updated successfully!";
-                           header("Location: ".$_SERVER['PHP_SELF']);
-                           exit();
-                       } else {
-                           $error_message = "Error updating record: " . $update_stmt->error;
-                       }
-                       $update_stmt->close();
-                   } else {
-                       $error_message = "Error preparing update statement: " . $conn->error;
-                   }
-               }
-           }
-       } else {
-           $error_message = "Invalid record ID.";
-       }
-   }
-   
-   // Pagination setup
-   $records_per_page = 500;
-   $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-   if ($current_page < 1) {
-       $current_page = 1;
-   }
-   $offset = ($current_page - 1) * $records_per_page;
-   
-   // Search and filter parameters
-   $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
-   $date_filter = isset($_GET['date_filter']) ? trim($_GET['date_filter']) : '';
-   $follow_up_filter = isset($_GET['follow_up_filter']) ? trim($_GET['follow_up_filter']) : '';
-   $owner_filter = isset($_GET['owner_filter']) ? (int)$_GET['owner_filter'] : -1;
-   $sales_person_filter = isset($_GET['sales_person_filter']) ? (int)$_GET['sales_person_filter'] : ($role === 'admin' ? 0 : $user_id);
-   $status_filter = isset($_GET['status_filter']) ? trim($_GET['status_filter']) : 'in process'; 
-   
-   // Fetch all team members for admin filter dropdown
-   $team_members = [];
-   if ($role === 'admin') {
-       $team_sql = "SELECT id, name, role FROM users WHERE role IN ('admin', 'sales_person') ORDER BY name";
-       $team_result = $conn->query($team_sql);
-       while ($row = $team_result->fetch_assoc()) {
-           $team_members[] = $row;
-       }
-   }
-   
-   // Build WHERE clause
-   $where_clauses = [];
-   $params = [];
-   $param_types = '';
-   
-   // For non-admin users, restrict to their own records
-   if ($role !== 'admin') {
-       $where_clauses[] = "user_id = ?";
-       $params[] = $user_id;
-       $param_types .= 'i';
-   } 
-   // For admin users, apply sales person filter if selected
-   elseif ($sales_person_filter > 0) {
-       $where_clauses[] = "user_id = ?";
-       $params[] = $sales_person_filter;
-       $param_types .= 'i';
-   }
-   
-   // Add other filters
-   if (!empty($search_query)) {
-       $where_clauses[] = "(restaurant_name LIKE ? OR 
-                           contacted_person LIKE ? OR 
-                           phone LIKE ? OR 
-                           decision_maker_name LIKE ? OR 
-                           decision_maker_phone LIKE ? OR 
-                           CONCAT(street, ' ', city, ' ', state, ' ', location) LIKE ?)";
-       $search_param = "%$search_query%";
-       $params = array_merge($params, array_fill(0, 6, $search_param));
-       $param_types .= str_repeat('s', 6);
-   }
-   
-   if (!empty($date_filter)) {
-       $where_clauses[] = "record_date = ?";
-       $params[] = $date_filter;
-       $param_types .= 's';
-   }
-   
-   if (!empty($follow_up_filter)) {
-       $where_clauses[] = "follow_up_date = ?";
-       $params[] = $follow_up_filter;
-       $param_types .= 's';
-   }
-   
-   if ($owner_filter >= 0) {
-       $where_clauses[] = "owner_available = ?";
-       $params[] = $owner_filter;
-       $param_types .= 'i';
-   }
-   
-   // Status filter - default to 'in process' but allow override
-   if (empty($_GET['status_filter'])) {
-       $where_clauses[] = "status = ?";
-       $params[] = 'in process';
-       $param_types .= 's';
-   } elseif (!empty($status_filter)) {
-       $where_clauses[] = "status = ?";
-       $params[] = $status_filter;
-       $param_types .= 's';
-   }
-   
-   $where_sql = empty($where_clauses) ? '' : 'WHERE ' . implode(' AND ', $where_clauses);
-   
-   // Fetch total records count
-   $count_sql = "SELECT COUNT(*) FROM sales_track $where_sql";
-   $count_stmt = $conn->prepare($count_sql);
-   
-   if ($count_stmt) {
-       if (!empty($params)) {
-           $count_stmt->bind_param($param_types, ...$params);
-       }
-       $count_stmt->execute();
-       $count_stmt->bind_result($total_records);
-       $count_stmt->fetch();
-       $count_stmt->close();
-   }
-   
-   $total_pages = ceil($total_records / $records_per_page);
-   
+// Start the session to access user data
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+session_start();
+date_default_timezone_set('Asia/Kolkata'); // for Indian Standard Time
+
+require 'db_connection.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+$success_message = '';
+$error_message = '';
+
+// Fetch user's name and role
+$role = '';
+$user_name = 'User';
+$user_info_sql = "SELECT name, role FROM users WHERE id = ?";
+$user_info_stmt = $conn->prepare($user_info_sql);
+
+if ($user_info_stmt) {
+    $user_info_stmt->bind_param("i", $user_id);
+    $user_info_stmt->execute();
+    $user_info_stmt->bind_result($user_name, $role);
+    $user_info_stmt->fetch();
+    $user_info_stmt->close();
+}
+
+// Fetch sales team members with their numbers for WhatsApp messages
+$sales_team = [];
+$sales_team_sql = "SELECT name, phone FROM users WHERE role IN ('admin', 'sales_person') AND phone IS NOT NULL AND phone != ''";
+$sales_team_result = $conn->query($sales_team_sql);
+while ($row = $sales_team_result->fetch_assoc()) {
+    $sales_team[] = $row;
+}
+
+// Phone validation function
+function isValidPhone($phone) {
+    // Remove any non-digit characters
+    $cleaned_phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    // Check if it's exactly 10 digits and first digit is not zero
+    if (strlen($cleaned_phone) === 10 && $cleaned_phone[0] != '0' && is_numeric($cleaned_phone)) {
+        return true;
+    }
+    return false;
+}
+
+// Fetch logged-in user's information for WhatsApp messages
+$logged_in_user_info = [];
+$user_info_sql = "SELECT name, phone FROM users WHERE id = ?";
+$user_info_stmt = $conn->prepare($user_info_sql);
+
+if ($user_info_stmt) {
+    $user_info_stmt->bind_param("i", $user_id);
+    $user_info_stmt->execute();
+    $user_info_stmt->bind_result($logged_in_user_name, $logged_in_user_phone);
+    $user_info_stmt->fetch();
+    $user_info_stmt->close();
+    
+    $logged_in_user_info = [
+        'name' => $logged_in_user_name,
+        'phone' => $logged_in_user_phone
+    ];
+}
+
+// Handle updating record
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_record'])) {
+    $record_id = (int)$_POST['record_id'];
+    $contacted_person = trim($_POST['contacted_person']);
+    $phone = trim($_POST['phone']);
+    $owner_available = isset($_POST['owner_available']) ? 1 : 0;
+    $decision_maker_name = trim($_POST['decision_maker_name']);
+    $decision_maker_phone = trim($_POST['decision_maker_phone']);
+    $follow_up_date = trim($_POST['follow_up_date']);
+    $package_price = trim($_POST['package_price']);
+    $new_remark = trim($_POST['new_remark']);
+    $status = trim($_POST['status']); // New status field
+    
+    if ($record_id > 0) {
+        // First verify the user has permission to update this record
+        $verify_sql = "SELECT user_id FROM sales_track WHERE id = ?";
+        $verify_stmt = $conn->prepare($verify_sql);
+        $verify_stmt->bind_param("i", $record_id);
+        $verify_stmt->execute();
+        $verify_stmt->bind_result($record_user_id);
+        $verify_stmt->fetch();
+        $verify_stmt->close();
+        
+        if ($role !== 'admin' && $record_user_id != $user_id) {
+            $error_message = "You don't have permission to update this record";
+        } else {
+            // Validate phone numbers
+            if (!isValidPhone($phone)) {
+                $error_message = "Phone number must be exactly 10 digits and cannot start with zero.";
+            } elseif (!empty($decision_maker_phone) && !isValidPhone($decision_maker_phone)) {
+                $error_message = "Decision Maker's phone number must be exactly 10 digits and cannot start with zero.";
+            } else {
+                // Get existing remark
+                $get_remark_sql = "SELECT remark FROM sales_track WHERE id = ?";
+                $get_remark_stmt = $conn->prepare($get_remark_sql);
+                $get_remark_stmt->bind_param("i", $record_id);
+                $get_remark_stmt->execute();
+                $get_remark_stmt->bind_result($existing_remark);
+                $get_remark_stmt->fetch();
+                $get_remark_stmt->close();
+                
+                $updated_remark = $existing_remark;
+                
+                if (!empty($new_remark)) {
+                    if (!empty($existing_remark)) {
+                        $updated_remark .= "\n\n";
+                    }
+                    $updated_remark .= date('Y-m-d h:i A') . " - " . $user_name . ": " . $new_remark;
+                }
+                
+                $update_sql = "UPDATE sales_track SET 
+                    contacted_person = ?, 
+                    phone = ?, 
+                    owner_available = ?, 
+                    decision_maker_name = ?, 
+                    decision_maker_phone = ?, 
+                    follow_up_date = ?, 
+                    package_price = ?, 
+                    remark = ?,
+                    status = ?,
+                    record_date = CURDATE(),
+                    time_stamp = CURRENT_TIME()
+                    WHERE id = ?";
+
+                $update_stmt = $conn->prepare($update_sql);
+
+                if ($update_stmt) {
+                    $update_stmt->bind_param("ssisssdssi", 
+                        $contacted_person,
+                        $phone,
+                        $owner_available,
+                        $decision_maker_name,
+                        $decision_maker_phone,
+                        $follow_up_date,
+                        $package_price,
+                        $updated_remark,
+                        $status,
+                        $record_id);
+                    
+                    if ($update_stmt->execute()) {
+                        $success_message = "Record updated successfully!";
+                        header("Location: ".$_SERVER['PHP_SELF']);
+                        exit();
+                    } else {
+                        $error_message = "Error updating record: " . $update_stmt->error;
+                    }
+                    $update_stmt->close();
+                } else {
+                    $error_message = "Error preparing update statement: " . $conn->error;
+                }
+            }
+        }
+    } else {
+        $error_message = "Invalid record ID.";
+    }
+}
+
+// Pagination setup
+$records_per_page = 500;
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($current_page < 1) {
+    $current_page = 1;
+}
+$offset = ($current_page - 1) * $records_per_page;
+
+// Search and filter parameters
+$search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
+$date_filter = isset($_GET['date_filter']) ? trim($_GET['date_filter']) : '';
+$follow_up_filter = isset($_GET['follow_up_filter']) ? trim($_GET['follow_up_filter']) : '';
+$owner_filter = isset($_GET['owner_filter']) ? (int)$_GET['owner_filter'] : -1;
+$sales_person_filter = isset($_GET['sales_person_filter']) ? (int)$_GET['sales_person_filter'] : ($role === 'admin' ? 0 : $user_id);
+$status_filter = isset($_GET['status_filter']) ? trim($_GET['status_filter']) : 'in process'; 
+
+// Fetch all team members for admin filter dropdown
+$team_members = [];
+if ($role === 'admin') {
+    $team_sql = "SELECT id, name, role FROM users WHERE role IN ('admin', 'sales_person') ORDER BY name";
+    $team_result = $conn->query($team_sql);
+    while ($row = $team_result->fetch_assoc()) {
+        $team_members[] = $row;
+    }
+}
+
+// Build WHERE clause
+$where_clauses = [];
+$params = [];
+$param_types = '';
+
+// For non-admin users, restrict to their own records
+if ($role !== 'admin') {
+    $where_clauses[] = "user_id = ?";
+    $params[] = $user_id;
+    $param_types .= 'i';
+} 
+// For admin users, apply sales person filter if selected
+elseif ($sales_person_filter > 0) {
+    $where_clauses[] = "user_id = ?";
+    $params[] = $sales_person_filter;
+    $param_types .= 'i';
+}
+
+// Add other filters
+if (!empty($search_query)) {
+    $where_clauses[] = "(restaurant_name LIKE ? OR 
+                        contacted_person LIKE ? OR 
+                        phone LIKE ? OR 
+                        decision_maker_name LIKE ? OR 
+                        decision_maker_phone LIKE ? OR 
+                        CONCAT(street, ' ', city, ' ', state, ' ', location) LIKE ?)";
+    $search_param = "%$search_query%";
+    $params = array_merge($params, array_fill(0, 6, $search_param));
+    $param_types .= str_repeat('s', 6);
+}
+
+if (!empty($date_filter)) {
+    $where_clauses[] = "record_date = ?";
+    $params[] = $date_filter;
+    $param_types .= 's';
+}
+
+if (!empty($follow_up_filter)) {
+    $where_clauses[] = "follow_up_date = ?";
+    $params[] = $follow_up_filter;
+    $param_types .= 's';
+}
+
+if ($owner_filter >= 0) {
+    $where_clauses[] = "owner_available = ?";
+    $params[] = $owner_filter;
+    $param_types .= 'i';
+}
+
+// Status filter - default to 'in process' but allow override
+if (empty($_GET['status_filter'])) {
+    $where_clauses[] = "status = ?";
+    $params[] = 'in process';
+    $param_types .= 's';
+} elseif (!empty($status_filter)) {
+    $where_clauses[] = "status = ?";
+    $params[] = $status_filter;
+    $param_types .= 's';
+}
+
+$where_sql = empty($where_clauses) ? '' : 'WHERE ' . implode(' AND ', $where_clauses);
+
+// Fetch total records count
+$count_sql = "SELECT COUNT(*) FROM sales_track $where_sql";
+$count_stmt = $conn->prepare($count_sql);
+
+if ($count_stmt) {
+    if (!empty($params)) {
+        $count_stmt->bind_param($param_types, ...$params);
+    }
+    $count_stmt->execute();
+    $count_stmt->bind_result($total_records);
+    $count_stmt->fetch();
+    $count_stmt->close();
+}
+
+$total_pages = ceil($total_records / $records_per_page);
+
 // Determine order based on whether date filter is applied
 $order_by = !empty($date_filter) ? "record_date DESC, time_stamp DESC" : "follow_up_date ASC";
 
@@ -265,748 +291,598 @@ $fetch_sales_sql = "SELECT
     $where_sql
     ORDER BY $order_by
     LIMIT ?, ?";
-   
-   $fetch_sales_stmt = $conn->prepare($fetch_sales_sql);
-   
-   if ($fetch_sales_stmt) {
-       // Add pagination parameters
-       $params[] = $offset;
-       $params[] = $records_per_page;
-       $param_types .= 'ii';
-       
-       if (!empty($params)) {
-           $fetch_sales_stmt->bind_param($param_types, ...$params);
-       }
-       
-       $fetch_sales_stmt->execute();
-       $result = $fetch_sales_stmt->get_result();
-       while ($row = $result->fetch_assoc()) {
-           $sales_track_list[] = $row;
-       }
-       $fetch_sales_stmt->close();
-   } else {
-       $error_message = "Error preparing fetch query: " . $conn->error;
-   }
-   
-   $conn->close();
-   ?>
+
+$fetch_sales_stmt = $conn->prepare($fetch_sales_sql);
+
+if ($fetch_sales_stmt) {
+    // Add pagination parameters
+    $params[] = $offset;
+    $params[] = $records_per_page;
+    $param_types .= 'ii';
+    
+    if (!empty($params)) {
+        $fetch_sales_stmt->bind_param($param_types, ...$params);
+    }
+    
+    $fetch_sales_stmt->execute();
+    $result = $fetch_sales_stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $sales_track_list[] = $row;
+    }
+    $fetch_sales_stmt->close();
+} else {
+    $error_message = "Error preparing fetch query: " . $conn->error;
+}
+
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <title>View Sales Records</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href="assets/css/vendor.min.css" rel="stylesheet">
-      <link href="assets/css/icons.min.css" rel="stylesheet">
-      <link href="assets/css/app.min.css" rel="stylesheet">
-      <link href="assets/css/style.css?<?php echo time(); ?>" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-      
-      <style>
-         /* Add styles for the WhatsApp button */
-         .whatsapp-btn {
-            background-color: #25D366;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 5px;
-            display: inline-block;
-         }
-         
-         .whatsapp-btn:hover {
-            background-color: #128C7E;
-         }
-         
-         .status-badge {
-         padding: 3px 8px;
-         border-radius: 12px;
-         font-size: 12px;
-         font-weight: 500;
-         text-transform: capitalize;
-         }
-         .status-badge.in-process {
-         background-color: #fff3cd;
-         color: #856404;
-         }
-         .status-badge.completed {
-         background-color: #d4edda;
-         color: #155724;
-         }
-         .status-badge.not-interested {
-         background-color: #f8d7da;
-         color: #721c24;
-         }
+<head>
+    <meta charset="utf-8">
+    <title>View Sales Records</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/vendor.min.css" rel="stylesheet">
+    <link href="assets/css/icons.min.css" rel="stylesheet">
+    <link href="assets/css/app.min.css" rel="stylesheet">
+    <link href="assets/css/style.css?<?php echo time(); ?>" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    
+    <style>
+        .whatsapp-btn{background-color:#25D366;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;margin-top:5px;display:inline-block}.whatsapp-btn:hover{background-color:#128C7E}.status-badge{padding:3px 8px;border-radius:12px;font-size:12px;font-weight:500;text-transform:capitalize}.status-badge.in-process{background-color:#fff3cd;color:#856404}.status-badge.completed{background-color:#d4edda;color:#155724}.status-badge.not-interested{background-color:#f8d7da;color:#721c24}.mobile-slider-container{display:none;position:relative;margin-bottom:20px;overflow:hidden;touch-action:pan-y}.mobile-slides-wrapper{display:flex;transition:transform .3s ease;width:100%}.mobile-slide{flex:0 0 100%;background:#fff;border:1px solid #ddd;border-radius:5px;padding:15px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,.1)}.slider-counter{text-align:center;margin-top:10px;font-size:14px;color:#666}.slider-navigation{display:none}@media (max-width:767px){.sales_table{display:none}.mobile-slider-container{display:block}.sales_table td[data-label="Sr. No"]{display:table-cell!important;background-color:#fff3cd;color:#856404}.sales_table td[data-label="Phone"] br,.sales_table td[data-label="D.M. Phone"] br{display:block;content:"";margin-bottom:5px}.whatsapp-btn{padding:10px 8px;font-size:11px;display:block;width:100%;margin-top:5px;text-align:center}.sales_table td[data-label="Phone"],.sales_table td[data-label="D.M. Phone"]{white-space:normal}.phone-container{display:flex;flex-direction:column}.phone-number{margin-bottom:5px}}.whatsapp-btn.hindi-btn{background-color:#FF9933;margin-top:5px}.whatsapp-btn.hindi-btn:hover{background-color:#FF7722}@media (max-width:767px){.whatsapp-btn.hindi-btn{margin-top:5px}}.is-valid{border-color:#28a745!important}.is-invalid{border-color:#dc3545!important}.phone-help-text{font-size:12px;color:#6c757d;margin-top:5px}
+    </style>
 
-         /* Mobile Slider Styles */
-         .mobile-slider-container {
-            display: none;
-            position: relative;
-            margin-bottom: 20px;
-            overflow: hidden;
-            touch-action: pan-y;
-         }
-         
-         .mobile-slides-wrapper {
-            display: flex;
-            transition: transform 0.3s ease;
-            width: 100%;
-         }
-         
-         .mobile-slide {
-            flex: 0 0 100%;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-         }
-         
-         .slider-counter {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #666;
-         }
-
-         /* Hide navigation buttons */
-         .slider-navigation {
-            display: none;
-         }
-
-         @media (max-width: 767px) {
-            .sales_table {
-               display: none;
-            }
-            
-            .mobile-slider-container {
-               display: block;
-            }
-            
-            .sales_table td[data-label="Sr. No"] {
-                display: table-cell !important;
-                background-color: #fff3cd;
-                color: #856404;
-            }
-            
-            /* Responsive adjustments for WhatsApp button */
-            .sales_table td[data-label="Phone"] br,
-            .sales_table td[data-label="D.M. Phone"] br {
-                display: block;
-                content: "";
-                margin-bottom: 5px;
-            }
-            
-            .whatsapp-btn {
-                padding: 10px 8px;
-                font-size: 11px;
-                display: block;
-                width: 100%;
-                margin-top: 5px;
-                text-align: center;
-            }
-            
-            /* Ensure phone numbers and buttons are properly separated */
-            .sales_table td[data-label="Phone"],
-            .sales_table td[data-label="D.M. Phone"] {
-                white-space: normal;
-            }
-            
-            .phone-container {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .phone-number {
-                margin-bottom: 5px;
-            }
-         }
-         
-         .whatsapp-btn.hindi-btn {
-            background-color: #FF9933;
-            margin-top: 5px;
-         }
-
-         .whatsapp-btn.hindi-btn:hover {
-            background-color: #FF7722;
-         }
-
-         @media (max-width: 767px) {
-            .whatsapp-btn.hindi-btn {
-                margin-top: 5px;
-            }
-         }
-
-         /* Phone validation styles */
-         .is-valid {
-            border-color: #28a745 !important;
-         }
-         
-         .is-invalid {
-            border-color: #dc3545 !important;
-         }
-         
-         .phone-help-text {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 5px;
-         }
-      </style>
-
-      <script src="assets/js/config.js"></script>
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="assets/js/jquery.validate.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-   </head>
-   <body class="view_sales_records">
-      <div class="wrapper">
-         <?php include 'toolbar.php'; ?>
-         <?php
-            if ($role === 'admin') {
-                include 'admin_menu.php';
-            } elseif ($role === 'sales_person') {
-                include 'sales_menu.php';
-            } else {
-                include 'menu.php';
-            }
-            ?>
-         <div class="page-content">
+    <script src="assets/js/config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+</head>
+<body class="view_sales_records">
+    <div class="wrapper">
+        <?php include 'toolbar.php'; ?>
+        <?php
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'sales_person') {
+            include 'sales_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
+        <div class="page-content">
             <div class="container-fluid">
-               <div class="row">
-                  <div class="col-xl-12">
-                     <div class="card">
-                        <div class="card-header">
-                           <h4 class="card-title">
-                              View Sales Records
-                              <button id="fullscreenToggle" class="btn btn-primary btn-block fr">Enter Fullscreen</button>
-                           </h4>
-                        </div>
-                        <div class="card-body">
-                           <!-- Filter section remains the same -->
-                           <div class="filter-section">
-                              <form id="filterForm" method="GET" action="">
-                                 <div class="row filter-row">
-                                    <div class="row mt-1">
-                                       <div class="col-md-4 search-box">
-                                          <label class="form-label">Search</label>
-                                          <input type="text" class="form-control" name="search" placeholder="Search..." 
-                                             value="<?= htmlspecialchars($search_query) ?>">
-                                          <?php if (!empty($search_query)): ?>
-                                          <span class="clear-search" style="display:none;" onclick="clearSearch()">&times;</span>
-                                          <?php endif; ?>
-                                       </div>
-                                       <div class="col-md-4">
-                                          <label class="form-label">Date</label>
-                                          <input type="date" class="form-control" name="date_filter" 
-                                             value="<?= htmlspecialchars($date_filter) ?>">
-                                       </div>
-                                       <div class="col-md-4">
-                                          <label class="form-label">Follow up Date</label>
-                                          <div class="input-group date" id="followUpDatePicker">
-                                             <input type="text" class="form-control" name="follow_up_filter" 
-                                                value="<?= htmlspecialchars($follow_up_filter) ?>" placeholder="Follow Up Date">
-                                             <div class="input-group-append">
-                                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <?php if ($role === 'admin'): ?>
-                                    <div class="row mt-1">
-                                       <div class="col-md-4">
-                                          <label class="form-label">Team member</label>
-                                          <select class="form-control team-member-filter" name="sales_person_filter">
-                                             <option value="0">All Team Members</option>
-                                             <?php foreach ($team_members as $member): ?>
-                                             <option value="<?= $member['id'] ?>" <?= $sales_person_filter == $member['id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($member['name']) ?> (<?= ucfirst($member['role']) ?>)
-                                             </option>
-                                             <?php endforeach; ?>
-                                          </select>
-                                       </div>
-                                       <?php endif; ?>
-                                       <div class="col-md-4">
-                                          <label class="form-label">Owner Status</label>
-                                          <select class="form-control" name="owner_filter">
-                                             <option value="-1" <?= $owner_filter == -1 ? 'selected' : '' ?>>Owner: All</option>
-                                             <option value="1" <?= $owner_filter == 1 ? 'selected' : '' ?>>Owner: Available</option>
-                                             <option value="0" <?= $owner_filter == 0 ? 'selected' : '' ?>>Owner: Not Available</option>
-                                          </select>
-                                       </div>
-                                       <div class="col-md-4">
-                                          <label class="form-label">Status</label>
-                                          <select class="form-control" name="status_filter">
-                                             <option value="in process" <?= ($status_filter === 'in process' || empty($_GET['status_filter'])) ? 'selected' : '' ?>>In Process</option>
-                                             <option value="completed" <?= $status_filter === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                             <option value="not interested" <?= $status_filter === 'not interested' ? 'selected' : '' ?>>Not Interested</option>
-                                          </select>
-                                       </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-12">
-                                            <button type="submit" class="btn btn-primary btn-block">Apply</button>
-                                            <button type="button" id="downloadCsv" class="btn btn-success btn-block">
-                                                <i class="fas fa-download"></i> Download CSV
-                                            </button>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">
+                                    View Sales Records
+                                    <button id="fullscreenToggle" class="btn btn-primary btn-block fr">Enter Fullscreen</button>
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <!-- Filter section remains the same -->
+                                <div class="filter-section">
+                                    <form id="filterForm" method="GET" action="">
+                                        <div class="row filter-row">
+                                            <div class="row mt-1">
+                                                <div class="col-md-4 search-box">
+                                                    <label class="form-label">Search</label>
+                                                    <input type="text" class="form-control" name="search" placeholder="Search..." 
+                                                        value="<?= htmlspecialchars($search_query) ?>">
+                                                    <?php if (!empty($search_query)): ?>
+                                                    <span class="clear-search" style="display:none;" onclick="clearSearch()">&times;</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Date</label>
+                                                    <input type="date" class="form-control" name="date_filter" 
+                                                        value="<?= htmlspecialchars($date_filter) ?>">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Follow up Date</label>
+                                                    <div class="input-group date" id="followUpDatePicker">
+                                                        <input type="text" class="form-control" name="follow_up_filter" 
+                                                            value="<?= htmlspecialchars($follow_up_filter) ?>" placeholder="Follow Up Date">
+                                                        <div class="input-group-append">
+                                                            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php if ($role === 'admin'): ?>
+                                            <div class="row mt-1">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Team member</label>
+                                                    <select class="form-control team-member-filter" name="sales_person_filter">
+                                                        <option value="0">All Team Members</option>
+                                                        <?php foreach ($team_members as $member): ?>
+                                                        <option value="<?= $member['id'] ?>" <?= $sales_person_filter == $member['id'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($member['name']) ?> (<?= ucfirst($member['role']) ?>)
+                                                        </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <?php endif; ?>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Owner Status</label>
+                                                    <select class="form-control" name="owner_filter">
+                                                        <option value="-1" <?= $owner_filter == -1 ? 'selected' : '' ?>>Owner: All</option>
+                                                        <option value="1" <?= $owner_filter == 1 ? 'selected' : '' ?>>Owner: Available</option>
+                                                        <option value="0" <?= $owner_filter == 0 ? 'selected' : '' ?>>Owner: Not Available</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Status</label>
+                                                    <select class="form-control" name="status_filter">
+                                                        <option value="in process" <?= ($status_filter === 'in process' || empty($_GET['status_filter'])) ? 'selected' : '' ?>>In Process</option>
+                                                        <option value="completed" <?= $status_filter === 'completed' ? 'selected' : '' ?>>Completed</option>
+                                                        <option value="not interested" <?= $status_filter === 'not interested' ? 'selected' : '' ?>>Not Interested</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-md-12">
+                                                    <button type="submit" class="btn btn-primary btn-block">Apply</button>
+                                                    <button type="button" id="downloadCsv" class="btn btn-success btn-block">
+                                                        <i class="fas fa-download"></i> Download CSV
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <?php if (!empty($search_query) || !empty($date_filter) || !empty($follow_up_filter) || $owner_filter >= 0 || ($role === 'admin' && $sales_person_filter > 0) || !empty($status_filter)): ?>
+                                    <div class="row">
+                                        <div class="col-md-12 mt-2">
+                                            <div class="filter-results">
+                                                <small class="text-muted">
+                                                Filtered results: 
+                                                <?php if (!empty($search_query)): ?>
+                                                <span class="badge badge-info">Search: <?= htmlspecialchars($search_query) ?></span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($date_filter)): ?>
+                                                <span class="badge badge-info">Date: <?= htmlspecialchars($date_filter) ?></span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($follow_up_filter)): ?>
+                                                <span class="badge badge-info">Follow-up: <?= htmlspecialchars($follow_up_filter) ?>
+                                                <a href="#" class="clear-follow-up" style="color: white; margin-left: 5px;">&times;</a>
+                                                </span>
+                                                <?php endif; ?>
+                                                <?php if ($role === 'admin' && $sales_person_filter > 0): ?>
+                                                <?php 
+                                                    $selected_member = '';
+                                                    foreach ($team_members as $member) {
+                                                        if ($member['id'] == $sales_person_filter) {
+                                                            $selected_member = $member['name'] . ' (' . ucfirst($member['role']) . ')';
+                                                            break;
+                                                        }
+                                                    }
+                                                    ?>
+                                                <span class="badge badge-team-member">Team Member: <?= htmlspecialchars($selected_member) ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($owner_filter == 1): ?>
+                                                <span class="badge badge-info">Owner: Available</span>
+                                                <?php elseif ($owner_filter == 0): ?>
+                                                <span class="badge badge-info">Owner: Not Available</span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($status_filter)): ?>
+                                                <span class="badge badge-info">Status: <?= ucfirst($status_filter) ?></span>
+                                                <?php endif; ?>
+                                                <a href="?" class="badge badge-danger">Clear all</a>
+                                                </small>
+                                            </div>
                                         </div>
                                     </div>
-                                 </div>
-                              </form>
-                              <?php if (!empty($search_query) || !empty($date_filter) || !empty($follow_up_filter) || $owner_filter >= 0 || ($role === 'admin' && $sales_person_filter > 0) || !empty($status_filter)): ?>
-                              <div class="row">
-                                 <div class="col-md-12 mt-2">
-                                    <div class="filter-results">
-                                       <small class="text-muted">
-                                       Filtered results: 
-                                       <?php if (!empty($search_query)): ?>
-                                       <span class="badge badge-info">Search: <?= htmlspecialchars($search_query) ?></span>
-                                       <?php endif; ?>
-                                       <?php if (!empty($date_filter)): ?>
-                                       <span class="badge badge-info">Date: <?= htmlspecialchars($date_filter) ?></span>
-                                       <?php endif; ?>
-                                       <?php if (!empty($follow_up_filter)): ?>
-                                       <span class="badge badge-info">Follow-up: <?= htmlspecialchars($follow_up_filter) ?>
-                                       <a href="#" class="clear-follow-up" style="color: white; margin-left: 5px;">&times;</a>
-                                       </span>
-                                       <?php endif; ?>
-                                       <?php if ($role === 'admin' && $sales_person_filter > 0): ?>
-                                       <?php 
-                                          $selected_member = '';
-                                          foreach ($team_members as $member) {
-                                              if ($member['id'] == $sales_person_filter) {
-                                                  $selected_member = $member['name'] . ' (' . ucfirst($member['role']) . ')';
-                                                  break;
-                                              }
-                                          }
-                                          ?>
-                                       <span class="badge badge-team-member">Team Member: <?= htmlspecialchars($selected_member) ?></span>
-                                       <?php endif; ?>
-                                       <?php if ($owner_filter == 1): ?>
-                                       <span class="badge badge-info">Owner: Available</span>
-                                       <?php elseif ($owner_filter == 0): ?>
-                                       <span class="badge badge-info">Owner: Not Available</span>
-                                       <?php endif; ?>
-                                       <?php if (!empty($status_filter)): ?>
-                                       <span class="badge badge-info">Status: <?= ucfirst($status_filter) ?></span>
-                                       <?php endif; ?>
-                                       <a href="?" class="badge badge-danger">Clear all</a>
-                                       </small>
-                                    </div>
-                                 </div>
-                              </div>
-                              <?php endif; ?>
-                           </div>
-                           <?php if (!empty($success_message)): ?>
-                           <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
-                           <?php endif; ?>
-                           <?php if (!empty($error_message)): ?>
-                           <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
-                           <?php endif; ?>
-                           <div class="row">
-                              <div class="col-md-12">
-                                 <div class="card">
-                                    <div class="card-body">
-                                       <!-- Mobile Slider Container -->
-                                       <div class="mobile-slider-container" id="mobileSlider">
-                                          <?php if (!empty($sales_track_list)): ?>
-                                          <div class="mobile-slides-wrapper" id="mobileSlidesWrapper">
-                                             <?php foreach ($sales_track_list as $index => $entry): ?>
-                                             <div class="mobile-slide" data-index="<?= $index ?>">
-                                                <div class="slide-content">
-                                                   <div class="row">
-                                                      <div class="col-12">
-                                                         <h4><?= htmlspecialchars($entry['restaurant_name']) ?></h4>
-                                                         <div class="mb-2">
-                                                            <strong>Date:</strong> <?= htmlspecialchars($entry['record_date']) ?><br>
-                                                            <strong>Time:</strong> <?= date('h:i A', strtotime($entry['time_stamp'])) ?><br>
-                                                            <strong>Status:</strong> 
-                                                            <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
-                                                            <?= ucfirst($entry['status']) ?>
-                                                            </span>
-                                                         </div>
-                                                         
-                                                         <div class="mb-2">
-                                                            <strong>Contact:</strong> <?= htmlspecialchars($entry['contacted_person']) ?><br>
-                                                            <strong>Phone:</strong> 
+                                    <?php endif; ?>
+                                </div>
+                                <?php if (!empty($success_message)): ?>
+                                <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($error_message)): ?>
+                                <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+                                <?php endif; ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <!-- Mobile Slider Container -->
+                                                <div class="mobile-slider-container" id="mobileSlider">
+                                                    <?php if (!empty($sales_track_list)): ?>
+                                                    <div class="mobile-slides-wrapper" id="mobileSlidesWrapper">
+                                                        <?php foreach ($sales_track_list as $index => $entry): ?>
+                                                        <div class="mobile-slide" data-index="<?= $index ?>">
+                                                            <div class="slide-content">
+                                                                <div class="row">
+                                                                    <div class="col-12">
+                                                                        <h4><?= htmlspecialchars($entry['restaurant_name']) ?></h4>
+                                                                        <div class="mb-2">
+                                                                            <strong>Date:</strong> <?= htmlspecialchars($entry['record_date']) ?><br>
+                                                                            <strong>Time:</strong> <?= date('h:i A', strtotime($entry['time_stamp'])) ?><br>
+                                                                            <strong>Status:</strong> 
+                                                                            <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
+                                                                            <?= ucfirst($entry['status']) ?>
+                                                                            </span>
+                                                                        </div>
+                                                                        
+                                                                        <div class="mb-2">
+                                                                            <strong>Contact:</strong> <?= htmlspecialchars($entry['contacted_person']) ?><br>
+                                                                            <strong>Phone:</strong> 
 <a href="tel:<?= htmlspecialchars($entry['phone']) ?>"><?= htmlspecialchars($entry['phone']) ?></a>
-                                                            <button class="whatsapp-btn" 
-                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                            </button>
-                                                            <button class="whatsapp-btn hindi-btn" 
-                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                            </button>
-                                                         </div>
-                                                         
-                                                         <?php if (!empty($entry['decision_maker_name'])): ?>
-                                                         <div class="mb-2">
-                                                            <strong>Decision Maker:</strong> <?= htmlspecialchars($entry['decision_maker_name']) ?><br>
+                                                                            <button class="whatsapp-btn" 
+                                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                                            </button>
+                                                                            <button class="whatsapp-btn hindi-btn" 
+                                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                                            </button>
+                                                                        </div>
+                                                                        
+                                                                        <?php if (!empty($entry['decision_maker_name'])): ?>
+                                                                        <div class="mb-2">
+                                                                            <strong>Decision Maker:</strong> <?= htmlspecialchars($entry['decision_maker_name']) ?><br>
 <strong>DM Phone:</strong> 
 <a href="tel:<?= htmlspecialchars($entry['decision_maker_phone']) ?>"><?= htmlspecialchars($entry['decision_maker_phone']) ?></a>
-                                                            <?php if (!empty($entry['decision_maker_phone'])): ?>
-                                                            <button class="whatsapp-btn" 
-                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                            </button>
-                                                            <button class="whatsapp-btn hindi-btn" 
-                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                            </button>
-                                                            <?php endif; ?>
-                                                         </div>
-                                                         <?php endif; ?>
-                                                         
-                                                         <div class="mb-2">
-                                                            <strong>Owner Available:</strong> <?= $entry['owner_available'] ? 'Yes' : 'No' ?><br>
-                                                            <strong>Follow Up:</strong> <?= htmlspecialchars($entry['follow_up_date']) ?><br>
-                                                            <strong>Price:</strong> <?= number_format($entry['package_price']) ?>
-                                                         </div>
-                                                         
-                                                         <div class="mb-2">
-                                                            <strong>Location:</strong><br>
-                                                            <?php
-                                                               $fullAddress = [];
-                                                               if (!empty($entry['location'])) {
-                                                                   $fullAddress[] = htmlspecialchars($entry['location']);
-                                                               }
-                                                               if (!empty($entry['street'])) {
-                                                                   $fullAddress[] = htmlspecialchars($entry['street']);
-                                                               }
-                                                               if (!empty($entry['city'])) {
-                                                                   $fullAddress[] = htmlspecialchars($entry['city']);
-                                                               }
-                                                               if (!empty($entry['state'])) {
-                                                                   $fullAddress[] = htmlspecialchars($entry['state']);
-                                                               }
-                                                               echo implode(', ', $fullAddress);
-                                                               ?>
-                                                         </div>
-                                                         
-                                                         <?php if (!empty($entry['remark'])): ?>
-                                                         <div class="mb-2">
-                                                            <strong>Remarks:</strong>
-                                                            <div class="remark-container" style="max-height: 100px; overflow-y: auto;">
-                                                               <?php 
-                                                                  $remarks = explode("\n\n", $entry['remark']);
-                                                                  $reversed_remarks = array_reverse($remarks);
-                                                                  foreach ($reversed_remarks as $remark): 
-                                                                      if (!empty(trim($remark))):
-                                                                          $parts = explode(" - ", $remark, 2);
-                                                               ?>
-                                                               <div class="remark-entry">
-                                                                  <?php if (count($parts) > 1): ?>
-                                                                  <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
-                                                                  <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
-                                                                  <?php else: ?>
-                                                                  <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
-                                                                  <?php endif; ?>
-                                                               </div>
-                                                               <?php 
-                                                                      endif;
-                                                                  endforeach; 
-                                                                  ?>
+                                                                            <?php if (!empty($entry['decision_maker_phone'])): ?>
+                                                                            <button class="whatsapp-btn" 
+                                                                                    onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                                <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                                            </button>
+                                                                            <button class="whatsapp-btn hindi-btn" 
+                                                                                    onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                                <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                                            </button>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <?php endif; ?>
+                                                                        
+                                                                        <div class="mb-2">
+                                                                            <strong>Owner Available:</strong> <?= $entry['owner_available'] ? 'Yes' : 'No' ?><br>
+                                                                            <strong>Follow Up:</strong> <?= htmlspecialchars($entry['follow_up_date']) ?><br>
+                                                                            <strong>Price:</strong> <?= number_format($entry['package_price']) ?>
+                                                                        </div>
+                                                                        
+                                                                        <div class="mb-2">
+                                                                            <strong>Location:</strong><br>
+                                                                            <?php
+                                                                                $fullAddress = [];
+                                                                                if (!empty($entry['location'])) {
+                                                                                    $fullAddress[] = htmlspecialchars($entry['location']);
+                                                                                }
+                                                                                if (!empty($entry['street'])) {
+                                                                                    $fullAddress[] = htmlspecialchars($entry['street']);
+                                                                                }
+                                                                                if (!empty($entry['city'])) {
+                                                                                    $fullAddress[] = htmlspecialchars($entry['city']);
+                                                                                }
+                                                                                if (!empty($entry['state'])) {
+                                                                                    $fullAddress[] = htmlspecialchars($entry['state']);
+                                                                                }
+                                                                                echo implode(', ', $fullAddress);
+                                                                                ?>
+                                                                        </div>
+                                                                        
+                                                                        <?php if (!empty($entry['remark'])): ?>
+                                                                        <div class="mb-2">
+                                                                            <strong>Remarks:</strong>
+                                                                            <div class="remark-container" style="max-height: 100px; overflow-y: auto;">
+                                                                                <?php 
+                                                                                    $remarks = explode("\n\n", $entry['remark']);
+                                                                                    $reversed_remarks = array_reverse($remarks);
+                                                                                    foreach ($reversed_remarks as $remark): 
+                                                                                        if (!empty(trim($remark))):
+                                                                                            $parts = explode(" - ", $remark, 2);
+                                                                                ?>
+                                                                                <div class="remark-entry">
+                                                                                    <?php if (count($parts) > 1): ?>
+                                                                                    <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
+                                                                                    <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
+                                                                                    <?php else: ?>
+                                                                                    <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
+                                                                                    <?php endif; ?>
+                                                                                </div>
+                                                                                <?php 
+                                                                                        endif;
+                                                                                    endforeach; 
+                                                                                    ?>
+                                                                            </div>
+                                                                        </div>
+                                                                        <?php endif; ?>
+                                                                        
+                                                                        <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
+                                                                        <div class="text-center mt-3">
+                                                                            <button class="btn btn-sm btn-outline-primary update-record-btn" 
+                                                                                    data-record-id="<?= $entry['id'] ?>"
+                                                                                    data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
+                                                                                    data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
+                                                                                    data-phone="<?= htmlspecialchars($entry['phone']) ?>"
+                                                                                    data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
+                                                                                    data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
+                                                                                    data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
+                                                                                    data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
+                                                                                    data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
+                                                                                    data-status="<?= htmlspecialchars($entry['status']) ?>">
+                                                                            <i class="fas fa-edit"></i> Update Record
+                                                                            </button>
+                                                                        </div>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                         </div>
-                                                         <?php endif; ?>
-                                                         
-                                                         <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
-                                                         <div class="text-center mt-3">
-                                                            <button class="btn btn-sm btn-outline-primary update-record-btn" 
-                                                                    data-record-id="<?= $entry['id'] ?>"
-                                                                    data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
-                                                                    data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
-                                                                    data-phone="<?= htmlspecialchars($entry['phone']) ?>"
-                                                                    data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
-                                                                    data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
-                                                                    data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
-                                                                    data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
-                                                                    data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
-                                                                    data-status="<?= htmlspecialchars($entry['status']) ?>">
-                                                            <i class="fas fa-edit"></i> Update Record
-                                                            </button>
-                                                         </div>
-                                                         <?php endif; ?>
-                                                      </div>
-                                                   </div>
+                                                        </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                    <?php else: ?>
+                                                    <div class="mobile-slide active">
+                                                        <div class="text-center">No records found</div>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                    
+                                                    <!-- Counter remains but navigation buttons are removed -->
+                                                    <?php if (!empty($sales_track_list)): ?>
+                                                    <div class="slider-counter" id="sliderCounter">1 of <?= count($sales_track_list) ?></div>
+                                                    <?php endif; ?>
                                                 </div>
-                                             </div>
-                                             <?php endforeach; ?>
-                                          </div>
-                                          <?php else: ?>
-                                          <div class="mobile-slide active">
-                                             <div class="text-center">No records found</div>
-                                          </div>
-                                          <?php endif; ?>
-                                          
-                                          <!-- Counter remains but navigation buttons are removed -->
-                                          <?php if (!empty($sales_track_list)): ?>
-                                          <div class="slider-counter" id="sliderCounter">1 of <?= count($sales_track_list) ?></div>
-                                          <?php endif; ?>
-                                       </div>
-                                       
-                                       <!-- Desktop Table (hidden on mobile) -->
-                                       <div class="table-responsive sales_table">
-                                          <table class="table table-striped">
-                                             <thead>
-                                                <tr>
-                                                   <th>Actions</th>
-                                                   <th>Sr. No.</th>
-                                                   <th style="display:none;">ID</th>
-                                                   <?php if ($role === 'admin'): ?>
-                                                   <th>Team</th>
-                                                   <?php endif; ?>
-                                                   <th>Date</th>
-                                                   <th>Time</th>
-                                                   <th>Restaurant</th>
-                                                   <th>Owner</th>
-                                                   <th>Follow Up</th>
-                                                   <th>Status</th>
-                                                   <th>Price</th>
-                                                   <th>Remark</th>
-                                                   <th>Contact</th>
-                                                   <th>Phone</th>
-                                                   <th>D.M.</th>
-                                                   <th>D.M. Phone</th>
-                                                   <th>Location Details</th>
-                                                </tr>
-                                             </thead>
-                                             <tbody>
-                                                <?php if (!empty($sales_track_list)): ?>
-                                                <?php foreach ($sales_track_list as $index => $entry): ?>
-                                                <tr>
-                                                   <td data-label="Actions">
-                                                      <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
-                                                      <button class="btn btn-sm btn-outline-primary update-record-btn" 
-                                                         data-record-id="<?= $entry['id'] ?>"
-                                                         data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
-                                                         data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
-                                                         data-phone="<?= htmlspecialchars($entry['phone']) ?>"
-                                                         data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
-                                                         data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
-                                                         data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
-                                                         data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
-                                                         data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
-                                                         data-status="<?= htmlspecialchars($entry['status']) ?>">
-                                                      <i class="fas fa-edit"></i> Update
-                                                      </button>
-                                                      <?php endif; ?>
-                                                   </td>
-                                                   <td data-label="Sr. No"><?= $index + 1 + $offset ?></td>
-                                                   <td style="display:none;" data-label="ID"><?= htmlspecialchars($entry['id']) ?></td>
-                                                   <?php if ($role === 'admin'): ?>
-                                                   <td data-label="Team"><?= htmlspecialchars($entry['user_name']) ?></td>
-                                                   <?php endif; ?>
-                                                   <td data-label="Date"><?= htmlspecialchars($entry['record_date']) ?></td>
-                                                   <td data-label="Time"><?= date('h:i A', strtotime($entry['time_stamp'])) ?></td>
-                                                   <td data-label="Restaurant"><?= htmlspecialchars($entry['restaurant_name']) ?></td>
-                                                   <td data-label="Owner"><?= $entry['owner_available'] ? 'Yes' : 'No' ?></td>
-                                                   <td data-label="Follow Up"><?= htmlspecialchars($entry['follow_up_date']) ?></td>
-                                                   <td data-label="Status">
-                                                      <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
-                                                      <?= ucfirst($entry['status']) ?>
-                                                      </span>
-                                                   </td>
-                                                   <td data-label="Price"><?= number_format($entry['package_price']) ?></td>
-                                                   <td data-label="Remark">
-                                                      <?php if (!empty($entry['remark'])): ?>
-                                                      <div class="remark-container">
-                                                         <?php 
-                                                            $remarks = explode("\n\n", $entry['remark']);
-                                                            $reversed_remarks = array_reverse($remarks);
-                                                            foreach ($reversed_remarks as $remark): 
-                                                                if (!empty(trim($remark))):
-                                                                    $parts = explode(" - ", $remark, 2);
-                                                         ?>
-                                                         <div class="remark-entry">
-                                                            <?php if (count($parts) > 1): ?>
-                                                            <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
-                                                            <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
+                                                
+                                                <!-- Desktop Table (hidden on mobile) -->
+                                                <div class="table-responsive sales_table">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Actions</th>
+                                                                <th>Sr. No.</th>
+                                                                <th style="display:none;">ID</th>
+                                                                <?php if ($role === 'admin'): ?>
+                                                                <th>Team</th>
+                                                                <?php endif; ?>
+                                                                <th>Date</th>
+                                                                <th>Time</th>
+                                                                <th>Restaurant</th>
+                                                                <th>Owner</th>
+                                                                <th>Follow Up</th>
+                                                                <th>Status</th>
+                                                                <th>Price</th>
+                                                                <th>Remark</th>
+                                                                <th>Contact</th>
+                                                                <th>Phone</th>
+                                                                <th>D.M.</th>
+                                                                <th>D.M. Phone</th>
+                                                                <th>Location Details</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php if (!empty($sales_track_list)): ?>
+                                                            <?php foreach ($sales_track_list as $index => $entry): ?>
+                                                            <tr>
+                                                                <td data-label="Actions">
+                                                                    <?php if ($role === 'admin' || $entry['user_id'] == $user_id): ?>
+                                                                    <button class="btn btn-sm btn-outline-primary update-record-btn" 
+                                                                        data-record-id="<?= $entry['id'] ?>"
+                                                                        data-restaurant-name="<?= htmlspecialchars($entry['restaurant_name']) ?>"
+                                                                        data-contacted-person="<?= htmlspecialchars($entry['contacted_person']) ?>"
+                                                                        data-phone="<?= htmlspecialchars($entry['phone']) ?>"
+                                                                        data-owner-available="<?= $entry['owner_available'] ? '1' : '0' ?>"
+                                                                        data-decision-maker-name="<?= htmlspecialchars($entry['decision_maker_name']) ?>"
+                                                                        data-decision-maker-phone="<?= htmlspecialchars($entry['decision_maker_phone']) ?>"
+                                                                        data-follow-up-date="<?= htmlspecialchars($entry['follow_up_date']) ?>"
+                                                                        data-package-price="<?= htmlspecialchars($entry['package_price']) ?>"
+                                                                        data-status="<?= htmlspecialchars($entry['status']) ?>">
+                                                                    <i class="fas fa-edit"></i> Update
+                                                                    </button>
+                                                                    <?php endif; ?>
+                                                                </td>
+                                                                <td data-label="Sr. No"><?= $index + 1 + $offset ?></td>
+                                                                <td style="display:none;" data-label="ID"><?= htmlspecialchars($entry['id']) ?></td>
+                                                                <?php if ($role === 'admin'): ?>
+                                                                <td data-label="Team"><?= htmlspecialchars($entry['user_name']) ?></td>
+                                                                <?php endif; ?>
+                                                                <td data-label="Date"><?= htmlspecialchars($entry['record_date']) ?></td>
+                                                                <td data-label="Time"><?= date('h:i A', strtotime($entry['time_stamp'])) ?></td>
+                                                                <td data-label="Restaurant"><?= htmlspecialchars($entry['restaurant_name']) ?></td>
+                                                                <td data-label="Owner"><?= $entry['owner_available'] ? 'Yes' : 'No' ?></td>
+                                                                <td data-label="Follow Up"><?= htmlspecialchars($entry['follow_up_date']) ?></td>
+                                                                <td data-label="Status">
+                                                                    <span class="status-badge <?= str_replace(' ', '-', $entry['status']) ?>">
+                                                                    <?= ucfirst($entry['status']) ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td data-label="Price"><?= number_format($entry['package_price']) ?></td>
+                                                                <td data-label="Remark">
+                                                                    <?php if (!empty($entry['remark'])): ?>
+                                                                    <div class="remark-container">
+                                                                        <?php 
+                                                                            $remarks = explode("\n\n", $entry['remark']);
+                                                                            $reversed_remarks = array_reverse($remarks);
+                                                                            foreach ($reversed_remarks as $remark): 
+                                                                                if (!empty(trim($remark))):
+                                                                                    $parts = explode(" - ", $remark, 2);
+                                                                        ?>
+                                                                        <div class="remark-entry">
+                                                                            <?php if (count($parts) > 1): ?>
+                                                                            <div class="remark-date"><?= htmlspecialchars($parts[0]) ?></div>
+                                                                            <div class="remark-content"><?= htmlspecialchars($parts[1]) ?></div>
+                                                                            <?php else: ?>
+                                                                            <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                        <?php 
+                                                                                endif;
+                                                                            endforeach; 
+                                                                            ?>
+                                                                    </div>
+                                                                    <?php endif; ?>
+                                                                </td>
+                                                                <td data-label="Contact"><?= htmlspecialchars($entry['contacted_person']) ?></td>
+                                                                <td data-label="Phone">
+                                                                    <div class="phone-container">
+                                                                        <span class="phone-number"><?= htmlspecialchars($entry['phone']) ?></span>
+                                                                        <button class="whatsapp-btn" 
+                                                                                onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                            <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                                        </button>
+                                                                        <button class="whatsapp-btn hindi-btn" 
+                                                                                onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
+                                                                            <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                                <td data-label="D.M."><?= htmlspecialchars($entry['decision_maker_name']) ?></td>
+                                                                <td data-label="D.M. Phone">
+                                                                    <div class="phone-container">
+                                                                        <span class="phone-number"><?= htmlspecialchars($entry['decision_maker_phone']) ?></span>
+                                                                        <?php if (!empty($entry['decision_maker_phone'])): ?>
+                                                                        <button class="whatsapp-btn" 
+                                                                                onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                            <i class="fab fa-whatsapp"></i> Send Package Plan
+                                                                        </button>
+                                                                        <button class="whatsapp-btn hindi-btn" 
+                                                                                onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
+                                                                            <i class="fab fa-whatsapp"></i> हिंदी में भेजें
+                                                                        </button>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </td>
+                                                                <td data-label="Location">
+                                                                    <?php
+                                                                        $fullAddress = [];
+                                                                        if (!empty($entry['location'])) {
+                                                                            $fullAddress[] = htmlspecialchars($entry['location']);
+                                                                        }
+                                                                        if (!empty($entry['street'])) {
+                                                                            $fullAddress[] = htmlspecialchars($entry['street']);
+                                                                        }
+                                                                        if (!empty($entry['city'])) {
+                                                                            $fullAddress[] = htmlspecialchars($entry['city']);
+                                                                        }
+                                                                        if (!empty($entry['state'])) {
+                                                                            $fullAddress[] = htmlspecialchars($entry['state']);
+                                                                        }
+                                                                        echo implode(', ', $fullAddress);
+                                                                        ?>
+                                                                </td>
+                                                            </tr>
+                                                            <?php endforeach; ?>
                                                             <?php else: ?>
-                                                            <div class="remark-content"><?= htmlspecialchars($remark) ?></div>
+                                                            <tr>
+                                                                <td colspan="<?= ($role === 'admin') ? '17' : '16' ?>" class="text-center">No records found</td>
+                                                            </tr>
                                                             <?php endif; ?>
-                                                         </div>
-                                                         <?php 
-                                                                endif;
-                                                            endforeach; 
-                                                            ?>
-                                                      </div>
-                                                      <?php endif; ?>
-                                                   </td>
-                                                   <td data-label="Contact"><?= htmlspecialchars($entry['contacted_person']) ?></td>
-                                                   <td data-label="Phone">
-                                                      <div class="phone-container">
-                                                         <span class="phone-number"><?= htmlspecialchars($entry['phone']) ?></span>
-                                                         <button class="whatsapp-btn" 
-                                                                 onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                         </button>
-                                                         <button class="whatsapp-btn hindi-btn" 
-                                                                 onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['phone']) ?>', '<?= htmlspecialchars($entry['contacted_person']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                         </button>
-                                                      </div>
-                                                   </td>
-                                                   <td data-label="D.M."><?= htmlspecialchars($entry['decision_maker_name']) ?></td>
-                                                   <td data-label="D.M. Phone">
-                                                      <div class="phone-container">
-                                                         <span class="phone-number"><?= htmlspecialchars($entry['decision_maker_phone']) ?></span>
-                                                         <?php if (!empty($entry['decision_maker_phone'])): ?>
-                                                         <button class="whatsapp-btn" 
-                                                                 onclick="sendWhatsAppMessage('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> Send Package Plan
-                                                         </button>
-                                                         <button class="whatsapp-btn hindi-btn" 
-                                                                 onclick="sendWhatsAppMessageHindi('<?= htmlspecialchars($entry['decision_maker_phone']) ?>', '<?= htmlspecialchars($entry['decision_maker_name']) ?>')">
-                                                             <i class="fab fa-whatsapp"></i> हिंदी में भेजें
-                                                         </button>
-                                                         <?php endif; ?>
-                                                      </div>
-                                                   </td>
-                                                   <td data-label="Location">
-                                                      <?php
-                                                         $fullAddress = [];
-                                                         if (!empty($entry['location'])) {
-                                                             $fullAddress[] = htmlspecialchars($entry['location']);
-                                                         }
-                                                         if (!empty($entry['street'])) {
-                                                             $fullAddress[] = htmlspecialchars($entry['street']);
-                                                         }
-                                                         if (!empty($entry['city'])) {
-                                                             $fullAddress[] = htmlspecialchars($entry['city']);
-                                                         }
-                                                         if (!empty($entry['state'])) {
-                                                             $fullAddress[] = htmlspecialchars($entry['state']);
-                                                         }
-                                                         echo implode(', ', $fullAddress);
-                                                         ?>
-                                                   </td>
-                                                </tr>
-                                                <?php endforeach; ?>
-                                                <?php else: ?>
-                                                <tr>
-                                                   <td colspan="<?= ($role === 'admin') ? '17' : '16' ?>" class="text-center">No records found</td>
-                                                </tr>
-                                                <?php endif; ?>
-                                             </tbody>
-                                          </table>
-                                       </div>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                 </div>
-                              </div>
-                           </div>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                </div>
             </div>
             <?php include 'footer.php'; ?>
-         </div>
-      </div>
-      
-      <!-- Update Record Modal -->
-      <div class="modal fade" id="updateRecordModal" tabindex="-1" role="dialog" aria-labelledby="updateRecordModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-lg" role="document">
+        </div>
+    </div>
+    
+    <!-- Update Record Modal -->
+    <div class="modal fade" id="updateRecordModal" tabindex="-1" role="dialog" aria-labelledby="updateRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-               <div class="modal-header">
-                  <h5 class="modal-title" id="updateRecordModalLabel">Update Record</h5>
-               </div>
-               <form id="updateRecordForm" method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-                  <div class="modal-body">
-                     <div class="row">
-                        <div class="col-md-12">
-                           <input type="hidden" name="record_id" id="modalRecordId">
-                           <div class="form-group">
-                              <label for="restaurantName">Restaurant</label>
-                              <input type="text" class="form-control" id="modalRestaurantName" readonly>
-                           </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateRecordModalLabel">Update Record</h5>
+                </div>
+                <form id="updateRecordForm" method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="hidden" name="record_id" id="modalRecordId">
+                                <div class="form-group">
+                                    <label for="restaurantName">Restaurant</label>
+                                    <input type="text" class="form-control" id="modalRestaurantName" readonly>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-md-6">
-                           <div class="form-group">
-                              <label for="contacted_person">Contact Person</label>
-                              <input type="text" class="form-control" name="contacted_person" id="modalContactedPerson">
-                           </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="contacted_person">Contact Person</label>
+                                    <input type="text" class="form-control" name="contacted_person" id="modalContactedPerson">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="phone">Phone <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="phone" id="modalPhone" maxlength="10" required>
+                                    <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero</small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                           <div class="form-group">
-                              <label for="phone">Phone <span class="text-danger">*</span></label>
-                              <input type="text" class="form-control" name="phone" id="modalPhone" maxlength="10" required>
-                              <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero</small>
-                           </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="decision_maker_name">Decision Maker Name</label>
+                                    <input type="text" class="form-control" name="decision_maker_name" id="modalDecisionMakerName">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="decision_maker_phone">Decision Maker Phone</label>
+                                    <input type="text" class="form-control" name="decision_maker_phone" id="modalDecisionMakerPhone" maxlength="10">
+                                    <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero (if provided)</small>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-md-6">
-                           <div class="form-group">
-                              <label for="decision_maker_name">Decision Maker Name</label>
-                              <input type="text" class="form-control" name="decision_maker_name" id="modalDecisionMakerName">
-                           </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="follow_up_date">Follow Up Date</label>
+                                    <input type="date" class="form-control" name="follow_up_date" id="modalFollowUpDate">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="package_price">Package Price</label>
+                                    <input type="number" step="0.01" class="form-control" name="package_price" id="modalPackagePrice">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select class="form-control" name="status" id="modalStatus">
+                                        <option value="in process">In Process</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="not interested">Not Interested</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group form-check mt-4 pt-2">
+                                    <input type="checkbox" class="form-check-input" name="owner_available" id="modalOwnerAvailable">
+                                    <label class="form-check-label" for="owner_available">Owner Available</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                           <div class="form-group">
-                              <label for="decision_maker_phone">Decision Maker Phone</label>
-                              <input type="text" class="form-control" name="decision_maker_phone" id="modalDecisionMakerPhone" maxlength="10">
-                              <small class="phone-help-text">Must be exactly 10 digits and cannot start with zero (if provided)</small>
-                           </div>
+                        <div class="row">
+                            <div class="col-md-12 mt-2">
+                                <div class="form-group">
+                                    <label for="new_remark">New Remark (optional)</label>
+                                    <textarea class="form-control remark-textarea" name="new_remark" id="modalNewRemark"></textarea>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-md-3">
-                           <div class="form-group">
-                              <label for="follow_up_date">Follow Up Date</label>
-                              <input type="date" class="form-control" name="follow_up_date" id="modalFollowUpDate">
-                           </div>
-                        </div>
-                        <div class="col-md-3">
-                           <div class="form-group">
-                              <label for="package_price">Package Price</label>
-                              <input type="number" step="0.01" class="form-control" name="package_price" id="modalPackagePrice">
-                           </div>
-                        </div>
-                        <div class="col-md-3">
-                           <div class="form-group">
-                              <label for="status">Status</label>
-                              <select class="form-control" name="status" id="modalStatus">
-                                 <option value="in process">In Process</option>
-                                 <option value="completed">Completed</option>
-                                 <option value="not interested">Not Interested</option>
-                              </select>
-                           </div>
-                        </div>
-                        <div class="col-md-3">
-                           <div class="form-group form-check mt-4 pt-2">
-                              <input type="checkbox" class="form-check-input" name="owner_available" id="modalOwnerAvailable">
-                              <label class="form-check-label" for="owner_available">Owner Available</label>
-                           </div>
-                        </div>
-                     </div>
-                     <div class="row">
-                        <div class="col-md-12 mt-2">
-                           <div class="form-group">
-                              <label for="new_remark">New Remark (optional)</label>
-                              <textarea class="form-control remark-textarea" name="new_remark" id="modalNewRemark"></textarea>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="modal-footer">
-                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                     <button type="submit" name="update_record" class="btn btn-primary">Update Record</button>
-                  </div>
-               </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" name="update_record" class="btn btn-primary">Update Record</button>
+                    </div>
+                </form>
             </div>
-         </div>
-      </div>
+        </div>
+    </div>
 
-      <script>
-         $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
             // Custom phone validation method
             $.validator.addMethod("validPhone", function(value, element) {
                 // Remove any non-digit characters
@@ -1306,54 +1182,52 @@ $fetch_sales_sql = "SELECT
             });
          
             
-         });
+        });
          
          
-         const toggleBtn = document.getElementById('fullscreenToggle');
+        const toggleBtn = document.getElementById('fullscreenToggle');
          
-         function isFullscreen() {
-           return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-         }
+        function isFullscreen() {
+          return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+        }
          
-         function enterFullscreen() {
-           const elem = document.documentElement;
-           if (elem.requestFullscreen) {
-             elem.requestFullscreen();
-           } else if (elem.webkitRequestFullscreen) {
-             elem.webkitRequestFullscreen();
-           } else if (elem.msRequestFullscreen) {
-             elem.msRequestFullscreen();
-           }
-         }
+        function enterFullscreen() {
+          const elem = document.documentElement;
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+          } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+          }
+        }
          
-         function exitFullscreen() {
-           if (document.exitFullscreen) {
-             document.exitFullscreen();
-           } else if (document.webkitExitFullscreen) {
-             document.webkitExitFullscreen();
-           } else if (document.msExitFullscreen) {
-             document.msExitFullscreen();
-           }
-         }
+        function exitFullscreen() {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
          
-         toggleBtn.addEventListener('click', () => {
-           if (isFullscreen()) {
-             exitFullscreen();
-           } else {
-             enterFullscreen();
-           }
-         });
+        toggleBtn.addEventListener('click', () => {
+          if (isFullscreen()) {
+            exitFullscreen();
+          } else {
+            enterFullscreen();
+          }
+        });
          
-         // Update button label based on fullscreen change
-         document.addEventListener('fullscreenchange', updateButtonLabel);
-         document.addEventListener('webkitfullscreenchange', updateButtonLabel);
-         document.addEventListener('msfullscreenchange', updateButtonLabel);
+        // Update button label based on fullscreen change
+        document.addEventListener('fullscreenchange', updateButtonLabel);
+        document.addEventListener('webkitfullscreenchange', updateButtonLabel);
+        document.addEventListener('msfullscreenchange', updateButtonLabel);
          
-         function updateButtonLabel() {
-           toggleBtn.textContent = isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
-         }
-
-
+        function updateButtonLabel() {
+          toggleBtn.textContent = isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen';
+        }
 
 
 // Function to send WhatsApp message
@@ -1371,6 +1245,9 @@ function sendWhatsAppMessage(phoneNumber, contactName) {
     const greeting = contactName && contactName.trim() !== '' 
         ? `*Hello ${contactName}!* 🙏🏻` 
         : `*Hello! 🙏🏻*`;
+    
+    // Use logged-in user's information
+    const contactInfo = `<?= htmlspecialchars($logged_in_user_info['name']) ?> – <?= htmlspecialchars($logged_in_user_info['phone']) ?>`;
     
     // WhatsApp message content
     const message = `
@@ -1410,8 +1287,9 @@ Your restaurant's digital revolution starts TODAY!
 All this for just ₹9,999/year (No Hidden Costs)
 
 📞 Call us NOW:
+${contactInfo}
 Inayat Shaikh – 9819411026
-Sagar Pawar – 9004998995
+Sagar Pawar – 9004998995        
 
 🌐 https://www.deegeecard.com
 
@@ -1445,6 +1323,9 @@ function sendWhatsAppMessageHindi(phoneNumber, contactName) {
     const greeting = contactName && contactName.trim() !== '' 
         ? `*नमस्ते ${contactName}!* 🙏🏻` 
         : `*नमस्ते! 🙏🏻*`;
+    
+    // Use logged-in user's information
+    const contactInfo = `<?= htmlspecialchars($logged_in_user_info['name']) ?> – <?= htmlspecialchars($logged_in_user_info['phone']) ?>`;
     
     // WhatsApp message content in Hindi
     const message = `
@@ -1484,8 +1365,9 @@ ${greeting}
 💰 *सिर्फ ₹9,999/साल (कोई छुपा चार्ज नहीं)*
 
 📞 *कॉल करें अभी:*
-इनायत शेख – 9819411026
-सागर पवार – 9004998995
+${contactInfo}
+Inayat Shaikh – 9819411026
+Sagar Pawar – 9004998995
 
 🌐 https://www.deegeecard.com
 📧 support@deegeecard.com
@@ -1504,23 +1386,17 @@ ${greeting}
 }
 
 
-
-
-
-
-
-
-// CSV Download functionality
-$('#downloadCsv').click(function() {
-    // Get current filter parameters
-    var filters = $('#filterForm').serialize();
-    
-    // Open download in new window
-    window.open('download_csv.php?' + filters, '_blank');
-});
-      </script>
-      <!-- Then your other scripts -->
-      <script src="assets/js/vendor.js"></script>
-      <script src="assets/js/app.js"></script>    
-   </body>
+        // CSV Download functionality
+        $('#downloadCsv').click(function() {
+            // Get current filter parameters
+            var filters = $('#filterForm').serialize();
+            
+            // Open download in new window
+            window.open('download_csv.php?' + filters, '_blank');
+        });
+    </script>
+    <!-- Then your other scripts -->
+    <script src="assets/js/vendor.js"></script>
+    <script src="assets/js/app.js"></script>    
+</body>
 </html>

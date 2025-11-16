@@ -814,6 +814,12 @@ function highlightCurrentRoomPage() {
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="theme.php">Themes</a>
                   </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="card_design.php">Cards Design</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="standy_design.php">Sticker Design</a>
+                  </li>
                </ul>
             </div>
         </li>
@@ -835,9 +841,9 @@ function highlightCurrentRoomPage() {
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="business.php">Business</a>
                   </li>
-                  <li class="sub-nav-item">
+                  <!-- <li class="sub-nav-item">
                      <a class="sub-nav-link" href="bank-details.php">Bank Details</a>
-                  </li>
+                  </li> -->
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="qr-code-details.php">QR Code Details</a>
                   </li>
@@ -868,28 +874,12 @@ function highlightCurrentRoomPage() {
          </li>
 
          <li class="nav-item">
-            <a class="nav-link menu-arrow" href="#room-settings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="room-settings">
+            <a class="nav-link" href="tax-settings.php">
                <span class="nav-icon">
-                  <iconify-icon icon="mdi:cog"></iconify-icon>
+                  <iconify-icon icon="heroicons-outline:receipt-tax"></iconify-icon>
                </span>
-               <span class="nav-text">Tax & Payment Method</span>
+               <span class="nav-text">Tax Settings</span>
             </a>
-            <div class="collapse" id="room-settings">
-               <ul class="nav sub-navbar-nav">
-                  <!-- <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="room-configuration.php">Configuration</a>
-                  </li>
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="seasonal-rates.php">Seasonal Rates</a>
-                  </li> -->
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="tax-settings.php">Tax Settings</a>
-                  </li>
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="payment-methods.php">Payment Methods</a>
-                  </li>
-               </ul>
-            </div>
          </li>
 
          <li class="nav-item">

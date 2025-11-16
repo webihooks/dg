@@ -159,8 +159,8 @@ if ($subscription_stmt) {
     $active_subscription = false;
 }
 
-$show_subscription_popup = !$active_subscription;
-$package_id = $active_subscription ? $active_subscription['package_id'] : null;
+// $show_subscription_popup = !$active_subscription;
+// $package_id = $active_subscription ? $active_subscription['package_id'] : null;
 
 // ==================== STORE TIMING CHECK ====================
 // Get current date and time

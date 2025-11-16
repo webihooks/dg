@@ -3,6 +3,7 @@ ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
+date_default_timezone_set('Asia/Kolkata');
 // Enhanced Android Session Protection
 require_once 'enhanced_android_manager.php';
 
@@ -60,6 +61,23 @@ if ($stmt_sub) {
     $current_subscription = $result->fetch_assoc();
     $stmt_sub->close();
 }
+
+
+
+// Add this after the user details fetch, before the packages fetch
+$business_info = [];
+$sql_business = "SELECT business_name, business_address, designation FROM business_info WHERE user_id = ?";
+$stmt_business = $conn->prepare($sql_business);
+if ($stmt_business) {
+    $stmt_business->bind_param("i", $user_id);
+    $stmt_business->execute();
+    $result_business = $stmt_business->get_result();
+    $business_info = $result_business->fetch_assoc();
+    $stmt_business->close();
+}
+
+
+
 
 // Fetch available packages
 $packages = [];
@@ -211,6 +229,23 @@ $conn->close();
           margin-top: 0;
           color: #fff;
         }
+/* Service Agreement Button */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* PDF Styling Enhancements */
+@media print {
+    .btn {
+        display: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -253,31 +288,48 @@ $conn->close();
                                     <div class="alert alert-danger"><?php echo $error; ?></div>
                                 <?php endif; ?>
 
-                                <?php if ($current_subscription): ?>
-                                    <div class="current-subscription mb-1">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h4>Your Current Subscription: <?php echo htmlspecialchars($current_subscription['package_name']); ?></h4>
-                                            </div>
-                                            <div class="card-body">
-                                                <p>
-                                                    <strong>Status:</strong> Active<br>
-                                                    <strong>Start Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['start_date'])); ?><br>
-                                                    <strong>Renewal Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['end_date'])); ?>
-                                                </p>
-                                                <?php if ($current_package_id != 3 && !$is_room_with_package_4): // Don't show cancel for Premium or Room package 4 ?>
-                                                    <form method="post">
-                                                        <button type="submit" name="cancel_subscription" class="btn btn-danger" style="display:none;">Cancel Subscription</button>
-                                                    </form>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="alert alert-info">
-                                        You don't have an active subscription.
-                                    </div>
-                                <?php endif; ?>
+<?php if ($current_subscription): ?>
+    <div class="current-subscription mb-1">
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Current Subscription: <?php echo htmlspecialchars($current_subscription['package_name']); ?></h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Status:</strong> Active<br>
+                    <strong>Start Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['start_date'])); ?><br>
+                    <strong>Renewal Date:</strong> <?php echo date('M d, Y', strtotime($current_subscription['end_date'])); ?>
+                </p>
+                
+
+
+
+<a href="generate_agreement.php" class="btn btn-success mb-3 open_in_browser" target="_blank">
+<i class="fas fa-download me-2"></i>Download Service Agreement
+</a>
+
+
+
+
+
+
+
+
+
+                
+                <?php if ($current_package_id != 3 && !$is_room_with_package_4): ?>
+                    <form method="post">
+                        <button type="submit" name="cancel_subscription" class="btn btn-danger" style="display:none;">Cancel Subscription</button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="alert alert-info">
+        You don't have an active subscription.
+    </div>
+<?php endif; ?>
 
                                 <div class="available-packages mb-1">
                                     <h5 class="mb-4">Available Subscription Plans</h5>
@@ -595,5 +647,7 @@ data-tooltip="WhatsApp: 9004998995">
 </span>
 </a>
 </div>
+
+
 </body>
 </html>

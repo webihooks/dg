@@ -67,11 +67,6 @@ $primary_color = $theme_data['primary_color'] ?? '#000000';
 $secondary_color = $theme_data['secondary_color'] ?? '#ffffff';
 
 
-
-
-
-
-
 // Only for Role is User
 if ($is_restuarant_user) {
     require_once 'includes/restaurant_functions.php';
@@ -90,21 +85,26 @@ if ($is_restuarant_user) {
     require_once 'includes/share_section.php';
     require_once 'includes/footer.php';
 }
+// Only for Role is User
+
+
+
+
 
 
 
 // Only for Role is Room
 if ($is_room_user) {
-    // Rooms Start
-        // Write code here for room 
-    // Rooms End
+    require_once 'includes/room_functions.php';
+    require_once 'includes/room_header.php';
+    require_once 'includes/room_profile_header.php';
+    require_once 'includes/available_rooms.php';
+    require_once 'includes/room_ratings.php';
+    require_once 'includes/room_qr_codes.php';
+    require_once 'includes/room_share_section.php';
+    require_once 'includes/room_footer.php';
 }
-
-
-
-
-
-
+// Only for Role is Room
 
 
 // Close connection

@@ -98,7 +98,7 @@ try {
                 device_type = '$deviceType', 
                 platform = '$platform', 
                 source = '$source',
-                is_active = 1, // FORCE REACTIVATION
+                is_active = 1, 
                 updated_at = NOW() 
                 WHERE player_id = '$playerId' AND user_id = $userId";
         

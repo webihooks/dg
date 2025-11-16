@@ -1682,6 +1682,12 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="theme.php">Themes</a>
                   </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="card_design.php">Cards Design</a>
+                  </li>
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="standy_design.php">Sticker Design</a>
+                  </li>
                </ul>
             </div>
          </li>

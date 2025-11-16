@@ -372,36 +372,7 @@ if (isAndroidWebView()) {
     </style>
 </head>
 <body class="restaurant">
-<?php if ($show_subscription_popup): ?>
-<!-- Overlay -->
-<div class="overlay" id="subscriptionOverlay"></div>
 
-<!-- Subscription Popup -->
-<div class="subscription-popup" id="subscriptionPopup">
-    <!-- <button type="button" class="btn-close" onclick="closeSubscriptionPopup()"></button> -->
-    <h3>Subscription Expired</h3>
-    <p>You don't have any active subscription. Please subscribe to continue using our services.</p>
-    <button class="btn btn-primary" onclick="redirectToSubscription()">Subscribe Now</button>
-</div>
-
-<script>
-    // Show the popup when page loads
-    window.onload = function() {
-        document.getElementById('subscriptionOverlay').style.display = 'block';
-        document.getElementById('subscriptionPopup').style.display = 'block';
-    };
-    
-    function closeSubscriptionPopup() {
-        document.getElementById('subscriptionOverlay').style.display = 'none';
-        document.getElementById('subscriptionPopup').style.display = 'none';
-    }
-    
-    function redirectToSubscription() {
-        // Replace with your actual subscription page URL
-        window.location.href = 'login.php';
-    }
-</script>
-<?php endif; ?>
 
 <?php if (in_array($user_id, [67, 70, 71, 72, 73])): ?>
     <a href="https://deegeecard.com/pawankoliwada" 
