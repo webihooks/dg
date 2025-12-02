@@ -24,7 +24,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'samesite' => 'None'
     ]);
     
-    session_start();
+    // session_start();
 }
 
 // =========================================

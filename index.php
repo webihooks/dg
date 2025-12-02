@@ -428,7 +428,7 @@
                     <a href="contact.php" class="text-gray-600 hover:text-primary font-medium py-2">Contact</a>
                     <a href="help.php" class="text-gray-600 hover:text-primary font-medium py-2">Help</a>
                     <a href="login.php" class="text-gray-600 hover:text-primary font-medium py-2">Login</a>
-                    <a href="register.php" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary font-medium text-center">Register</a>
+                    <!-- <a href="register.php" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary font-medium text-center">Register</a> -->
                 </div>
             </div>
         </div>
@@ -561,7 +561,9 @@ try {
                         <i class="fab fa-android text-2xl text-white"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-4">Your Own Android App</h3>
-                    <p class="text-white">Increase loyalty with a seamless app under your restaurant's name.</p>
+                    <p class="text-white">Increase loyalty with a seamless app under your restaurant's name.
+                        <br>
+                        <span style="float:right;">*Condition apply</span></p>
                 </div>
                 
                 <!-- Feature 3 -->
@@ -680,18 +682,18 @@ try {
                     <h3 class="footer-heading">About DeeGeeCard</h3>
                     <p class="text-gray-400 mb-6">DeeGeeCard empowers restaurants to go fully digital with their own branded ordering website and mobile app — no commissions, no middlemen. In just 60 minutes, we set up your ordering platform, admin app, QR code menus, and WhatsApp marketing tools so you can accept orders, receive direct payments, and grow customer loyalty.</p>
                     <div class="flex">
-                        <a href="index.php" class="social-icon">
+                        <a href="https://www.facebook.com/deegeecard" class="social-icon">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="index.php" class="social-icon">
+                        <!-- <a href="index.php" class="social-icon">
                             <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="index.php" class="social-icon">
+                        </a> -->
+                        <a href="https://www.instagram.com/deegeecard" class="social-icon">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="index.php" class="social-icon">
+                        <!-- <a href="index.php" class="social-icon">
                             <i class="fab fa-linkedin-in"></i>
-                        </a>
+                        </a> -->
                     </div>
                 </div>
                 

@@ -63,7 +63,9 @@
                <li class="menu-title">Products</li>
 
                <li class="nav-item">
-                    <a class="nav-link" href="scan_to_csv.php">
+                    <a class="nav-link" target="_blank" href="https://gemini.google.com/share/3ee3ee3479ea">
+                         <!-- https://gemini.google.com/share/f8146ff4f91c -->
+                         <!-- https://gemini.google.com/share/dd000976a2ca -->
                          <span class="nav-icon">
                               <iconify-icon icon="bx:scan"></iconify-icon>
                          </span>

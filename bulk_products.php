@@ -1,5 +1,4 @@
 <?php
-// Error reporting at the very top
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -39,7 +38,7 @@ $stmt->bind_result($user_name);
 $stmt->fetch();
 $stmt->close();
 
-// Create user-specific products table if it doesn't exist
+// Create user-specific products table if it doesn't exist with is_active field
 $table_name = "products_" . $user_id;
 $create_table_sql = "CREATE TABLE IF NOT EXISTS $table_name (
     id INT(11) AUTO_INCREMENT PRIMARY KEY,
@@ -51,8 +50,10 @@ $create_table_sql = "CREATE TABLE IF NOT EXISTS $table_name (
     tag_id INT(11),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active TINYINT(1) DEFAULT 1, -- Added is_active field
     INDEX idx_product_name (product_name),
-    INDEX idx_tag_id (tag_id)
+    INDEX idx_tag_id (tag_id),
+    INDEX idx_is_active (is_active)
 )";
 
 if (!$conn->query($create_table_sql)) {
@@ -92,14 +93,16 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                 $errors = [];
                 
                 // Prepare insert and update statements for user-specific table
+                // Updated to include is_active field
                 $insert_sql = "INSERT INTO $table_name (
                     product_name, 
                     description, 
                     price, 
                     quantity, 
                     image_path,
-                    tag_id
-                ) VALUES (?, ?, ?, ?, ?, ?)";
+                    tag_id,
+                    is_active
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 
                 $update_sql = "UPDATE $table_name SET 
                     product_name = ?, 
@@ -108,6 +111,7 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                     quantity = ?, 
                     image_path = ?,
                     tag_id = ?,
+                    is_active = ?,
                     updated_at = NOW()
                 WHERE id = ?";
                 
@@ -128,8 +132,8 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                         // Check if this is an update or insert operation
                         if ($has_product_id) {
                             // Update operation - CSV has product_id
-                            if (count($data) < 7) {
-                                $errors[] = "Row with data: " . implode(',', $data) . " - Insufficient columns for update (needs product_id and tag_id)";
+                            if (count($data) < 8) { // Updated from 7 to 8 to include is_active
+                                $errors[] = "Row with data: " . implode(',', $data) . " - Insufficient columns for update (needs product_id, tag_id, and is_active)";
                                 $error_count++;
                                 continue;
                             }
@@ -141,10 +145,11 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                             $quantity = trim($data[4] ?? '');
                             $image_path = trim($data[5] ?? '');
                             $tag_id = trim($data[6] ?? '');
+                            $is_active_input = trim($data[7] ?? '');
                         } else {
                             // Insert operation - no product_id in CSV
-                            if (count($data) < 6) {
-                                $errors[] = "Row with data: " . implode(',', $data) . " - Insufficient columns (needs tag_id)";
+                            if (count($data) < 7) { // Updated from 6 to 7 to include is_active
+                                $errors[] = "Row with data: " . implode(',', $data) . " - Insufficient columns (needs tag_id and is_active)";
                                 $error_count++;
                                 continue;
                             }
@@ -156,6 +161,7 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                             $quantity = trim($data[3] ?? '');
                             $image_path = trim($data[4] ?? '');
                             $tag_id = trim($data[5] ?? '');
+                            $is_active_input = trim($data[6] ?? '');
                         }
                         
                         // Validate required fields
@@ -201,16 +207,39 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                         }
                         $tag_id = !empty($tag_id) ? (int)$tag_id : null;
                         
+                        // Validate and set is_active
+                        $is_active = 1; // Default to active
+                        if (!empty($is_active_input)) {
+                            $is_active_input = strtolower($is_active_input);
+                            if (in_array($is_active_input, ['1', 'true', 'yes', 'active', 'y'])) {
+                                $is_active = 1;
+                            } elseif (in_array($is_active_input, ['0', 'false', 'no', 'inactive', 'n'])) {
+                                $is_active = 0;
+                            } elseif (is_numeric($is_active_input)) {
+                                $is_active = (int)$is_active_input;
+                                if ($is_active != 0 && $is_active != 1) {
+                                    $errors[] = "Row with data: " . implode(',', $data) . " - is_active must be 0 or 1";
+                                    $error_count++;
+                                    continue;
+                                }
+                            } else {
+                                $errors[] = "Row with data: " . implode(',', $data) . " - Invalid is_active value. Use 1/0, yes/no, true/false";
+                                $error_count++;
+                                continue;
+                            }
+                        }
+                        
                         // Process based on whether we have a product_id or not
                         if ($product_id) {
                             // Update existing product in user-specific table
-                            $update_stmt->bind_param("ssdisii", 
+                            $update_stmt->bind_param("ssdisiii", 
                                 $product_name, 
                                 $description, 
                                 $price, 
                                 $quantity, 
                                 $image_path,
                                 $tag_id,
+                                $is_active, // Added is_active parameter
                                 $product_id
                             );
                             
@@ -227,13 +256,14 @@ if (isset($_POST['import_csv']) && isset($_FILES['csv_file'])) {
                             }
                         } else {
                             // Insert new product into user-specific table
-                            $insert_stmt->bind_param("ssdisi", 
+                            $insert_stmt->bind_param("ssdisii", 
                                 $product_name, 
                                 $description, 
                                 $price, 
                                 $quantity, 
                                 $image_path,
-                                $tag_id
+                                $tag_id,
+                                $is_active // Added is_active parameter
                             );
                             
                             if ($insert_stmt->execute()) {
@@ -282,15 +312,17 @@ if (isset($_GET['download_sample'])) {
     if ($type === 'update') {
         header('Content-Disposition: attachment; filename="products_update_sample.csv"');
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['Product ID', 'Product Name', 'Description', 'Price', 'Quantity', 'Image Path', 'Tag ID']);
-        fputcsv($output, ['1', 'Chicken Manchow Soup', 'Updated description', '400.00', '200', '', '101']);
-        fputcsv($output, ['2', 'Veg Fried Rice', 'Updated description', '350.00', '150', '', '102']);
+        // Updated header to include is_active
+        fputcsv($output, ['Product ID', 'Product Name', 'Description', 'Price', 'Quantity', 'Image Path', 'Tag ID', 'Is Active']);
+        fputcsv($output, ['1', 'Chicken Manchow Soup', 'Updated description', '400.00', '200', '', '101', '1']);
+        fputcsv($output, ['2', 'Veg Fried Rice', 'Updated description', '350.00', '150', '', '102', '1']);
     } else {
         header('Content-Disposition: attachment; filename="products_new_sample.csv"');
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['Product Name', 'Description', 'Price', 'Quantity', 'Image Path', 'Tag ID']);
-        fputcsv($output, ['New Product 1', 'Description for product 1', '200.00', '100', '', '101']);
-        fputcsv($output, ['New Product 2', 'Description for product 2', '300.00', '50', '', '102']);
+        // Updated header to include is_active
+        fputcsv($output, ['Product Name', 'Description', 'Price', 'Quantity', 'Image Path', 'Tag ID', 'Is Active']);
+        fputcsv($output, ['New Product 1', 'Description for product 1', '200.00', '100', '', '101', '1']);
+        fputcsv($output, ['New Product 2', 'Description for product 2', '300.00', '50', '', '102', '1']);
     }
     
     fclose($output);
@@ -353,9 +385,10 @@ $conn->close();
                                     <label for="csv_file">CSV File</label>
                                     <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv" required>
                                     <small class="form-text text-muted">
-                                        For new products: Product Name, Description, Price, Quantity, Image Path, Tag ID<br>
-                                        For updates: Product ID, Product Name, Description, Price, Quantity, Image Path, Tag ID<br>
-                                        Note: Price can be in any format (₹200, $5.99, 150.00)
+                                        For new products: Product Name, Description, Price, Quantity, Image Path, Tag ID, Is Active (1/0)<br>
+                                        For updates: Product ID, Product Name, Description, Price, Quantity, Image Path, Tag ID, Is Active (1/0)<br>
+                                        Note: Price can be in any format (₹200, $5.99, 150.00)<br>
+                                        Is Active: 1 for active, 0 for inactive (defaults to 1 if empty)
                                     </small>
                                 </div>
 
@@ -372,18 +405,18 @@ $conn->close();
                                 <div class="mb-4">
                                     <h6>For New Products:</h6>
                                     <pre>
-Product Name,Description,Price,Quantity,Image Path,Tag ID
-"Chicken Manchow Soup","Delicious soup with chicken",200.00,100,"images/soup.jpg",101
-"Veg Fried Rice","Vegetable fried rice with spices",150.00,50,"images/rice.jpg",102
+Product Name,Description,Price,Quantity,Image Path,Tag ID,Is Active
+"Chicken Manchow Soup","Delicious soup with chicken",200.00,100,"images/soup.jpg",101,1
+"Veg Fried Rice","Vegetable fried rice with spices",150.00,50,"images/rice.jpg",102,1
                                     </pre>
                                 </div>
                                 
                                 <div>
                                     <h6>For Updating Existing Products:</h6>
                                     <pre>
-Product ID,Product Name,Description,Price,Quantity,Image Path,Tag ID
-1,"Chicken Manchow Soup","Updated description",400.00,200,"images/soup_new.jpg",101
-2,"Veg Fried Rice","Updated description",350.00,150,"images/rice_new.jpg",102
+Product ID,Product Name,Description,Price,Quantity,Image Path,Tag ID,Is Active
+1,"Chicken Manchow Soup","Updated description",400.00,200,"images/soup_new.jpg",101,1
+2,"Veg Fried Rice","Updated description",350.00,150,"images/rice_new.jpg",102,0
                                     </pre>
                                 </div>
                             </div>

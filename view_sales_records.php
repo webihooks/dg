@@ -1250,6 +1250,7 @@ function sendWhatsAppMessage(phoneNumber, contactName) {
     const contactInfo = `<?= htmlspecialchars($logged_in_user_info['name']) ?> – <?= htmlspecialchars($logged_in_user_info['phone']) ?>`;
     
     // WhatsApp message content
+    // ✅ Your Own Android App: Build customer loyalty with a dedicated app under your restaurant name.
     const message = `
 ${greeting}
 
@@ -1261,28 +1262,26 @@ Introducing DeeGeeCard – Your own branded food ordering system with ZERO commi
 
 Here's what you get:
 
-✅ Your Own Ordering Website (Personalized Domain): Just like S.w.i.g.g.y / Z.o.m.a.t.o – but branded for your restaurant, with zero commissions.
+✅ *Your Own Ordering Website (Personalized Domain):* Just like S.w.i.g.g.y / Z.o.m.a.t.o – but branded for your restaurant, with zero commissions.
 
-✅ Your Own Android App: Build customer loyalty with a dedicated app under your restaurant name.
+✅ *Admin Management App:* Accept/reject orders, update menu & prices instantly from your phone.
 
-✅ Admin Management App: Accept/reject orders, update menu & prices instantly from your phone.
+✅ *1000 Personalized Scan-to-Order QR Cards + 8 QR Table Standees!:* Let customers order instantly for delivery or straight from their dining table. Turn every card and standee into your own self-ordering station — boosting reorders, speed, and convenience!
 
-✅ KOT & Bill Printing: Generate kitchen order tickets and bills in just one click. 🧾
+✅ *KOT & Bill Printing:* Generate kitchen order tickets and bills in just one click. 🧾
 
-✅ Full Store Control: Set store timings, delivery charges, GST, discounts, coupon codes, and menu categories easily. ⚙️
+✅ *Full Store Control:* Set store timings, delivery charges, GST, discounts, coupon codes, and menu categories easily. ⚙️
 
-✅ 1000 Personalized QR Visiting Cards & 8 QR Table Standees: Let customers order directly or from their table — boost reorders & speed up service.
+✅ *Bulk WhatsApp Marketing Panel:* Get 10,000 FREE credits to send offers & updates to your customers directly. 📢
 
-✅ Bulk WhatsApp Marketing Panel: Get 10,000 FREE credits to send offers & updates to your customers directly. 📢
+✅ *Direct Payments:* Receive UPI/card payments instantly in your account — 0% platform fee.
 
-✅ Direct Payments: Receive UPI/card payments instantly in your account — 0% platform fee.
+✅ *Reply to Reviews Instantly:* Respond to customer reviews directly via WhatsApp in one click. 💬
 
-✅ Reply to Reviews Instantly: Respond to customer reviews directly via WhatsApp in one click. 💬
+💡 *Free Integrations:* Google, Instagram, Facebook, YouTube & Maps – make your restaurant easily discoverable.
 
-💡 Free Integrations: Google, Instagram, Facebook, YouTube & Maps – make your restaurant easily discoverable.
-
-🔥 Stop paying commissions. Start keeping 100% of your profits.
-Your restaurant's digital revolution starts TODAY!
+🔥 *Stop paying commissions. Start keeping 100% of your profits.*
+*Your restaurant's digital revolution starts TODAY!*
 
 All this for just ₹9,999/year (No Hidden Costs)
 
@@ -1328,6 +1327,7 @@ function sendWhatsAppMessageHindi(phoneNumber, contactName) {
     const contactInfo = `<?= htmlspecialchars($logged_in_user_info['name']) ?> – <?= htmlspecialchars($logged_in_user_info['phone']) ?>`;
     
     // WhatsApp message content in Hindi
+    // ✅ *आपका खुद का एंड्रॉइड ऐप:* अपने रेस्टोरेंट के नाम से ऐप बनवाएं और ग्राहकों की वफादारी बढ़ाएं।
     const message = `
 ${greeting}
 
@@ -1341,15 +1341,14 @@ ${greeting}
 
 ✅ *आपकी खुद की वेबसाइट (पर्सनलाइज़्ड डोमेन):* बिल्कुल S.w.i.g.g.y / Z.o.m.a.t.o जैसी वेबसाइट, लेकिन आपके रेस्टोरेंट के नाम से – बिना किसी कमीशन के।
 
-✅ *आपका खुद का एंड्रॉइड ऐप:* अपने रेस्टोरेंट के नाम से ऐप बनवाएं और ग्राहकों की वफादारी बढ़ाएं।
-
 ✅ *एडमिन मैनेजमेंट ऐप:* मोबाइल से ही ऑर्डर स्वीकारें/रिजेक्ट करें, मेनू और दाम तुरंत अपडेट करें।
 
+✅ *1000 पर्सनलाइज़्ड स्कैन-टू-ऑर्डर QR कार्ड्स + 8 QR टेबल स्टैंडीज़!* कस्टमर अब तुरंत डिलीवरी के लिए या सीधे अपनी टेबल से ऑर्डर कर सकते हैं।
+हर कार्ड और स्टैंडी को अपना सेल्फ-ऑर्डरिंग स्टेशन बनाएं — रीऑर्डर बढ़ाएं, सर्विस स्पीड बढ़ाएं और सुविधा भी!
+        
 ✅ *KOT और बिल प्रिंटिंग:* सिर्फ एक क्लिक में किचन ऑर्डर टिकट और बिल निकालें। 🧾
 
 ✅ *फुल स्टोर कंट्रोल:* स्टोर टाइमिंग, डिलीवरी चार्ज, GST, डिस्काउंट, कूपन कोड और कैटेगरी – सबकुछ आसानी से सेट करें। ⚙️
-
-✅ *1000 QR विजिटिंग कार्ड और 8 QR टेबल स्टैंडीज़ FREE:* ग्राहक QR स्कैन करके डायरेक्ट ऑर्डर कर सकेंगे।
 
 ✅ *बुल्क व्हाट्सएप मार्केटिंग पैनल:* 10,000 फ्री क्रेडिट्स के साथ ऑफर्स और अपडेट भेजें। 📢
 
