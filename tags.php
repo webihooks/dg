@@ -360,7 +360,7 @@ $conn->close();
                 tag: {
                     required: true,
                     minlength: 2,
-                    maxlength: 50
+                    maxlength: 150
                 }
             },
             messages: {
