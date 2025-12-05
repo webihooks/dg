@@ -1490,6 +1490,9 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
         
         message += `🔎 *Track Your Order:*\n`;
         message += `${orderStatusUrl}\n\n`;
+
+
+        message += `⚠ *To activate the tracking link above, please reply with 'OK' or save our number.*\n\n`;
         
         message += `❤️ *Thank you for choosing ${businessName}!*\n`;
         message += `We truly appreciate your business.`;
@@ -1559,6 +1562,8 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         } else {
             message += `🔗 https://deegeecard.com\n\n`;
         }
+        
+        message += `⚠ *To activate the tracking link above, please reply with 'OK' or save our number.*\n\n`;
         
         message += `❤️ *We apologize for any inconvenience.*\n`;
         message += `Thank you for considering ${businessName}!\n\n`;
@@ -1742,15 +1747,15 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="business.php">Business</a>
                   </li>
-                  <li class="sub-nav-item">
+                  <!-- <li class="sub-nav-item">
                      <a class="sub-nav-link" href="bank-details.php">Bank Details</a>
-                  </li>
+                  </li> -->
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="qr-code-details.php">QR Code Details</a>
                   </li>
-                  <li class="sub-nav-item">
+                  <!-- <li class="sub-nav-item">
                      <a class="sub-nav-link" href="upload_apk.php">Upload APK</a>
-                  </li>
+                  </li> -->
                </ul>
             </div>
          </li>

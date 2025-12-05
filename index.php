@@ -546,7 +546,7 @@ try {
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                <!-- Feature 1 -->
+                
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-globe text-2xl text-white"></i>
@@ -554,8 +554,17 @@ try {
                     <h3 class="text-xl font-bold mb-4">Your Own Ordering Website</h3>
                     <p class="text-white">Just like your current Delivery Partner App, but branded for YOUR restaurant. Zero commission fees.</p>
                 </div>
+
                 
-                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Admin Management App for Desktop & Mobile</h3>
+                    <p class="text-white">Accept/reject orders, update menus & prices in real-time from your phone.</p>
+                </div>
+                
+
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fab fa-android text-2xl text-white"></i>
@@ -564,15 +573,6 @@ try {
                     <p class="text-white">Increase loyalty with a seamless app under your restaurant's name.
                         <br>
                         <span style="float:right;">*Condition apply</span></p>
-                </div>
-                
-                <!-- Feature 3 -->
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt text-2xl text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Admin Management App</h3>
-                    <p class="text-white">Accept/reject orders, update menus & prices in real-time from your phone.</p>
                 </div>
 
                 <div class="feature-card">
@@ -596,8 +596,8 @@ try {
                     <div class="feature-icon">
                         <i class="fas fa-qrcode text-2xl text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-4">QR Code Visiting Cards & Table Standees</h3>
-                    <p class="text-white">1000 QR code cards & 8 table standees to turn every table into a self-ordering station.</p>
+                    <h3 class="text-xl font-bold mb-4">Personalized Scan-to-Order QR Cards & Table Standees</h3>
+                    <p class="text-white">1000 Personalized Scan-to-Order QR Cards & 8 table standees to turn every table into a self-ordering station.</p>
                 </div>
                 
                 <!-- Feature 5 -->
@@ -658,7 +658,7 @@ try {
             </div>
             
             <div class="text-center mb-12">
-                <h3 class="text-5xl font-bold mb-6">All this for just ₹9,999/year</h3>
+                <h3 class="text-5xl font-bold mb-6">All this for just ₹9,999/year <span style="text-decoration: line-through; opacity: 0.5;">₹20,000</span></h3>
                 <p class="text-3xl mb-8">We set everything up for you. Go live the same day!</p>
                 <a href="tel:+919819411026" class="cta-button">CALL US NOW TO GET STARTED</a>
                 <br>

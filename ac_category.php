@@ -17,6 +17,7 @@
    $success_message = '';
    $error_message = '';
    
+   
    // Get user role for menu inclusion
    $role_sql = "SELECT role FROM users WHERE id = ?";
    $role_stmt = $conn->prepare($role_sql);

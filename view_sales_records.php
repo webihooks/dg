@@ -1264,7 +1264,7 @@ Here's what you get:
 
 ✅ *Your Own Ordering Website (Personalized Domain):* Just like S.w.i.g.g.y / Z.o.m.a.t.o – but branded for your restaurant, with zero commissions.
 
-✅ *Admin Management App:* Accept/reject orders, update menu & prices instantly from your phone.
+✅ *Admin Management App for Desktop & Mobile:* Accept/reject orders, update menu & prices instantly from your phone.
 
 ✅ *1000 Personalized Scan-to-Order QR Cards + 8 QR Table Standees!:* Let customers order instantly for delivery or straight from their dining table. Turn every card and standee into your own self-ordering station — boosting reorders, speed, and convenience!
 
@@ -1341,7 +1341,7 @@ ${greeting}
 
 ✅ *आपकी खुद की वेबसाइट (पर्सनलाइज़्ड डोमेन):* बिल्कुल S.w.i.g.g.y / Z.o.m.a.t.o जैसी वेबसाइट, लेकिन आपके रेस्टोरेंट के नाम से – बिना किसी कमीशन के।
 
-✅ *एडमिन मैनेजमेंट ऐप:* मोबाइल से ही ऑर्डर स्वीकारें/रिजेक्ट करें, मेनू और दाम तुरंत अपडेट करें।
+✅ *एडमिन मैनेजमेंट ऐप for Desktop & Mobile:* मोबाइल से ही ऑर्डर स्वीकारें/रिजेक्ट करें, मेनू और दाम तुरंत अपडेट करें।
 
 ✅ *1000 पर्सनलाइज़्ड स्कैन-टू-ऑर्डर QR कार्ड्स + 8 QR टेबल स्टैंडीज़!* कस्टमर अब तुरंत डिलीवरी के लिए या सीधे अपनी टेबल से ऑर्डर कर सकते हैं।
 हर कार्ड और स्टैंडी को अपना सेल्फ-ऑर्डरिंग स्टेशन बनाएं — रीऑर्डर बढ़ाएं, सर्विस स्पीड बढ़ाएं और सुविधा भी!
