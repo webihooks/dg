@@ -138,7 +138,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_design'])) {
                 'qr_content' => $_POST['qr_content'] ?? '',
                 'scan_text' => $_POST['scan_text'] ?? 'SCAN ME TO ORDER',
                 'website_text' => $_POST['website_text'] ?? '',
-                'business_name' => $_POST['business_name_front'] ?? ($user_data['business_name'] ?? 'Business Name')
+                'business_name' => $_POST['business_name_front'] ?? ($user_data['business_name'] ?? 'Business Name'),
+                'text_colors' => [
+                    'business_name' => $_POST['business_name_front_color'] ?? '#ffffff',
+                    'website' => $_POST['website_front_color'] ?? '#ffffff'
+                ]
             ],
             'back_design' => [
                 'cmyk' => [
@@ -151,7 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_design'])) {
                 'address' => $_POST['business_address'] ?? '',
                 'phone1' => $_POST['phone1'] ?? '',
                 'phone2' => $_POST['phone2'] ?? '',
-                'business_name' => $_POST['business_name_back'] ?? ($user_data['business_name'] ?? 'Business Name')
+                'business_name' => $_POST['business_name_back'] ?? ($user_data['business_name'] ?? 'Business Name'),
+                'text_colors' => [
+                    'business_name' => $_POST['business_name_back_color'] ?? '#ffffff',
+                    'address' => $_POST['address_color'] ?? '#ffffff',
+                    'contact' => $_POST['contact_color'] ?? '#ffffff'
+                ]
             ]
         ]);
 
@@ -252,7 +261,21 @@ $conn->close();
 <head>
     <meta charset="utf-8" />
     <title>Business Card Designer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fb5b29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+    <meta name="msapplication-TileColor" content="#fb5b29">
+    <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+    <meta name="application-name" content="DeeGeeCard">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- PWA Meta Tags -->
+    
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -262,7 +285,28 @@ $conn->close();
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-.saved-cards-section{margin-top:30px;padding:20px;background:#f8f9fa;border-radius:10px;border:1px solid #e9ecef}.card-thumbnail{width:100%;max-width:200px;height:120px;object-fit:cover;border:2px solid #dee2e6;border-radius:8px;transition:.3s}.card-thumbnail:hover{border-color:#007bff;transform:scale(1.05)}.card-action-buttons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.card-action-buttons .btn{flex:1;min-width:80px;font-size:12px;padding:6px 12px}.empty-state{text-align:center;padding:40px 20px;color:#6c757d}.empty-state i{font-size:48px;margin-bottom:15px;color:#dee2e6}.business-name-back,.business-name-front{text-transform:uppercase;word-wrap:break-word}.designer-container{display:grid;grid-template-columns:350px 1fr;gap:30px;margin-top:20px}.controls-panel{background:#f8f9fa;padding:25px;border-radius:15px;border:1px solid #e9ecef;height:fit-content}.card-preview-container{display:flex;flex-direction:column;align-items:center;gap:30px;width:100%}.business-card{width:630px;height:390px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 8px 30px rgba(0,0,0,.15);background:#000}.business-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,.2)}.color-controls{margin-bottom:25px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.cmyk-picker,.form-group{margin-bottom:15px}.cmyk-picker label{display:block;margin-bottom:8px;font-weight:500}.color-preview{width:100%;height:60px;border:2px solid #ddd;margin-top:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333}.tab-content{margin-top:20px}.export-controls{margin-top:25px;display:flex;gap:12px;flex-wrap:wrap}.export-controls .btn{transition:.3s;border-radius:8px;font-weight:500;flex:1;min-width:120px}.export-controls .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}.card-element{position:absolute;user-select:none;font-family:Arial,sans-serif}.logo-container{position:absolute;overflow:hidden;display:flex;align-items:center;justify-content:center}.logo-container img,.qr-code-container img{width:100%;height:100%;object-fit:contain}.text-controls{margin:20px 0;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.form-group label{font-weight:500;margin-bottom:5px;display:block}.card-preview-wrapper{position:relative;width:100%;display:flex;justify-content:center;min-height:200px}.card-label{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#007bff;color:#fff;padding:5px 15px;border-radius:20px;font-size:14px;font-weight:700;z-index:10}.better_view{display:none;background:#fff3cd;border:1px solid #ffeaa7;color:#856404;padding:15px;border-radius:8px;margin-bottom:20px;text-align:center;font-weight:500}.better_view i{margin-right:8px;color:#f39c12}.back-card,.front-card{background:#000;color:#fff}.business-name-front{position:absolute;top:23px;left:30px;font-size:20px;font-weight:700;color:#fff}.qr-code-container,.scan-text{position:absolute;left:50%;width:240px;margin-left:-120px}.contact-item i,.scan-text,.website-front i{color:#fb8933}.scan-text{bottom:64px;font-size:22px;text-align:center;z-index:99;letter-spacing:.02em;font-weight:700}.website-front{position:absolute;bottom:25px;right:30px;font-size:16px;opacity:.9;display:flex;align-items:center;gap:8px;color:#fff}.qr-code-container{top:50%;height:260px;background:#fff;border-radius:8px;padding:8px 8px 30px;display:flex;align-items:center;justify-content:center;margin-top:-130px}.address-section,.business-name-back,.contact-info{left:290px;position:absolute;color:#fff}.qr-button-group{display:flex;gap:10px;align-items:flex-start}.color-input-group .form-control,.qr-button-group .form-control{flex:1}.qr-button-group .btn{white-space:nowrap}.business-name-back{top:75px;font-size:20px;font-weight:700;text-align:left;max-width:300px}.address-section{top:135px;font-size:16px;line-height:1.6;max-width:300px;display:flex;align-items:flex-start;gap:10px;text-align:left}.address-section i{margin-top:2px;color:#fb8933;flex-shrink:0}.contact-item,.logo-back{align-items:center;display:flex}.contact-info{bottom:50px;font-size:18px;line-height:1.8;text-align:right}.contact-item{gap:10px;margin-bottom:5px;justify-content:flex-end}.contact-item i{flex-shrink:0}.logo-back{position:absolute;top:0;left:40px;width:220px;height:350px;border-radius:0 0 30px 30px;background-color:#fb8933;justify-content:center;padding:20px}.logo-back img{width:100%;height:auto;object-fit:contain;border-radius:0 0 25px 25px}.nav-tabs .nav-link.active{font-weight:700;border-bottom:3px solid #007bff}.saved-designs{margin-top:20px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.card_mobile_scanner{background:url(images/card_mobile_scanner.png) center top/100% auto no-repeat;height:310px;position:absolute;right:0;bottom:55px;width:310px}.card_logo{background:url(images/card_logo.png) center top/100% auto no-repeat;width:140px;height:35px;position:absolute;left:30px;bottom:20px}.bottom_line,.top_line{background:#fb8933;height:35px;position:absolute;width:435px}.top_line{left:0;top:20px;border-radius:0 30px 30px 0}.bottom_line{right:0;bottom:20px;border-radius:30px 0 0 30px}.front_logo{width:130px;height:130px;right:30px;top:20px}.front_logo img{width:100%;height:100%}.color-input-group{display:flex;align-items:center;gap:10px;margin-bottom:10px}.color-input-group .form-control-color{width:50px;height:38px;padding:3px}.color-preview-small{width:30px;height:30px;display:inline-block;border:1px solid #ddd;margin-left:10px;vertical-align:middle;border-radius:4px}.mobile-menu-toggle{display:none;background:#007bff;color:#fff;border:none;padding:12px 15px;border-radius:8px;margin-bottom:20px;width:100%;font-weight:500;font-size:16px}@media (max-width:1200px){.designer-container{grid-template-columns:300px 1fr;gap:20px}.business-card{width:500px;height:310px}.qr-code-container{width:180px;height:200px;margin-left:-90px;margin-top:-100px}.logo-back{width:180px;height:280px}.business-name-front{max-width:200px;font-size:18px}.address-section,.business-name-back{max-width:250px;left:250px}.business-name-back{font-size:18px}.contact-info{left:250px}.website-front{left:240px}}@media (max-width:992px){.designer-container{grid-template-columns:1fr;gap:20px}.controls-panel.active,.mobile-menu-toggle{display:block}.controls-panel{display:none;margin-top:15px}.card-preview-container{order:-1;margin-bottom:20px}.business-card{width:100%;max-width:450px;height:280px;margin:0 auto}.qr-code-container{width:150px;height:170px;margin-left:-75px;margin-top:-85px}.logo-back{width:150px;height:240px;left:30px}.business-name-front{max-width:180px;font-size:16px}.business-name-back{max-width:220px;font-size:16px;left:200px;top:60px}.address-section{left:200px;top:110px;max-width:220px;font-size:14px}.contact-info{left:200px;bottom:40px;font-size:16px}.website-front{left:200px;font-size:14px}.scan-text{font-size:18px;bottom:50px}.export-controls{flex-direction:column}.export-controls .btn{width:100%}}@media (max-width:768px){.better_view{display:flex;align-items:center;justify-content:center}.business-card{max-width:400px;height:250px}.qr-code-container{width:120px;height:140px;margin-left:-60px;margin-top:-70px}.logo-back{width:120px;height:200px;left:20px}.business-name-front{max-width:150px;font-size:14px;top:15px;left:20px}.business-name-back{max-width:180px;font-size:14px;left:160px;top:50px}.address-section{left:160px;top:90px;max-width:180px;font-size:12px}.contact-info{left:160px;bottom:30px;font-size:14px}.website-front{left:160px;font-size:12px;bottom:20px}.scan-text{font-size:16px;bottom:40px;width:200px;margin-left:-100px}.card_mobile_scanner{width:180px;height:150px;bottom:45px}.front_logo{width:100px;height:100px;right:20px;top:15px}.bottom_line,.top_line{height:25px}.card_logo{width:120px;height:30px;left:20px;bottom:15px}}@media (max-width:576px){.better_view{padding:12px;font-size:14px;margin-bottom:15px}.business-card{max-width:350px;height:220px}.qr-code-container{width:100px;height:120px;margin-left:-50px;margin-top:-60px}.logo-back{width:100px;height:170px;left:15px}.business-name-front{max-width:130px;font-size:12px;top:12px;left:15px}.business-name-back{max-width:150px;font-size:12px;left:130px;top:40px}.address-section{left:130px;top:75px;max-width:150px;font-size:11px}.contact-info{left:130px;bottom:25px;font-size:12px}.website-front{left:130px;font-size:11px;bottom:15px}.scan-text{font-size:14px;bottom:35px;width:180px;margin-left:-90px}.card_mobile_scanner{width:150px;height:120px;bottom:40px}.front_logo{width:80px;height:80px;right:15px;top:12px}.bottom_line,.top_line{height:20px}.top_line{top:15px}.bottom_line{bottom:15px}.card_logo{width:100px;height:25px;left:15px;bottom:12px}.color-input-group{flex-direction:column;align-items:stretch}.color-input-group .form-control-color{width:100%;height:45px}.color-preview-small{margin-left:0;margin-top:5px;width:100%;height:30px}.nav-tabs{flex-direction:column}.nav-tabs .nav-item{width:100%}.nav-tabs .nav-link{text-align:center}}@media (max-width:400px){.better_view{padding:10px;font-size:13px;margin-bottom:12px}.business-card{max-width:300px;height:190px}.qr-code-container{width:80px;height:100px;margin-left:-40px;margin-top:-50px}.logo-back{width:80px;height:140px;left:10px}.business-name-front{max-width:110px;font-size:11px}.business-name-back{max-width:130px;font-size:11px;left:110px}.address-section{left:110px;top:65px;max-width:130px;font-size:10px}.contact-info{left:110px;font-size:11px}.website-front{left:110px;font-size:10px}.scan-text{font-size:12px;bottom:30px}.card_mobile_scanner{width:120px;height:100px}}.business-card{min-height:190px}@media print{.better_view,.card-label,.controls-panel,.export-controls,.mobile-menu-toggle{display:none!important}.designer-container{grid-template-columns:1fr!important}.business-card{box-shadow:none!important;break-inside:avoid}}
+.saved-cards-section{margin-top:30px;padding:20px;background:#f8f9fa;border-radius:10px;border:1px solid #e9ecef}.card-thumbnail{width:100%;max-width:200px;height:120px;object-fit:cover;border:2px solid #dee2e6;border-radius:8px;transition:.3s}.card-thumbnail:hover{border-color:#007bff;transform:scale(1.05)}.card-action-buttons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.card-action-buttons .btn{flex:1;min-width:80px;font-size:12px;padding:6px 12px}.empty-state{text-align:center;padding:40px 20px;color:#6c757d}.empty-state i{font-size:48px;margin-bottom:15px;color:#dee2e6}.business-name-back,.business-name-front{text-transform:uppercase;word-wrap:break-word}.designer-container{display:grid;grid-template-columns:350px 1fr;gap:30px;margin-top:20px}.controls-panel{background:#f8f9fa;padding:25px;border-radius:15px;border:1px solid #e9ecef;height:fit-content}.card-preview-container{display:flex;flex-direction:column;align-items:center;gap:30px;width:100%}.business-card{width:630px;height:390px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 8px 30px rgba(0,0,0,.15);background:#000}.business-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,.2)}.color-controls{margin-bottom:25px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.cmyk-picker,.form-group{margin-bottom:15px}.cmyk-picker label{display:block;margin-bottom:8px;font-weight:500}.color-preview{width:100%;height:60px;border:2px solid #ddd;margin-top:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#333}.tab-content{margin-top:20px}.export-controls{margin-top:25px;display:flex;gap:12px;flex-wrap:wrap}.export-controls .btn{transition:.3s;border-radius:8px;font-weight:500;flex:1;min-width:120px}.export-controls .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}.card-element{position:absolute;user-select:none;font-family:Arial,sans-serif}.logo-container{position:absolute;overflow:hidden;display:flex;align-items:center;justify-content:center}.logo-container img,.qr-code-container img{width:100%;height:100%;object-fit:contain}.text-controls{margin:20px 0;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.form-group label{font-weight:500;margin-bottom:5px;display:block}.card-preview-wrapper{position:relative;width:100%;display:flex;justify-content:center;min-height:200px}.card-label{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#007bff;color:#fff;padding:5px 15px;border-radius:20px;font-size:14px;font-weight:700;z-index:10}.better_view{display:none;background:#fff3cd;border:1px solid #ffeaa7;color:#856404;padding:15px;border-radius:8px;margin-bottom:20px;text-align:center;font-weight:500}.better_view i{margin-right:8px;color:#f39c12}.back-card,.front-card{background:#000;color:#fff}.business-name-front{position:absolute;top:23px;left:30px;font-size:20px;font-weight:700;color:#fff}.qr-code-container,.scan-text{position:absolute;left:50%;width:240px;margin-left:-120px}.contact-item i,.scan-text,.website-front i{color:#fb8933}.scan-text{bottom:64px;font-size:22px;text-align:center;z-index:99;letter-spacing:.02em;font-weight:700}.website-front{position:absolute;bottom:25px;right:30px;font-size:16px;opacity:.9;display:flex;align-items:center;gap:8px;color:#fff}.qr-code-container{top:50%;height:260px;background:#fff;border-radius:8px;padding:8px 8px 30px;display:flex;align-items:center;justify-content:center;margin-top:-130px}.address-section,.business-name-back,.contact-info{left:290px;position:absolute;color:#fff}.qr-button-group{display:flex;gap:10px;align-items:flex-start}.color-input-group .form-control,.qr-button-group .form-control{flex:1}.qr-button-group .btn{white-space:nowrap}.business-name-back{top:75px;font-size:20px;font-weight:700;text-align:left;max-width:300px}.address-section{top:135px;font-size:16px;line-height:1.6;max-width:300px;display:flex;align-items:flex-start;gap:10px;text-align:left}.address-section i{margin-top:2px;color:#fb8933;flex-shrink:0}.contact-item,.logo-back{align-items:center;display:flex}.contact-info{bottom:50px;font-size:18px;line-height:1.8;text-align:right}.contact-item{gap:10px;margin-bottom:5px;justify-content:flex-end}.contact-item i{flex-shrink:0}.logo-back{position:absolute;top:0;left:40px;width:220px;height:350px;border-radius:0 0 30px 30px;background-color:#fb8933;justify-content:center;padding:20px}.logo-back img{width:100%;height:auto;object-fit:contain;border-radius:0 0 25px 25px}.nav-tabs .nav-link.active{font-weight:700;border-bottom:3px solid #007bff}.saved-designs{margin-top:20px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.card_mobile_scanner{background:url(images/card_mobile_scanner.png) center top/100% auto no-repeat;height:310px;position:absolute;right:0;bottom:55px;width:310px}.card_logo{background:url(images/card_logo.png) center top/100% auto no-repeat;width:140px;height:35px;position:absolute;left:30px;bottom:20px}.bottom_line,.top_line{background:#fb8933;height:35px;position:absolute;width:435px}.top_line{left:0;top:20px;border-radius:0 30px 30px 0}.bottom_line{right:0;bottom:20px;border-radius:30px 0 0 30px}.front_logo{width:130px;height:130px;right:30px;top:20px}.front_logo img{width:100%;height:100%}.color-input-group{display:flex;align-items:center;gap:10px;margin-bottom:10px}.color-input-group .form-control-color{width:50px;height:38px;padding:3px}.color-preview-small{width:30px;height:30px;display:inline-block;border:1px solid #ddd;margin-left:10px;vertical-align:middle;border-radius:4px}.mobile-menu-toggle{display:none;background:#007bff;color:#fff;border:none;padding:12px 15px;border-radius:8px;margin-bottom:20px;width:100%;font-weight:500;font-size:16px}.text-color-controls{margin-top:15px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd;margin-bottom:15px}.text-color-controls .form-group{margin-bottom:10px}.text-color-controls .color-input-group{margin-bottom:0}@media (max-width:1200px){.designer-container{grid-template-columns:300px 1fr;gap:20px}.business-card{width:500px;height:310px}.qr-code-container{width:180px;height:200px;margin-left:-90px;margin-top:-100px}.logo-back{width:180px;height:280px}.business-name-front{max-width:200px;font-size:18px}.address-section,.business-name-back{max-width:250px;left:250px}.business-name-back{font-size:18px}.contact-info{left:250px}.website-front{left:240px}}@media (max-width:992px){.designer-container{grid-template-columns:1fr;gap:20px}.controls-panel.active,.mobile-menu-toggle{display:block}.controls-panel{display:none;margin-top:15px}.card-preview-container{order:-1;margin-bottom:20px}.business-card{width:100%;max-width:450px;height:280px;margin:0 auto}.qr-code-container{width:150px;height:170px;margin-left:-75px;margin-top:-85px}.logo-back{width:150px;height:240px;left:30px}.business-name-front{max-width:180px;font-size:16px}.business-name-back{max-width:220px;font-size:16px;left:200px;top:60px}.address-section{left:200px;top:110px;max-width:220px;font-size:14px}.contact-info{left:200px;bottom:40px;font-size:16px}.website-front{left:200px;font-size:14px}.scan-text{font-size:18px;bottom:50px}.export-controls{flex-direction:column}.export-controls .btn{width:100%}}@media (max-width:768px){.better_view{display:flex;align-items:center;justify-content:center}.business-card{max-width:400px;height:250px}.qr-code-container{width:120px;height:140px;margin-left:-60px;margin-top:-70px}.logo-back{width:120px;height:200px;left:20px}.business-name-front{max-width:150px;font-size:14px;top:15px;left:20px}.business-name-back{max-width:180px;font-size:14px;left:160px;top:50px}.address-section{left:160px;top:90px;max-width:180px;font-size:12px}.contact-info{left:160px;bottom:30px;font-size:14px}.website-front{left:160px;font-size:12px;bottom:20px}.scan-text{font-size:16px;bottom:40px;width:200px;margin-left:-100px}.card_mobile_scanner{width:180px;height:150px;bottom:45px}.front_logo{width:100px;height:100px;right:20px;top:15px}.bottom_line,.top_line{height:25px}.card_logo{width:120px;height:30px;left:20px;bottom:15px}.text-color-controls{padding:10px}}@media (max-width:576px){.better_view{padding:12px;font-size:14px;margin-bottom:15px}.business-card{max-width:350px;height:220px}.qr-code-container{width:100px;height:120px;margin-left:-50px;margin-top:-60px}.logo-back{width:100px;height:170px;left:15px}.business-name-front{max-width:130px;font-size:12px;top:12px;left:15px}.business-name-back{max-width:150px;font-size:12px;left:130px;top:40px}.address-section{left:130px;top:75px;max-width:150px;font-size:11px}.contact-info{left:130px;bottom:25px;font-size:12px}.website-front{left:130px;font-size:11px;bottom:15px}.scan-text{font-size:14px;bottom:35px;width:180px;margin-left:-90px}.card_mobile_scanner{width:150px;height:120px;bottom:40px}.front_logo{width:80px;height:80px;right:15px;top:12px}.bottom_line,.top_line{height:20px}.top_line{top:15px}.bottom_line{bottom:15px}.card_logo{width:100px;height:25px;left:15px;bottom:12px}.color-input-group{flex-direction:column;align-items:stretch}.color-input-group .form-control-color{width:100%;height:45px}.color-preview-small{margin-left:0;margin-top:5px;width:100%;height:30px}.nav-tabs{flex-direction:column}.nav-tabs .nav-item{width:100%}.nav-tabs .nav-link{text-align:center}.text-color-controls{padding:8px}}@media (max-width:400px){.better_view{padding:10px;font-size:13px;margin-bottom:12px}.business-card{max-width:300px;height:190px}.qr-code-container{width:80px;height:100px;margin-left:-40px;margin-top:-50px}.logo-back{width:80px;height:140px;left:10px}.business-name-front{max-width:110px;font-size:11px}.business-name-back{max-width:130px;font-size:11px;left:110px}.address-section{left:110px;top:65px;max-width:130px;font-size:10px}.contact-info{left:110px;font-size:11px}.website-front{left:110px;font-size:10px}.scan-text{font-size:12px;bottom:30px}.card_mobile_scanner{width:120px;height:100px}}.business-card{min-height:190px}@media print{.better_view,.card-label,.controls-panel,.export-controls,.mobile-menu-toggle{display:none!important}.designer-container{grid-template-columns:1fr!important}.business-card{box-shadow:none!important;break-inside:avoid}}
+
+    .color-preview {
+        display: none;
+    }
+    .text-controls {
+        margin: 3px 0;
+    }
+    .color-controls, .text-color-controls {
+        margin-bottom: 3px;
+    }
+    .text-color-controls {
+        margin-top: 3px;
+    }
+    .cartoon_bg {
+        background: url(images/cartoon_bg.png) center top/100% auto no-repeat;
+        width: 140px;
+        height: 230px;
+        position: absolute;
+        left: 30px;
+        bottom: 80px;
+    }
     </style>
 </head>
 
@@ -310,7 +354,7 @@ $conn->close();
                                 <div class="designer-container">
                                     <!-- Controls Panel -->
                                     <div class="controls-panel" id="controlsPanel">
-                                        <ul class="nav nav-tabs mb-3">
+                                        <ul class="nav nav-tabs mb-1">
                                             <li class="nav-item">
                                                 <a class="nav-link active" data-bs-toggle="tab" href="#front-controls">Front Design</a>
                                             </li>
@@ -332,6 +376,8 @@ $conn->close();
                                                                placeholder="Enter business name for front side">
                                                     </div>
                                                 </div>
+                                                
+
                                                 
                                                 <div class="color-controls">
                                                     <label class="form-label">Card Background Color</label>
@@ -378,6 +424,10 @@ $conn->close();
                                                     </div>
                                                 </div>
 
+
+
+
+
                                                 <div class="color-controls">
                                                     <label class="form-label">Secondary Color (Lines, Text, Icons, Logo Background)</label>
                                                     <div class="color-input-group">
@@ -392,6 +442,40 @@ $conn->close();
                                                         Secondary Color: #fb8933
                                                     </div>
                                                 </div>
+
+
+
+                                                <!-- Text Color Controls for Front -->
+                                                <div class="text-color-controls">
+                                                    <h6>Text Colors (Front)</h6>
+                                                    <div class="form-group">
+                                                        <label>Business Name Color</label>
+                                                        <div class="color-input-group">
+                                                            <input type="color" class="form-control form-control-color" id="business_name_front_color_picker" 
+                                                                   value="#ffffff" title="Choose business name color">
+                                                            <input type="text" class="form-control" id="business_name_front_color_text" 
+                                                                   value="#ffffff" pattern="^#[a-fA-F0-9]{6}$">
+                                                            <span class="color-preview-small" id="business_name_front_color_preview" 
+                                                                  style="background-color: #ffffff"></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label>Website Color</label>
+                                                        <div class="color-input-group">
+                                                            <input type="color" class="form-control form-control-color" id="website_front_color_picker" 
+                                                                   value="#ffffff" title="Choose website color">
+                                                            <input type="text" class="form-control" id="website_front_color_text" 
+                                                                   value="#ffffff" pattern="^#[a-fA-F0-9]{6}$">
+                                                            <span class="color-preview-small" id="website_front_color_preview" 
+                                                                  style="background-color: #ffffff"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                                
 
                                                 <div class="text-controls">
                                                     <div class="form-group">
@@ -433,6 +517,8 @@ $conn->close();
                                                                placeholder="Enter business name for back side">
                                                     </div>
                                                 </div>
+                                                
+                                                
                                                 
                                                 <div class="color-controls">
                                                     <label class="form-label">Card Background Color</label>
@@ -494,6 +580,46 @@ $conn->close();
                                                     </div>
                                                 </div>
 
+                                                <!-- Text Color Controls for Back -->
+                                                <div class="text-color-controls">
+                                                    <h6>Text Colors (Back)</h6>
+                                                    <div class="form-group">
+                                                        <label>Business Name Color</label>
+                                                        <div class="color-input-group">
+                                                            <input type="color" class="form-control form-control-color" id="business_name_back_color_picker" 
+                                                                   value="#ffffff" title="Choose business name color">
+                                                            <input type="text" class="form-control" id="business_name_back_color_text" 
+                                                                   value="#ffffff" pattern="^#[a-fA-F0-9]{6}$">
+                                                            <span class="color-preview-small" id="business_name_back_color_preview" 
+                                                                  style="background-color: #ffffff"></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label>Address Color</label>
+                                                        <div class="color-input-group">
+                                                            <input type="color" class="form-control form-control-color" id="address_color_picker" 
+                                                                   value="#ffffff" title="Choose address color">
+                                                            <input type="text" class="form-control" id="address_color_text" 
+                                                                   value="#ffffff" pattern="^#[a-fA-F0-9]{6}$">
+                                                            <span class="color-preview-small" id="address_color_preview" 
+                                                                  style="background-color: #ffffff"></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label>Contact Info Color</label>
+                                                        <div class="color-input-group">
+                                                            <input type="color" class="form-control form-control-color" id="contact_color_picker" 
+                                                                   value="#ffffff" title="Choose contact info color">
+                                                            <input type="text" class="form-control" id="contact_color_text" 
+                                                                   value="#ffffff" pattern="^#[a-fA-F0-9]{6}$">
+                                                            <span class="color-preview-small" id="contact_color_preview" 
+                                                                  style="background-color: #ffffff"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <div class="text-controls">
                                                     <div class="form-group">
                                                         <label>Business Address</label>
@@ -541,6 +667,7 @@ $conn->close();
                                             <div class="business-card front-card mt-3 mb-3" id="frontBusinessCard">
 
                                                 <span class="card_mobile_scanner"></span>
+                                                <span class="cartoon_bg"></span>
                                                 <span class="card_logo"></span>
                                                 <span class="top_line"></span>
                                                 <span class="bottom_line"></span>
@@ -699,6 +826,8 @@ $conn->close();
         <input type="hidden" name="scan_text" id="save_scan_text" value="SCAN ME TO ORDER">
         <input type="hidden" name="website_text" id="save_website_text" value="<?php echo safe_htmlspecialchars($website_front); ?>">
         <input type="hidden" name="business_name_front" id="save_business_name_front" value="<?php echo safe_htmlspecialchars($user_data['business_name'] ?? 'Business Name'); ?>">
+        <input type="hidden" name="business_name_front_color" id="save_business_name_front_color" value="#ffffff">
+        <input type="hidden" name="website_front_color" id="save_website_front_color" value="#ffffff">
         
         <!-- Back Design Data -->
         <input type="hidden" name="back_cmyk_c" id="save_back_cmyk_c" value="0">
@@ -710,6 +839,9 @@ $conn->close();
         <input type="hidden" name="phone1" id="save_phone1" value="<?php echo safe_htmlspecialchars($clean_phone1); ?>">
         <input type="hidden" name="phone2" id="save_phone2" value="<?php echo safe_htmlspecialchars($clean_phone2); ?>">
         <input type="hidden" name="business_name_back" id="save_business_name_back" value="<?php echo safe_htmlspecialchars($user_data['business_name'] ?? 'Business Name'); ?>">
+        <input type="hidden" name="business_name_back_color" id="save_business_name_back_color" value="#ffffff">
+        <input type="hidden" name="address_color" id="save_address_color" value="#ffffff">
+        <input type="hidden" name="contact_color" id="save_contact_color" value="#ffffff">
     </form>
 
     <!-- Hidden form for saving card images -->
@@ -723,7 +855,17 @@ $conn->close();
     <script src="assets/js/app.js"></script>
     
     <script>
-        // Your existing JavaScript code remains the same
+        document.addEventListener('DOMContentLoaded', function() {
+            designer = new BusinessCardDesigner();
+            
+            // Initialize mobile menu state
+            if (window.innerWidth <= 992) {
+                document.getElementById('controlsPanel').classList.remove('active');
+            } else {
+                document.getElementById('controlsPanel').classList.add('active');
+            }
+        });
+
         class BusinessCardDesigner {
             constructor() {
                 this.frontCard = document.getElementById('frontBusinessCard');
@@ -733,16 +875,24 @@ $conn->close();
                 this.backLogoContainer = document.getElementById('backLogoContainer');
                 this.mobileMenuToggle = document.getElementById('mobileMenuToggle');
                 this.controlsPanel = document.getElementById('controlsPanel');
+                
+                // Text color elements
+                this.businessNameFrontElement = document.getElementById('businessNameFront');
+                this.websiteFrontElement = document.getElementById('websiteFront');
+                this.businessNameBackElement = document.getElementById('businessNameBack');
+                this.addressSectionElement = document.getElementById('addressSection');
+                this.contactInfoElement = document.getElementById('contactInfo');
+                
                 this.initEventListeners();
                 this.updateFrontColor();
                 this.updateBackColor();
                 this.updateSecondaryColor();
                 this.updateSecondaryColorBack();
                 this.updateTextElements();
+                this.updateTextColors();
                 this.generateQRCode();
             }
 
-            // ... rest of your JavaScript code remains exactly the same
             initEventListeners() {
                 // Mobile menu toggle
                 this.mobileMenuToggle.addEventListener('click', () => {
@@ -813,6 +963,15 @@ $conn->close();
                     }
                 });
 
+                // Text color pickers for front
+                this.setupTextColorPicker('business_name_front_color_picker', 'business_name_front_color_text', 'business_name_front_color_preview');
+                this.setupTextColorPicker('website_front_color_picker', 'website_front_color_text', 'website_front_color_preview');
+                
+                // Text color pickers for back
+                this.setupTextColorPicker('business_name_back_color_picker', 'business_name_back_color_text', 'business_name_back_color_preview');
+                this.setupTextColorPicker('address_color_picker', 'address_color_text', 'address_color_preview');
+                this.setupTextColorPicker('contact_color_picker', 'contact_color_text', 'contact_color_preview');
+
                 const textInputs = ['scan_text', 'website_text', 
                                    'business_address', 'phone1', 'phone2',
                                    'business_name_front', 'business_name_back'];
@@ -850,6 +1009,27 @@ $conn->close();
                 window.addEventListener('resize', this.handleResize.bind(this));
             }
 
+            setupTextColorPicker(colorPickerId, textInputId, previewId) {
+                const colorPicker = document.getElementById(colorPickerId);
+                const textInput = document.getElementById(textInputId);
+                const preview = document.getElementById(previewId);
+
+                colorPicker.addEventListener('input', () => {
+                    textInput.value = colorPicker.value;
+                    preview.style.backgroundColor = colorPicker.value;
+                    this.updateTextColors();
+                });
+                
+                textInput.addEventListener('input', () => {
+                    const value = textInput.value;
+                    if (/^#[a-fA-F0-9]{6}$/.test(value)) {
+                        colorPicker.value = value;
+                        preview.style.backgroundColor = value;
+                        this.updateTextColors();
+                    }
+                });
+            }
+
             handleResize() {
                 // Auto-close mobile menu on larger screens
                 if (window.innerWidth > 992) {
@@ -867,7 +1047,7 @@ $conn->close();
                 document.getElementById('frontColorDisplay').style.color = this.getContrastColor(backgroundColor);
                 document.getElementById('frontColorDisplay').textContent = `Front: ${backgroundColor}`;
                 
-                // Update card background - using !important in JavaScript to override CSS
+                // Update card background
                 this.frontCard.style.cssText = `background: ${backgroundColor} !important; background-color: ${backgroundColor} !important;`;
             }
 
@@ -879,7 +1059,7 @@ $conn->close();
                 document.getElementById('backColorDisplay').style.color = this.getContrastColor(backgroundColor);
                 document.getElementById('backColorDisplay').textContent = `Back: ${backgroundColor}`;
                 
-                // Update card background - using !important in JavaScript to override CSS
+                // Update card background
                 this.backCard.style.cssText = `background: ${backgroundColor} !important; background-color: ${backgroundColor} !important;`;
             }
 
@@ -922,6 +1102,41 @@ $conn->close();
                 // Update back logo container background color
                 if (this.backLogoContainer) {
                     this.backLogoContainer.style.backgroundColor = secondaryColor;
+                }
+            }
+
+            updateTextColors() {
+                // Update front text colors
+                if (this.businessNameFrontElement) {
+                    const businessNameColor = document.getElementById('business_name_front_color_picker').value;
+                    this.businessNameFrontElement.style.color = businessNameColor;
+                }
+                
+                if (this.websiteFrontElement) {
+                    const websiteColor = document.getElementById('website_front_color_picker').value;
+                    this.websiteFrontElement.style.color = websiteColor;
+                }
+                
+                // Update back text colors
+                if (this.businessNameBackElement) {
+                    const businessNameBackColor = document.getElementById('business_name_back_color_picker').value;
+                    this.businessNameBackElement.style.color = businessNameBackColor;
+                }
+                
+                if (this.addressSectionElement) {
+                    const addressColor = document.getElementById('address_color_picker').value;
+                    const addressText = this.addressSectionElement.querySelector('span');
+                    if (addressText) {
+                        addressText.style.color = addressColor;
+                    }
+                }
+                
+                if (this.contactInfoElement) {
+                    const contactColor = document.getElementById('contact_color_picker').value;
+                    const contactTexts = this.contactInfoElement.querySelectorAll('.contact-item span');
+                    contactTexts.forEach(span => {
+                        span.style.color = contactColor;
+                    });
                 }
             }
 
@@ -1031,6 +1246,9 @@ $conn->close();
                     contactHtml += `<div class="contact-item"><i class="ri-whatsapp-line"></i><span>${phone2}</span></div>`;
                 }
                 document.getElementById('contactInfo').innerHTML = contactHtml;
+                
+                // Update text colors after text content changes
+                this.updateTextColors();
             }
 
             cleanPhoneNumber(phone) {
@@ -1057,6 +1275,8 @@ $conn->close();
                 document.getElementById('save_scan_text').value = document.getElementById('scan_text').value;
                 document.getElementById('save_website_text').value = document.getElementById('website_text').value;
                 document.getElementById('save_business_name_front').value = document.getElementById('business_name_front').value;
+                document.getElementById('save_business_name_front_color').value = document.getElementById('business_name_front_color_picker').value;
+                document.getElementById('save_website_front_color').value = document.getElementById('website_front_color_picker').value;
 
                 document.getElementById('save_back_cmyk_c').value = document.getElementById('back_cmyk_c').value;
                 document.getElementById('save_back_cmyk_m').value = document.getElementById('back_cmyk_m').value;
@@ -1067,21 +1287,11 @@ $conn->close();
                 document.getElementById('save_phone1').value = document.getElementById('phone1').value;
                 document.getElementById('save_phone2').value = document.getElementById('phone2').value;
                 document.getElementById('save_business_name_back').value = document.getElementById('business_name_back').value;
+                document.getElementById('save_business_name_back_color').value = document.getElementById('business_name_back_color_picker').value;
+                document.getElementById('save_address_color').value = document.getElementById('address_color_picker').value;
+                document.getElementById('save_contact_color').value = document.getElementById('contact_color_picker').value;
             }
         }
-
-        let designer;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            designer = new BusinessCardDesigner();
-            
-            // Initialize mobile menu state
-            if (window.innerWidth <= 992) {
-                document.getElementById('controlsPanel').classList.remove('active');
-            } else {
-                document.getElementById('controlsPanel').classList.add('active');
-            }
-        });
 
         function exportFrontCard(format) {
             const card = document.getElementById('frontBusinessCard');

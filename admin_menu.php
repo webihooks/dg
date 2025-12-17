@@ -32,6 +32,15 @@
                </li>
 
                <li class="nav-item">
+                 <a class="nav-link" href="customer_data.php">
+                    <span class="nav-icon">
+                       <iconify-icon icon="streamline:information-desk-customer"></iconify-icon>
+                    </span>
+                    <span class="nav-text">Customer Data</span>
+                 </a>
+              </li>
+
+               <li class="nav-item">
                     <a class="nav-link" href="packages.php">
                          <span class="nav-icon">
                               <iconify-icon icon="tabler:packages"></iconify-icon>

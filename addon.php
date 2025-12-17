@@ -253,7 +253,21 @@ $conn->close();
 <head>
     <meta charset="utf-8" />
     <title>Admin Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fb5b29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+    <meta name="msapplication-TileColor" content="#fb5b29">
+    <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+    <meta name="application-name" content="DeeGeeCard">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- PWA Meta Tags -->
+    
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />

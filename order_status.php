@@ -94,7 +94,7 @@ $social_link = getSocialLinks($conn, $user_id);
 // --- MODIFICATION START: Simplified status logic ---
 $simplified_statuses = [
     'Placed' => ['icon' => 'bi-check-circle', 'description' => '✅ Your order has been placed successfully!'],
-    'Preparing' => ['icon' => 'bi-egg-fried', 'description' => '🍜 Order accepted! We’re preparing your food.'],
+    'Preparing' => ['icon' => 'bi-egg-fried', 'description' => '🍜 Order accepted! We\'re preparing your food.'],
     'Ready' => ['icon' => 'bi-check2-circle', 'description' => '🍱 Your order is ready!'],
     'Out for Delivery' => ['icon' => 'bi-truck', 'description' => '🛵 Your order is out for delivery!'],
     'Completed' => ['icon' => 'bi-star', 'description' => '👍🏻 Order delivered – We hope you enjoy your meal!!']
@@ -147,7 +147,8 @@ $back_url = '/' . $profile_url;
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="theme-color" content="<?= $primary_color ?>">
     <title>Order ID - <?= htmlspecialchars($order_id) ?> | <?= htmlspecialchars($business_name) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -276,6 +277,29 @@ $back_url = '/' . $profile_url;
             padding:20px 0 !important;
           }
         }
+        .pay_now_btn {
+            position: fixed;
+              bottom: 0;
+              left: 50%;
+              transform: translateX(-50%) !important;
+              z-index: 99;
+              animation: borderPulse_2 2s infinite;
+              border: 2px solid #16a34a;
+              width: 96% !important;
+              height: 60px;
+        }
+
+        @keyframes borderPulse_2 {
+            0% {
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.2);
+            }
+            70% {
+                box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.2);
+            }
+        }
     </style>
 </head>
 <body>
@@ -321,17 +345,6 @@ $back_url = '/' . $profile_url;
     }, 5000);
 </script>
 <?php endif; ?>
-
-
-
-
-
-
-
-
-
-
-
 
     <?php
     // Include header components
@@ -444,7 +457,7 @@ $back_url = '/' . $profile_url;
                 </div>
             <?php endif; ?>
 
-                        <div class="order-status-container p-3 sm:p-3">
+            <div class="order-status-container p-3 sm:p-3">
                 <?php if ($is_cancelled): ?>
                     <div class="bg-red-100 border-2 border-red-500 rounded-2xl p-6 text-center">
                         <div class="flex items-center justify-center">
@@ -601,6 +614,7 @@ $back_url = '/' . $profile_url;
             </div>
 
             <div class="p-3 bg-gray-50 border-t border-b border-gray-200">
+                <!-- START PAY NOW BUTTON IN TOTAL AMOUNT SECTION -->
                 <div class="bg-white rounded-2xl shadow-inner p-6 mb-6">
                     <h2 class="text-xl font-bold mb-4 text-gray-800"><i class="bi bi-receipt mr-2 text-orange-500"></i>Order Summary</h2>
                     
@@ -658,162 +672,122 @@ $back_url = '/' . $profile_url;
                             <span class="text-gray-900">Total Amount:</span>
                             <span class="text-orange-600">₹<?= number_format($order['total_amount']) ?></span>
                         </div>
+
+                        <!-- Pay Now Button after Total Amount - ADDED -->
+                        <?php 
+                        // Check if we should show Pay Now button
+                        $show_pay_now = !$is_cancelled && 
+                                       $order['status'] !== 'completed' && 
+                                       $order['status'] !== 'delivered' && 
+                                       $qr_code && 
+                                       !empty($qr_code['upi_id']);
+                        ?>
+                        
+                        <?php if ($show_pay_now): ?>
+                            <div>
+                                <div class="text-center">
+                                    <a href="upi://pay?pa=<?= urlencode($qr_code['upi_id']) ?>&am=<?= $order['total_amount'] ?>&cu=INR&tn=Order <?= htmlspecialchars($order_id) ?> - <?= htmlspecialchars($business_name) ?>"
+                                       class="pay_now_btn inline-flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg w-full max-w-md">
+                                        <i class="bi bi-arrow-up-right-circle text-xl mr-2"></i>
+                                        <span class="text-lg">Pay Now - ₹<?= number_format($order['total_amount']) ?></span>
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
+                <!-- END PAY NOW BUTTON IN TOTAL AMOUNT SECTION -->
+
+                <!-- QR Code Payment Section -->
+                <?php 
+                // Check if we should show payment section
+                $show_payment_section = !$is_cancelled && 
+                                       $order['status'] !== 'completed' && 
+                                       $order['status'] !== 'delivered' && 
+                                       $qr_code; // Only show if QR code exists
+                ?>
+
+                <?php if ($show_payment_section): ?>
+                    <div class="bg-white rounded-2xl shadow-inner p-6">
+                        <h2 class="text-xl font-bold mb-4 text-gray-800">
+                            <i class="bi bi-qr-code mr-2 text-green-500"></i>Payment Information
+                        </h2>
+                        
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                                    Scan QR Code to Pay
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    Total Amount: <span class="font-bold text-green-600">₹<?= number_format($order['total_amount']) ?></span>
+                                </p>
+                            </div>
+                            
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                                <!-- QR Code Image -->
+                                <div class="text-center">
+                                    <div class="bg-white p-2 rounded-2xl shadow-lg inline-block border-2 border-green-200">
+                                        <img src="uploads/qrcodes/<?= htmlspecialchars($qr_code['upload_qr_code']) ?>" 
+                                             alt="Payment QR Code" 
+                                             class="w-48 h-48 object-contain mx-auto"
+                                             id="qrCodeImage">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        <?= htmlspecialchars($qr_code['payment_type']) ?> QR Code
+                                    </p>
+                                    
+                                    <!-- Download QR Button -->
+                                    <button onclick="downloadQRCode()" 
+                                            class="mt-3 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center mx-auto">
+                                        <i class="bi bi-download mr-2"></i> Download & Scan QR
+                                    </button>
+                                </div>
+                                
+                                <!-- Payment Details -->
+                                <div class="text-left space-y-3">
 
 
-
-
-
-
-<!-- QR Code Payment Section -->
-<?php 
-// Check if we should show payment section
-$show_payment_section = !$is_cancelled && 
-                       $order['status'] !== 'completed' && 
-                       $order['status'] !== 'delivered' && 
-                       $qr_code; // Only show if QR code exists
-?>
-
-<?php if ($show_payment_section): ?>
-    <div class="bg-white rounded-2xl shadow-inner p-6">
-        <h2 class="text-xl font-bold mb-4 text-gray-800">
-            <i class="bi bi-qr-code mr-2 text-green-500"></i>Payment Information
-        </h2>
-        
-        <div class="text-center">
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                    Scan QR Code to Pay
-                </h3>
-                <p class="text-sm text-gray-600 mb-4">
-                    Total Amount: <span class="font-bold text-green-600">₹<?= number_format($order['total_amount']) ?></span>
-                </p>
-            </div>
-            
-            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
-                <!-- QR Code Image -->
-                <div class="text-center">
-                    <div class="bg-white p-2 rounded-2xl shadow-lg inline-block border-2 border-green-200">
-                        <img src="uploads/qrcodes/<?= htmlspecialchars($qr_code['upload_qr_code']) ?>" 
-                             alt="Payment QR Code" 
-                             class="w-48 h-48 object-contain mx-auto"
-                             id="qrCodeImage">
+                <?php if (!empty($qr_code['upi_id'])): ?>
+                    <div class="bg-gray-50 p-3 rounded-lg text-center">
+                        <p class="text-sm text-gray-500 font-medium">UPI ID</p>
+                        <p class="text-gray-800 font-semibold text-lg"><?= htmlspecialchars($qr_code['upi_id']) ?></p>
+                        <button onclick="copyToClipboard('<?= htmlspecialchars($qr_code['upi_id']) ?>', this)" 
+                                class="mt-1 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors">
+                            <i class="bi bi-copy mr-1"></i>Copy UPI ID
+                        </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">
-                        <?= htmlspecialchars($qr_code['payment_type']) ?> QR Code
-                    </p>
-                    
-                    <!-- Download QR Button -->
-                    <button onclick="downloadQRCode()" 
-                            class="mt-3 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center mx-auto">
-                        <i class="bi bi-download mr-2"></i> Download & Scan QR
-                    </button>
-                </div>
-                
-                <!-- Payment Details -->
-                <div class="text-left space-y-3">
-
-
-<?php if (!empty($qr_code['upi_id'])): ?>
-    <div class="bg-gray-50 p-3 rounded-lg text-center">
-        <p class="text-sm text-gray-500 font-medium">UPI ID</p>
-        <p class="text-gray-800 font-semibold text-lg"><?= htmlspecialchars($qr_code['upi_id']) ?></p>
-        <button onclick="copyToClipboard('<?= htmlspecialchars($qr_code['upi_id']) ?>', this)" 
-                class="mt-1 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors">
-            <i class="bi bi-copy mr-1"></i>Copy UPI ID
-        </button>
-    </div>
-<?php endif; ?>
-                    
-                    <?php if (!empty($qr_code['mobile_number'])): ?>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500 font-medium">Mobile Number</p>
-                            <p class="text-gray-800 font-semibold"><?= htmlspecialchars($qr_code['mobile_number']) ?></p>
+                <?php endif; ?>
+                                    
+                                    <?php if (!empty($qr_code['mobile_number'])): ?>
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <p class="text-sm text-gray-500 font-medium">Mobile Number</p>
+                                            <p class="text-gray-800 font-semibold"><?= htmlspecialchars($qr_code['mobile_number']) ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="bg-green-50 border border-green-200 p-3 rounded-lg">
+                                        <p class="text-sm text-green-700">
+                                            <i class="bi bi-info-circle mr-1"></i>
+                                            Scan the QR code using any UPI app to complete your payment
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Instructions -->
+                            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-1">
+                                <h4 class="font-semibold text-blue-800 mb-2 mt-3">How to Pay</h4>
+                                <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1 text-left max-w-md mx-auto">
+                                    <li>Open your UPI payment app (Google Pay, PhonePe, Paytm, etc.)</li>
+                                    <li>Tap on "Scan QR Code"</li>
+                                    <li>Scan the QR code shown above</li>
+                                    <li>Verify the amount (₹<?= number_format($order['total_amount']) ?>) and pay</li>
+                                    <li>Take a screenshot of the payment confirmation</li>
+                                </ol>
+                            </div>
                         </div>
-                    <?php endif; ?>
-                    
-                    <div class="bg-green-50 border border-green-200 p-3 rounded-lg">
-                        <p class="text-sm text-green-700">
-                            <i class="bi bi-info-circle mr-1"></i>
-                            Scan the QR code using any UPI app to complete your payment
-                        </p>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Payment Instructions -->
-            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-1">
-                <h4 class="font-semibold text-blue-800 mb-2 mt-3">How to Pay</h4>
-                <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1 text-left max-w-md mx-auto">
-                    <li>Open your UPI payment app (Google Pay, PhonePe, Paytm, etc.)</li>
-                    <li>Tap on "Scan QR Code"</li>
-                    <li>Scan the QR code shown above</li>
-                    <li>Verify the amount (₹<?= number_format($order['total_amount']) ?>) and pay</li>
-                    <li>Take a screenshot of the payment confirmation</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-
-    <script>
-function copyToClipboard(text, buttonElement) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Show success message
-        const originalText = buttonElement.innerHTML;
-        buttonElement.innerHTML = '<i class="bi bi-check2 mr-1"></i>Copied!';
-        buttonElement.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-        buttonElement.classList.add('bg-green-500', 'hover:bg-green-600');
-        
-        setTimeout(() => {
-            buttonElement.innerHTML = originalText;
-            buttonElement.classList.remove('bg-green-500', 'hover:bg-green-600');
-            buttonElement.classList.add('bg-blue-500', 'hover:bg-blue-600');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Failed to copy text: ', err);
-        alert('Failed to copy UPI ID. Please copy manually.');
-    });
-}
-
-    function downloadQRCode() {
-        const qrCodeImage = document.getElementById('qrCodeImage');
-        const qrCodeUrl = qrCodeImage.src;
-        
-        // Create a temporary anchor element
-        const downloadLink = document.createElement('a');
-        downloadLink.href = qrCodeUrl;
-        
-        // Extract filename from URL or create a custom one
-        const fileName = 'payment-qr-code-<?= htmlspecialchars($order_id) ?>.png';
-        downloadLink.download = fileName;
-        
-        // Append to body, click and remove
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        
-        // Optional: Show download confirmation
-        const downloadButton = event.target;
-        const originalText = downloadButton.innerHTML;
-        downloadButton.innerHTML = '<i class="bi bi-check2 mr-2"></i>Downloaded!';
-        downloadButton.classList.remove('bg-green-500', 'hover:bg-green-600');
-        downloadButton.classList.add('bg-blue-500', 'hover:bg-blue-600');
-        
-        setTimeout(() => {
-            downloadButton.innerHTML = originalText;
-            downloadButton.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-            downloadButton.classList.add('bg-green-500', 'hover:bg-green-600');
-        }, 2000);
-    }
-    </script>
-<?php endif; ?>
-
-
-
-
-
-
+                <?php endif; ?>
 
                 <div class="bg-white rounded-2xl shadow-inner p-6 mt-6">
                     <h2 class="text-xl font-bold mb-4 text-gray-800"><i class="bi bi-person mr-2 text-orange-500"></i>Customer Information</h2>
@@ -879,278 +853,233 @@ function copyToClipboard(text, buttonElement) {
                 </div>
             </div>
 
+            <?php
+            // Get phone number from multiple sources
+            $phone_number = $business_info['phone_number'] ?? $user['phone'] ?? '';
 
+            // Get WhatsApp number
+            $whatsapp_url = $social_link['whatsapp'] ?? '';
+            $whatsapp_phone = '';
 
+            if (!empty($whatsapp_url)) {
+                // Extract phone number from WhatsApp URL
+                if (preg_match('/wa\.me\/(\d+)/', $whatsapp_url, $matches)) {
+                    $whatsapp_phone = $matches[1];
+                } elseif (preg_match('/phone=(\d+)/', $whatsapp_url, $matches)) {
+                    $whatsapp_phone = $matches[1];
+                }
+            }
 
+            // If no WhatsApp URL found, use phone number for WhatsApp
+            if (empty($whatsapp_phone) && !empty($phone_number)) {
+                $whatsapp_phone = preg_replace('/[^0-9]/', '', $phone_number);
+                // Add country code if it's a 10-digit number
+                if (strlen($whatsapp_phone) === 10) {
+                    $whatsapp_phone = '91' . $whatsapp_phone;
+                }
+            }
 
+            // Only show the section if we have at least one contact method
+            if (!empty($phone_number) || !empty($whatsapp_phone)):
+            ?>
 
-
-
-
-
-
-
-
-<?php
-// Get phone number from multiple sources
-$phone_number = $business_info['phone_number'] ?? $user['phone'] ?? '';
-
-// Get WhatsApp number
-$whatsapp_url = $social_link['whatsapp'] ?? '';
-$whatsapp_phone = '';
-
-if (!empty($whatsapp_url)) {
-    // Extract phone number from WhatsApp URL
-    if (preg_match('/wa\.me\/(\d+)/', $whatsapp_url, $matches)) {
-        $whatsapp_phone = $matches[1];
-    } elseif (preg_match('/phone=(\d+)/', $whatsapp_url, $matches)) {
-        $whatsapp_phone = $matches[1];
-    }
-}
-
-// If no WhatsApp URL found, use phone number for WhatsApp
-if (empty($whatsapp_phone) && !empty($phone_number)) {
-    $whatsapp_phone = preg_replace('/[^0-9]/', '', $phone_number);
-    // Add country code if it's a 10-digit number
-    if (strlen($whatsapp_phone) === 10) {
-        $whatsapp_phone = '91' . $whatsapp_phone;
-    }
-}
-
-// Only show the section if we have at least one contact method
-if (!empty($phone_number) || !empty($whatsapp_phone)):
-?>
-
-<!-- Order Status Contact Section -->
-<div class="p-6 text-center border-t border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
-    <div class="max-w-md mx-auto">
-        <h3 class="text-xl font-bold text-gray-800 mb-3">
-            <i class="bi bi-info-circle-fill text-purple-600 mr-2"></i>
-            To know your order status
-        </h3>
-        <p class="text-gray-600 mb-4 text-sm">
-            For real-time updates on your order #<?= htmlspecialchars(substr($order_id, -6)) ?>, contact us directly
-        </p>
-        
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-4">
-            <?php if (!empty($phone_number)): ?>
-                <a href="tel:<?= htmlspecialchars($phone_number) ?>"
-                   class="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                    <i class="bi bi-telephone-fill mr-2"></i> Call Now
-                </a>
-            <?php endif; ?>
-            
-            <?php if (!empty($whatsapp_phone)): ?>
-                <a href="https://wa.me/<?= htmlspecialchars($whatsapp_phone) ?>?text=Hi, I would like to know the status of my Order id : <?= htmlspecialchars($order_id) ?> - DEEGEECARD"
-                   target="_blank"
-                   class="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                    <i class="bi bi-whatsapp mr-2"></i> WhatsApp Chat Support
-                </a>
-            <?php endif; ?>
-        </div>
-        
-        <p class="text-xs text-gray-500 mt-2">
-            We're here to help you track your order in real-time
-        </p>
-    </div>
-</div>
-
-<?php endif; ?>
-
-
-
-
-
-
-<!-- Customer Reviews Section -->
-<div class="p-6 border-t border-gray-200 bg-white">
-    
-
-   
-
-
-<!-- Review Form -->
-<div class="rating-card bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200 max-w-md w-full">
-        <h6 class="text-xl font-bold mb-4 text-gray-800">
-            <i class="bi bi-pencil-square mr-2 text-orange-500"></i>Leave a Review
-        </h6>
-        <form method="POST" action="submit_review.php">
-            <input type="hidden" name="user_id" value="<?= $user_id ?>">
-            <input type="hidden" name="order_id" value="<?= $order_id ?>">
-            <input type="hidden" name="profile_url" value="<?= htmlspecialchars($profile_url) ?>">
-            
-            <!-- Name field is now full width -->
-            <div class="mb-4">
-                <label for="reviewer_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name*</label>
-                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                       id="reviewer_name" name="reviewer_name" required>
-            </div>
-            
-            <!-- Hidden email field -->
-            <div style="display: none;">
-                <label for="reviewer_email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
-                <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                       id="reviewer_email" name="reviewer_email">
-            </div>
-            
-            <!-- Phone field -->
-            <div class="mb-4">
-                <label for="reviewer_phone" class="block text-sm font-medium text-gray-700 mb-1">Your Phone*</label>
-                <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                       id="reviewer_phone" name="reviewer_phone" 
-                       pattern="[0-9]{10}" title="Please enter exactly 10 digits" 
-                       maxlength="10" required>
-            </div>
-
-            <!-- Rating section -->
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Rating*</label>
-                <div class="rating-input flex space-x-2">
-                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <div class="flex items-center">
-                        <input class="hidden" type="radio" name="rating" id="rating<?= $i ?>" 
-                               value="<?= $i ?>" <?= $i === 5 ? 'checked' : '' ?> required>
-                        <label for="rating<?= $i ?>" class="cursor-pointer text-2xl <?= $i === 5 ? 'text-orange-500' : 'text-gray-300' ?> hover:text-orange-400 transition-colors">
-                            ★
-                        </label>
+            <!-- Order Status Contact Section -->
+            <div class="p-6 text-center border-t border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+                <div class="max-w-md mx-auto">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">
+                        <i class="bi bi-info-circle-fill text-purple-600 mr-2"></i>
+                        To know your order status
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-sm">
+                        For real-time updates on your order #<?= htmlspecialchars(substr($order_id, -6)) ?>, contact us directly
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-4">
+                        <?php if (!empty($phone_number)): ?>
+                            <a href="tel:<?= htmlspecialchars($phone_number) ?>"
+                               class="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <i class="bi bi-telephone-fill mr-2"></i> Call Now
+                            </a>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($whatsapp_phone)): ?>
+                            <a href="https://wa.me/<?= htmlspecialchars($whatsapp_phone) ?>?text=Hi, I would like to know the status of my Order id : <?= htmlspecialchars($order_id) ?> - DEEGEECARD"
+                               target="_blank"
+                               class="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <i class="bi bi-whatsapp mr-2"></i> WhatsApp Chat Support
+                            </a>
+                        <?php endif; ?>
                     </div>
-                    <?php endfor; ?>
+                    
+                    <p class="text-xs text-gray-500 mt-2">
+                        We're here to help you track your order in real-time
+                    </p>
                 </div>
             </div>
 
-            <!-- Feedback section -->
-            <div class="mb-4">
-                <label for="feedback" class="block text-sm font-medium text-gray-700 mb-1">Your Feedback*</label>
-                <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                          id="feedback" name="feedback" rows="3" placeholder="Share your experience with us..." required></textarea>
-            </div>
-            
-            <!-- Submit button -->
-            <button type="submit" name="submit_rating" 
-                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
-                <i class="bi bi-star-fill mr-2"></i>Submit Review
-            </button>
-        </form>
-    </div>
+            <?php endif; ?>
 
-<!-- JavaScript for star rating interaction -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const starInputs = document.querySelectorAll('.rating-input input[type="radio"]');
-    const starLabels = document.querySelectorAll('.rating-input label');
-    
-    starInputs.forEach((input, index) => {
-        input.addEventListener('change', function() {
-            // Update all stars
-            starLabels.forEach((label, labelIndex) => {
-                if (labelIndex <= index) {
-                    label.classList.remove('text-gray-300');
-                    label.classList.add('text-orange-500');
-                } else {
-                    label.classList.remove('text-orange-500');
-                    label.classList.add('text-gray-300');
-                }
-            });
-        });
-    });
-    
-    // Add hover effect
-    starLabels.forEach((label, index) => {
-        label.addEventListener('mouseenter', function() {
-            starLabels.forEach((label, labelIndex) => {
-                if (labelIndex <= index) {
-                    label.classList.add('text-orange-400');
-                }
-            });
-        });
-        
-        label.addEventListener('mouseleave', function() {
-            const checkedInput = document.querySelector('.rating-input input[type="radio"]:checked');
-            if (checkedInput) {
-                const checkedIndex = Array.from(starInputs).indexOf(checkedInput);
-                starLabels.forEach((label, labelIndex) => {
-                    label.classList.remove('text-orange-400');
-                    if (labelIndex <= checkedIndex) {
-                        label.classList.add('text-orange-500');
-                    } else {
-                        label.classList.add('text-gray-300');
-                    }
+            <!-- Customer Reviews Section -->
+            <div class="p-6 border-t border-gray-200 bg-white">
+                <!-- Review Form -->
+                <div class="rating-card bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200 max-w-md w-full">
+                    <h6 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="bi bi-pencil-square mr-2 text-orange-500"></i>Leave a Review
+                    </h6>
+                    <form method="POST" action="submit_review.php">
+                        <input type="hidden" name="user_id" value="<?= $user_id ?>">
+                        <input type="hidden" name="order_id" value="<?= $order_id ?>">
+                        <input type="hidden" name="profile_url" value="<?= htmlspecialchars($profile_url) ?>">
+                        
+                        <!-- Name field is now full width -->
+                        <div class="mb-4">
+                            <label for="reviewer_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name*</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                   id="reviewer_name" name="reviewer_name" required>
+                        </div>
+                        
+                        <!-- Hidden email field -->
+                        <div style="display: none;">
+                            <label for="reviewer_email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+                            <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                   id="reviewer_email" name="reviewer_email">
+                        </div>
+                        
+                        <!-- Phone field -->
+                        <div class="mb-4">
+                            <label for="reviewer_phone" class="block text-sm font-medium text-gray-700 mb-1">Your Phone*</label>
+                            <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                   id="reviewer_phone" name="reviewer_phone" 
+                                   pattern="[0-9]{10}" title="Please enter exactly 10 digits" 
+                                   maxlength="10" required>
+                        </div>
+
+                        <!-- Rating section -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rating*</label>
+                            <div class="rating-input flex space-x-2">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <div class="flex items-center">
+                                    <input class="hidden" type="radio" name="rating" id="rating<?= $i ?>" 
+                                           value="<?= $i ?>" <?= $i === 5 ? 'checked' : '' ?> required>
+                                    <label for="rating<?= $i ?>" class="cursor-pointer text-2xl <?= $i === 5 ? 'text-orange-500' : 'text-gray-300' ?> hover:text-orange-400 transition-colors">
+                                        ★
+                                    </label>
+                                </div>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+
+                        <!-- Feedback section -->
+                        <div class="mb-4">
+                            <label for="feedback" class="block text-sm font-medium text-gray-700 mb-1">Your Feedback*</label>
+                            <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                      id="feedback" name="feedback" rows="3" placeholder="Share your experience with us..." required></textarea>
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <button type="submit" name="submit_rating" 
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+                            <i class="bi bi-star-fill mr-2"></i>Submit Review
+                        </button>
+                    </form>
+                </div>
+
+                <!-- JavaScript for star rating interaction -->
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const starInputs = document.querySelectorAll('.rating-input input[type="radio"]');
+                    const starLabels = document.querySelectorAll('.rating-input label');
+                    
+                    starInputs.forEach((input, index) => {
+                        input.addEventListener('change', function() {
+                            // Update all stars
+                            starLabels.forEach((label, labelIndex) => {
+                                if (labelIndex <= index) {
+                                    label.classList.remove('text-gray-300');
+                                    label.classList.add('text-orange-500');
+                                } else {
+                                    label.classList.remove('text-orange-500');
+                                    label.classList.add('text-gray-300');
+                                }
+                            });
+                        });
+                    });
+                    
+                    // Add hover effect
+                    starLabels.forEach((label, index) => {
+                        label.addEventListener('mouseenter', function() {
+                            starLabels.forEach((label, labelIndex) => {
+                                if (labelIndex <= index) {
+                                    label.classList.add('text-orange-400');
+                                }
+                            });
+                        });
+                        
+                        label.addEventListener('mouseleave', function() {
+                            const checkedInput = document.querySelector('.rating-input input[type="radio"]:checked');
+                            if (checkedInput) {
+                                const checkedIndex = Array.from(starInputs).indexOf(checkedInput);
+                                starLabels.forEach((label, labelIndex) => {
+                                    label.classList.remove('text-orange-400');
+                                    if (labelIndex <= checkedIndex) {
+                                        label.classList.add('text-orange-500');
+                                    } else {
+                                        label.classList.add('text-gray-300');
+                                    }
+                                });
+                            }
+                        });
+                    });
                 });
-            }
-        });
-    });
-});
-</script>
+                </script>
+            </div>
+        </div>
 
-
-
-
-
-
+        <!-- Then the existing Back to Menu button -->
+        <div class="p-6 text-center" style="padding-bottom: 80px;">
+            <button onclick="goBackToMenu('<?= htmlspecialchars($order_id) ?>')"
+                    class="backtomenu bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                <i class="bi bi-arrow-left mr-2"></i> Back to Menu
+            </button>
         </div>
     </div>
 
-
-
-
-
-
-
-
-
-
-<!-- Then the existing Back to Menu button -->
-<div class="p-6 text-center">
-    <button onclick="goBackToMenu('<?= htmlspecialchars($order_id) ?>')"
-            class="backtomenu bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
-        <i class="bi bi-arrow-left mr-2"></i> Back to Menu
-    </button>
-</div>
-
-
-
-
-
-<script>
-function goBackToMenu(orderId) {
-    // Store the order ID in localStorage
-    localStorage.setItem('lastOrderId', orderId);
-    localStorage.setItem('lastOrderUserId', '<?= $user_id ?>');
-    
-    // Redirect to profile page
-    window.location.href = 'https://deegeecard.com<?= htmlspecialchars($back_url) ?>';
-}
-</script>
-
-
-<script>
-// Update the progress bar width calculation
-function updateProgressBar() {
-    const progressBar = document.querySelector('.absolute.top-6.left-0.h-1.bg-orange-500');
-    const visibleSteps = <?= $is_delivery_order ? count($simplified_statuses) : count($simplified_statuses) - 1 ?>;
-    
-    // Special case: when order is ready for delivery, show progress up to "Out for Delivery" step
-    let progressWidth;
-    if (<?= $show_both_ready_and_delivery_completed ? 'true' : 'false' ?>) {
-        progressWidth = (3 / (visibleSteps - 1)) * 100; // Show progress up to "Out for Delivery"
-    } else {
-        progressWidth = (<?= $current_step_index ?> / (visibleSteps - 1)) * 100;
+    <script>
+    function goBackToMenu(orderId) {
+        // Store the order ID in localStorage
+        localStorage.setItem('lastOrderId', orderId);
+        localStorage.setItem('lastOrderUserId', '<?= $user_id ?>');
+        
+        // Redirect to profile page
+        window.location.href = 'https://deegeecard.com<?= htmlspecialchars($back_url) ?>';
     }
-    
-    if (progressBar) {
-        progressBar.style.width = progressWidth + '%';
+    </script>
+
+    <script>
+    // Update the progress bar width calculation
+    function updateProgressBar() {
+        const progressBar = document.querySelector('.absolute.top-6.left-0.h-1.bg-orange-500');
+        const visibleSteps = <?= $is_delivery_order ? count($simplified_statuses) : count($simplified_statuses) - 1 ?>;
+        
+        // Special case: when order is ready for delivery, show progress up to "Out for Delivery" step
+        let progressWidth;
+        if (<?= $show_both_ready_and_delivery_completed ? 'true' : 'false' ?>) {
+            progressWidth = (3 / (visibleSteps - 1)) * 100; // Show progress up to "Out for Delivery"
+        } else {
+            progressWidth = (<?= $current_step_index ?> / (visibleSteps - 1)) * 100;
+        }
+        
+        if (progressBar) {
+            progressBar.style.width = progressWidth + '%';
+        }
     }
-}
 
-// Call this on page load
-document.addEventListener('DOMContentLoaded', function() {
-    updateProgressBar();
-});
-</script>
-
-
-
-
+    // Call this on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateProgressBar();
+    });
+    </script>
 
     <script>
         // Countdown Timer Functionality
@@ -1243,42 +1172,146 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php endif; ?>
     </script>
 
-
-
-
-
-
-
-
-
-
-<!-- Add this to order_status.php -->
-<script>
-// Send pending WhatsApp message when order status page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a moment for the page to fully load
-    setTimeout(function() {
-        const message = localStorage.getItem('pendingWhatsAppMessage');
-        const orderId = localStorage.getItem('pendingWhatsAppOrderId');
-        
-        if (message && orderId) {
-            // Get WhatsApp number from PHP variables (you'll need to pass these to order_status.php)
-            const whatsappLink = '<?= $social_link['whatsapp'] ?? '' ?>';
-            let phoneNumber = whatsappLink.match(/wa\.me\/(\d+)/)?.[1] || '<?= $user['phone'] ?? '' ?>';
-            
-            if (phoneNumber) {
-                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    <!-- JavaScript for Pay Now button -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const payNowButton = document.querySelector('a[href^="upi://"]');
+        if (payNowButton) {
+            payNowButton.addEventListener('click', function(e) {
+                // Check if we're on a mobile device
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
-                // Open WhatsApp in new tab
-                window.open(whatsappUrl, '_blank');
-            }
-            
-            // Clean up
-            localStorage.removeItem('pendingWhatsAppMessage');
-            localStorage.removeItem('pendingWhatsAppOrderId');
+                if (!isMobile) {
+                    e.preventDefault();
+                    
+                    // Show a modal or alert for desktop users
+                    const modalHtml = `
+                        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+                            <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+                                <div class="text-center mb-4">
+                                    <i class="bi bi-qr-code text-4xl text-green-500"></i>
+                                    <h3 class="text-xl font-bold mt-2">UPI Payment Required</h3>
+                                </div>
+                                <p class="text-gray-600 mb-4">
+                                    UPI payments work best on mobile devices. Please:
+                                </p>
+                                <ol class="text-sm text-gray-700 list-decimal list-inside space-y-2 mb-6">
+                                    <li>Open your mobile UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+                                    <li>Tap on "Scan QR Code"</li>
+                                    <li>Scan the QR code shown in the payment section below</li>
+                                    <li>Verify amount (₹<?= number_format($order['total_amount']) ?>) and pay</li>
+                                </ol>
+                                <div class="flex gap-3">
+                                    <button onclick="this.closest('.fixed').remove()" 
+                                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg transition-colors">
+                                        Close
+                                    </button>
+                                    <a href="#qrCodeImage" 
+                                       onclick="this.closest('.fixed').remove()" 
+                                       class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-center transition-colors">
+                                        Go to QR Code
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Create and show modal
+                    const modalDiv = document.createElement('div');
+                    modalDiv.innerHTML = modalHtml;
+                    document.body.appendChild(modalDiv);
+                    
+                    // Close modal when clicking outside
+                    modalDiv.addEventListener('click', function(event) {
+                        if (event.target === modalDiv) {
+                            modalDiv.remove();
+                        }
+                    });
+                }
+            });
         }
-    }, 1000); // 1 second delay to ensure page is fully loaded
-});
-</script>
+    });
+    </script>
+
+    <!-- Add this to order_status.php -->
+    <script>
+    // Send pending WhatsApp message when order status page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait a moment for the page to fully load
+        setTimeout(function() {
+            const message = localStorage.getItem('pendingWhatsAppMessage');
+            const orderId = localStorage.getItem('pendingWhatsAppOrderId');
+            
+            if (message && orderId) {
+                // Get WhatsApp number from PHP variables (you'll need to pass these to order_status.php)
+                const whatsappLink = '<?= $social_link['whatsapp'] ?? '' ?>';
+                let phoneNumber = whatsappLink.match(/wa\.me\/(\d+)/)?.[1] || '<?= $user['phone'] ?? '' ?>';
+                
+                if (phoneNumber) {
+                    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+                    
+                    // Open WhatsApp in new tab
+                    window.open(whatsappUrl, '_blank');
+                }
+                
+                // Clean up
+                localStorage.removeItem('pendingWhatsAppMessage');
+                localStorage.removeItem('pendingWhatsAppOrderId');
+            }
+        }, 1000); // 1 second delay to ensure page is fully loaded
+    });
+    </script>
+
+    <script>
+    function copyToClipboard(text, buttonElement) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Show success message
+            const originalText = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="bi bi-check2 mr-1"></i>Copied!';
+            buttonElement.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            buttonElement.classList.add('bg-green-500', 'hover:bg-green-600');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalText;
+                buttonElement.classList.remove('bg-green-500', 'hover:bg-green-600');
+                buttonElement.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy UPI ID. Please copy manually.');
+        });
+    }
+
+    function downloadQRCode() {
+        const qrCodeImage = document.getElementById('qrCodeImage');
+        const qrCodeUrl = qrCodeImage.src;
+        
+        // Create a temporary anchor element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = qrCodeUrl;
+        
+        // Extract filename from URL or create a custom one
+        const fileName = 'payment-qr-code-<?= htmlspecialchars($order_id) ?>.png';
+        downloadLink.download = fileName;
+        
+        // Append to body, click and remove
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        // Optional: Show download confirmation
+        const downloadButton = event.target;
+        const originalText = downloadButton.innerHTML;
+        downloadButton.innerHTML = '<i class="bi bi-check2 mr-2"></i>Downloaded!';
+        downloadButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+        downloadButton.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        
+        setTimeout(() => {
+            downloadButton.innerHTML = originalText;
+            downloadButton.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            downloadButton.classList.add('bg-green-500', 'hover:bg-green-600');
+        }, 2000);
+    }
+    </script>
 </body>
 </html>

@@ -5,7 +5,8 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="theme-color" content="#fb5b29">
   <!-- Meta Description -->
   <meta name="description" content="Order your favorite meals with ease using our Food Delivery mobile app. Browse local restaurants, customize your order, and enjoy fast, reliable delivery straight to your door. Download now for convenient, delicious dining at your fingertips.">
   <title>DeeGee Card | Digital Business Card | Virtual Business Card</title>
@@ -96,7 +97,7 @@
                         <img src="images/call_icon.webp" alt="image">
                       </div>
                       <div class="text">
-                        <span>Inayat Shaikh (FOUNDER & CEO)</span>
+                        <span>Inayat Shaikh (Co-Founder & Operations Head)</span>
                         <a href="tel:919819411026"> +91 98194 11026 </a>
                       </div>
                     </li>
@@ -106,7 +107,7 @@
                         <img src="images/call_icon.webp" alt="image">
                       </div>
                       <div class="text">
-                        <span>Sagar Pawar (FOUNDER & CTO)</span>
+                        <span>Sagar Pawar (Co-Founder & Technical Head)</span>
                         <a href="tel:919373501199"> +91 93735 01199 </a>
                       </div>
                     </li>

@@ -31,21 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tag_id = isset($_POST['tag_id']) ? $_POST['tag_id'] : null;
     $tag = trim($_POST['tag']);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
-
-    // Validate inputs
-    if (empty($tag)) {
+    
+    // Timing data
+    $time1_start = !empty($_POST['time1_start']) ? $_POST['time1_start'] : null;
+    $time1_end = !empty($_POST['time1_end']) ? $_POST['time1_end'] : null;
+    $time2_start = !empty($_POST['time2_start']) ? $_POST['time2_start'] : null;
+    $time2_end = !empty($_POST['time2_end']) ? $_POST['time2_end'] : null;
+    
+    // Validate times - ensure end time is after start time
+    if ($time1_start && $time1_end && strtotime($time1_end) <= strtotime($time1_start)) {
+        $error_message = "Time Slot 1: End time must be after start time";
+    } elseif ($time2_start && $time2_end && strtotime($time2_end) <= strtotime($time2_start)) {
+        $error_message = "Time Slot 2: End time must be after start time";
+    } elseif (empty($tag)) {
         $error_message = "Tag is required.";
     } else {
         if ($tag_id) {
             // Update existing tag
-            $sql = "UPDATE tags SET tag = ?, is_active = ? WHERE id = ? AND user_id = ?";
+            $sql = "UPDATE tags SET tag = ?, is_active = ?, time1_start = ?, time1_end = ?, time2_start = ?, time2_end = ? WHERE id = ? AND user_id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("siii", $tag, $is_active, $tag_id, $user_id);
+            $stmt->bind_param("sissssii", $tag, $is_active, $time1_start, $time1_end, $time2_start, $time2_end, $tag_id, $user_id);
         } else {
             // Add new tag
-            $sql = "INSERT INTO tags (user_id, tag, position, is_active) VALUES (?, ?, (SELECT IFNULL(MAX(position), 0) + 1 FROM (SELECT * FROM tags) AS temp WHERE user_id = ?), ?)";
+            $sql = "INSERT INTO tags (user_id, tag, position, is_active, time1_start, time1_end, time2_start, time2_end) VALUES (?, ?, (SELECT IFNULL(MAX(position), 0) + 1 FROM (SELECT * FROM tags) AS temp WHERE user_id = ?), ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("isii", $user_id, $tag, $user_id, $is_active);
+            $stmt->bind_param("isississ", $user_id, $tag, $user_id, $is_active, $time1_start, $time1_end, $time2_start, $time2_end);
         }
 
         if ($stmt->execute()) {
@@ -113,8 +123,7 @@ if (isset($_GET['delete'])) {
     if ($stmt->execute()) {
         $success_message = "Tag deleted successfully!";
         
-        // Reorder remaining tags - FIXED VERSION
-        // First get all remaining tags in order
+        // Reorder remaining tags
         $sql_select = "SELECT id FROM tags WHERE user_id = ? ORDER BY position ASC, id ASC";
         $stmt_select = $conn->prepare($sql_select);
         $stmt_select->bind_param("i", $user_id);
@@ -149,6 +158,12 @@ $stmt->execute();
 $tags = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Function to format time for display
+function formatTimeForDisplay($time) {
+    if (!$time || $time == '00:00:00') return 'Not set';
+    return date('g:i A', strtotime($time));
+}
+
 $conn->close();
 ?>
 
@@ -158,7 +173,21 @@ $conn->close();
 <head>
     <meta charset="utf-8" />
     <title>Tags Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fb5b29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+    <meta name="msapplication-TileColor" content="#fb5b29">
+    <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+    <meta name="application-name" content="DeeGeeCard">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- PWA Meta Tags -->
+    
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -166,10 +195,15 @@ $conn->close();
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        .drag-handle{cursor:move;touch-action:none;padding:8px 12px;display:inline-block}.dragging{opacity:.8;box-shadow:0 0 10px rgba(0,0,0,.2)}.dragging-active{overflow:hidden!important}.ui-sortable-helper{transform:scale(1.02);box-shadow:0 5px 15px rgba(0,0,0,.1);background-color:#fff}@media (pointer:coarse){.drag-handle{width:40px;height:40px;display:flex;align-items:center;justify-content:center}table tbody tr{padding:8px 0}}.table tbody tr{cursor:move;transition:.2s}@media screen and (max-width:768px){.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;font-size:13px}td,th{padding:6px 4px}.drag-handle{width:30px;height:30px;padding:5px}.drag-handle i{font-size:14px}.btn{padding:4px 8px;font-size:12px;margin:2px 0;display:inline-block;min-width:60px}.card-body{padding:10px}.form-control{font-size:14px;padding:6px 8px}.form-label{font-size:14px;margin-bottom:5px}.alert{padding:8px 12px;font-size:13px}.ui-sortable-helper{transform:scale(1.01);box-shadow:0 2px 8px rgba(0,0,0,.1)}table tbody tr{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}td:first-child,td:nth-child(4),th:first-child,th:nth-child(4){display:none}td:nth-child(2),th:nth-child(2){min-width:120px}td:nth-child(3),th:nth-child(3){min-width:80px}td:nth-child(5),th:nth-child(5){min-width:150px;white-space:nowrap}.status-toggle{font-size:11px;padding:3px 6px}}.status-toggle{min-width:70px}
+        .drag-handle{cursor:move;touch-action:none;padding:8px 12px;display:inline-block}.dragging{opacity:.8;box-shadow:0 0 10px rgba(0,0,0,.2)}.dragging-active{overflow:hidden!important}.ui-sortable-helper{transform:scale(1.02);box-shadow:0 5px 15px rgba(0,0,0,.1);background-color:#fff}@media (pointer:coarse){.drag-handle{width:40px;height:40px;display:flex;align-items:center;justify-content:center}table tbody tr{padding:8px 0}}.table tbody tr{cursor:move;transition:.2s}@media screen and (max-width:768px){.table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;font-size:13px}td,th{padding:6px 4px}.drag-handle{width:30px;height:30px;padding:5px}.drag-handle i{font-size:14px}.btn{padding:4px 8px;font-size:12px;margin:2px 0;display:inline-block;min-width:60px}.card-body{padding:10px}.form-control{font-size:14px;padding:6px 8px}.form-label{font-size:14px;margin-bottom:5px}.alert{padding:8px 12px;font-size:13px}.ui-sortable-helper{transform:scale(1.01);box-shadow:0 2px 8px rgba(0,0,0,.1)}table tbody tr{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}td:first-child,td:nth-child(5),th:first-child,th:nth-child(5){display:none}td:nth-child(2),th:nth-child(2){min-width:120px}td:nth-child(3),th:nth-child(3){min-width:180px;font-size:13px}td:nth-child(4),th:nth-child(4){min-width:80px}td:nth-child(6),th:nth-child(6){min-width:150px;white-space:nowrap}.status-toggle{font-size:11px;padding:3px 6px}}.status-toggle{min-width:70px}
+        @media screen and (max-width: 768px) {
+            .table td:nth-child(3) {
+                min-width: 150px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
-
 
 <body>
     <div class="wrapper">
@@ -196,20 +230,72 @@ $conn->close();
                                 <form id="tagForm" method="POST" action="tags.php">
                                     <input type="hidden" name="tag_id" value="<?php echo $is_edit_mode ? $tag_data['id'] : ''; ?>">
                                     
-
-<div class="mb-3">
-    <label for="tag" class="form-label">Tag *</label>
-    <input type="text" class="form-control" id="tag" name="tag" required 
-        value="<?php echo $is_edit_mode ? htmlspecialchars($tag_data['tag']) : ''; ?>">
-    <small class="text-muted">Enter a descriptive tag to categorize your content</small>
-</div>
-
-<div class="mb-3 form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
-        <?php echo ($is_edit_mode && $tag_data['is_active'] == 1) || !$is_edit_mode ? 'checked' : ''; ?>>
-    <label class="form-check-label" for="is_active">Active</label>
-    <small class="text-muted d-block">Inactive tags won't be available for selection</small>
-</div>
+                                    <div class="mb-3">
+                                        <label for="tag" class="form-label">Tag Name *</label>
+                                        <input type="text" class="form-control" id="tag" name="tag" required 
+                                            value="<?php echo $is_edit_mode ? htmlspecialchars($tag_data['tag']) : ''; ?>">
+                                        <small class="text-muted">Enter a descriptive tag to categorize your content</small>
+                                    </div>
+                                    
+                                    <div class="row mb-1">
+                                        <div class="col-md-12">
+                                            <h5>Serve Time Slots (Optional)</h5>
+                                            <p class="text-muted">You can set up to two time slots when this tag/category is available</p>
+                                        </div>
+                                        
+                                        <!-- Time Slot 1 -->
+                                        <div class="col-md-6 mb-1">
+                                            <div class="card">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Time Slot 1</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="time1_start" class="form-label">Start Time</label>
+                                                            <input type="time" class="form-control" id="time1_start" name="time1_start" 
+                                                                value="<?php echo $is_edit_mode && $tag_data['time1_start'] ? date('H:i', strtotime($tag_data['time1_start'])) : ''; ?>">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="time1_end" class="form-label">End Time</label>
+                                                            <input type="time" class="form-control" id="time1_end" name="time1_end" 
+                                                                value="<?php echo $is_edit_mode && $tag_data['time1_end'] ? date('H:i', strtotime($tag_data['time1_end'])) : ''; ?>">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Time Slot 2 -->
+                                        <div class="col-md-6 mb-1">
+                                            <div class="card">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0">Time Slot 2</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="time2_start" class="form-label">Start Time</label>
+                                                            <input type="time" class="form-control" id="time2_start" name="time2_start" 
+                                                                value="<?php echo $is_edit_mode && $tag_data['time2_start'] ? date('H:i', strtotime($tag_data['time2_start'])) : ''; ?>">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="time2_end" class="form-label">End Time</label>
+                                                            <input type="time" class="form-control" id="time2_end" name="time2_end" 
+                                                                value="<?php echo $is_edit_mode && $tag_data['time2_end'] ? date('H:i', strtotime($tag_data['time2_end'])) : ''; ?>">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                            <?php echo ($is_edit_mode && $tag_data['is_active'] == 1) || !$is_edit_mode ? 'checked' : ''; ?>>
+                                        <label class="form-check-label" for="is_active">Active</label>
+                                        <small class="text-muted d-block">Inactive tags won't be available for selection</small>
+                                    </div>
                                     
                                     <button type="submit" class="btn btn-primary">
                                         <?php echo $is_edit_mode ? 'Update' : 'Save'; ?> Tag
@@ -239,19 +325,31 @@ $conn->close();
                                                 <tr>
                                                     <th>ID</th>
                                                     <th>Tag</th>
+                                                    <th>Serve Time</th>
                                                     <th>Status</th>
                                                     <th>Position</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($tags as $tag): ?>
+                                                <?php foreach ($tags as $tag): 
+                                                    // Format time slots for display
+                                                    $time_slots = [];
+                                                    if ($tag['time1_start'] && $tag['time1_end']) {
+                                                        $time_slots[] = formatTimeForDisplay($tag['time1_start']) . ' - ' . formatTimeForDisplay($tag['time1_end']);
+                                                    }
+                                                    if ($tag['time2_start'] && $tag['time2_end']) {
+                                                        $time_slots[] = formatTimeForDisplay($tag['time2_start']) . ' - ' . formatTimeForDisplay($tag['time2_end']);
+                                                    }
+                                                    $time_display = $time_slots ? implode('<br>', $time_slots) : 'All day';
+                                                ?>
                                                     <tr>
                                                         <td><?php echo $tag['id']; ?></td>
                                                         <td><?php echo htmlspecialchars($tag['tag']); ?></td>
+                                                        <td><?php echo $time_display; ?></td>
                                                         <td>
                                                             <a href="tags.php?toggle=<?php echo $tag['id']; ?>" 
-                                                               class="btn btn-sm <?php echo $tag['is_active'] ? 'btn-success' : 'btn-secondary'; ?>">
+                                                               class="btn btn-sm <?php echo $tag['is_active'] ? 'btn-success' : 'btn-secondary'; ?> status-toggle">
                                                                 <?php echo $tag['is_active'] ? 'Active' : 'Inactive'; ?>
                                                             </a>
                                                         </td>
@@ -337,7 +435,7 @@ $conn->close();
                     success: function(response) {
                         if (response.success) {
                             $("table tbody tr").each(function(index) {
-                                $(this).find('td:nth-child(3)').text(index + 1);
+                                $(this).find('td:nth-child(5)').text(index + 1);
                             });
                             
                             var $msg = $('<div class="alert alert-success">Tag order saved!</div>');
@@ -361,15 +459,78 @@ $conn->close();
                     required: true,
                     minlength: 2,
                     maxlength: 150
+                },
+                time1_start: {
+                    timeValidation: true
+                },
+                time1_end: {
+                    timeValidation: true
+                },
+                time2_start: {
+                    timeValidation: true
+                },
+                time2_end: {
+                    timeValidation: true
                 }
             },
             messages: {
                 tag: {
                     required: "Please enter a tag",
                     minlength: "Tag must be at least 2 characters long",
-                    maxlength: "Tag cannot be longer than 50 characters"
+                    maxlength: "Tag cannot be longer than 150 characters"
                 }
             }
+        });
+        
+        // Custom validation for time slots
+        $.validator.addMethod("timeValidation", function(value, element) {
+            if (!value) return true; // Allow empty
+            return /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value);
+        }, "Please enter a valid time (HH:MM format)");
+        
+        // Time validation before form submission
+        $("#tagForm").on('submit', function(e) {
+            var time1Start = $('#time1_start').val();
+            var time1End = $('#time1_end').val();
+            var time2Start = $('#time2_start').val();
+            var time2End = $('#time2_end').val();
+            
+            // Validate time slot 1 if both are filled
+            if (time1Start && time1End) {
+                if (time1End <= time1Start) {
+                    alert('Time Slot 1: End time must be after start time');
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            // Validate time slot 2 if both are filled
+            if (time2Start && time2End) {
+                if (time2End <= time2Start) {
+                    alert('Time Slot 2: End time must be after start time');
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            // Validate that at least one of start/end is filled, not just one
+            if ((time1Start && !time1End) || (!time1Start && time1End)) {
+                alert('Time Slot 1: Please provide both start and end times, or leave both empty');
+                e.preventDefault();
+                return false;
+            }
+            
+            if ((time2Start && !time2End) || (!time2Start && time2End)) {
+                alert('Time Slot 2: Please provide both start and end times, or leave both empty');
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Clear time field helper
+        $('.time-clear').on('click', function() {
+            var fieldId = $(this).data('field');
+            $('#' + fieldId).val('');
         });
     });
     </script>

@@ -1,16 +1,15 @@
 <?php
+
 ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 date_default_timezone_set('Asia/Kolkata');
-// Enhanced Android Session Protection
-require_once 'enhanced_android_manager.php';
 
-// Force session maintenance for Android
-if (isset($_SESSION['user_id'])) {
-    $androidSessionManager->maintainAndroidSession();
-}
+require_once 'android_session_manager.php';
+$sessionManager = new AndroidSessionManager();
+$sessionManager->validateAndroidSession();
+
 require 'config.php';
 require_once 'db_connection.php';
 
@@ -197,7 +196,21 @@ $conn->close();
 <head>
     <meta charset="utf-8" />
     <title>Subscription Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fb5b29">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DeeGeeCard">
+    <link rel="apple-touch-icon" href="https://deegeecard.com/images/dg_logo.png">
+    <meta name="msapplication-TileColor" content="#fb5b29">
+    <meta name="msapplication-TileImage" content="https://deegeecard.com/images/dg_logo.png">
+    <meta name="application-name" content="DeeGeeCard">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- PWA Meta Tags -->
+    
     <link href="assets/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
@@ -648,6 +661,51 @@ data-tooltip="WhatsApp: 9004998995">
 </a>
 </div>
 
+<script>
+// Add to dashboard.php JavaScript section
+// Enhanced session monitoring
+function startEnhancedSessionMonitoring() {
+    const isAndroid = <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>;
+    
+    // Health check every 2 minutes
+    setInterval(() => {
+        $.get('session_health_check.php')
+            .done(data => {
+                if (data.session_active) {
+                    console.log('✅ Session health check passed');
+                    if (data.issues && data.issues.length > 0) {
+                        console.warn('Session issues:', data.issues);
+                    }
+                } else {
+                    console.error('❌ Session health check failed');
+                    // Optionally redirect to login if session is completely dead
+                    if (isAndroid) {
+                        window.location.href = 'login.php?session_expired=true';
+                    }
+                }
+            })
+            .fail(() => {
+                console.error('❌ Health check request failed');
+            });
+    }, 120000); // 2 minutes
+    
+    // More frequent heartbeat for Android
+    if (isAndroid) {
+        setInterval(() => {
+            $.get('heartbeat.php')
+                .done(data => {
+                    if (data.success) {
+                        console.log('❤️ Android heartbeat maintained');
+                    }
+                });
+        }, 300000); // 5 minutes
+    }
+}
 
+// Initialize enhanced monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    startEnhancedSessionMonitoring();
+});
+</script>
 </body>
 </html>

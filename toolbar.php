@@ -51,10 +51,13 @@ try {
 // Get user data if logged in
 $user_name = "Guest";
 $user_id = "N/A";
+$user_role = "guest";
+$profile_url = "";
+$user_phone = "";
 
 if (isset($_SESSION['user_id']) && $conn) {
     try {
-        $stmt = $conn->prepare("SELECT name, id FROM users WHERE id = :id");
+        $stmt = $conn->prepare("SELECT name, id, role, phone FROM users WHERE id = :id");
         $stmt->bindParam(':id', $_SESSION['user_id']);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -62,6 +65,60 @@ if (isset($_SESSION['user_id']) && $conn) {
         if ($user) {
             $user_name = htmlspecialchars($user['name'] ?? 'User');
             $user_id = $user['id'];
+            $user_role = $user['role'] ?? 'user';
+            $user_phone = $user['phone'] ?? '';
+            
+            // Get website URL from business_info table for regular users
+            if ($user_role === 'user') {
+                // First, try to get website from business_info table
+                $business_stmt = $conn->prepare("SELECT website FROM business_info WHERE user_id = :id");
+                $business_stmt->bindParam(':id', $_SESSION['user_id']);
+                $business_stmt->execute();
+                $business_info = $business_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($business_info && !empty($business_info['website'])) {
+                    // Use website from business_info table
+                    $profile_url = $business_info['website'];
+                    
+                    // Clean up the URL - ensure proper format
+                    $profile_url = trim($profile_url);
+                    
+                    // If it's just a slug or doesn't start with http, prepend https://
+                    if (!preg_match("/^https?:\/\//i", $profile_url)) {
+                        $profile_url = "https://" . ltrim($profile_url, '/');
+                    }
+                    
+                    // Ensure it's a valid URL
+                    $profile_url = filter_var($profile_url, FILTER_VALIDATE_URL) ? $profile_url : "";
+                } else {
+                    // If no website in business_info table, fall back to profile_url_details
+                    $profile_stmt = $conn->prepare("SELECT profile_url FROM profile_url_details WHERE user_id = :id");
+                    $profile_stmt->bindParam(':id', $_SESSION['user_id']);
+                    $profile_stmt->execute();
+                    $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($profile && !empty($profile['profile_url'])) {
+                        $profile_url = $profile['profile_url'];
+                        
+                        // Clean up the URL - ensure proper format
+                        $profile_url = trim($profile_url);
+                        
+                        // If it's just a slug, prepend the domain
+                        if (!preg_match("/^https?:\/\//i", $profile_url)) {
+                            $profile_url = "https://deegeecard.com/" . ltrim($profile_url, '/');
+                        }
+                        
+                        // Ensure it's the correct domain
+                        $profile_url = preg_replace('/^(https?:\/\/)?(www\.)?deegeecard\.com\//i', 'https://deegeecard.com/', $profile_url);
+                    } else {
+                        // If no profile URL in database either, use the main site
+                        $profile_url = "https://deegeecard.com";
+                    }
+                }
+            } else {
+                // For non-users (admin, sales_person), use main site
+                $profile_url = "https://deegeecard.com";
+            }
         }
     } catch (PDOException $e) {
         error_log("Toolbar User Query Error: " . $e->getMessage());
@@ -278,21 +335,288 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// ==============================================
+// WhatsApp Share Profile Functionality - START
+// ==============================================
 
+class WhatsAppShareManager {
+    constructor() {
+        this.userRole = '<?php echo $user_role; ?>';
+        this.profileUrl = '<?php echo $profile_url; ?>';
+        this.baseUrl = 'https://deegeecard.com/';
+        this.userId = '<?php echo $user_id; ?>';
+        this.userName = '<?php echo addslashes($user_name); ?>';
+        this.userPhone = '<?php echo $user_phone; ?>';
+        this.init();
+    }
 
+    init() {
+        console.log('📱 WhatsApp Share Manager Initialized');
+        console.log('👤 User Role:', this.userRole);
+        console.log('👤 User ID:', this.userId);
+        console.log('👤 User Name:', this.userName);
+        console.log('📱 User Phone:', this.userPhone);
+        console.log('🔗 Profile URL:', this.profileUrl);
+        
+        this.setupModalEvents();
+        this.setupFormValidation();
+    }
 
+    setupModalEvents() {
+        const whatsappBtn = document.getElementById('whatsapp-share-btn');
+        const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappShareModal'));
+        const closeBtn = document.getElementById('closeWhatsappModal');
+        const shareForm = document.getElementById('whatsappShareForm');
+        const languageRadios = document.querySelectorAll('input[name="message_language"]');
+        
+        // Open modal on button click
+        if (whatsappBtn) {
+            whatsappBtn.addEventListener('click', () => {
+                // Reset form
+                shareForm.reset();
+                document.getElementById('customerPhone').value = '';
+                
+                // Hide language selection for regular users
+                const languageSection = document.getElementById('languageSection');
+                if (languageSection) {
+                    if (this.userRole === 'user') {
+                        languageSection.style.display = 'none';
+                        document.querySelector('input[name="message_language"][value="english"]').checked = true;
+                    } else {
+                        languageSection.style.display = 'block';
+                    }
+                }
+                
+                whatsappModal.show();
+            });
+        }
+        
+        // Close modal
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                whatsappModal.hide();
+            });
+        }
+        
+        // Language change handler
+        languageRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.updateMessagePreview(e.target.value);
+            });
+        });
+        
+        // Form submit handler
+        if (shareForm) {
+            shareForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.sendWhatsAppMessage();
+            });
+        }
+    }
 
+    setupFormValidation() {
+        const phoneInput = document.getElementById('customerPhone');
+        
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) {
+                    value = value.substring(0, 10);
+                }
+                e.target.value = value;
+                
+                // Update validation message
+                const phoneError = document.getElementById('phoneError');
+                if (phoneError) {
+                    if (value.length === 10) {
+                        phoneError.textContent = '';
+                        phoneError.style.display = 'none';
+                    } else if (value.length > 0) {
+                        phoneError.textContent = 'Phone number must be 10 digits';
+                        phoneError.style.display = 'block';
+                    } else {
+                        phoneError.textContent = '';
+                        phoneError.style.display = 'none';
+                    }
+                }
+            });
+        }
+    }
 
+    updateMessagePreview(language) {
+        const previewElement = document.getElementById('messagePreview');
+        if (!previewElement) return;
+        
+        const customerName = document.getElementById('customerName').value || '';
+        
+        if (this.userRole === 'user') {
+            // User message
+            const message = this.generateUserMessage(customerName);
+            previewElement.textContent = message.substring(0, 200) + '...';
+        } else {
+            // Sales/Admin message
+            const message = this.generateSalesMessage(customerName, language);
+            previewElement.textContent = message.substring(0, 200) + '...';
+        }
+    }
 
+    generateUserMessage(customerName) {
+        const fullUrl = this.profileUrl;
+        const greeting = customerName ? `*Hello ${customerName}*,` : "*Hello*";
+        return `${greeting}\n\n🎉 *Great News!* We've launched our Direct Ordering Website! 🎉\n\nNow you can order straight from us — *No middlemen, No extra charges.* 💰\nEnjoy better prices, faster service & exclusive offers only on our website!\n\n*Save Money – Order Direct from Us!*\n\n*Order Now:* 👇\n${fullUrl}`;
+    }
 
+    generateSalesMessage(customerName, language = 'english') {
+        // Base contact info - fixed contacts (Inayat and Sagar)
+        const baseContactInfo = "Inayat Shaikh – 9819411026\nSagar Pawar – 9004998995";
+        
+        // Determine contact info based on user role
+        let contactInfo = baseContactInfo;
+        
+        if (this.userRole === 'sales_person') {
+            // For sales person: add their contact info before base contacts
+            if (this.userPhone && this.userName) {
+                contactInfo = `${this.userName} – ${this.userPhone}\n${baseContactInfo}`;
+            }
+        }
+        // For admin: use only base contacts (no admin contact added)
+        // For other roles: use only base contacts
+        
+        const greeting = customerName ? `*Hello ${customerName}*` : "*Hello*";
+        
+        if (language === 'hindi') {
+            return `${greeting},\nक्या आप अपनी मेहनत की कमाई *S.w.i.g.g.y / Z.o.m.a.t.o* कमीशन में गंवा रहे हैं? 💸\n\nअब पेश है *DeeGeeCard* – आपका खुद का ब्रांडेड फूड ऑर्डरिंग सिस्टम, जिसमें है *ZERO कमीशन – हमेशा के लिए!*\n\n🚀 *सिर्फ 60 मिनट में लॉन्च करें – अपनी खुद की वेबसाइट + एंड्रॉइड ऐप + एडमिन ऐप!*\n\nयह सब आपको मिलेगा 👇\n\n✅ *आपकी खुद की वेबसाइट (पर्सनलाइज़्ड डोमेन):* बिल्कुल S.w.i.g.g.y / Z.o.m.a.t.o जैसी वेबसाइट, लेकिन आपके रेस्टोरेंट के नाम से – बिना किसी कमीशन के।\n\n✅ *एडमिन मैनेजमेंट ऐप for Desktop & Mobile:* मोबाइल से ही ऑर्डर स्वीकारें/रिजेक्ट करें, मेनू और दाम तुरंत अपडेट करें।\n\n✅ *1000 पर्सनलाइज़्ड स्कैन-टू-ऑर्डर QR कार्ड्स + 8 QR टेबल स्टैंडीज़!* कस्टमर अब तुरंत डिलीवरी के लिए या सीधे अपनी टेबल से ऑर्डर कर सकते हैं।\nहर कार्ड और स्टैंडी को अपना सेल्फ-ऑर्डरिंग स्टेशन बनाएं — रीऑर्डर बढ़ाएं, सर्विस स्पीड बढ़ाएं और सुविधा भी!\n\n✅ *KOT और बिल प्रिंटिंग:* सिर्फ एक क्लिक में किचन ऑर्डर टिकट और बिल निकालें। 🧾\n\n✅ *फुल स्टोर कंट्रोल:* स्टोर टाइमिंग, डिलीवरी चार्ज, GST, डिस्काउंट, कूपन कोड और कैटेगरी – सबकुछ आसानी से सेट करें। ⚙️\n\n✅ *बुल्क व्हाट्सएप मार्केटिंग पैनल:* 10,000 फ्री क्रेडिट्स के साथ ऑफर्स और अपडेट भेजें। 📢\n\n✅ *डायरेक्ट पेमेंट्स:* UPI या कार्ड से पेमेंट सीधे आपके अकाउंट में – बिना किसी प्लेटफ़ॉर्म चार्ज के।\n\n✅ *कस्टमर रिव्यू का जवाब व्हाट्सएप पर दें:* सिर्फ एक क्लिक में ग्राहकों को रिप्लाई करें। 💬\n\n💡 *फ्री इंटीग्रेशन:* Google, Instagram, Facebook, YouTube और Maps – ताकि ग्राहक आपको आसानी से ढूंढ सकें।\n\n🔥 *अब कमीशन देना बंद करें। अपनी 100% कमाई अपने पास रखें।*\nआज ही शुरू करें अपने रेस्टोरेंट की डिजिटल क्रांति!\n\n💰 *सिर्फ ₹9,999/साल (कोई छुपा चार्ज नहीं)*\n\n📞 *कॉल करें अभी:*\n${contactInfo}\n\n🌐 https://www.deegeecard.com\n📧 support@deegeecard.com\n\n🌟 *रेस्टोरेंट्स को सशक्त बनाना। कमीशन को खत्म करना।*`;
+        } else {
+            return `${greeting}\nTired of losing your profits to S.w.i.g.g.y / Z.o.m.a.t.o commissions? 💸\n\nIntroducing DeeGeeCard – Your own branded food ordering system with ZERO commission, forever!\n\n🚀 Launch your own Ordering Website + Android App + Admin App in just 60 mins!\n\nHere's what you get:\n\n✅ *Your Own Ordering Website (Personalized Domain):* Just like S.w.i.g.g.y / Z.o.m.a.t.o – but branded for your restaurant, with zero commissions.\n\n✅ *Admin Management App for Desktop & Mobile:* Accept/reject orders, update menu & prices instantly from your phone.\n\n✅ *1000 Personalized Scan-to-Order QR Cards + 8 QR Table Standees!:* Let customers order instantly for delivery or straight from their dining table. Turn every card and standee into your own self-ordering station — boosting reorders, speed, and convenience!\n\n✅ *KOT & Bill Printing:* Generate kitchen order tickets and bills in just one click. 🧾\n\n✅ *Full Store Control:* Set store timings, delivery charges, GST, discounts, coupon codes, and menu categories easily. ⚙️\n\n✅ *Bulk WhatsApp Marketing Panel:* Get 10,000 FREE credits to send offers & updates to your customers directly. 📢\n\n✅ *Direct Payments:* Receive UPI/card payments instantly in your account — 0% platform fee.\n\n✅ *Reply to Reviews Instantly:* Respond to customer reviews directly via WhatsApp in one click. 💬\n\n💡 *Free Integrations:* Google, Instagram, Facebook, YouTube & Maps – make your restaurant easily discoverable.\n\n🔥 *Stop paying commissions. Start keeping 100% of your profits.*\n*Your restaurant's digital revolution starts TODAY!*\n\nAll this for just ₹9,999/year (No Hidden Costs)\n\n📞 Call us NOW:\n${contactInfo}\n\n🌐 https://www.deegeecard.com\n\n📧 support@deegeecard.com\n\n🌟 Empowering Restaurants. Eliminating Commissions.`;
+        }
+    }
 
+    async sendWhatsAppMessage() {
+        const customerName = document.getElementById('customerName').value.trim();
+        const customerPhone = document.getElementById('customerPhone').value.trim();
+        const language = document.querySelector('input[name="message_language"]:checked')?.value || 'english';
+        
+        // Validation - Only phone is required now
+        if (!customerPhone || customerPhone.length !== 10) {
+            this.showAlert('Please enter a valid 10-digit phone number', 'danger');
+            document.getElementById('customerPhone').focus();
+            return;
+        }
+        
+        // Save customer data to database (only if customer name is provided)
+        if (customerName) {
+            const saveResult = await this.saveCustomerData(customerName, customerPhone);
+            
+            if (!saveResult.success) {
+                this.showAlert('Failed to save customer data: ' + saveResult.message, 'warning');
+                // Continue anyway, but log the error
+                console.error('Customer data save failed:', saveResult.message);
+            }
+        }
+        
+        // Generate message based on user role
+        let message = '';
+        if (this.userRole === 'user') {
+            message = this.generateUserMessage(customerName);
+        } else {
+            message = this.generateSalesMessage(customerName, language);
+        }
+        
+        // Encode message for URL
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/91${customerPhone}?text=${encodedMessage}`;
+        
+        // Open WhatsApp in new tab
+        window.open(whatsappUrl, '_blank');
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('whatsappShareModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        // Show success message
+        if (customerName) {
+            this.showAlert('✅ Customer saved & WhatsApp opened!', 'success');
+        } else {
+            this.showAlert('✅ WhatsApp opened!', 'success');
+        }
+        
+        // Log the action
+        console.log('📤 WhatsApp message sent to:', customerPhone);
+        console.log('👤 Customer Name:', customerName || 'Not provided');
+        console.log('👤 User Role:', this.userRole);
+        console.log('📝 Message Length:', message.length);
+    }
 
+    async saveCustomerData(customerName, customerPhone) {
+        try {
+            const formData = new FormData();
+            formData.append('customer_name', customerName);
+            formData.append('customer_phone', customerPhone);
+            
+            const response = await fetch('save_customer_data.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include' // Important for session
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data;
+            
+        } catch (error) {
+            console.error('❌ Error saving customer data:', error);
+            return {
+                success: false,
+                message: 'Network error: ' + error.message
+            };
+        }
+    }
 
+    showAlert(message, type = 'info') {
+        // Remove existing alerts
+        const existingAlert = document.querySelector('.whatsapp-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show whatsapp-alert`;
+        alertDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1060;
+            min-width: 300px;
+        `;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 5000);
+    }
+}
 
+// Initialize WhatsApp Share Manager when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    window.whatsappShareManager = new WhatsAppShareManager();
+});
 
-
-
-
+// ==============================================
+// WhatsApp Share Profile Functionality - END
+// ==============================================
 
 // Enhanced Universal Session Management - 365 Days with WebToNative
 class UniversalSessionManager {
@@ -938,7 +1262,145 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
     padding: 2px 6px;
     border-radius: 10px;
 }
+
+/* WhatsApp Share Modal Styles */
+.whatsapp-modal .modal-dialog {
+    max-width: 500px;
+}
+
+.whatsapp-modal .preview-box {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+.whatsapp-modal .language-options {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.whatsapp-modal .language-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.whatsapp-modal .phone-input-container {
+    position: relative;
+}
+
+.whatsapp-modal .phone-input-container .input-group-text {
+    background: #25d366;
+    color: white;
+    border: 1px solid #25d366;
+}
+
+.whatsapp-modal .phone-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.whatsapp-modal .btn-whatsapp {
+    background: #25d366;
+    border-color: #25d366;
+    color: white;
+}
+
+.whatsapp-modal .btn-whatsapp:hover {
+    background: #128c7e;
+    border-color: #128c7e;
+}
 </style>
+
+<!-- WhatsApp Share Profile Modal -->
+<div class="modal fade whatsapp-modal" id="whatsappShareModal" tabindex="-1" aria-labelledby="whatsappShareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="whatsappShareModalLabel">
+                    <iconify-icon icon="logos:whatsapp-icon" class="me-2"></iconify-icon>
+                    Share Profile on WhatsApp
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeWhatsappModal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="whatsappShareForm">
+                    <!-- Customer Name -->
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">Customer Name (Optional)</label>
+                        <input type="text" class="form-control" id="customerName" placeholder="Enter customer name (optional)">
+                    </div>
+                    
+                    <!-- Customer Phone -->
+                    <div class="mb-3">
+                        <label for="customerPhone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <div class="phone-input-container">
+                            <div class="input-group">
+                                <span class="input-group-text">+91</span>
+                                <input type="tel" class="form-control" id="customerPhone" 
+                                       placeholder="Enter 10-digit phone number" 
+                                       maxlength="10" 
+                                       pattern="[0-9]{10}" 
+                                       required>
+                            </div>
+                            <div class="phone-error" id="phoneError"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Language Selection (for sales_person and admin only) -->
+                    <div id="languageSection" class="mb-3">
+                        <label class="form-label">Select Message Language</label>
+                        <div class="language-options">
+                            <div class="language-option">
+                                <input class="form-check-input" type="radio" name="message_language" id="englishLang" value="english" checked>
+                                <label class="form-check-label" for="englishLang">
+                                    <iconify-icon icon="circle-flags:uk"></iconify-icon> English
+                                </label>
+                            </div>
+                            <div class="language-option">
+                                <input class="form-check-input" type="radio" name="message_language" id="hindiLang" value="hindi">
+                                <label class="form-check-label" for="hindiLang">
+                                    <iconify-icon icon="circle-flags:in"></iconify-icon> Hindi
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message Preview -->
+                    <div class="mb-3">
+                        <label class="form-label">Message Preview</label>
+                        <div class="preview-box" id="messagePreview">
+                            Enter phone number to preview message...
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-whatsapp btn-lg">
+                            <iconify-icon icon="logos:whatsapp-icon" class="me-2"></iconify-icon>
+                            Share on WhatsApp
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- <div class="modal-footer">
+                <small class="text-muted">
+                    <iconify-icon icon="material-symbols:info-outline" class="me-1"></iconify-icon>
+                    Message will be sent via WhatsApp Web. Make sure WhatsApp is installed on your device.
+                </small>
+            </div> -->
+        </div>
+    </div>
+</div>
 
 <header class="topbar">
      <div class="container-fluid">
@@ -968,12 +1430,16 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
                          </button>
                     </div>
 
-                    <!-- Session Status Button -->
+                    <!-- Share Profile on WhatsApp Button -->
+                    <?php if (isset($_SESSION['user_id'])): ?>
                     <div class="topbar-item">
-                         <button type="button" class="topbar-button" id="session-status-btn" title="Session Status">
-                              <iconify-icon icon="solar:shield-check-bold" class="fs-24 align-middle"></iconify-icon>
+                         <button type="button" class="topbar-button" id="whatsapp-share-btn" title="Share Profile on WhatsApp">
+                              <iconify-icon icon="ic:baseline-whatsapp" class="fs-24 align-middle"></iconify-icon>
                          </button>
                     </div>
+                    <?php endif; ?>
+
+                    
 
                     <!-- User -->
                     <div class="dropdown topbar-item">
@@ -1012,6 +1478,8 @@ window.forceWebToNativeCookieUpdate = forceWebToNativeCookieUpdate;
 <script>
 // Enhanced toolbar functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // WhatsApp share functionality is handled by WhatsAppShareManager class
+    
     // Session status button functionality
     const sessionStatusBtn = document.getElementById('session-status-btn');
     const sessionStatusIndicator = document.getElementById('sessionStatusIndicator');
@@ -1106,5 +1574,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 5000);
         }
     }, 10000);
+    
+    // Real-time message preview when customer name changes
+    const customerNameInput = document.getElementById('customerName');
+    if (customerNameInput) {
+        customerNameInput.addEventListener('input', function() {
+            if (window.whatsappShareManager) {
+                const language = document.querySelector('input[name="message_language"]:checked')?.value || 'english';
+                window.whatsappShareManager.updateMessagePreview(language);
+            }
+        });
+    }
 });
 </script>

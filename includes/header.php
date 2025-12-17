@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-
-     <link rel="manifest" href="/manifest_post.json">
      <meta name="theme-color" content="<?= $primary_color ?>">
      <meta name="apple-mobile-web-app-capable" content="yes">
      <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -33,6 +31,52 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css?<?php echo time(); ?>" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css?<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const manifest = {
+    "name": "<?= htmlspecialchars($business_info['business_name'] ?? 'Restaurant') ?>",
+    "short_name": "<?= htmlspecialchars(substr($business_info['business_name'] ?? 'Restaurant', 0, 12)) ?>",
+    "description": "<?= htmlspecialchars($business_info['business_description'] ?? 'Food ordering') ?>",
+    "display": "standalone",
+    "background_color": "<?= $primary_color ?>",
+    "theme_color": "<?= $primary_color ?>",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "<?= $_SERVER['REQUEST_URI'] ?? '/' ?>",
+    "icons": [
+        {
+            "src": "https://deegeecard.com/uploads/profile/<?= htmlspecialchars($photos['profile_photo']) ?>",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://deegeecard.com/uploads/profile/<?= htmlspecialchars($photos['profile_photo']) ?>",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["food", "business", "productivity"],
+    "related_applications": [
+        {
+            "platform": "play",
+            "id": "com.deegeecard.restaurant"
+        }
+    ],
+    "prefer_related_applications": false
+};
+
+// Create and inject manifest link
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = manifestURL;
+document.head.appendChild(link);
+</script>
+
+
+
+
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-81W5S4MMGY"></script>
@@ -379,9 +423,47 @@ if (isAndroidWebView()) {
     background-color: <?= $primary_color ?>;
     color: #fff;
 }
+</style>
 
 
-    </style>
+<script>
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw_post.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registration successful');
+      })
+      .catch(function(err) {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+  });
+}
+
+// Trigger PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault();
+  // Stash the event so it can be triggered later
+  deferredPrompt = e;
+  // Show your own install button if needed
+  // document.getElementById('installBtn').style.display = 'block';
+});
+
+// Optional: Manual install button
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted PWA install');
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+</script>
 </head>
 <body class="restaurant">
 
