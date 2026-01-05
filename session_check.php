@@ -20,6 +20,7 @@ function checkSession() {
         return true;
     }
     
+    
     // Check for remember me token
     if (isset($_COOKIE['remember_token'])) {
         require 'db_connection.php'; // Your database connection file

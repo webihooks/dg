@@ -247,7 +247,7 @@ $recent_transactions_sql = "SELECT
 if ($role !== 'admin') {
     $recent_transactions_sql .= " WHERE t.user_id = ?";
 }
-$recent_transactions_sql .= " ORDER BY t.date DESC, t.created_at DESC LIMIT 10";
+$recent_transactions_sql .= " ORDER BY t.date DESC, t.created_at DESC LIMIT 50";
 
 $recent_transactions_stmt = $conn->prepare($recent_transactions_sql);
 $recent_transactions = [];
