@@ -7,7 +7,6 @@ header("Expires: 0");
 
 // Start the session
 session_start();
-date_default_timezone_set('Asia/Kolkata');
 
 // Include the enhanced session manager
 require_once 'android_session_manager.php';
@@ -17,7 +16,6 @@ $sessionManager = new AndroidSessionManager();
 $sessionManager->validateAndroidSession();
 
 require_once 'session_check.php';
-
 require_once 'db_connection.php';
 
 // Check if the user is logged in
@@ -41,14 +39,52 @@ $subscription_stmt->store_result();
 $has_active_subscription = ($subscription_stmt->num_rows > 0);
 $subscription_stmt->close();
 
-// Get user details including trial information
-$user_sql = "SELECT name, role, is_trial, trial_end FROM users WHERE id = ?";
+// Get user details including trial information AND country
+$user_sql = "SELECT name, role, is_trial, trial_end, country FROM users WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
-$user_stmt->bind_result($user_name, $role, $is_trial, $trial_end);
+$user_stmt->bind_result($user_name, $role, $is_trial, $trial_end, $user_country);
 $user_stmt->fetch();
 $user_stmt->close();
+
+// Set tax label based on user's country
+$tax_label = ($user_country === 'UAE') ? 'VAT' : 'GST';
+
+// Set timezone based on user's country
+switch ($user_country) {
+    case 'India':
+        date_default_timezone_set('Asia/Kolkata');
+        break;
+    case 'UAE':
+        date_default_timezone_set('Asia/Dubai');
+        break;
+    case 'UK':
+        date_default_timezone_set('Europe/London');
+        break;
+    case 'USA':
+        // For USA, you might want to get more specific based on user's timezone preference
+        // Defaulting to Eastern Time
+        date_default_timezone_set('America/New_York');
+        break;
+    default:
+        date_default_timezone_set('Asia/Kolkata'); // Default fallback
+}
+
+// Function to get currency symbol based on country
+function getCurrencySymbol($country) {
+    $currencySymbols = [
+        'India' => '₹',
+        'UAE' => 'AED',
+        'UK' => '£',
+        'USA' => '$'
+    ];
+    
+    return isset($currencySymbols[$country]) ? $currencySymbols[$country] : '₹';
+}
+
+// Get currency symbol for current user
+$currencySymbol = getCurrencySymbol($user_country);
 
 // Check trial status and prepare notification only if user doesn't have active subscription
 if (!$has_active_subscription && $is_trial) {
@@ -63,43 +99,122 @@ if (!$has_active_subscription && $is_trial) {
     }
 }
 
-// Get today's date
-$today = date('Y-m-d');
+// Function to adjust time for UAE users (subtract 1 hour 30 minutes)
+function adjustTimeForUAE($dateTime, $user_country) {
+    if ($user_country == 'UAE') {
+        $date = new DateTime($dateTime);
+        $date->modify('-1 hour -30 minutes');
+        return $date->format('Y-m-d H:i:s');
+    }
+    return $dateTime;
+}
 
-// Today's sales summary
-$summary_sql = "SELECT 
-                  COUNT(*) as total_orders,
-                  SUM(total_amount) as total_sales,
-                  SUM(subtotal) as subtotal,
-                  SUM(discount_amount) as total_discounts,
-                  SUM(gst_amount) as total_tax,
-                  SUM(delivery_charge) as total_delivery,
-                  AVG(total_amount) as avg_order_value
-                FROM orders 
-                WHERE user_id = ? 
-                AND status != 'cancelled'
-                AND DATE(created_at) = ?";
-                
-$stmt = $conn->prepare($summary_sql);
-$stmt->bind_param("is", $user_id, $today);
+// Get today's date for display and query - FIX FOR UAE TIMEZONE
+if ($user_country === 'UAE') {
+    // For UAE users, adjust the date by subtracting 1 hour 30 minutes for display
+    $display_time = new DateTime('now', new DateTimeZone('Asia/Dubai'));
+    $display_time->modify('-90 minutes');
+    $today_display = $display_time->format('F j, Y');
+    $today_timezone_display = 'UAE (Adjusted)';
+    
+    // For UAE users, we need to adjust the date range to account for timezone difference
+    // When showing "today" for UAE users, we need to include orders from Indian time perspective
+    // that correspond to the UAE user's today
+    
+    // UAE user's today (00:00 to 23:59 UAE time)
+    $uae_start = new DateTime('today', new DateTimeZone('Asia/Dubai'));
+    $uae_end = new DateTime('today', new DateTimeZone('Asia/Dubai'));
+    $uae_end->modify('+1 day')->modify('-1 second');
+    
+    // Convert to Indian time for database query
+    $uae_start->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    $uae_end->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    
+    // Get date parts for query
+    $today_for_query_start = $uae_start->format('Y-m-d');
+    $today_for_query_end = $uae_end->format('Y-m-d');
+    
+    // Note: We'll use CONVERT_TZ in the query for UAE users
+} else {
+    $today_display = date('F j, Y');
+    $today_timezone_display = date_default_timezone_get();
+    $today_for_query = date('Y-m-d');
+}
+
+// Today's sales summary - use appropriate date filtering based on country
+if ($user_country === 'UAE') {
+    // For UAE users, use CONVERT_TZ to properly handle timezone conversion
+    $summary_sql = "SELECT 
+                      COUNT(*) as total_orders,
+                      SUM(total_amount) as total_sales,
+                      SUM(subtotal) as subtotal,
+                      SUM(discount_amount) as total_discounts,
+                      SUM(gst_amount) as total_tax,
+                      SUM(delivery_charge) as total_delivery,
+                      AVG(total_amount) as avg_order_value
+                    FROM orders 
+                    WHERE user_id = ? 
+                    AND status != 'cancelled'
+                    AND DATE(CONVERT_TZ(created_at, '+00:00', '+05:30')) BETWEEN ? AND ?";
+                    
+    $stmt = $conn->prepare($summary_sql);
+    $stmt->bind_param("iss", $user_id, $today_for_query_start, $today_for_query_end);
+} else {
+    // For other countries, use standard date filtering
+    $summary_sql = "SELECT 
+                      COUNT(*) as total_orders,
+                      SUM(total_amount) as total_sales,
+                      SUM(subtotal) as subtotal,
+                      SUM(discount_amount) as total_discounts,
+                      SUM(gst_amount) as total_tax,
+                      SUM(delivery_charge) as total_delivery,
+                      AVG(total_amount) as avg_order_value
+                    FROM orders 
+                    WHERE user_id = ? 
+                    AND status != 'cancelled'
+                    AND DATE(created_at) = ?";
+                    
+    $stmt = $conn->prepare($summary_sql);
+    $stmt->bind_param("is", $user_id, $today_for_query);
+}
+
 $stmt->execute();
 $summary_data = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// Hourly sales data for today's chart
-$hourly_sales_sql = "SELECT 
-                    HOUR(created_at) as sale_hour,
-                    COUNT(*) as total_orders,
-                    SUM(total_amount) as total_sales
-                  FROM orders 
-                  WHERE user_id = ? 
-                  AND status != 'cancelled'
-                  AND DATE(created_at) = ?
-                  GROUP BY HOUR(created_at)
-                  ORDER BY sale_hour ASC";
-                  
-$stmt = $conn->prepare($hourly_sales_sql);
-$stmt->bind_param("is", $user_id, $today);
+// Hourly sales data for today's chart - use appropriate date filtering based on country
+if ($user_country === 'UAE') {
+    // For UAE users, use CONVERT_TZ to get hour in UAE time
+    $hourly_sales_sql = "SELECT 
+                        HOUR(CONVERT_TZ(created_at, '+00:00', '+04:00')) as sale_hour,
+                        COUNT(*) as total_orders,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status != 'cancelled'
+                      AND DATE(CONVERT_TZ(created_at, '+00:00', '+05:30')) BETWEEN ? AND ?
+                      GROUP BY HOUR(CONVERT_TZ(created_at, '+00:00', '+04:00'))
+                      ORDER BY sale_hour ASC";
+                      
+    $stmt = $conn->prepare($hourly_sales_sql);
+    $stmt->bind_param("iss", $user_id, $today_for_query_start, $today_for_query_end);
+} else {
+    // For other countries
+    $hourly_sales_sql = "SELECT 
+                        HOUR(created_at) as sale_hour,
+                        COUNT(*) as total_orders,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status != 'cancelled'
+                      AND DATE(created_at) = ?
+                      GROUP BY HOUR(created_at)
+                      ORDER BY sale_hour ASC";
+                      
+    $stmt = $conn->prepare($hourly_sales_sql);
+    $stmt->bind_param("is", $user_id, $today_for_query);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 $sales_data = [];
@@ -190,6 +305,13 @@ $conn->close();
             background: #ffc107;
             color: #000;
         }
+        
+        .uae-time-note {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -220,7 +342,7 @@ $conn->close();
                         
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Today's Sales Report - <?php echo date('F j, Y'); ?></h4>
+                                <h4 class="card-title">Today's Sales Report - <?php echo $today_display; ?></h4>
                             </div>
                             
                             <div class="card-body">
@@ -230,10 +352,10 @@ $conn->close();
                                         <div class="card card-summary bg-primary text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Today's Sales</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales']) : '0'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales']) : '0'; ?></h3>
                                                 <p class="card-text mb-0"><?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?> orders</p>
                                                 <?php if (isset($summary_data['avg_order_value']) && $summary_data['total_orders'] > 0): ?>
-                                                    <p class="card-text">Avg: ₹<?php echo number_format($summary_data['avg_order_value']); ?></p>
+                                                    <p class="card-text">Avg: <?php echo $currencySymbol; ?> <?php echo number_format($summary_data['avg_order_value']); ?></p>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -242,7 +364,7 @@ $conn->close();
                                         <div class="card card-summary bg-success text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Subtotal</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal']) : '0'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal']) : '0'; ?></h3>
                                                 <p class="card-text mb-0">Before discounts & taxes</p>
                                             </div>
                                         </div>
@@ -251,9 +373,9 @@ $conn->close();
                                         <div class="card card-summary bg-info text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Taxes & Charges</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0)) : '0'; ?></h3>
-                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax']) : '0'; ?></p>
-                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery']) : '0'; ?></p>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0)) : '0'; ?></h3>
+                                                <p class="card-text mb-0"><?php echo $tax_label; ?>: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax']) : '0'; ?></p>
+                                                <p class="card-text">Delivery: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery']) : '0'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -261,7 +383,7 @@ $conn->close();
                                         <div class="card card-summary bg-warning text-dark">
                                             <div class="card-body">
                                                 <h5 class="card-title">Discounts</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts']) : '0'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts']) : '0'; ?></h3>
                                                 <p class="card-text">Applied to orders</p>
                                             </div>
                                         </div>
@@ -273,7 +395,11 @@ $conn->close();
                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-body">
-                                                <h5 class="card-title">Hourly Sales Trend</h5>
+                                                <h5 class="card-title">Hourly Sales Trend
+                                                    <?php if ($user_country === 'UAE'): ?>
+                                                        <span class="uae-time-note">(UAE Local Time)</span>
+                                                    <?php endif; ?>
+                                                </h5>
                                                 <canvas id="salesChart" height="100"></canvas>
                                             </div>
                                         </div>
@@ -356,7 +482,7 @@ $conn->close();
         // Additional protection for order system
         if (typeof WTN !== 'undefined') {
             // Override order system functions to include cookie updates
-            const originalInitOrderSystem = window.initOrderSystem;
+                const originalInitOrderSystem = window.initOrderSystem;
             if (originalInitOrderSystem) {
                 window.initOrderSystem = function() {
                     if (WTN.forceUpdateCookies) {
@@ -457,6 +583,11 @@ $conn->close();
     
     <script>
         $(document).ready(function() {
+            // Get currency symbol from PHP
+            const currencySymbol = '<?php echo $currencySymbol; ?>';
+            const userCountry = '<?php echo $user_country; ?>';
+            const taxLabel = '<?php echo $tax_label; ?>';
+            
             // Initialize Chart
             const ctx = document.getElementById('salesChart').getContext('2d');
             
@@ -474,6 +605,7 @@ $conn->close();
                 
                 // Format hours for display (e.g., "12 PM")
                 const hourLabels = allHours.map(hour => {
+                    // Format the hour for display
                     return hour === 0 ? '12 AM' : 
                            hour < 12 ? hour + ' AM' : 
                            hour === 12 ? '12 PM' : 
@@ -486,7 +618,7 @@ $conn->close();
                         labels: hourLabels,
                         datasets: [
                             {
-                                label: 'Sales (₹)',
+                                label: 'Sales (' + currencySymbol + ')',
                                 data: salesByHour,
                                 backgroundColor: 'rgba(54, 162, 235, 0.7)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -509,14 +641,14 @@ $conn->close();
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Today\'s Sales by Hour'
+                                text: userCountry === 'UAE' ? 'Today\'s Sales by Hour (UAE Local Time)' : 'Today\'s Sales by Hour'
                             },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
                                         let label = context.dataset.label || '';
                                         if (label.includes('Sales')) {
-                                            label += ': ₹' + context.raw.toFixed(2);
+                                            label += ': ' + currencySymbol + ' ' + context.raw.toFixed(2);
                                         } else {
                                             label += ': ' + context.raw;
                                         }
@@ -532,7 +664,7 @@ $conn->close();
                                 position: 'left',
                                 title: {
                                     display: true,
-                                    text: 'Sales (₹)'
+                                    text: 'Sales (' + currencySymbol + ')'
                                 }
                             },
                             y1: {
@@ -552,15 +684,17 @@ $conn->close();
                 });
             <?php else: ?>
                 // Empty chart when no data
+                const hourLabels = Array.from({length: 24}, (_, i) => {
+                    return i === 0 ? '12 AM' : 
+                           i < 12 ? i + ' AM' : 
+                           i === 12 ? '12 PM' : 
+                           (i - 12) + ' PM';
+                });
+                
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: Array.from({length: 24}, (_, i) => {
-                            return i === 0 ? '12 AM' : 
-                                   i < 12 ? i + ' AM' : 
-                                   i === 12 ? '12 PM' : 
-                                   (i - 12) + ' PM';
-                        }),
+                        labels: hourLabels,
                         datasets: []
                     },
                     options: {
@@ -568,7 +702,7 @@ $conn->close();
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'No sales data available for today yet'
+                                text: userCountry === 'UAE' ? 'No sales data available for today yet (UAE Local Time)' : 'No sales data available for today yet'
                             }
                         }
                     }

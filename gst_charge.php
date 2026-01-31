@@ -15,32 +15,36 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
 
-// Fetch user details
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
+// Fetch user details including country
+$sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);
+$stmt->bind_result($user_name, $email, $phone, $address, $role, $country);
 $stmt->fetch();
 $stmt->close();
 
-// Fetch existing GST percentage if it exists
-$current_gst = 0;
+// Determine tax label based on country
+$tax_label = ($country == 'UAE') ? 'VAT' : 'GST';
+$tax_label_lower = strtolower($tax_label);
+
+// Fetch existing tax percentage if it exists
+$current_tax = 0;
 $sql = "SELECT gst_percent FROM gst_charge WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($current_gst);
+$stmt->bind_result($current_tax);
 $stmt->fetch();
 $stmt->close();
 
 // Process form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_gst_charge'])) {
-    $gst_percent = (float)$_POST['gst_percent'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_tax_charge'])) {
+    $tax_percent = (float)$_POST['tax_percent'];
     
     // Validate input
-    if ($gst_percent < 0 || $gst_percent > 100) {
-        $message = "GST percentage must be between 0 and 100.";
+    if ($tax_percent < 0 || $tax_percent > 100) {
+        $message = "$tax_label percentage must be between 0 and 100.";
         $message_type = "danger";
     } else {
         // First check if record exists for this user
@@ -57,19 +61,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_gst_charge'])) {
             // Update existing record
             $sql = "UPDATE gst_charge SET gst_percent = ?, updated_at = NOW() WHERE user_id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("di", $gst_percent, $user_id);
+            $stmt->bind_param("di", $tax_percent, $user_id);
         } else {
             // Insert new record
             $sql = "INSERT INTO gst_charge (user_id, gst_percent, created_at, updated_at) VALUES (?, ?, NOW(), NOW())";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("id", $user_id, $gst_percent);
+            $stmt->bind_param("id", $user_id, $tax_percent);
         }
         
         if ($stmt->execute()) {
-            $message = "GST percentage saved successfully!";
-            $current_gst = $gst_percent;
+            $message = "$tax_label percentage saved successfully!";
+            $current_tax = $tax_percent;
         } else {
-            $message = "Error saving GST percentage: " . $conn->error;
+            $message = "Error saving $tax_label percentage: " . $conn->error;
             $message_type = "danger";
         }
         $stmt->close();
@@ -83,7 +87,7 @@ $conn->close();
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>GST Management</title>
+    <title><?php echo $tax_label; ?> Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
     <!-- PWA Meta Tags -->
@@ -126,7 +130,7 @@ $conn->close();
                     <div class="col-xl-9">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">GST Management</h4>
+                                <h4 class="card-title"><?php echo $tax_label; ?> Management</h4>
                             </div>
                             <div class="card-body">
                                 <?php if (!empty($message)): ?>
@@ -137,13 +141,13 @@ $conn->close();
 
                                 <form method="POST" action="gst_charge.php">
                                     <div class="col-md-6 mb-3">
-                                        <label for="gst_percent" class="form-label">GST Percentage (%)</label>
-                                        <input type="number" class="form-control" id="gst_percent" 
-                                               name="gst_percent" step="0.01" min="0" max="100"
-                                               value="<?php echo htmlspecialchars($current_gst); ?>" required>
-                                        <div class="form-text">Enter the GST percentage (0-100).</div>
+                                        <label for="tax_percent" class="form-label"><?php echo $tax_label; ?> Percentage (%)</label>
+                                        <input type="number" class="form-control" id="tax_percent" 
+                                               name="tax_percent" step="0.01" min="0" max="100"
+                                               value="<?php echo htmlspecialchars($current_tax); ?>" required>
+                                        <div class="form-text">Enter the <?php echo $tax_label_lower; ?> percentage (0-100).</div>
                                     </div>
-                                    <button type="submit" name="save_gst_charge" class="btn btn-primary">Save GST Percentage</button>
+                                    <button type="submit" name="save_tax_charge" class="btn btn-primary">Save <?php echo $tax_label; ?> Percentage</button>
                                 </form>
                             </div>
                         </div>
@@ -160,17 +164,17 @@ $conn->close();
         $(document).ready(function() {
             $('form').validate({
                 rules: {
-                    gst_percent: {
+                    tax_percent: {
                         required: true,
                         min: 0,
                         max: 100
                     }
                 },
                 messages: {
-                    gst_percent: {
-                        required: "Please enter a GST percentage",
-                        min: "GST percentage cannot be negative",
-                        max: "GST percentage cannot exceed 100%"
+                    tax_percent: {
+                        required: "Please enter a <?php echo $tax_label; ?> percentage",
+                        min: "<?php echo $tax_label; ?> percentage cannot be negative",
+                        max: "<?php echo $tax_label; ?> percentage cannot exceed 100%"
                     }
                 },
                 errorElement: 'div',

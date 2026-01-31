@@ -21,14 +21,29 @@ if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
 
-// Fetch user details
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
+// Fetch user details including country
+$sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);
+$stmt->bind_result($user_name, $email, $phone, $address, $role, $user_country);
 $stmt->fetch();
 $stmt->close();
+
+// Function to get currency symbol based on country
+function getCurrencySymbol($country) {
+    $currencySymbols = [
+        'India' => '₹',
+        'UAE' => 'AED',
+        'UK' => '£',
+        'USA' => '$'
+    ];
+    
+    return isset($currencySymbols[$country]) ? $currencySymbols[$country] : '₹';
+}
+
+// Get currency symbol for current user
+$currencySymbol = getCurrencySymbol($user_country);
 
 // Fetch existing discount for this user (only one allowed)
 $discount = null;
@@ -249,6 +264,8 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Discount Management</h4>
+                                
+                                
                                 <button class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addDiscountModal">
                                     <?php echo $discount ? 'Edit Discount' : 'Add Discount'; ?>
                                 </button>
@@ -277,13 +294,13 @@ $conn->close();
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td>₹<?php echo number_format($discount['min_cart_value'], 2); ?></td>
+                                                    <td><?php echo $currencySymbol; ?><?php echo number_format($discount['min_cart_value'], 2); ?></td>
                                                     <td>
                                                         <?php
                                                         if ($discount['discount_in_percent'] !== NULL) {
                                                             echo number_format($discount['discount_in_percent'], 2) . '%';
                                                         } else {
-                                                            echo '₹' . number_format($discount['discount_in_flat'], 2);
+                                                            echo $currencySymbol . number_format($discount['discount_in_flat'], 2);
                                                         }
                                                         ?>
                                                     </td>
@@ -352,7 +369,7 @@ $conn->close();
                         </div>
                         
                         <div class="mb-3">
-                            <label for="min_cart_value" class="form-label">Minimum Cart Value (₹)</label>
+                            <label for="min_cart_value" class="form-label">Minimum Cart Value (<?php echo $currencySymbol; ?>)</label>
                             <input type="number" class="form-control" id="min_cart_value"
                                    name="min_cart_value" step="0.01" min="0.01"
                                    value="<?php echo $discount ? $discount['min_cart_value'] : ''; ?>" required>
@@ -386,7 +403,7 @@ $conn->close();
                         </div>
                         
                         <div class="mb-3" id="flatDiscountGroup" style="<?php echo ($discount && $discount['discount_in_flat'] !== NULL) ? '' : 'display:none;'; ?>">
-                            <label for="discount_in_flat" class="form-label">Flat Discount Amount (₹)</label>
+                            <label for="discount_in_flat" class="form-label">Flat Discount Amount (<?php echo $currencySymbol; ?>)</label>
                             <input type="number" class="form-control" id="discount_in_flat"
                                    name="discount_in_flat" step="0.01" min="0.01"
                                    value="<?php echo $discount ? $discount['discount_in_flat'] : ''; ?>">

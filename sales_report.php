@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-date_default_timezone_set('Asia/Kolkata'); // for Indian Standard Time
 
 // Include the database connection file
 require 'db_connection.php';
@@ -12,18 +11,77 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+
 $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
 
-// Fetch user details
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
+// Fetch user details including country
+$sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);
+$stmt->bind_result($user_name, $email, $phone, $address, $role, $user_country);
 $stmt->fetch();
 $stmt->close();
+
+// Set timezone based on user's country
+switch ($user_country) {
+    case 'India':
+        date_default_timezone_set('Asia/Kolkata');
+        break;
+    case 'UAE':
+        date_default_timezone_set('Asia/Dubai');
+        break;
+    case 'UK':
+        date_default_timezone_set('Europe/London');
+        break;
+    case 'USA':
+        // For USA, defaulting to Eastern Time
+        date_default_timezone_set('America/New_York');
+        break;
+    default:
+        date_default_timezone_set('Asia/Kolkata'); // Default fallback
+}
+
+// Function to get currency symbol based on country
+function getCurrencySymbol($country) {
+    $currencySymbols = [
+        'India' => '₹',
+        'UAE' => 'AED',
+        'UK' => '£',
+        'USA' => '$'
+    ];
+    
+    return isset($currencySymbols[$country]) ? $currencySymbols[$country] : '₹';
+}
+
+// Get currency symbol for current user
+$currencySymbol = getCurrencySymbol($user_country);
+
+// Set tax label based on user's country
+$taxLabel = ($user_country === 'UAE') ? 'VAT' : 'GST';
+
+// Function to adjust time for UAE users (subtract 1 hour 30 minutes)
+function adjustTimeForUAE($dateTime, $user_country) {
+    if ($user_country == 'UAE') {
+        $date = new DateTime($dateTime);
+        $date->modify('-1 hour -30 minutes');
+        return $date->format('Y-m-d H:i:s');
+    }
+    return $dateTime;
+}
+
+// Function to display time with UAE adjustment
+function displayTime($dateTime, $user_country) {
+    $date = new DateTime($dateTime);
+    
+    if ($user_country == 'UAE') {
+        $date->modify('-1 hour -30 minutes');
+    }
+    
+    return $date->format('d/m/Y h:i A');
+}
 
 // Fetch business information
 $business_sql = "SELECT business_name, business_address FROM business_info WHERE user_id = ?";
@@ -41,11 +99,37 @@ if (empty($business_name)) {
 }
 
 // Date range for reports (default to current month)
-// For start date, we want to include everything from 00:00:00 on that day
-$start_date = isset($_GET['start_date']) ? $_GET['start_date'] . ' 00:00:00' : date('Y-m-01') . ' 00:00:00';
-
-// For end date, we want to include everything up to 23:59:59 on that day
-$end_date = isset($_GET['end_date']) ? $_GET['end_date'] . ' 23:59:59' : date('Y-m-t') . ' 23:59:59';
+// For UAE users, we need to handle date conversion differently
+if ($user_country === 'UAE') {
+    // For UAE users, we need to adjust the date range to account for timezone difference
+    // When UAE user selects a date, we need to include orders from Indian time perspective
+    
+    // Convert UAE date to Indian time for filtering
+    $start_date_input = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
+    $end_date_input = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
+    
+    // Convert start date from UAE to Indian time
+    $start_date_obj = new DateTime($start_date_input . ' 00:00:00', new DateTimeZone('Asia/Dubai'));
+    $start_date_obj->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    $start_date_adjusted = $start_date_obj->format('Y-m-d H:i:s');
+    
+    // Convert end date from UAE to Indian time
+    $end_date_obj = new DateTime($end_date_input . ' 23:59:59', new DateTimeZone('Asia/Dubai'));
+    $end_date_obj->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    $end_date_adjusted = $end_date_obj->format('Y-m-d H:i:s');
+    
+    // For display purposes
+    $start_date_display = $start_date_input . ' 00:00:00';
+    $end_date_display = $end_date_input . ' 23:59:59';
+    
+    // For queries, we'll use CONVERT_TZ for proper filtering
+    $date_condition = "CONVERT_TZ(created_at, '+00:00', '+05:30') BETWEEN ? AND ?";
+} else {
+    // For other countries, use standard date filtering
+    $start_date_display = isset($_GET['start_date']) ? $_GET['start_date'] . ' 00:00:00' : date('Y-m-01') . ' 00:00:00';
+    $end_date_display = isset($_GET['end_date']) ? $_GET['end_date'] . ' 23:59:59' : date('Y-m-t') . ' 23:59:59';
+    $date_condition = "created_at BETWEEN ? AND ?";
+}
 
 $report_type = isset($_GET['report_type']) ? $_GET['report_type'] : 'daily';
 
@@ -62,61 +146,80 @@ $sales_data = [];
 $summary_data = [];
 
 if ($report_type === 'daily') {
-    // Daily sales report (updated)
-$sales_sql = "SELECT 
-                DATE(created_at) as sale_date,
-                COUNT(*) as total_orders,
-                SUM(subtotal) as subtotal,
-                SUM(discount_amount) as total_discounts,
-                SUM(gst_amount) as total_tax,
-                SUM(delivery_charge) as total_delivery,
-                SUM(total_amount) as total_sales
-              FROM orders 
-              WHERE user_id = ? 
-              AND status != 'cancelled'
-              AND created_at BETWEEN ? AND ?
-              GROUP BY DATE(created_at)
-              ORDER BY sale_date ASC";
+    // Daily sales report with UAE timezone support
+    if ($user_country === 'UAE') {
+        // For UAE users, use CONVERT_TZ to get date in UAE time
+        $sales_sql = "SELECT 
+                        DATE(CONVERT_TZ(created_at, '+00:00', '+04:00')) as sale_date,
+                        COUNT(*) as total_orders,
+                        SUM(subtotal) as subtotal,
+                        SUM(discount_amount) as total_discounts,
+                        SUM(gst_amount) as total_tax,
+                        SUM(delivery_charge) as total_delivery,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status != 'cancelled'
+                      AND $date_condition
+                      GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+04:00'))
+                      ORDER BY sale_date ASC";
+    } else {
+        $sales_sql = "SELECT 
+                        DATE(created_at) as sale_date,
+                        COUNT(*) as total_orders,
+                        SUM(subtotal) as subtotal,
+                        SUM(discount_amount) as total_discounts,
+                        SUM(gst_amount) as total_tax,
+                        SUM(delivery_charge) as total_delivery,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status != 'cancelled'
+                      AND $date_condition
+                      GROUP BY DATE(created_at)
+                      ORDER BY sale_date ASC";
+    }
 
-// Order type analysis (updated)
-$sales_sql = "SELECT 
-                order_type,
-                COUNT(*) as total_orders,
-                SUM(total_amount) as total_sales,
-                SUM(subtotal) as subtotal,
-                SUM(discount_amount) as total_discounts,
-                SUM(gst_amount) as total_tax,
-                SUM(delivery_charge) as total_delivery,
-                AVG(total_amount) as avg_order_value
-              FROM orders 
-              WHERE user_id = ? 
-              AND status != 'cancelled'
-              AND created_at BETWEEN ? AND ?
-              GROUP BY order_type
-              ORDER BY total_sales DESC";
+    $stmt = $conn->prepare($sales_sql);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("iss", $user_id, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("iss", $user_id, $start_date_display, $end_date_display);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $sales_data[] = $row;
+    }
+    $stmt->close();
 
-// Summary for the period (updated)
-$summary_sql = "SELECT 
-                  COUNT(*) as total_orders,
-                  SUM(total_amount) as total_sales,
-                  SUM(subtotal) as subtotal,
-                  SUM(discount_amount) as total_discounts,
-                  SUM(gst_amount) as total_tax,
-                  SUM(delivery_charge) as total_delivery,
-                  AVG(total_amount) as avg_order_value
-                FROM orders 
-                WHERE user_id = ? 
-                AND status != 'cancelled'
-                AND created_at BETWEEN ? AND ?";
+    // Summary for the period
+    $summary_sql = "SELECT 
+                      COUNT(*) as total_orders,
+                      SUM(total_amount) as total_sales,
+                      SUM(subtotal) as subtotal,
+                      SUM(discount_amount) as total_discounts,
+                      SUM(gst_amount) as total_tax,
+                      SUM(delivery_charge) as total_delivery,
+                      AVG(total_amount) as avg_order_value
+                    FROM orders 
+                    WHERE user_id = ? 
+                    AND status != 'cancelled'
+                    AND $date_condition";
                     
     $stmt = $conn->prepare($summary_sql);
-    $stmt->bind_param("iss", $user_id, $start_date, $end_date);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("iss", $user_id, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("iss", $user_id, $start_date_display, $end_date_display);
+    }
     $stmt->execute();
     $summary_data = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 } 
 elseif ($report_type === 'order_type') {
-    // Order type analysis
+    // Order type analysis with UAE timezone support
     $sales_sql = "SELECT 
                     order_type,
                     COUNT(*) as total_orders,
@@ -128,12 +231,16 @@ elseif ($report_type === 'order_type') {
                     AVG(total_amount) as avg_order_value
                   FROM orders 
                   WHERE user_id = ? 
-                  AND created_at BETWEEN ? AND ?
+                  AND $date_condition
                   GROUP BY order_type
                   ORDER BY total_sales DESC";
                   
     $stmt = $conn->prepare($sales_sql);
-    $stmt->bind_param("iss", $user_id, $start_date, $end_date);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("iss", $user_id, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("iss", $user_id, $start_date_display, $end_date_display);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -152,10 +259,14 @@ elseif ($report_type === 'order_type') {
                       SUM(delivery_charge) as total_delivery
                     FROM orders 
                     WHERE user_id = ? 
-                    AND created_at BETWEEN ? AND ?";
+                    AND $date_condition";
                     
     $stmt = $conn->prepare($summary_sql);
-    $stmt->bind_param("iss", $user_id, $start_date, $end_date);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("iss", $user_id, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("iss", $user_id, $start_date_display, $end_date_display);
+    }
     $stmt->execute();
     $summary_data = $stmt->get_result()->fetch_assoc();
     $stmt->close();
@@ -165,23 +276,45 @@ elseif (array_key_exists($report_type, $status_types)) {
     $status_value = $report_type;
     $status_label = $status_types[$report_type];
     
-    $sales_sql = "SELECT 
-                    DATE(created_at) as sale_date,
-                    COUNT(*) as total_orders,
-                    SUM(subtotal) as subtotal,
-                    SUM(discount_amount) as total_discounts,
-                    SUM(gst_amount) as total_tax,
-                    SUM(delivery_charge) as total_delivery,
-                    SUM(total_amount) as total_sales
-                  FROM orders 
-                  WHERE user_id = ? 
-                  AND status = ?
-                  AND created_at BETWEEN ? AND ?
-                  GROUP BY DATE(created_at)
-                  ORDER BY sale_date DESC";
-                  
+    if ($user_country === 'UAE') {
+        // For UAE users, use CONVERT_TZ to get date in UAE time
+        $sales_sql = "SELECT 
+                        DATE(CONVERT_TZ(created_at, '+00:00', '+04:00')) as sale_date,
+                        COUNT(*) as total_orders,
+                        SUM(subtotal) as subtotal,
+                        SUM(discount_amount) as total_discounts,
+                        SUM(gst_amount) as total_tax,
+                        SUM(delivery_charge) as total_delivery,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status = ?
+                      AND $date_condition
+                      GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+04:00'))
+                      ORDER BY sale_date DESC";
+    } else {
+        $sales_sql = "SELECT 
+                        DATE(created_at) as sale_date,
+                        COUNT(*) as total_orders,
+                        SUM(subtotal) as subtotal,
+                        SUM(discount_amount) as total_discounts,
+                        SUM(gst_amount) as total_tax,
+                        SUM(delivery_charge) as total_delivery,
+                        SUM(total_amount) as total_sales
+                      FROM orders 
+                      WHERE user_id = ? 
+                      AND status = ?
+                      AND $date_condition
+                      GROUP BY DATE(created_at)
+                      ORDER BY sale_date DESC";
+    }
+    
     $stmt = $conn->prepare($sales_sql);
-    $stmt->bind_param("isss", $user_id, $status_value, $start_date, $end_date);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("isss", $user_id, $status_value, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("isss", $user_id, $status_value, $start_date_display, $end_date_display);
+    }
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -202,10 +335,14 @@ elseif (array_key_exists($report_type, $status_types)) {
                     FROM orders 
                     WHERE user_id = ? 
                     AND status = ?
-                    AND created_at BETWEEN ? AND ?";
+                    AND $date_condition";
                     
     $stmt = $conn->prepare($summary_sql);
-    $stmt->bind_param("isss", $user_id, $status_value, $start_date, $end_date);
+    if ($user_country === 'UAE') {
+        $stmt->bind_param("isss", $user_id, $status_value, $start_date_adjusted, $end_date_adjusted);
+    } else {
+        $stmt->bind_param("isss", $user_id, $status_value, $start_date_display, $end_date_display);
+    }
     $stmt->execute();
     $summary_data = $stmt->get_result()->fetch_assoc();
     $stmt->close();
@@ -263,6 +400,27 @@ $conn->close();
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
+        .country-indicator {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 8px;
+            background-color: #17a2b8;
+            color: white;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+        .timezone-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 10px;
+            font-style: italic;
+        }
+        .uae-time-note {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -313,11 +471,13 @@ $conn->close();
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="start_date" class="form-label">Start Date</label>
-                                                <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01'); ?>">
+                                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                                       value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01'); ?>">
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="end_date" class="form-label">End Date</label>
-                                                <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t'); ?>">
+                                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                                       value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t'); ?>">
                                             </div>
                                             <div class="col-md-3 d-flex align-items-end">
                                                 <button type="submit" class="btn btn-primary">Generate Report</button>
@@ -326,6 +486,16 @@ $conn->close();
                                                 </button>
                                             </div>
                                         </form>
+                                        <?php if ($user_country === 'UAE'): ?>
+                                            <div class="row mt-2">
+                                                <div class="col-md-12">
+                                                    <p class="uae-time-note mb-0">
+                                                        <i class="bi bi-info-circle"></i> 
+                                                        Note: Dates are shown in UAE time (UTC+4). Orders placed at 12:00 AM Indian time (10:30 PM UAE time previous day) are included in the previous day's report.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
@@ -335,10 +505,10 @@ $conn->close();
                                         <div class="card card-summary bg-primary text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Total Sales</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales'], 2) : '0.00'; ?></h3>
                                                 <p class="card-text mb-0"><?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?> orders</p>
                                                 <?php if (isset($summary_data['avg_order_value'])): ?>
-                                                    <p class="card-text">Avg: ₹<?php echo number_format($summary_data['avg_order_value'], 2); ?></p>
+                                                    <p class="card-text">Avg: <?php echo $currencySymbol; ?> <?php echo number_format($summary_data['avg_order_value'], 2); ?></p>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -347,7 +517,7 @@ $conn->close();
                                         <div class="card card-summary bg-success text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Subtotal</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal'], 2) : '0.00'; ?></h3>
                                                 <p class="card-text mb-0">Before discounts & taxes</p>
                                             </div>
                                         </div>
@@ -356,9 +526,9 @@ $conn->close();
                                         <div class="card card-summary bg-info text-white">
                                             <div class="card-body">
                                                 <h5 class="card-title">Taxes & Charges</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0), 2) : '0.00'; ?></h3>
-                                                <p class="card-text mb-0">GST: ₹<?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'], 2) : '0.00'; ?></p>
-                                                <p class="card-text">Delivery: ₹<?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery'], 2) : '0.00'; ?></p>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'] + ($summary_data['total_delivery'] ?? 0), 2) : '0.00'; ?></h3>
+                                                <p class="card-text mb-0"><?php echo $taxLabel; ?>: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'], 2) : '0.00'; ?></p>
+                                                <p class="card-text">Delivery: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery'], 2) : '0.00'; ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -366,7 +536,7 @@ $conn->close();
                                         <div class="card card-summary bg-warning text-dark">
                                             <div class="card-body">
                                                 <h5 class="card-title">Discounts</h5>
-                                                <h3 class="card-text">₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts'], 2) : '0.00'; ?></h3>
+                                                <h3 class="card-text"><?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts'], 2) : '0.00'; ?></h3>
                                                 <p class="card-text">Applied to orders</p>
                                             </div>
                                         </div>
@@ -378,7 +548,11 @@ $conn->close();
                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-body">
-                                                <h5 class="card-title">Sales Overview</h5>
+                                                <h5 class="card-title">Sales Overview
+                                                    <?php if ($user_country === 'UAE'): ?>
+                                                        <span class="timezone-info">(UAE Local Time)</span>
+                                                    <?php endif; ?>
+                                                </h5>
                                                 <canvas id="salesChart" height="100"></canvas>
                                             </div>
                                         </div>
@@ -390,7 +564,11 @@ $conn->close();
                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-body">
-                                                <h5 class="card-title">Detailed Report</h5>
+                                                <h5 class="card-title">Detailed Report
+                                                    <?php if ($user_country === 'UAE'): ?>
+                                                        <span class="timezone-info">(Dates shown in UAE time)</span>
+                                                    <?php endif; ?>
+                                                </h5>
                                                 <div class="table-responsive">
                                                     <table class="table table-hover mb-0" id="reportTable">
                                                         <thead>
@@ -413,14 +591,18 @@ $conn->close();
                                                             <?php else: ?>
                                                                 <?php foreach ($sales_data as $row): ?>
                                                                     <tr>
-                                                                        <td><?php echo date('M d, Y', strtotime($row['sale_date'])); ?></td>
+                                                                        <?php if ($report_type === 'order_type'): ?>
+                                                                            <td><?php echo ucfirst(htmlspecialchars($row['order_type'])); ?></td>
+                                                                        <?php else: ?>
+                                                                            <td><?php echo date('M d, Y', strtotime($row['sale_date'])); ?></td>
+                                                                        <?php endif; ?>
                                                                         <td><?php echo $row['total_orders']; ?></td>
-                                                                        <td>₹<?php echo number_format($row['subtotal'], 2); ?></td>
-                                                                        <td>₹<?php echo number_format($row['total_discounts'], 2); ?></td>
-                                                                        <td>₹<?php echo number_format($row['total_tax'], 2); ?></td>
-                                                                        <td>₹<?php echo number_format($row['total_delivery'], 2); ?></td>
-                                                                        <td>₹<?php echo number_format($row['total_sales'], 2); ?></td>
-                                                                        <td>₹<?php echo number_format($row['total_sales'] / $row['total_orders'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['subtotal'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['total_discounts'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['total_tax'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['total_delivery'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['total_sales'], 2); ?></td>
+                                                                        <td><?php echo $currencySymbol; ?> <?php echo number_format($row['total_sales'] / $row['total_orders'], 2); ?></td>
                                                                     </tr>
                                                                 <?php endforeach; ?>
                                                             <?php endif; ?>
@@ -445,90 +627,181 @@ $conn->close();
     
     <script>
     $(document).ready(function() {
+        // Get currency symbol from PHP
+        const currencySymbol = '<?php echo $currencySymbol; ?>';
+        const userCountry = '<?php echo $user_country; ?>';
+        const taxLabel = '<?php echo $taxLabel; ?>';
+        
         // Initialize Chart
         const ctx = document.getElementById('salesChart').getContext('2d');
         
         <?php if (!empty($sales_data)): ?>
-            const dates = <?php echo json_encode(array_column($sales_data, 'sale_date')); ?>;
-            const sales = <?php echo json_encode(array_column($sales_data, 'total_sales')); ?>;
-            const orders = <?php echo json_encode(array_column($sales_data, 'total_orders')); ?>;
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: dates.map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
-                    datasets: [
-                        {
-                            label: 'Sales (₹)',
-                            data: sales,
-                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Orders',
-                            data: orders,
-                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1,
-                            type: 'line',
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '<?php 
-                                if (array_key_exists($report_type, $status_types)) {
-                                    echo $status_types[$report_type] . " Overview";
-                                } else {
-                                    echo "Daily Sales and Orders";
-                                }
-                            ?>'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label.includes('Sales')) {
-                                        label += ': ₹' + context.raw.toFixed(2);
-                                    } else {
-                                        label += ': ' + context.raw;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Sales (₹)'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Orders'
+            <?php if ($report_type === 'order_type'): ?>
+                // For order type analysis
+                const labels = <?php echo json_encode(array_column($sales_data, 'order_type')); ?>;
+                const sales = <?php echo json_encode(array_column($sales_data, 'total_sales')); ?>;
+                const orders = <?php echo json_encode(array_column($sales_data, 'total_orders')); ?>;
+                
+                // Format order type labels
+                const formattedLabels = labels.map(label => {
+                    return label.charAt(0).toUpperCase() + label.slice(1);
+                });
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: formattedLabels,
+                        datasets: [
+                            {
+                                label: 'Sales (' + currencySymbol + ')',
+                                data: sales,
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
                             },
-                            grid: {
-                                drawOnChartArea: false
+                            {
+                                label: 'Orders',
+                                data: orders,
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                type: 'line',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Order Type Analysis'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label.includes('Sales')) {
+                                            label += ': ' + currencySymbol + ' ' + context.raw.toFixed(2);
+                                        } else {
+                                            label += ': ' + context.raw;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Sales (' + currencySymbol + ')'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Orders'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            <?php else: ?>
+                // For daily and status reports
+                const dates = <?php echo json_encode(array_column($sales_data, 'sale_date')); ?>;
+                const sales = <?php echo json_encode(array_column($sales_data, 'total_sales')); ?>;
+                const orders = <?php echo json_encode(array_column($sales_data, 'total_orders')); ?>;
+                
+                // Format dates for display
+                const formattedDates = dates.map(date => {
+                    const dateObj = new Date(date);
+                    return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: formattedDates,
+                        datasets: [
+                            {
+                                label: 'Sales (' + currencySymbol + ')',
+                                data: sales,
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Orders',
+                                data: orders,
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                type: 'line',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: userCountry === 'UAE' ? 
+                                    '<?php echo (array_key_exists($report_type, $status_types)) ? $status_types[$report_type] : "Daily Sales"; ?> (UAE Local Time)' : 
+                                    '<?php echo (array_key_exists($report_type, $status_types)) ? $status_types[$report_type] : "Daily Sales"; ?>'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label.includes('Sales')) {
+                                            label += ': ' + currencySymbol + ' ' + context.raw.toFixed(2);
+                                        } else {
+                                            label += ': ' + context.raw;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Sales (' + currencySymbol + ')'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Orders'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            <?php endif; ?>
         <?php else: ?>
             // Empty chart when no data
             new Chart(ctx, {
@@ -564,20 +837,32 @@ $conn->close();
             doc.setFontSize(12);
             doc.text(`Report Type: ${$('#report_type option:selected').text()}`, 14, 25);
             doc.text(`Period: ${$('#start_date').val()} to ${$('#end_date').val()}`, 14, 32);
+            doc.text(`Country: <?php echo $user_country; ?> (Currency: <?php echo $currencySymbol; ?>)`, 14, 39);
+            <?php if ($user_country === 'UAE'): ?>
+                doc.text(`Timezone: UAE Local Time (UTC+4)`, 14, 46);
+                doc.text(`Note: Dates shown in UAE time. Orders at 12:00 AM Indian time`, 14, 53);
+                doc.text(`(10:30 PM UAE time previous day) are included in previous day.`, 14, 60);
+            <?php else: ?>
+                doc.text(`Timezone: <?php echo date_default_timezone_get(); ?>`, 14, 46);
+            <?php endif; ?>
             
             // Summary
             doc.setFontSize(14);
-            doc.text('Summary', 14, 42);
+            doc.text('Summary', 14, <?php echo $user_country === 'UAE' ? '70' : '56'; ?>);
             doc.setFontSize(12);
             
-            doc.text(`Total Sales: ₹<?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales'], 2) : '0.00'; ?>`, 14, 50);
-            doc.text(`Total Orders: <?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?>`, 14, 57);
-            doc.text(`Subtotal: ₹<?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal'], 2) : '0.00'; ?>`, 14, 64);
-            doc.text(`Discounts: ₹<?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts'], 2) : '0.00'; ?>`, 14, 71);
+            let summaryY = <?php echo $user_country === 'UAE' ? '78' : '64'; ?>;
+            doc.text(`Total Sales: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_sales']) ? number_format($summary_data['total_sales'], 2) : '0.00'; ?>`, 14, summaryY);
+            doc.text(`Total Orders: <?php echo isset($summary_data['total_orders']) ? $summary_data['total_orders'] : '0'; ?>`, 14, summaryY + 7);
+            doc.text(`Subtotal: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['subtotal']) ? number_format($summary_data['subtotal'], 2) : '0.00'; ?>`, 14, summaryY + 14);
+            doc.text(`Discounts: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_discounts']) ? number_format($summary_data['total_discounts'], 2) : '0.00'; ?>`, 14, summaryY + 21);
+            doc.text(`<?php echo $taxLabel; ?>: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_tax']) ? number_format($summary_data['total_tax'], 2) : '0.00'; ?>`, 14, summaryY + 28);
+            doc.text(`Delivery: <?php echo $currencySymbol; ?> <?php echo isset($summary_data['total_delivery']) ? number_format($summary_data['total_delivery'], 2) : '0.00'; ?>`, 14, summaryY + 35);
             
             // Table
             doc.setFontSize(14);
-            doc.text('Detailed Report', 14, 85);
+            const tableStartY = summaryY + 45;
+            doc.text('Detailed Report', 14, tableStartY);
             
             const headers = [];
             const rows = [];
@@ -591,14 +876,18 @@ $conn->close();
             $('#reportTable tbody tr').each(function() {
                 const row = [];
                 $(this).find('td').each(function() {
-                    row.push($(this).text());
+                    // Replace currency symbol in table cells for PDF
+                    let cellText = $(this).text();
+                    // Remove multiple currency symbols if they exist
+                    cellText = cellText.replace(new RegExp(currencySymbol + '\\s*', 'g'), currencySymbol + ' ');
+                    row.push(cellText);
                 });
                 rows.push(row);
             });
             
             // AutoTable
             doc.autoTable({
-                startY: 90,
+                startY: tableStartY + 6,
                 head: [headers],
                 body: rows,
                 margin: { left: 14 },

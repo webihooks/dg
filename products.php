@@ -18,14 +18,24 @@ $error_message = '';
 $is_edit_mode = false;
 $product_data = null;
 
-// Fetch user name
-$sql = "SELECT name FROM users WHERE id = ?";
+// Fetch user name and country
+$sql = "SELECT name, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name);
+$stmt->bind_result($user_name, $user_country);
 $stmt->fetch();
 $stmt->close();
+
+// Set currency symbol based on country
+$currency_symbol = '₹'; // Default for India
+if ($user_country === 'UAE') {
+    $currency_symbol = 'AED ';
+} elseif ($user_country === 'UK') {
+    $currency_symbol = '£';
+} elseif ($user_country === 'USA') {
+    $currency_symbol = '$';
+}
 
 // Create user-specific products table if it doesn't exist
 $user_products_table = "products_" . $user_id;
@@ -559,7 +569,7 @@ $conn->close();
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
-                                            <label for="price" class="form-label">Price *</label>
+                                            <label for="price" class="form-label">Price * (<?php echo $currency_symbol; ?>)</label>
                                             <input type="number" step="0.01" class="form-control" id="price" name="price" required 
                                                 value="<?php echo $is_edit_mode ? $product_data['price'] : ''; ?>">
                                         </div>
@@ -646,9 +656,9 @@ $conn->close();
                                                     <th>Name</th>
                                                     <th>Tag</th>
                                                     <th>Description</th>
-                                                    <th>Price</th>
+                                                    <th style="width: 100px;">Price</th>
                                                     <th>Qty</th>
-                                                    <th class="status-col">Status</th>
+                                                    <th class="status-col" style="display: none;">Status</th>
                                                     <th width="140">Actions</th>
                                                 </tr>
                                             </thead>
@@ -680,9 +690,9 @@ $conn->close();
                                                         <td><?php echo $highlighted_name; ?></td>
                                                         <td><?php echo !empty($highlighted_tag) ? $highlighted_tag : '--'; ?></td>
                                                         <td><?php echo $highlighted_desc; ?></td>
-                                                        <td>₹<?php echo number_format($product['price']); ?></td>
+                                                        <td><?php echo $currency_symbol . number_format($product['price']); ?></td>
                                                         <td><?php echo $product['quantity']; ?></td>
-                                                        <td>
+                                                        <td style="display: none;">
                                                             <a href="products.php?toggle_status=<?php echo $product['id']; ?>" 
                                                                class="btn btn-sm status-toggle <?php echo $product['is_active'] ? 'btn-success' : 'btn-secondary'; ?>"
                                                                onclick="return confirm('Are you sure you want to <?php echo $product['is_active'] ? 'deactivate' : 'activate'; ?> this product?')">
@@ -763,7 +773,7 @@ $conn->close();
                                                 </div>
                                                 <div class="mobile-product-field">
                                                     <span class="mobile-field-label">Price</span>
-                                                    <span class="mobile-field-value">₹<?php echo number_format($product['price']); ?></span>
+                                                    <span class="mobile-field-value"><?php echo $currency_symbol . number_format($product['price']); ?></span>
                                                 </div>
                                                 <div class="mobile-product-field">
                                                     <span class="mobile-field-label">Qty</span>

@@ -1,9 +1,57 @@
+<?php
+// Check if session is not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Get user's country and set currency symbol
+$user_id = $_SESSION['user_id'] ?? null;
+$user_country = 'India'; // default
+$currencySymbol = '₹'; // default
+$tax_label = 'GST'; // default tax label
+
+if ($user_id) {
+    require_once 'db_connection.php'; // This should provide PDO connection
+    
+    // Use PDO prepared statement
+    $sql = "SELECT country FROM users WHERE id = :user_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $user_country = $row['country'];
+        
+        // Set currency symbol based on country
+        $currencySymbols = [
+            'India' => '₹',
+            'UAE' => 'AED ',
+            'UK' => '£ ',
+            'USA' => '$ '
+        ];
+        $currencySymbol = $currencySymbols[$user_country] ?? '₹';
+        
+        // Set tax label based on country
+        $tax_label = ($user_country == 'UAE') ? 'VAT' : 'GST';
+    }
+}
+?>
+
 <!-- OneSignal Integration for Dashboard -->
 <script>
+// Set global variables at the very top
+window.userCountry = '<?php echo $user_country; ?>';
+window.currencySymbol = '<?php echo $currencySymbol; ?>';
+window.taxLabel = '<?php echo $tax_label; ?>'; // Add tax label to window object
+
+console.log('User country:', window.userCountry);
+console.log('Currency symbol:', window.currencySymbol);
+console.log('Tax label:', window.taxLabel);
+
 // Dashboard OneSignal Maintenance
 class DashboardOneSignal {
     constructor() {
-        this.userId = <?php echo $_SESSION['user_id'] ?? 'null'; ?>;
+        this.userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
         if (this.userId) {
             this.ensureDeviceRegistered();
         }
@@ -59,14 +107,46 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- OneSignal Integration for Dashboard -->
 
-
-
-
-
-
 <!-- SIMPLIFIED OneSignal Registration -->
 <script src="https://unpkg.com/webtonative@1.0.77/webtonative.min.js"></script>
 <script>
+// Function to adjust time for UAE users
+function adjustTimeForCountry(dateTimeString) {
+    if (!dateTimeString) return new Date();
+    
+    const date = new Date(dateTimeString);
+    
+    if (window.userCountry === 'UAE') {
+        // Subtract 1 hour 30 minutes for UAE
+        date.setMinutes(date.getMinutes() - 90);
+    }
+    
+    return date;
+}
+
+// Function to format date for display with country adjustment
+function formatDateTimeForCountry(dateTimeString) {
+    const date = adjustTimeForCountry(dateTimeString);
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+// Function to format just time with country adjustment
+function formatTimeForCountry(dateTimeString) {
+    const date = adjustTimeForCountry(dateTimeString);
+    return date.toLocaleString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
 // Detect Android WebView
 function isAndroidWebView() {
     return navigator.userAgent.toLowerCase().indexOf("wv") > -1 || 
@@ -80,7 +160,7 @@ if (isAndroidWebView()) {
         // start
         class AndroidOneSignalRegister {
             constructor() {
-                this.userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'null'; ?>;
+                this.userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
                 console.log('🚀 Android Register - User ID:', this.userId);
                 
                 if (this.userId) {
@@ -191,13 +271,6 @@ if (isAndroidWebView()) {
     });
 }
 </script>
-
-
-
-
-
-
-
 
 <style>
 /* Rejection dialog styles */
@@ -344,6 +417,9 @@ const POLLING_CONFIG = {
 // Main initialization
 async function initOrderSystem() {
     console.log('Initializing order system with individual order popups...');
+    console.log('Current user country:', window.userCountry);
+    console.log('Current currency symbol:', window.currencySymbol);
+    console.log('Current tax label:', window.taxLabel);
     
     await initAudioSystem();
     await checkExistingPendingOrders();
@@ -810,12 +886,15 @@ function createOrderPopup(order, orderId, index) {
         padding-bottom: 10px;
         border-bottom: 2px solid #f0f0f0;
     `;
+    
+    // Use country-adjusted time
+    const displayTime = formatDateTimeForCountry(order.created_at);
     header.innerHTML = `
         <h4 style="margin: 0; color: #333; font-weight: bold;">
             🔔 New Order #${orderId}
         </h4>
         <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-            ${new Date(order.created_at).toLocaleString()}
+            ${displayTime}
         </p>
     `;
     popupContainer.appendChild(header);
@@ -979,7 +1058,7 @@ function createOrderDetailsElement(order, orderId) {
                 <div style="display: flex; justify-content: space-between; margin-bottom: 3px; padding: 2px 0;">
                     <span>${item.product_name || 'Item'}</span>
                     <span>
-                        <strong>${item.quantity || 1} × ₹${parseFloat(item.price || 0)}</strong>
+                        <strong>${item.quantity || 1} × ${window.currencySymbol}${parseFloat(item.price || 0).toFixed(2)}</strong>
                     </span>
                 </div>
             `;
@@ -990,7 +1069,7 @@ function createOrderDetailsElement(order, orderId) {
             <div style="border-top: 1px solid #dee2e6; margin-top: 8px; padding-top: 5px; font-weight: bold;">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Total:</span>
-                    <span>₹${parseFloat(order.total_amount || 0)}</span>
+                    <span>${window.currencySymbol}${parseFloat(order.total_amount || 0).toFixed(2)}</span>
                 </div>
             </div>
         `;
@@ -1444,11 +1523,11 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// WhatsApp notification functions (unchanged)
+// WhatsApp notification functions (UPDATED for currency and UAE phone numbers)
 function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, businessInfo, businessPhone, profileUrl) {
     try {
         // Validate inputs
-        if (!customerPhone || customerPhone.length < 10) {
+        if (!customerPhone || customerPhone.length < 9) {
             console.warn(`Invalid phone number for order ${orderId}: ${customerPhone}`);
             return false;
         }
@@ -1458,10 +1537,19 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
         const businessAddress = businessInfo?.business_address || '';
         const phone = businessPhone || '';
 
-        // Format customer phone
+        // Format customer phone based on country
         let formattedCustomerPhone = customerPhone.replace(/\D/g, '');
-        if (formattedCustomerPhone.length === 10) {
-            formattedCustomerPhone = '91' + formattedCustomerPhone;
+        
+        if (window.userCountry === 'UAE') {
+            // For UAE: 9 digits, add 971
+            if (formattedCustomerPhone.length === 9) {
+                formattedCustomerPhone = '971' + formattedCustomerPhone;
+            }
+        } else {
+            // For other countries: 10 digits, add 91 (India default)
+            if (formattedCustomerPhone.length === 10) {
+                formattedCustomerPhone = '91' + formattedCustomerPhone;
+            }
         }
 
         // URLs
@@ -1524,7 +1612,7 @@ function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, 
 function sendOrderRejection(orderId, customerPhone, customerName, orderType, totalAmount, businessInfo, businessPhone, profileUrl, rejectionReason) {
     try {
         // Validate inputs
-        if (!customerPhone || customerPhone.length < 10) {
+        if (!customerPhone || (window.userCountry === 'UAE' && customerPhone.length < 9) || (window.userCountry !== 'UAE' && customerPhone.length < 10)) {
             console.warn(`Invalid phone number for order ${orderId}: ${customerPhone}`);
             return false;
         }
@@ -1533,10 +1621,19 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         const businessName = businessInfo?.business_name || 'Our Restaurant';
         const phone = businessPhone || '';
 
-        // Format customer phone
+        // Format customer phone based on country
         let formattedCustomerPhone = customerPhone.replace(/\D/g, '');
-        if (formattedCustomerPhone.length === 10) {
-            formattedCustomerPhone = '91' + formattedCustomerPhone;
+        
+        if (window.userCountry === 'UAE') {
+            // For UAE: 9 digits, add 971
+            if (formattedCustomerPhone.length === 9) {
+                formattedCustomerPhone = '971' + formattedCustomerPhone;
+            }
+        } else {
+            // For other countries: 10 digits, add 91 (India default)
+            if (formattedCustomerPhone.length === 10) {
+                formattedCustomerPhone = '91' + formattedCustomerPhone;
+            }
         }
 
         // Create rejection message
@@ -1550,7 +1647,7 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
         message += `📋 *Order Details:*\n`;
         message += `•⁠  ⁠Order Type: ${orderType === 'delivery' ? '🚚 Delivery' : orderType === 'dining' ? '🍽️ Dining' : orderType}\n`;
         message += `•⁠  ⁠Order ID: #${orderId}\n`;
-        message += `•⁠  ⁠Amount: ₹${parseFloat(totalAmount).toFixed(2)}\n\n`;
+        message += `•⁠  ⁠Amount: ${window.currencySymbol}${parseFloat(totalAmount).toFixed(2)}\n\n`;
         
         message += `📝 *Cancellation Reason:*\n`;
         message += `${rejectionReason}\n\n`;
@@ -1715,7 +1812,7 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                      <a class="sub-nav-link" href="delivery_charges.php">Delivery Charges</a>
                   </li>
                   <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="gst_charge.php">GST</a>
+                     <a class="sub-nav-link" href="gst_charge.php"><?php echo $tax_label; ?></a>
                   </li>
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="discount.php">Discount</a>

@@ -15,14 +15,29 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
 
-// Fetch user details
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
+// Fetch user details including country
+$sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);
+$stmt->bind_result($user_name, $email, $phone, $address, $role, $user_country);
 $stmt->fetch();
 $stmt->close();
+
+// Function to get currency symbol based on country
+function getCurrencySymbol($country) {
+    $currencySymbols = [
+        'India' => '₹',
+        'UAE' => 'AED', // Changed from 'د.إ' to 'AED'
+        'UK' => '£',
+        'USA' => '$'
+    ];
+    
+    return isset($currencySymbols[$country]) ? $currencySymbols[$country] : '₹';
+}
+
+// Get currency symbol for current user
+$currencySymbol = getCurrencySymbol($user_country);
 
 // Fetch existing delivery charge if it exists
 $current_charge = 0;
@@ -113,6 +128,17 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
+    <style>
+        .currency-badge {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 
 
@@ -133,7 +159,8 @@ $conn->close();
                     <div class="col-xl-9">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Delivery Settings</h4>
+                                <h4 class="card-title">Delivery Settings 
+                                </h4>
                             </div>
                             <div class="card-body">
                                 <?php if (!empty($message)): ?>
@@ -145,18 +172,28 @@ $conn->close();
                                 <form method="POST" action="delivery_charges.php">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="delivery_charge" class="form-label">Delivery Charge (₹)</label>
-                                            <input type="number" class="form-control" id="delivery_charge" 
-                                                   name="delivery_charge" step="0.01" min="0" 
-                                                   value="<?php echo htmlspecialchars($current_charge); ?>" required>
+                                            <label for="delivery_charge" class="form-label">
+                                                Delivery Charge (<?php echo $currencySymbol; ?>)
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><?php echo $currencySymbol; ?></span>
+                                                <input type="number" class="form-control" id="delivery_charge" 
+                                                       name="delivery_charge" step="0.01" min="0" 
+                                                       value="<?php echo htmlspecialchars($current_charge); ?>" required>
+                                            </div>
                                             <div class="form-text">Standard delivery charge amount.</div>
                                         </div>
                                         
                                         <div class="col-md-6 mb-3">
-                                            <label for="free_delivery_min" class="form-label">Free Delivery Minimum (₹)</label>
-                                            <input type="number" class="form-control" id="free_delivery_min" 
-                                                   name="free_delivery_min" step="0.01" min="0" 
-                                                   value="<?php echo htmlspecialchars($current_free_delivery_min); ?>" required>
+                                            <label for="free_delivery_min" class="form-label">
+                                                Free Delivery Minimum (<?php echo $currencySymbol; ?>)
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><?php echo $currencySymbol; ?></span>
+                                                <input type="number" class="form-control" id="free_delivery_min" 
+                                                       name="free_delivery_min" step="0.01" min="0" 
+                                                       value="<?php echo htmlspecialchars($current_free_delivery_min); ?>" required>
+                                            </div>
                                             <div class="form-text">Order amount needed for free delivery.</div>
                                         </div>
                                     </div>
@@ -178,25 +215,32 @@ $conn->close();
     <script src="assets/js/app.js"></script>
     <script>
         $(document).ready(function() {
+            // Get currency symbol from PHP
+            const currencySymbol = '<?php echo $currencySymbol; ?>';
+            
             $('form').validate({
                 rules: {
                     delivery_charge: {
                         required: true,
-                        min: 0
+                        min: 0,
+                        number: true
                     },
                     free_delivery_min: {
                         required: true,
-                        min: 0
+                        min: 0,
+                        number: true
                     }
                 },
                 messages: {
                     delivery_charge: {
                         required: "Please enter a delivery charge",
-                        min: "Delivery charge cannot be negative"
+                        min: "Delivery charge cannot be negative",
+                        number: "Please enter a valid number"
                     },
                     free_delivery_min: {
                         required: "Please enter free delivery minimum",
-                        min: "Free delivery minimum cannot be negative"
+                        min: "Free delivery minimum cannot be negative",
+                        number: "Please enter a valid number"
                     }
                 },
                 errorElement: 'div',
@@ -209,7 +253,44 @@ $conn->close();
                 },
                 unhighlight: function(element, errorClass, validClass) {
                     $(element).removeClass('is-invalid').addClass('is-valid');
+                },
+                // Custom validation messages with currency symbol
+                errorPlacement: function(error, element) {
+                    if (element.attr("name") == "delivery_charge") {
+                        error.text(error.text().replace('delivery charge', 'delivery charge (' + currencySymbol + ')'));
+                    }
+                    if (element.attr("name") == "free_delivery_min") {
+                        error.text(error.text().replace('free delivery minimum', 'free delivery minimum (' + currencySymbol + ')'));
+                    }
+                    error.addClass('invalid-feedback');
+                    element.closest('.mb-3').append(error);
                 }
+            });
+            
+            // Format input values to show currency symbol on focus
+            $('#delivery_charge, #free_delivery_min').on('focus', function() {
+                $(this).data('previous-value', $(this).val());
+            });
+            
+            // Show currency symbol in tooltip or hint
+            $('input[type="number"]').each(function() {
+                const fieldId = $(this).attr('id');
+                const labelText = $(this).closest('.mb-3').find('label').text();
+                
+                // Add currency symbol to the form-text hint
+                if (fieldId === 'delivery_charge' || fieldId === 'free_delivery_min') {
+                    const formText = $(this).closest('.mb-3').find('.form-text');
+                    const currentText = formText.text();
+                    formText.text(currentText + ' (in ' + currencySymbol + ')');
+                }
+            });
+            
+            // Display current currency settings
+            console.log('Currency settings:', {
+                symbol: currencySymbol,
+                country: '<?php echo $user_country; ?>',
+                deliveryCharge: '<?php echo $current_charge; ?>',
+                freeDeliveryMin: '<?php echo $current_free_delivery_min; ?>'
             });
         });
     </script>

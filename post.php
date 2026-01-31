@@ -4,7 +4,7 @@ header("Pragma: no-cache");
 header("Expires: 0");
 require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
-date_default_timezone_set('Asia/Kolkata');
+
 if (!isset($_GET['profile_url'])) {
     header("HTTP/1.0 400 Bad Request");
     die("Profile URL is required");
@@ -21,21 +21,8 @@ if (!$profile_data) {
 
 $user_id = $profile_data['user_id'];
 
-// Check for active subscription
-$subscription_sql = "SELECT * FROM subscriptions WHERE user_id = ? AND status = 'active' AND end_date >= CURDATE()";
-$subscription_stmt = $conn->prepare($subscription_sql);
-if ($subscription_stmt) {
-    $subscription_stmt->execute([$user_id]);
-    $active_subscription = $subscription_stmt->fetch(PDO::FETCH_ASSOC);
-} else {
-    error_log("Failed to prepare subscription SQL statement.");
-    $active_subscription = false;
-}
-
-$show_subscription_popup = !$active_subscription;
-
-// Get all profile data including role and name
-$user_sql = "SELECT id, Name as name, Email, role, phone, address FROM users WHERE id = ?";
+// Get all profile data including role, name, and country
+$user_sql = "SELECT id, Name as name, Email, role, phone, address, country FROM users WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
 if ($user_stmt) {
     $user_stmt->execute([$user_id]);
@@ -49,8 +36,53 @@ if (!$user) {
     die("User not found");
 }
 
+// Set timezone based on user's country
+$user_country = $user['country'] ?? 'India';
+switch ($user_country) {
+    case 'India':
+        date_default_timezone_set('Asia/Kolkata');
+        break;
+    case 'UAE':
+        date_default_timezone_set('Asia/Dubai');
+        break;
+    case 'UK':
+        date_default_timezone_set('Europe/London');
+        break;
+    case 'USA':
+        date_default_timezone_set('America/New_York');
+        break;
+    default:
+        date_default_timezone_set('Asia/Kolkata'); // Default fallback
+}
+
+// Check for active subscription
+$subscription_sql = "SELECT * FROM subscriptions WHERE user_id = ? AND status = 'active' AND end_date >= CURDATE()";
+$subscription_stmt = $conn->prepare($subscription_sql);
+if ($subscription_stmt) {
+    $subscription_stmt->execute([$user_id]);
+    $active_subscription = $subscription_stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    error_log("Failed to prepare subscription SQL statement.");
+    $active_subscription = false;
+}
+
+$show_subscription_popup = !$active_subscription;
+
 $is_restuarant_user = ($user['role'] === 'user');
 $is_room_user = ($user['role'] === 'room');
+
+// Set currency configuration
+require_once 'config/currency_helper.php';
+
+$currency_symbol = CurrencyHelper::getSymbol($user_country);
+$currency_code = CurrencyHelper::getCode($user_country);
+
+// Pass currency info to included files
+$currency_info = [
+    'symbol' => $currency_symbol,
+    'code' => $currency_code,
+    'country' => $user_country
+];
 
 // Fetch theme data
 $theme_sql = "SELECT primary_color, secondary_color FROM theme WHERE user_id = ?";
@@ -66,9 +98,15 @@ if ($theme_stmt) {
 $primary_color = $theme_data['primary_color'] ?? '#000000';
 $secondary_color = $theme_data['secondary_color'] ?? '#ffffff';
 
+// Pass variables to included files
+$delivery_active = isset($delivery_active) ? $delivery_active : false;
+$dining_active = isset($dining_active) ? $dining_active : false;
 
 // Only for Role is User
 if ($is_restuarant_user) {
+    // Pass currency info to all included files
+    $GLOBALS['currency_info'] = $currency_info;
+    
     require_once 'includes/restaurant_functions.php';
     require_once 'includes/header.php';
     require_once 'includes/navigation.php';
@@ -87,14 +125,11 @@ if ($is_restuarant_user) {
 }
 // Only for Role is User
 
-
-
-
-
-
-
 // Only for Role is Room
 if ($is_room_user) {
+    // Pass currency info to all included files
+    $GLOBALS['currency_info'] = $currency_info;
+    
     require_once 'includes/room_functions.php';
     require_once 'includes/room_header.php';
     require_once 'includes/room_profile_header.php';
@@ -105,7 +140,6 @@ if ($is_room_user) {
     require_once 'includes/room_footer.php';
 }
 // Only for Role is Room
-
 
 // Close connection
 $conn = null;

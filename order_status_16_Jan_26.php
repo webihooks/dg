@@ -8,36 +8,12 @@ require_once 'config/db_connection.php';
 
 date_default_timezone_set('Asia/Kolkata');
 
-// Function to adjust time based on user's country (for display only)
-function adjustTimeForCountry($datetime, $country) {
-    $date = new DateTime($datetime, new DateTimeZone('Asia/Kolkata'));
-    
-    switch($country) {
-        case 'UAE':
-            // Subtract 1 hour 30 minutes for UAE (for display only)
-            $date->sub(new DateInterval('PT1H30M'));
-            break;
-        case 'UK':
-            // UK is 5 hours 30 minutes behind IST
-            $date->sub(new DateInterval('PT5H30M'));
-            break;
-        case 'USA':
-            // USA timezone varies, using Eastern Time as example (9 hours 30 minutes behind IST)
-            $date->sub(new DateInterval('PT9H30M'));
-            break;
-        // India doesn't need adjustment since server is in IST
-        default:
-            break;
-    }
-    
-    return $date;
-}
-
 // Check if order_id and profile_url are provided
 if (!isset($_GET['order_id']) || !isset($_GET['profile_url'])) {
     header("Location: page-not-found.php");
     exit();
 }
+
 
 $order_id = $_GET['order_id'];
 $profile_url = $_GET['profile_url'];
@@ -116,31 +92,6 @@ $business_info = getBusinessInfo($conn, $user_id);
 $photos = getProfilePhotos($conn, $user_id);
 $social_link = getSocialLinks($conn, $user_id);
 
-// --- NEW: Get user's country and set currency symbol and tax label ---
-$country = $user['country'] ?? 'India';
-$currency_symbol = '₹'; // Default to Indian Rupee
-$tax_label = 'GST'; // Default tax label
-
-switch ($country) {
-    case 'UAE':
-        $currency_symbol = 'AED '; // UAE Dirham (using AED instead of د.إ)
-        $tax_label = 'VAT'; // Change GST to VAT for UAE
-        break;
-    case 'UK':
-        $currency_symbol = '£ '; // British Pound
-        $tax_label = 'VAT'; // UK uses VAT
-        break;
-    case 'USA':
-        $currency_symbol = '$ '; // US Dollar
-        $tax_label = 'Sales Tax'; // USA uses Sales Tax
-        break;
-    case 'India':
-    default:
-        $currency_symbol = '₹'; // Indian Rupee
-        $tax_label = 'GST'; // India uses GST
-        break;
-}
-
 // --- MODIFICATION START: Simplified status logic ---
 $simplified_statuses = [
     'Placed' => ['icon' => 'bi-check-circle', 'description' => '✅ Your order has been placed successfully!'],
@@ -182,14 +133,6 @@ if (!$is_delivery_order && $current_step_index >= 3) {
 $order_created_time = strtotime($order['created_at']);
 $estimated_completion_time = $order_created_time + (30 * 60); // 30 minutes
 $current_time = time();
-
-// Get adjusted estimated time for display only (not for countdown calculation)
-$display_estimated_time = $estimated_completion_time;
-if ($country === 'UAE') {
-    // Only adjust for display purposes, not for countdown calculation
-    $display_estimated_time -= (1.5 * 3600);
-}
-
 $time_remaining = $estimated_completion_time - $current_time;
 
 // Determine if we should show countdown or saved time message
@@ -292,7 +235,7 @@ $back_url = '/' . $profile_url;
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
-        } 
+        }
         .cover_photo {
             max-height: 140px !important;
         }
@@ -419,7 +362,7 @@ $back_url = '/' . $profile_url;
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden my-6">
             <div class="bg-gradient-to-br from-[#ff6b35] to-[#ff8c42] text-white p-2 text-center">
                 <h1 class="text-2xl font-bold tracking-wide">Order #<?= htmlspecialchars($order_id) ?></h1>
-                <p class="opacity-90 text-sm mt-1">Placed on <?= adjustTimeForCountry($order['created_at'], $country)->format('F j, Y \a\t g:i A') ?></p>
+                <p class="opacity-90 text-sm mt-1">Placed on <?= date('F j, Y \a\t g:i A', strtotime($order['created_at'])) ?></p>
 
                 <?php if ($is_cancelled): ?>
                     <div class="bg-white/20 text-white mt-2 py-2 px-4 rounded-lg border border-white/30">
@@ -682,9 +625,9 @@ $back_url = '/' . $profile_url;
                             <div class="flex justify-between items-center pb-2 border-b border-gray-300 last:border-b-0">
                                 <div>
                                     <span class="font-medium text-gray-800"><?= htmlspecialchars($item['product_name']) ?></span>
-                                    <small class="text-gray-500 block">x <?= $item['quantity'] ?> @ <?= $currency_symbol ?><?= number_format($item['price']) ?> each</small>
+                                    <small class="text-gray-500 block">x <?= $item['quantity'] ?> @ ₹<?= number_format($item['price']) ?> each</small>
                                 </div>
-                                <span class="font-bold text-gray-900"><?= $currency_symbol ?><?= number_format($item['price'] * $item['quantity']) ?></span>
+                                <span class="font-bold text-gray-900">₹<?= number_format($item['price'] * $item['quantity']) ?></span>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -692,7 +635,7 @@ $back_url = '/' . $profile_url;
                     <div class="border-t pt-4 space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Subtotal:</span>
-                            <span class="font-medium text-gray-900"><?= $currency_symbol ?><?= number_format($order['subtotal']) ?></span>
+                            <span class="font-medium text-gray-900">₹<?= number_format($order['subtotal']) ?></span>
                         </div>
 
                         <?php if ($order['discount_amount'] > 0): ?>
@@ -703,21 +646,21 @@ $back_url = '/' . $profile_url;
                                         <small class="text-gray-500">(<?= htmlspecialchars($order['discount_type']) ?>)</small>
                                     <?php endif; ?>
                                 </span>
-                                <span class="font-medium">-<?= $currency_symbol ?><?= number_format($order['discount_amount']) ?></span>
+                                <span class="font-medium">-₹<?= number_format($order['discount_amount']) ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if ($order['gst_amount'] > 0): ?>
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-700"><?= $tax_label ?> Charges:</span>
-                                <span class="font-medium text-gray-900"><?= $currency_symbol ?><?= number_format($order['gst_amount']) ?></span>
+                                <span class="text-gray-700">GST Charges:</span>
+                                <span class="font-medium text-gray-900">₹<?= number_format($order['gst_amount']) ?></span>
                             </div>
                         <?php endif; ?>
 
                         <?php if ($order['delivery_charge'] > 0): ?>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700">Delivery Charge:</span>
-                                <span class="font-medium text-gray-900"><?= $currency_symbol ?><?= number_format($order['delivery_charge']) ?></span>
+                                <span class="font-medium text-gray-900">₹<?= number_format($order['delivery_charge']) ?></span>
                             </div>
                         <?php elseif ($order['order_type'] === 'delivery'): ?>
                             <div class="flex justify-between items-center text-green-600">
@@ -728,7 +671,7 @@ $back_url = '/' . $profile_url;
 
                         <div class="flex justify-between items-center font-bold mt-4 pt-4 border-t-2 text-2xl">
                             <span class="text-gray-900">Total Amount:</span>
-                            <span class="text-orange-600"><?= $currency_symbol ?><?= number_format($order['total_amount']) ?></span>
+                            <span class="text-orange-600">₹<?= number_format($order['total_amount']) ?></span>
                         </div>
 
                         <!-- Pay Now Button after Total Amount - ADDED -->
@@ -747,7 +690,7 @@ $back_url = '/' . $profile_url;
                                     <a href="upi://pay?pa=<?= urlencode($qr_code['upi_id']) ?>&am=<?= $order['total_amount'] ?>&cu=INR&tn=Order <?= htmlspecialchars($order_id) ?> - <?= htmlspecialchars($business_name) ?>"
                                        class="pay_now_btn inline-flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg w-full max-w-md">
                                         <i class="bi bi-arrow-up-right-circle text-xl mr-2"></i>
-                                        <span class="text-lg">Pay Now - <?= $currency_symbol ?><?= number_format($order['total_amount']) ?></span>
+                                        <span class="text-lg">Pay Now - ₹<?= number_format($order['total_amount']) ?></span>
                                     </a>
                                 </div>
                             </div>
@@ -777,7 +720,7 @@ $back_url = '/' . $profile_url;
                                     Scan QR Code to Pay
                                 </h3>
                                 <p class="text-sm text-gray-600 mb-4">
-                                    Total Amount: <span class="font-bold text-green-600"><?= $currency_symbol ?><?= number_format($order['total_amount']) ?></span>
+                                    Total Amount: <span class="font-bold text-green-600">₹<?= number_format($order['total_amount']) ?></span>
                                 </p>
                             </div>
                             
@@ -839,7 +782,7 @@ $back_url = '/' . $profile_url;
                                     <li>Open your UPI payment app (Google Pay, PhonePe, Paytm, etc.)</li>
                                     <li>Tap on "Scan QR Code"</li>
                                     <li>Scan the QR code shown above</li>
-                                    <li>Verify the amount (<?= $currency_symbol ?><?= number_format($order['total_amount']) ?>) and pay</li>
+                                    <li>Verify the amount (₹<?= number_format($order['total_amount']) ?>) and pay</li>
                                     <li>Take a screenshot of the payment confirmation</li>
                                 </ol>
                             </div>
@@ -898,12 +841,12 @@ $back_url = '/' . $profile_url;
                         <div class="flex justify-between items-center text-sm text-gray-500">
                             <div>
                                 <p class="font-medium">Order Placed</p>
-                                <p><?= adjustTimeForCountry($order['created_at'], $country)->format('M j, Y g:i A') ?></p>
+                                <p><?= date('M j, Y g:i A', strtotime($order['created_at'])) ?></p>
                             </div>
                             <?php if (!empty($order['updated_at']) && $order['updated_at'] !== $order['created_at']): ?>
                                 <div class="text-right">
                                     <p class="font-medium">Last Updated</p>
-                                    <p><?= adjustTimeForCountry($order['updated_at'], $country)->format('M j, Y g:i A') ?></p>
+                                    <p><?= date('M j, Y g:i A', strtotime($order['updated_at'])) ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -1180,8 +1123,8 @@ $back_url = '/' . $profile_url;
             setTimeout(updateCountdown, 1000);
         }
         
-        // Calculate and display estimated completion time (using display-adjusted time)
-        const estimatedTime = new Date(<?= $display_estimated_time * 1000 ?>);
+        // Calculate and display estimated completion time
+        const estimatedTime = new Date(<?= $estimated_completion_time * 1000 ?>);
         document.getElementById('estimatedTime').textContent = estimatedTime.toLocaleTimeString([], { 
             hour: '2-digit', 
             minute: '2-digit' 
@@ -1257,7 +1200,7 @@ $back_url = '/' . $profile_url;
                                     <li>Open your mobile UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
                                     <li>Tap on "Scan QR Code"</li>
                                     <li>Scan the QR code shown in the payment section below</li>
-                                    <li>Verify amount (<?= $currency_symbol ?><?= number_format($order['total_amount']) ?>) and pay</li>
+                                    <li>Verify amount (₹<?= number_format($order['total_amount']) ?>) and pay</li>
                                 </ol>
                                 <div class="flex gap-3">
                                     <button onclick="this.closest('.fixed').remove()" 

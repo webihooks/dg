@@ -6,11 +6,11 @@ session_start();
 // Enhanced Android Session Protection
 require_once 'enhanced_android_manager.php';
 
+
 // Force session maintenance for Android
 if (isset($_SESSION['user_id'])) {
     $androidSessionManager->maintainAndroidSession();
 }
-date_default_timezone_set('Asia/Kolkata');
 
 require 'db_connection.php';
 
@@ -23,6 +23,59 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
+
+// Fetch user details for display including country
+$sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($user_name, $email, $phone, $address, $role, $user_country);
+$stmt->fetch();
+$stmt->close();
+
+// Set timezone based on user's country
+switch ($user_country) {
+    case 'India':
+        date_default_timezone_set('Asia/Kolkata');
+        $db_timezone = 'Asia/Kolkata';
+        break;
+    case 'UAE':
+        date_default_timezone_set('Asia/Dubai');
+        $db_timezone = 'Asia/Kolkata'; // Important: Keep database timezone as India for consistency
+        break;
+    case 'UK':
+        date_default_timezone_set('Europe/London');
+        $db_timezone = 'Europe/London';
+        break;
+    case 'USA':
+        date_default_timezone_set('America/New_York');
+        $db_timezone = 'America/New_York';
+        break;
+    default:
+        date_default_timezone_set('Asia/Kolkata'); // Default fallback
+        $db_timezone = 'Asia/Kolkata';
+}
+
+// Function to adjust time for UAE users (subtract 1 hour 30 minutes)
+function adjustTimeForUAE($dateTime, $user_country) {
+    if ($user_country == 'UAE') {
+        $date = new DateTime($dateTime);
+        $date->modify('-1 hour -30 minutes');
+        return $date->format('Y-m-d H:i:s');
+    }
+    return $dateTime;
+}
+
+// Function to display time with UAE adjustment
+function displayTime($dateTime, $user_country) {
+    $date = new DateTime($dateTime);
+    
+    if ($user_country == 'UAE') {
+        $date->modify('-1 hour -30 minutes');
+    }
+    
+    return $date->format('d/m/Y h:i A');
+}
 
 // Date range handling with validation
 $from_date = isset($_GET['from_date']) ? $_GET['from_date'] : date('Y-m-d');
@@ -39,14 +92,23 @@ if ($to_date < $from_date) {
     $to_date = $from_date;
 }
 
-// Fetch user details for display
-$sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$stmt->bind_result($user_name, $email, $phone, $address, $role);
-$stmt->fetch();
-$stmt->close();
+// Function to get currency symbol based on country
+function getCurrencySymbol($country) {
+    $currencySymbols = [
+        'India' => '₹',
+        'UAE' => 'AED',
+        'UK' => '£',
+        'USA' => '$'
+    ];
+    
+    return isset($currencySymbols[$country]) ? $currencySymbols[$country] : '₹';
+}
+
+// Get currency symbol for current user
+$currencySymbol = getCurrencySymbol($user_country);
+
+// Set tax label based on country (GST for India, VAT for UAE)
+$taxLabel = ($user_country == 'UAE') ? 'VAT' : 'GST';
 
 // Fetch business information for bill header
 $business_sql = "SELECT business_name, business_address FROM business_info WHERE user_id = ?";
@@ -215,10 +277,37 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 200;
 $offset = ($page - 1) * $per_page;
 
+// FIX FOR UAE TIMEZONE ISSUE: Adjust date filtering for UAE users
+if ($user_country == 'UAE') {
+    // For UAE users, we need to adjust the date range to account for timezone difference
+    // When UAE user selects a date, we need to include orders from Indian time perspective
+    
+    // Convert UAE date to Indian time for filtering
+    $from_date_obj = new DateTime($from_date . ' 00:00:00', new DateTimeZone('Asia/Dubai'));
+    $from_date_obj->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    $from_date_adjusted = $from_date_obj->format('Y-m-d');
+    
+    $to_date_obj = new DateTime($to_date . ' 23:59:59', new DateTimeZone('Asia/Dubai'));
+    $to_date_obj->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    $to_date_adjusted = $to_date_obj->format('Y-m-d');
+    
+    // Use CONVERT_TZ to properly handle timezone conversion in query
+    $date_condition = "DATE(CONVERT_TZ(created_at, '+00:00', '+05:30')) BETWEEN ? AND ?";
+    $date_params = [$from_date_adjusted, $to_date_adjusted];
+} else {
+    // For other countries, use standard date filtering
+    $date_condition = "DATE(created_at) BETWEEN ? AND ?";
+    $date_params = [$from_date, $to_date];
+}
+
 // Get total count of orders for pagination
-$count_sql = "SELECT COUNT(*) FROM orders WHERE user_id = ? AND DATE(created_at) BETWEEN ? AND ?";
+$count_sql = "SELECT COUNT(*) FROM orders WHERE user_id = ? AND $date_condition";
 $count_stmt = $conn->prepare($count_sql);
-$count_stmt->bind_param("iss", $user_id, $from_date, $to_date);
+if ($user_country == 'UAE') {
+    $count_stmt->bind_param("iss", $user_id, $date_params[0], $date_params[1]);
+} else {
+    $count_stmt->bind_param("iss", $user_id, $date_params[0], $date_params[1]);
+}
 $count_stmt->execute();
 $count_stmt->bind_result($total_orders);
 $count_stmt->fetch();
@@ -247,13 +336,22 @@ $orders_sql = "SELECT
     COUNT(oi.item_id) as item_count
 FROM orders o
 LEFT JOIN order_items oi ON o.order_id = oi.order_id
-WHERE o.user_id = ? AND DATE(o.created_at) BETWEEN ? AND ?
+WHERE o.user_id = ? AND $date_condition
 GROUP BY o.order_id
 ORDER BY o.created_at DESC
 LIMIT ? OFFSET ?";
 
 $orders_stmt = $conn->prepare($orders_sql);
-$orders_stmt->bind_param("issii", $user_id, $from_date, $to_date, $per_page, $offset);
+
+// Bind parameters based on country
+if ($user_country == 'UAE') {
+    // For UAE, $date_params contains [$from_date_adjusted, $to_date_adjusted]
+    $orders_stmt->bind_param("issii", $user_id, $date_params[0], $date_params[1], $per_page, $offset);
+} else {
+    // For other countries, $date_params contains [$from_date, $to_date]
+    $orders_stmt->bind_param("issii", $user_id, $date_params[0], $date_params[1], $per_page, $offset);
+}
+
 $orders_stmt->execute();
 $result = $orders_stmt->get_result();
 $orders = [];
@@ -278,6 +376,9 @@ while ($order = $result->fetch_assoc()) {
     $order['timer_remaining'] = max(0, $time_remaining);
     $order['is_delayed'] = $time_elapsed > $time_limit;
     $order['is_completed_on_time'] = ($order['status'] === 'Completed' && !$order['is_delayed']);
+    
+    // Store original created_at for JavaScript
+    $order['created_at_original'] = $order['created_at'];
     
     $orders[] = $order;
 }
@@ -486,7 +587,6 @@ $conn->close();
     }
     
     /* Bill Preview Styling for 65mm thermal printer */
-    /* Bill Preview Styling for 65mm thermal printer */
 .bill-container {
     width: 65mm;
     max-width: 65mm;
@@ -603,18 +703,6 @@ $conn->close();
         --bs-modal-width: 330px !important;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Bill Preview Modal Responsive Styles */
 #billPreviewModal .modal-dialog {
@@ -1010,18 +1098,6 @@ $conn->close();
     border-color: #23272b;
     color: #fff;
 }
-
-/* Mobile responsive for KOT button */
-/*@media (max-width: 768px) {
-    .mobile_table .preview-kot {
-        width: 100%;
-        margin: 5px 0;
-        display: block;
-        padding: 10px 20px;
-        font-size: 15px;
-        text-align: left;
-    }
-}*/
 
 /* KOT Preview Modal Responsive Styles */
 #kotPreviewModal .modal-dialog {
@@ -1508,7 +1584,7 @@ th:nth-last-child(2) {
                 <td data-label="Sr. No."><?php echo $index + 1 + $offset; ?></td>
                 <td data-label="Order ID">#<?php echo htmlspecialchars($order['order_id']); ?></td>
                 <td data-label="Date & Time">
-                    <?php echo date('d/m/Y h:i A', strtotime($order['created_at'])); ?>
+                    <?php echo displayTime($order['created_at'], $user_country); ?>
                 </td>
                 <td data-label="Customer"><?php echo htmlspecialchars($order['customer_name']); ?></td>
                 <td data-label="Type">
@@ -1522,7 +1598,7 @@ th:nth-last-child(2) {
                     ?>
                 </td>
                 <td data-label="Items"><?php echo htmlspecialchars($order['item_count']); ?></td>
-                <td data-label="Total">₹<?php echo number_format($order['total_amount']); ?></td>
+                <td data-label="Total"><?php echo $currencySymbol; ?> <?php echo number_format($order['total_amount'], 2); ?></td>
                 <td data-label="Status">
                     <span class="status-badge status-<?php echo htmlspecialchars($order['status']); ?>">
                         <?php echo htmlspecialchars($order['status']); ?>
@@ -1533,7 +1609,7 @@ th:nth-last-child(2) {
                         <?php if (in_array($order['status'], ['Pending', 'Confirmed', 'Preparing', 'Ready'])): ?>
                             <!-- Timer display for active orders -->
                             <div class="timer" 
-                                 data-created-at="<?php echo $order['created_at']; ?>"
+                                 data-created-at="<?php echo $order['created_at_original']; ?>"
                                  data-order-id="<?php echo $order['order_id']; ?>">
                                 <i class="bi bi-clock"></i>
                                 <span class="timer-display">
@@ -1718,23 +1794,23 @@ th:nth-last-child(2) {
                             <table class="table table-sm">
                                 <tr>
                                     <td><strong>Subtotal:</strong></td>
-                                    <td>₹<span id="modalSubtotal"></span></td>
+                                    <td><?php echo $currencySymbol; ?> <span id="modalSubtotal"></span></td>
                                 </tr>
                                 <tr id="modalDiscountRow">
                                     <td><strong>Discount:</strong></td>
-                                    <td>-₹<span id="modalDiscountAmount"></span> (<span id="modalDiscountType"></span>)</td>
+                                    <td>-<?php echo $currencySymbol; ?> <span id="modalDiscountAmount"></span> (<span id="modalDiscountType"></span>)</td>
                                 </tr>
                                 <tr id="modalGstRow">
-                                    <td><strong>GST:</strong></td>
-                                    <td>₹<span id="modalGstAmount"></span></td>
+                                    <td><strong><?php echo $taxLabel; ?>:</strong></td>
+                                    <td><?php echo $currencySymbol; ?> <span id="modalGstAmount"></span></td>
                                 </tr>
                                 <tr id="modalDeliveryRow">
                                     <td><strong>Delivery Charge:</strong></td>
-                                    <td>₹<span id="modalDeliveryCharge"></span></td>
+                                    <td><?php echo $currencySymbol; ?> <span id="modalDeliveryCharge"></span></td>
                                 </tr>
                                 <tr class="table-active">
                                     <td><strong>Total Amount:</strong></td>
-                                    <td><strong>₹<span id="modalTotalAmount"></span></strong></td>
+                                    <td><strong><?php echo $currencySymbol; ?> <span id="modalTotalAmount"></span></strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -1770,9 +1846,6 @@ th:nth-last-child(2) {
         </div>
     </div>
 
-
-
-
     <!-- KOT Preview Modal for kitchen order ticket printing -->
     <div class="modal fade" id="kotPreviewModal" tabindex="-1" aria-labelledby="kotPreviewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
@@ -1796,8 +1869,6 @@ th:nth-last-child(2) {
             </div>
         </div>
     </div>
-
-
 
     <!-- Bill Preview Modal for thermal printer bill printing -->
     <div class="modal fade" id="billPreviewModal" tabindex="-1" aria-labelledby="billPreviewModalLabel" aria-hidden="true">
@@ -1828,6 +1899,41 @@ th:nth-last-child(2) {
     
 <script>
 // Main JavaScript functionality for order management system
+
+// Get currency symbol and user country from PHP
+const currencySymbol = '<?php echo $currencySymbol; ?>';
+const userCountry = '<?php echo $user_country; ?>';
+const taxLabel = '<?php echo $taxLabel; ?>';
+
+/**
+ * Adjust date for UAE users (subtract 1 hour 30 minutes)
+ * @param {Date|string} date - Date to adjust
+ * @returns {Date} Adjusted date
+ */
+function adjustTimeForUAE(date) {
+    if (userCountry !== 'UAE') {
+        return date instanceof Date ? date : new Date(date);
+    }
+    
+    const dateObj = date instanceof Date ? new Date(date.getTime()) : new Date(date);
+    dateObj.setHours(dateObj.getHours() - 1);
+    dateObj.setMinutes(dateObj.getMinutes() - 30);
+    return dateObj;
+}
+
+/**
+ * Format date for display with UAE adjustment
+ * @param {string} dateString - Date string from server
+ * @returns {string} Formatted date string
+ */
+function formatDisplayDate(dateString) {
+    const adjustedDate = adjustTimeForUAE(dateString);
+    return adjustedDate.toLocaleDateString('en-IN') + ' ' + adjustedDate.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
 
 /**
  * Highlight specific order when coming from notification
@@ -2057,9 +2163,10 @@ function generateBillHTML(order) {
     const orderTypeDisplay = order.order_type === 'delivery' ? 'Home Delivery' : 
                            order.order_type === 'dining' ? `Dine-In (Table ${order.table_number})` : 'Takeaway';
     
-    // Format date and time
-    const orderDate = new Date(order.created_at).toLocaleDateString('en-IN');
-    const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { 
+    // Format date and time with UAE adjustment
+    const adjustedDate = adjustTimeForUAE(order.created_at);
+    const orderDate = adjustedDate.toLocaleDateString('en-IN');
+    const orderTime = adjustedDate.toLocaleTimeString('en-IN', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: true 
@@ -2075,6 +2182,16 @@ function generateBillHTML(order) {
             return num.toFixed(2); // Return with 2 decimal places
         }
     };
+    
+    // Get current time for footer with UAE adjustment
+    const now = new Date();
+    const adjustedNow = userCountry === 'UAE' ? adjustTimeForUAE(now) : now;
+    const currentDate = adjustedNow.toLocaleDateString('en-IN');
+    const currentTime = adjustedNow.toLocaleTimeString('en-IN', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
     
     let billHtml = `
         <div class="bill-container">
@@ -2170,8 +2287,8 @@ function generateBillHTML(order) {
             <div class="bill-row">
                 <div class="bill-item-name">${escapeHtml(item.product_name)}</div>
                 <div class="bill-item-qty">${item.quantity}</div>
-                <div class="bill-item-price">${formatCurrency(item.price)}</div>
-                <div class="bill-item-total">${formatCurrency(itemTotal)}</div>
+                <div class="bill-item-price">${currencySymbol} ${formatCurrency(item.price)}</div>
+                <div class="bill-item-total">${currencySymbol} ${formatCurrency(itemTotal)}</div>
             </div>
             `;
         });
@@ -2185,7 +2302,7 @@ function generateBillHTML(order) {
             
             <div class="bill-summary-row">
                 <div class="bill-summary-label">Subtotal:</div>
-                <div class="bill-summary-value">₹${formatCurrency(order.subtotal)}</div>
+                <div class="bill-summary-value">${currencySymbol} ${formatCurrency(order.subtotal)}</div>
             </div>
     `;
     
@@ -2193,7 +2310,7 @@ function generateBillHTML(order) {
         billHtml += `
             <div class="bill-summary-row">
                 <div class="bill-summary-label">Discount (${escapeHtml(order.discount_type)}):</div>
-                <div class="bill-summary-value">-₹${formatCurrency(order.discount_amount)}</div>
+                <div class="bill-summary-value">-${currencySymbol} ${formatCurrency(order.discount_amount)}</div>
             </div>
         `;
     }
@@ -2201,8 +2318,8 @@ function generateBillHTML(order) {
     if (parseFloat(order.gst_amount) > 0) {
         billHtml += `
             <div class="bill-summary-row">
-                <div class="bill-summary-label">GST:</div>
-                <div class="bill-summary-value">₹${formatCurrency(order.gst_amount)}</div>
+                <div class="bill-summary-label">${taxLabel}:</div>
+                <div class="bill-summary-value">${currencySymbol} ${formatCurrency(order.gst_amount)}</div>
             </div>
         `;
     }
@@ -2211,7 +2328,7 @@ function generateBillHTML(order) {
         billHtml += `
             <div class="bill-summary-row">
                 <div class="bill-summary-label">Delivery Charge:</div>
-                <div class="bill-summary-value">₹${formatCurrency(order.delivery_charge)}</div>
+                <div class="bill-summary-value">${currencySymbol} ${formatCurrency(order.delivery_charge)}</div>
             </div>
         `;
     }
@@ -2221,7 +2338,7 @@ function generateBillHTML(order) {
             
             <div class="bill-summary-row" style="font-weight: bold;">
                 <div class="bill-summary-label">GRAND TOTAL:</div>
-                <div class="bill-summary-value">₹${formatCurrency(order.total_amount)}</div>
+                <div class="bill-summary-value">${currencySymbol} ${formatCurrency(order.total_amount)}</div>
             </div>
             
             <div class="bill-double-divider"></div>
@@ -2231,11 +2348,7 @@ function generateBillHTML(order) {
                 <div>Thank you for your order!</div>
                 <div>Visit again</div>
                 <div style="margin-top: 3px;">
-                    ${new Date().toLocaleDateString('en-IN')} ${new Date().toLocaleTimeString('en-IN', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: true 
-                    })}
+                    ${currentDate} ${currentTime}
                 </div>
             </div>
         </div>
@@ -2244,10 +2357,6 @@ function generateBillHTML(order) {
     return billHtml;
 }
 
-/**
- * Print the bill
- * Uses browser's print functionality with thermal printer styling
- */
 /**
  * Print the bill
  * Uses browser's print functionality with thermal printer styling
@@ -2278,7 +2387,7 @@ function printBill() {
                 body {
                     margin: 0;
                     padding: 5px;
-                    font-family: 'Aria';
+                    font-family: 'Arial';
                     font-size: 12px;
                     line-height: 1.2;
                     width: 65mm;
@@ -2393,8 +2502,6 @@ function printBill() {
             printWindow.print();
         }
     }, 1000);
-    
-    // showToast('Bill sent to printer!', 'success');
 }
 
 /**
@@ -2430,6 +2537,9 @@ $(document).ready(function() {
     applyCompleteButtonAnimations();
 
     console.log('🚀 Order management system initialized');
+    console.log('User Country:', userCountry);
+    console.log('Currency Symbol:', currencySymbol);
+    console.log('Tax Label:', taxLabel);
 });
 
 /**
@@ -2654,9 +2764,9 @@ function updateOrderModal(order) {
         $('#modalTableNumber').hide();
     }
     
-    // Order summary
+    // Order summary - Use displayTime function for UAE adjustment
     $('#modalOrderType').text(formatOrderType(order));
-    $('#modalOrderDate').text(new Date(order.created_at).toLocaleString());
+    $('#modalOrderDate').text(formatDisplayDate(order.created_at));
     
     // Status
     const statusBadge = $('#modalOrderStatus');
@@ -2677,7 +2787,7 @@ function updateOrderModal(order) {
         $notesContainer.hide();
     }
     
-    // Financials
+    // Financials - Update tax label in the modal
     updateFinancials(order);
     
     // Form fields
@@ -2708,9 +2818,9 @@ function renderOrderItems(items) {
         $container.append(`
             <tr>
                 <td>${item.product_name || 'Unnamed Item'}</td>
-                <td>₹${parseFloat(item.price || 0)}</td>
+                <td>${currencySymbol} ${parseFloat(item.price || 0).toFixed(2)}</td>
                 <td>${item.quantity || 1}</td>
-                <td>₹${total}</td>
+                <td>${currencySymbol} ${total.toFixed(2)}</td>
             </tr>
         `);
     });
@@ -2718,32 +2828,34 @@ function renderOrderItems(items) {
 
 /**
  * Update financial information in modal
- * Displays subtotal, discounts, GST, delivery charges, and total
+ * Displays subtotal, discounts, tax, delivery charges, and total
  * @param {Object} order - Order data object
  */
 function updateFinancials(order) {
-    $('#modalSubtotal').text(parseFloat(order.subtotal || 0));
+    $('#modalSubtotal').text(parseFloat(order.subtotal || 0).toFixed(2));
     
     // Toggle and set discount
     const discountAmount = parseFloat(order.discount_amount || 0);
     $('#modalDiscountRow').toggle(discountAmount > 0);
     if (discountAmount > 0) {
-        $('#modalDiscountAmount').text(discountAmount);
+        $('#modalDiscountAmount').text(discountAmount.toFixed(2));
         $('#modalDiscountType').text(order.discount_type || 'Discount');
     }
     
-    // Toggle and set GST
+    // Toggle and set tax - update label based on country
     const gstAmount = parseFloat(order.gst_amount || 0);
     $('#modalGstRow').toggle(gstAmount > 0);
-    if (gstAmount > 0) $('#modalGstAmount').text(gstAmount);
+    // Update the label in the modal row
+    $('#modalGstRow td strong').text(taxLabel + ':');
+    if (gstAmount > 0) $('#modalGstAmount').text(gstAmount.toFixed(2));
     
     // Toggle and set delivery
     const deliveryCharge = parseFloat(order.delivery_charge || 0);
     $('#modalDeliveryRow').toggle(deliveryCharge > 0);
-    if (deliveryCharge > 0) $('#modalDeliveryCharge').text(deliveryCharge);
+    if (deliveryCharge > 0) $('#modalDeliveryCharge').text(deliveryCharge.toFixed(2));
     
     // Total
-    $('#modalTotalAmount').text(parseFloat(order.total_amount || 0));
+    $('#modalTotalAmount').text(parseFloat(order.total_amount || 0).toFixed(2));
 }
 
 /**
@@ -2864,8 +2976,6 @@ function showCopyFeedback(button) {
 }
 </script>
 
-
-
 <script>
 /**
  * KOT Preview functionality
@@ -2919,9 +3029,19 @@ function generateKOTHTML(order) {
     const orderTypeDisplay = order.order_type === 'delivery' ? 'HOME DELIVERY' : 
                            order.order_type === 'dining' ? `DINE-IN (TABLE ${order.table_number})` : 'TAKEAWAY';
     
-    // Format date and time
-    const orderDate = new Date(order.created_at).toLocaleDateString('en-IN');
-    const orderTime = new Date(order.created_at).toLocaleTimeString('en-IN', { 
+    // Format date and time with UAE adjustment
+    const adjustedDate = adjustTimeForUAE(order.created_at);
+    const orderDate = adjustedDate.toLocaleDateString('en-IN');
+    const orderTime = adjustedDate.toLocaleTimeString('en-IN', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    
+    // Get current time for footer with UAE adjustment
+    const now = new Date();
+    const adjustedNow = userCountry === 'UAE' ? adjustTimeForUAE(now) : now;
+    const currentTime = adjustedNow.toLocaleTimeString('en-IN', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: true 
@@ -3030,11 +3150,7 @@ function generateKOTHTML(order) {
                 <div>*** KITCHEN COPY ***</div>
                 <div>Order Time: ${orderTime}</div>
                 <div style="margin-top: 3px;">
-                    ${new Date().toLocaleTimeString('en-IN', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: true 
-                    })}
+                    ${currentTime}
                 </div>
             </div>
         </div>
@@ -3170,6 +3286,7 @@ function printKOT() {
         </html>
     `);
     
+    
     printWindow.document.close();
     
     // Wait for content to load then trigger print
@@ -3185,8 +3302,6 @@ function printKOT() {
             printWindow.print();
         }
     }, 1000);
-    
-    // showToast('KOT sent to kitchen printer!', 'success');
 }
 </script>
 </body>

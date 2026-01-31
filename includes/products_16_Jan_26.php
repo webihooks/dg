@@ -22,7 +22,6 @@ function isWithinTimeSlots(time1Start, time1End, time2Start, time2End) {
     return checkTimeSlot(time1Start, time1End) || checkTimeSlot(time2Start, time2End);
 }
 
-
 // Function to format time slots for display
 function formatTimeSlots(time1Start, time1End, time2Start, time2End) {
     const timeSlots = [];
@@ -149,41 +148,9 @@ function updateProductAvailability() {
 .tag-time-slot.text-success {
     color: #198754 !important;
 }
-
-/* Flying image animation */
-.flying-image {
-    position: fixed;
-    z-index: 9999;
-    border-radius: 8px;
-    object-fit: cover;
-    pointer-events: none;
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    animation: flyToCart 1s forwards;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-@keyframes flyToCart {
-    0% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
-        opacity: 1;
-    }
-    50% {
-        transform: translate(var(--mid-x), var(--mid-y)) scale(0.7) rotate(180deg);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translate(var(--final-x), var(--final-y)) scale(0.2) rotate(360deg);
-        opacity: 0;
-    }
-}
 </style>
 
 <?php
-// Get currency info from global
-$currency_symbol = $GLOBALS['currency_info']['symbol'] ?? '₹';
-$currency_code = $GLOBALS['currency_info']['code'] ?? 'INR';
-$user_country = $GLOBALS['currency_info']['country'] ?? 'India';
-
 // Get products from user-specific table with tags
 $table_name = "products_" . $user_id;
 
@@ -221,15 +188,10 @@ if ($table_exists) {
 <?php endif; ?>
 
 <script>
-// Get currency symbol from PHP
-const currencySymbol = '<?= $currency_symbol ?>';
-const currencyCode = '<?= $currency_code ?>';
-
 // WhatsApp integration disabled
 const ENABLE_WHATSAPP_ORDER = false;
 
-// Get user country for phone validation
-const userCountry = '<?= $user_country ?>';
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryBtn = document.getElementById('deliveryBtn');
@@ -251,6 +213,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update availability every minute
     setInterval(updateProductAvailability, 60000);
 });
+
+
+
+
 
 // Lazy loading with fade-in effect implementation
 function initLazyLoading() {
@@ -363,26 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-// Format number function with currency support
-function formatNumber(num, withSymbol = false) {
-    // Convert to number if it's a string
-    num = typeof num === 'string' ? parseFloat(num) : num;
-    // Handle NaN cases
-    if (isNaN(num)) num = 0;
-    
-    const formatted = num % 1 === 0 ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
-    
-    if (withSymbol) {
-        return currencySymbol + formatted;
-    }
-    return formatted;
-}
-
-// Format currency function
-function formatCurrency(amount) {
-    return currencySymbol + formatNumber(amount);
-}
 </script>
 
 <!-- products.php -->
@@ -402,30 +348,30 @@ function formatCurrency(amount) {
                 <div class="cart-items" id="cartItems"></div>
                 <div class="cart-total-details">
                     <div class="cart-subtotal">
-                        Subtotal: <span id="cartSubtotal">0.00</span>
+                        Subtotal: ₹<span id="cartSubtotal">0.00</span>
                     </div>
 
                     <!-- Discount Section -->
                     <div class="cart-discount" id="discountSection" style="display: none;">
-                        Discount: -<span id="discountAmount">0.00</span> (
+                        Discount: -₹<span id="discountAmount">0.00</span> (
                         <span id="discountType"></span>)
                     </div>
 
                     <?php if ($gst_percent > 0): ?>
                         <div class="cart-gst-charges">
                             GST (
-                            <?= $gst_percent ?>%): <span id="gstCharges">0.00</span>
+                            <?= $gst_percent ?>%): ₹<span id="gstCharges">0.00</span>
                         </div>
                     <?php endif; ?>
 
                     <?php if ($delivery_active && isset($delivery_charges)): ?>
                         <div class="cart-delivery-charges">
-                            Delivery: <span id="deliveryChargeText">0.00</span>
+                            Delivery: <span id="deliveryChargeText">₹0.00</span>
                         </div>
                     <?php endif; ?>
 
                     <div class="cart-total">
-                        Total: <span id="cartTotal">0.00</span>
+                        Total: ₹<span id="cartTotal">0.00</span>
                     </div>
                 </div>
                 <!-- View Cart Button -->
@@ -476,11 +422,7 @@ function formatCurrency(amount) {
                         </div>
                         <div class="mb-1 col-half">
                             <label for="dinningPhone" class="form-label">Phone*</label>
-                            <?php if ($user_country === 'UAE'): ?>
-                                <input type="tel" class="form-control" id="dinningPhone" placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
-                            <?php else: ?>
-                                <input type="tel" class="form-control" id="dinningPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
-                            <?php endif; ?>
+                            <input type="tel" class="form-control" id="dinningPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
                         </div>
                         <!-- Add Order Notes for Dining -->
                         <div class="mb-1 col-full">
@@ -508,11 +450,7 @@ function formatCurrency(amount) {
                         </div>
                         <div class="mb-1 col-half">
                             <label for="customerPhone" class="form-label">Phone*</label>
-                            <?php if ($user_country === 'UAE'): ?>
-                                <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
-                            <?php else: ?>
-                                <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
-                            <?php endif; ?>
+                            <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
                         </div>
                         <div class="mb-1 col-full">
                             <label for="customerAddress" class="form-label">Address*</label>
@@ -532,7 +470,19 @@ function formatCurrency(amount) {
         </div>
     <?php endif; ?>
 
+
+
+
+
+
+
+
+
+
+
     <div class="row" id="productsContainer">
+
+
         <?php
         // Get products from user-specific table with tags
         $table_name = "products_" . $user_id;
@@ -555,6 +505,7 @@ function formatCurrency(amount) {
             $products = []; // Empty array if table doesn't exist
         }
         ?>
+
 
         <?php if (!empty($products)): ?>
             <?php foreach ($products as $product): ?>
@@ -630,7 +581,7 @@ function formatCurrency(amount) {
                             <?php endif; ?>
                             
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-primary fw-bold"><?= $currency_symbol ?><?= number_format($product['price']) ?></span>
+                                <span class="text-primary fw-bold">₹<?= number_format($product['price']) ?></span>
                                 <span class="badge bg-<?= ($product['quantity'] > 0) ? 'success' : 'danger' ?>" style="display: none;">
                                     <?= ($product['quantity'] > 0) ? 'In Stock' : 'Out of Stock' ?>
                                 </span>
@@ -684,62 +635,79 @@ function formatCurrency(amount) {
                     <div class="alert alert-info">No products available yet.</div>
                 </div>
             <?php endif; ?>
-    </div>
+</div>
 
-    <!-- Move search to bottom and make it sticky -->
-    <div class="sticky-search-container">
-        <div class="tags-filter-container">
-            <div class="tags-scroll">
-                <?php 
-                // Fetch only active tags with time slots
-                $active_tags_sql = "SELECT *, 
-                                    CONCAT(
-                                        IF(time1_start IS NOT NULL AND time1_end IS NOT NULL, 
-                                           CONCAT(DATE_FORMAT(time1_start, '%h:%i %p'), ' - ', DATE_FORMAT(time1_end, '%h:%i %p')), 
-                                           ''),
-                                        IF(time2_start IS NOT NULL AND time2_end IS NOT NULL, 
-                                           CONCAT(', ', DATE_FORMAT(time2_start, '%h:%i %p'), ' - ', DATE_FORMAT(time2_end, '%h:%i %p')), 
-                                           '')
-                                    ) as time_slots_display
-                                    FROM tags 
-                                    WHERE user_id = :user_id 
-                                    AND is_active = 1 
-                                    ORDER BY position ASC";
-                $active_tags_stmt = $conn->prepare($active_tags_sql);
-                $active_tags_stmt->execute([':user_id' => $user_id]);
-                $active_tags = $active_tags_stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Only show "All" button if there are active tags
-                if (!empty($active_tags)): ?>
-                    <button class="tag-btn active" data-tag="all">All</button>
-                <?php endif; ?>
-                
-                <?php foreach ($active_tags as $tag): ?>
-                    <button class="tag-btn" data-tag="<?= htmlspecialchars(strtolower($tag['tag'])) ?>">
-                        <?= htmlspecialchars($tag['tag']) ?>
-                    </button>
-                <?php endforeach; ?>
+
+
+
+
+
+
+
+
+
+
+        <!-- Move search to bottom and make it sticky -->
+        <div class="sticky-search-container">
+            <div class="tags-filter-container">
+                <div class="tags-scroll">
+                    <?php 
+                    // Fetch only active tags with time slots
+                    $active_tags_sql = "SELECT *, 
+                                        CONCAT(
+                                            IF(time1_start IS NOT NULL AND time1_end IS NOT NULL, 
+                                               CONCAT(DATE_FORMAT(time1_start, '%h:%i %p'), ' - ', DATE_FORMAT(time1_end, '%h:%i %p')), 
+                                               ''),
+                                            IF(time2_start IS NOT NULL AND time2_end IS NOT NULL, 
+                                               CONCAT(', ', DATE_FORMAT(time2_start, '%h:%i %p'), ' - ', DATE_FORMAT(time2_end, '%h:%i %p')), 
+                                               '')
+                                        ) as time_slots_display
+                                        FROM tags 
+                                        WHERE user_id = :user_id 
+                                        AND is_active = 1 
+                                        ORDER BY position ASC";
+                    $active_tags_stmt = $conn->prepare($active_tags_sql);
+                    $active_tags_stmt->execute([':user_id' => $user_id]);
+                    $active_tags = $active_tags_stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Only show "All" button if there are active tags
+                    if (!empty($active_tags)): ?>
+                        <button class="tag-btn active" data-tag="all">All</button>
+                    <?php endif; ?>
+                    
+                    <?php foreach ($active_tags as $tag): ?>
+                        <button class="tag-btn" data-tag="<?= htmlspecialchars(strtolower($tag['tag'])) ?>">
+                            <?= htmlspecialchars($tag['tag']) ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            
+            <div class="input-group sticky-search">
+                <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                    <i class="bi bi-x"></i>
+                </button>
             </div>
         </div>
-        
-        <div class="input-group sticky-search">
-            <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
-            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                <i class="bi bi-x"></i>
-            </button>
-        </div>
-    </div>
 
-    <?php if ($delivery_active || $dining_active): ?>
-        <div class="cart-button-container" style="display: none;">
-            <button class="btn btn-primary cart-button" onclick="toggleCart()">
-                <span class="cart-count">0 item added</span>
-                <span class="small discount-message" style="display: none;"></span>
-                <i class="bi bi-cart blink"></i>
-            </button>
-        </div>
-    <?php endif; ?>
-    <!-- Move search to bottom and make it sticky -->
+        <?php if ($delivery_active || $dining_active): ?>
+            <div class="cart-button-container" style="display: none;">
+                <button class="btn btn-primary cart-button" onclick="toggleCart()">
+                    <span class="cart-count">0 item added</span>
+                    <span class="small discount-message" style="display: none;"></span>
+                    <i class="bi bi-cart blink"></i>
+                </button>
+            </div>
+        <?php endif; ?>
+        <!-- Move search to bottom and make it sticky -->
+
+
+
+
+
+
+
 
 <script>
     // Initialize cart at the very top
@@ -866,6 +834,21 @@ function formatCurrency(amount) {
             checkCartVisibility();
         };
     });
+
+    // Add to your fadeIn/fadeOut functions
+    const originalFadeIn = fadeIn;
+    fadeIn = function(element, callback) {
+        originalFadeIn.apply(this, arguments);
+        checkCartVisibility();
+        if (callback) callback();
+    };
+
+    const originalFadeOut = fadeOut;
+    fadeOut = function(element, callback) {
+        originalFadeOut.apply(this, arguments);
+        checkCartVisibility();
+        if (callback) callback();
+    };
 
     // Fade Animation Functions
     function fadeIn(element, callback) {
@@ -1075,42 +1058,36 @@ function formatCurrency(amount) {
         document.getElementById('productSearch').focus();
     });
 
-    // Phone number validation - Updated for UAE support
+    function formatNumber(num) {
+        // Convert to number if it's a string
+        num = typeof num === 'string' ? parseFloat(num) : num;
+        // Handle NaN cases
+        if (isNaN(num)) num = 0;
+        return num % 1 === 0 ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    // Phone number validation
     function validatePhoneNumber(input) {
         // Remove any non-digit characters
         input.value = input.value.replace(/\D/g, '');
         
-        if (userCountry === 'UAE') {
-            // For UAE: 9 digits, can start with 0
-            if (input.value.length > 9) {
-                input.value = input.value.substring(0, 9);
-            }
-            
-            // Check if exactly 9 digits
-            if (input.value.length !== 9 && input.value.length > 0) {
-                input.setCustomValidity('Phone number must be exactly 9 digits');
-                input.reportValidity();
-                return false;
-            }
-        } else {
-            // For other countries (like India): 10 digits, cannot start with 0
-            if (input.value.length > 10) {
-                input.value = input.value.substring(0, 10);
-            }
-            
-            // Check if number starts with 0
-            if (input.value.length > 0 && input.value.startsWith('0')) {
-                input.setCustomValidity('Phone number cannot start with 0');
-                input.reportValidity();
-                return false;
-            }
-            
-            // Check if exactly 10 digits
-            if (input.value.length !== 10 && input.value.length > 0) {
-                input.setCustomValidity('Phone number must be exactly 10 digits');
-                input.reportValidity();
-                return false;
-            }
+        // Trim to 10 digits if longer
+        if (input.value.length > 10) {
+            input.value = input.value.substring(0, 10);
+        }
+        
+        // Check if number starts with 0
+        if (input.value.length > 0 && input.value.startsWith('0')) {
+            input.setCustomValidity('Phone number cannot start with 0');
+            input.reportValidity();
+            return false;
+        }
+        
+        // Check if exactly 10 digits
+        if (input.value.length !== 10 && input.value.length > 0) {
+            input.setCustomValidity('Phone number must be exactly 10 digits');
+            input.reportValidity();
+            return false;
         }
         
         // Valid phone number
@@ -1127,18 +1104,10 @@ function formatCurrency(amount) {
             return false;
         }
         
-        if (userCountry === 'UAE') {
-            if (phoneInput.value.length !== 9) {
-                alert('Please enter a valid 9-digit phone number');
-                phoneInput.focus();
-                return false;
-            }
-        } else {
-            if (phoneInput.value.length !== 10) {
-                alert('Please enter a valid 10-digit phone number');
-                phoneInput.focus();
-                return false;
-            }
+        if (phoneInput.value.length !== 10) {
+            alert('Please enter a valid 10-digit phone number');
+            phoneInput.focus();
+            return false;
         }
         
         return true;
@@ -1159,6 +1128,7 @@ function formatCurrency(amount) {
                 alert('This product is currently not available. Please check the available time slots.');
                 return;
             }
+
 
             // Add this to adjust the sticky search container
             const stickySearchContainer = document.querySelector('.sticky-search-container');
@@ -1377,7 +1347,7 @@ function formatCurrency(amount) {
                     <!-- ${productImage ? `<img src="${productImage}" class="cart-item-img" alt="${item.name}" onerror="this.style.display='none'">` : ''}-->
                     <div class="ms-1">
                         <h6>${item.name}</h6>
-                        <div>${currencySymbol}${formatNumber(item.price)} x ${item.quantity}</div>
+                        <div>₹${formatNumber(item.price)} x ${item.quantity}</div>
                     </div>
                 </div>
                 <div class="cart-item-controls">
@@ -1412,7 +1382,7 @@ function formatCurrency(amount) {
                 discountType = cart.coupon.value + '% coupon (' + couponCode + ')';
             } else {
                 discountAmount = Number(cart.coupon.value);
-                discountType = 'Flat ' + currencySymbol + formatNumber(cart.coupon.value) + ' OFF (' + couponCode + ')';
+                discountType = 'Flat ₹' + formatNumber(cart.coupon.value) + ' OFF (' + couponCode + ')';
             }
             
             // Show discount section
@@ -1457,7 +1427,7 @@ function formatCurrency(amount) {
                     discountType = applicableDiscount.discount_in_percent + '% discount';
                 } else if (applicableDiscount.discount_in_flat !== null && applicableDiscount.discount_in_flat > 0) {
                     discountAmount = parseFloat(applicableDiscount.discount_in_flat);
-                    discountType = 'Flat ' + currencySymbol + formatNumber(applicableDiscount.discount_in_flat) + ' OFF';
+                    discountType = 'Flat ₹' + formatNumber(applicableDiscount.discount_in_flat) + ' OFF';
                 }
 
                 // Ensure discountAmount doesn't exceed subtotal
@@ -1489,7 +1459,7 @@ function formatCurrency(amount) {
                     const minDiscount = discounts[0].min_cart_value;
                     const needed = minDiscount - subtotal;
                     if (needed > 0) {
-                        discountMessageElement.innerHTML = `<i class="bi bi-tag"></i> Add ${currencySymbol}${formatNumber(needed)} more for discount`;
+                        discountMessageElement.innerHTML = `<i class="bi bi-tag"></i> Add ₹${formatNumber(needed)} more for discount`;
                         discountMessageElement.style.display = 'block';
                     } else {
                         discountMessageElement.style.display = 'none';
@@ -1503,9 +1473,9 @@ function formatCurrency(amount) {
                 let nextDiscountText = '';
                 
                 if (nextDiscount.discount_in_percent) {
-                    nextDiscountText = `Add ${currencySymbol}${formatNumber(amountNeeded)} more for ${formatNumber(nextDiscount.discount_in_percent)}% discount`;
+                    nextDiscountText = `Add ₹${formatNumber(amountNeeded)} more for ${formatNumber(nextDiscount.discount_in_percent)}% discount`;
                 } else if (nextDiscount.discount_in_flat) {
-                    nextDiscountText = `Add ${currencySymbol}${formatNumber(amountNeeded)} more for ${currencySymbol}${formatNumber(nextDiscount.discount_in_flat)} OFF`;
+                    nextDiscountText = `Add ₹${formatNumber(amountNeeded)} more for ₹${formatNumber(nextDiscount.discount_in_flat)} OFF`;
                 }
                 
                 // Create or update next discount info element
@@ -1554,7 +1524,7 @@ function formatCurrency(amount) {
             if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
                 // Free delivery because subtotal meets minimum
                 actualDeliveryCharge = 0;
-                document.getElementById('deliveryChargeText').textContent = 'FREE (Order above ' + currencySymbol + formatNumber(freeDeliveryMin) + ')';
+                document.getElementById('deliveryChargeText').textContent = 'FREE (Order above ₹' + formatNumber(freeDeliveryMin) + ')';
                 if (cartDeliveryChargesRow) cartDeliveryChargesRow.classList.add('free');
             } else {
                 // Apply normal delivery charge
@@ -1563,9 +1533,9 @@ function formatCurrency(amount) {
                     // Show message about how much more to spend for free delivery
                     const neededForFree = freeDeliveryMin - amountAfterDiscount;
                     document.getElementById('deliveryChargeText').innerHTML =
-                        `${currencySymbol}${formatNumber(deliveryCharge)} <span class="free-delivery-text"> (Add ${currencySymbol}${formatNumber(neededForFree)} more for FREE delivery)</span>`;
+                        `₹${formatNumber(deliveryCharge)} <span class="free-delivery-text"> (Add ₹${formatNumber(neededForFree)} more for FREE delivery)</span>`;
                 } else {
-                    document.getElementById('deliveryChargeText').textContent = `${currencySymbol}${formatNumber(deliveryCharge)}`;
+                    document.getElementById('deliveryChargeText').textContent = `₹${formatNumber(deliveryCharge)}`;
                 }
                 if (cartDeliveryChargesRow) cartDeliveryChargesRow.classList.remove('free');
             }
@@ -1754,18 +1724,10 @@ function formatCurrency(amount) {
         const phoneInput = isDelivery ? document.getElementById('customerPhone') : document.getElementById('dinningPhone');
         
         // Validate phone number first
-        if (userCountry === 'UAE') {
-            if (phoneInput.value.length !== 9) {
-                alert('Please enter a valid 9-digit phone number');
-                phoneInput.focus();
-                return;
-            }
-        } else {
-            if (phoneInput.value.length !== 10) {
-                alert('Please enter a valid 10-digit phone number');
-                phoneInput.focus();
-                return;
-            }
+        if (phoneInput.value.length !== 10) {
+            alert('Please enter a valid 10-digit phone number');
+            phoneInput.focus();
+            return;
         }
 
         if (isDelivery) {
@@ -1790,11 +1752,9 @@ function formatCurrency(amount) {
             }
         }
         
-        // Prepare order data with currency info
+        // Prepare order data
         const orderData = {
             user_id: <?= $user_id ?>,
-            currency_symbol: currencySymbol,
-            currency_code: currencyCode,
             order_type: isDelivery ? 'delivery' : 'dining',
             customer_name: customerName,
             customer_phone: customerPhone,
@@ -2049,8 +2009,11 @@ function formatCurrency(amount) {
     }
 </script>
 
-    <!-- Add this to your HTML (before the closing body tag) -->
-    <div class="confetti-container" id="confettiContainer"></div>
+
+<!-- Add this to your HTML (before the closing body tag) -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+
 
 <!-- View Order Button -->
 <?php
@@ -2067,6 +2030,9 @@ if (isset($_COOKIE['lastOrderId']) && isset($_COOKIE['lastOrderUserId']) && $_CO
         </button>
     </div>
 </div>
+
+
+
 
 <script>
 // Function to redirect to profile page
@@ -2179,3 +2145,4 @@ function goBackToMenu(orderId) {
     window.location.href = 'https://deegeecard.com/<?= htmlspecialchars($back_url) ?>';
 }
 </script>
+
