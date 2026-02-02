@@ -14,32 +14,10 @@ if (!isset($_SESSION['user_id'])) {
 require 'db_connection.php';
 $user_id = $_SESSION['user_id'];
 $message = $error = '';
-$existing_order_id = null;
-$existing_order_data = null;
 
 // Check for success message
 if (isset($_GET['success']) && $_GET['success'] == 1 && isset($_GET['order_id'])) {
     $message = "Bill created successfully! Bill #" . htmlspecialchars($_GET['order_id']);
-}
-
-// Check if we're loading an existing order for update
-if (isset($_GET['edit_order']) && is_numeric($_GET['edit_order'])) {
-    $existing_order_id = intval($_GET['edit_order']);
-    
-    // Verify the order belongs to the current user and is active (not paid/cancelled)
-    $order_check_sql = "SELECT order_id, customer_name, customer_phone, order_type, delivery_address, table_number, order_notes, subtotal, gst_amount, delivery_charge, total_amount, status FROM orders WHERE order_id = ? AND user_id = ? AND status IN ('Confirmed', 'In Progress')";
-    $order_check_stmt = $conn->prepare($order_check_sql);
-    $order_check_stmt->bind_param("ii", $existing_order_id, $user_id);
-    $order_check_stmt->execute();
-    $order_check_result = $order_check_stmt->get_result();
-    
-    if ($order_check_result->num_rows > 0) {
-        $existing_order_data = $order_check_result->fetch_assoc();
-    } else {
-        $existing_order_id = null;
-        $existing_order_data = null;
-    }
-    $order_check_stmt->close();
 }
 
 // Fetch business information for bill header
@@ -120,222 +98,115 @@ if ($stmt = $conn->prepare($table_sql)) {
 }
 
 // ==================== HANDLE FORM SUBMISSION ====================
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['create_bill'])) {
-        // Collect form data
-        $customer_name = trim($_POST['customer_name'] ?? '');
-        $customer_phone = trim($_POST['customer_phone'] ?? '');
-        $order_type = $_POST['order_type'] ?? 'dining';
-        $delivery_address = trim($_POST['delivery_address'] ?? '');
-        $table_number = $_POST['table_number'] ?? '';
-        $order_notes = trim($_POST['order_notes'] ?? '');
-        $order_items = $_POST['order_items'] ?? [];
-        $existing_order_id = isset($_POST['existing_order_id']) ? intval($_POST['existing_order_id']) : null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bill'])) {
+    // Collect form data
+    $customer_name = trim($_POST['customer_name'] ?? '');
+    $customer_phone = trim($_POST['customer_phone'] ?? '');
+    $order_type = $_POST['order_type'] ?? 'dining';
+    $delivery_address = trim($_POST['delivery_address'] ?? '');
+    $table_number = $_POST['table_number'] ?? '';
+    $order_notes = trim($_POST['order_notes'] ?? '');
+    $order_items = $_POST['order_items'] ?? [];
 
-        // Validation
-        $errors = [];
-        if (empty($order_items)) {
-            $errors[] = "Please add at least one item to the cart";
+    // Validation
+    $errors = [];
+    if (empty($order_items)) {
+        $errors[] = "Please add at least one item to the cart";
+    }
+
+    if ($order_type === 'dining' && empty($table_number)) {
+        $errors[] = "Table number is required for dining orders";
+    }
+
+    if (($order_type === 'delivery' || $order_type === 'takeaway') && empty($customer_name)) {
+        $errors[] = "Customer name is required";
+    }
+
+    if (($order_type === 'delivery' || $order_type === 'takeaway') && empty($customer_phone)) {
+        $errors[] = "Phone number is required";
+    }
+
+    if ($order_type === 'delivery' && empty($delivery_address)) {
+        $errors[] = "Delivery address is required";
+    }
+
+    // If validation errors, return error response
+    if (!empty($errors)) {
+        echo json_encode(['success' => false, 'error' => implode("<br>", $errors)]);
+        exit;
+    }
+
+    // Calculate subtotal
+    $subtotal = 0;
+    foreach ($order_items as $item) {
+        $subtotal += ((float)$item['price'] * (int)$item['quantity']);
+    }
+    
+    // Calculate GST
+    $gst_amount = ($subtotal * $gst_rate) / 100;
+    
+    // Calculate delivery charge
+    $final_delivery_charge = 0;
+    if ($order_type === 'delivery') {
+        if ($free_delivery_minimum > 0 && $subtotal >= $free_delivery_minimum) {
+            $final_delivery_charge = 0;
+        } else {
+            $final_delivery_charge = $delivery_charge;
         }
+    }
+    
+    $total_amount = $subtotal + $gst_amount + $final_delivery_charge;
 
-        if ($order_type === 'dining' && empty($table_number)) {
-            $errors[] = "Table number is required for dining orders";
+    // Start transaction
+    $conn->begin_transaction();
+    try {
+        // Create new order with status "Confirmed"
+        $order_sql = "INSERT INTO orders (user_id, customer_name, customer_phone, order_type, 
+                      delivery_address, table_number, order_notes, subtotal, gst_amount, 
+                      delivery_charge, total_amount, status) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Confirmed')";
+        
+        $stmt = $conn->prepare($order_sql);
+        $stmt->bind_param("issssssdddd", 
+            $user_id, 
+            $customer_name, 
+            $customer_phone, 
+            $order_type,
+            $delivery_address, 
+            $table_number, 
+            $order_notes, 
+            $subtotal,
+            $gst_amount, 
+            $final_delivery_charge, 
+            $total_amount
+        );
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to create order: " . $stmt->error);
         }
+        $order_id = $conn->insert_id;
+        $stmt->close();
 
-        if (($order_type === 'delivery' || $order_type === 'takeaway') && empty($customer_name)) {
-            $errors[] = "Customer name is required";
-        }
-
-        if (($order_type === 'delivery' || $order_type === 'takeaway') && empty($customer_phone)) {
-            $errors[] = "Phone number is required";
-        }
-
-        if ($order_type === 'delivery' && empty($delivery_address)) {
-            $errors[] = "Delivery address is required";
-        }
-
-        // If validation errors, return error response
-        if (!empty($errors)) {
-            echo json_encode(['success' => false, 'error' => implode("<br>", $errors)]);
-            exit;
-        }
-
-        // Calculate subtotal
-        $subtotal = 0;
+        // Add order items
+        $item_sql = "INSERT INTO order_items (order_id, product_name, price, quantity) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($item_sql);
         foreach ($order_items as $item) {
-            $subtotal += ((float)$item['price'] * (int)$item['quantity']);
+            $stmt->bind_param("isdi", $order_id, $item['product_name'], $item['price'], $item['quantity']);
+            $stmt->execute();
         }
+        $stmt->close();
         
-        // Calculate GST
-        $gst_amount = ($subtotal * $gst_rate) / 100;
+        $conn->commit();
         
-        // Calculate delivery charge
-        $final_delivery_charge = 0;
-        if ($order_type === 'delivery') {
-            if ($free_delivery_minimum > 0 && $subtotal >= $free_delivery_minimum) {
-                $final_delivery_charge = 0;
-            } else {
-                $final_delivery_charge = $delivery_charge;
-            }
-        }
+        echo json_encode(['success' => true, 'order_id' => $order_id]);
+        exit;
         
-        $total_amount = $subtotal + $gst_amount + $final_delivery_charge;
-
-        // Start transaction
-        $conn->begin_transaction();
-        try {
-            if ($existing_order_id) {
-                // UPDATE EXISTING ORDER
-                // Get existing order totals
-                $existing_sql = "SELECT subtotal, gst_amount, delivery_charge, total_amount FROM orders WHERE order_id = ? AND user_id = ?";
-                $existing_stmt = $conn->prepare($existing_sql);
-                $existing_stmt->bind_param("ii", $existing_order_id, $user_id);
-                $existing_stmt->execute();
-                $existing_stmt->bind_result($existing_subtotal, $existing_gst, $existing_delivery, $existing_total);
-                $existing_stmt->fetch();
-                $existing_stmt->close();
-                
-                // Calculate new totals by adding to existing
-                $new_subtotal = $existing_subtotal + $subtotal;
-                $new_gst_amount = $existing_gst + $gst_amount;
-                
-                // Recalculate delivery charge if needed (only for delivery orders)
-                $new_delivery_charge = $existing_delivery;
-                if ($order_type === 'delivery') {
-                    if ($free_delivery_minimum > 0 && $new_subtotal >= $free_delivery_minimum) {
-                        $new_delivery_charge = 0;
-                    } else {
-                        $new_delivery_charge = $delivery_charge;
-                    }
-                }
-                
-                $new_total_amount = $new_subtotal + $new_gst_amount + $new_delivery_charge;
-                
-                // Update the order with new totals
-                $update_order_sql = "UPDATE orders SET 
-                                    subtotal = ?, 
-                                    gst_amount = ?, 
-                                    delivery_charge = ?, 
-                                    total_amount = ?,
-                                    updated_at = NOW()
-                                    WHERE order_id = ? AND user_id = ?";
-                
-                $update_stmt = $conn->prepare($update_order_sql);
-                $update_stmt->bind_param("dddiii", 
-                    $new_subtotal,
-                    $new_gst_amount,
-                    $new_delivery_charge,
-                    $new_total_amount,
-                    $existing_order_id,
-                    $user_id
-                );
-                
-                if (!$update_stmt->execute()) {
-                    throw new Exception("Failed to update order: " . $update_stmt->error);
-                }
-                $update_stmt->close();
-                
-                // Add new order items (only the new items, not existing ones)
-                $item_sql = "INSERT INTO order_items (order_id, product_name, price, quantity) VALUES (?, ?, ?, ?)";
-                $item_stmt = $conn->prepare($item_sql);
-                foreach ($order_items as $item) {
-                    $item_stmt->bind_param("isdi", $existing_order_id, $item['product_name'], $item['price'], $item['quantity']);
-                    $item_stmt->execute();
-                }
-                $item_stmt->close();
-                
-                $order_id = $existing_order_id;
-                $action = 'updated';
-                
-            } else {
-                // CREATE NEW ORDER
-                $order_sql = "INSERT INTO orders (user_id, customer_name, customer_phone, order_type, 
-                              delivery_address, table_number, order_notes, subtotal, gst_amount, 
-                              delivery_charge, total_amount, status) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Confirmed')";
-                
-                $stmt = $conn->prepare($order_sql);
-                $stmt->bind_param("issssssdddd", 
-                    $user_id, 
-                    $customer_name, 
-                    $customer_phone, 
-                    $order_type,
-                    $delivery_address, 
-                    $table_number, 
-                    $order_notes, 
-                    $subtotal,
-                    $gst_amount, 
-                    $final_delivery_charge, 
-                    $total_amount
-                );
-                
-                if (!$stmt->execute()) {
-                    throw new Exception("Failed to create order: " . $stmt->error);
-                }
-                $order_id = $conn->insert_id;
-                $stmt->close();
-
-                // Add order items
-                $item_sql = "INSERT INTO order_items (order_id, product_name, price, quantity) VALUES (?, ?, ?, ?)";
-                $item_stmt = $conn->prepare($item_sql);
-                foreach ($order_items as $item) {
-                    $item_stmt->bind_param("isdi", $order_id, $item['product_name'], $item['price'], $item['quantity']);
-                    $item_stmt->execute();
-                }
-                $item_stmt->close();
-                
-                $action = 'created';
-            }
-            
-            $conn->commit();
-            
-            echo json_encode(['success' => true, 'order_id' => $order_id, 'action' => $action]);
-            exit;
-            
-        } catch (Exception $e) {
-            $conn->rollback();
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-            exit;
-        }
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit;
     }
 }
-
-// ==================== CHECK TABLE STATUS ====================
-// Function to check if a table has active orders (excluding the current order being edited)
-function getActiveTableOrders($conn, $user_id, $exclude_order_id = null) {
-    $table_orders = [];
-    
-    $sql = "SELECT table_number, order_id, total_amount, status FROM orders 
-            WHERE user_id = ? AND table_number IS NOT NULL AND table_number != '' 
-            AND status IN ('Confirmed', 'In Progress')";
-    
-    if ($exclude_order_id) {
-        $sql .= " AND order_id != ?";
-    }
-    
-    $sql .= " ORDER BY table_number";
-    
-    $stmt = $conn->prepare($sql);
-    
-    if ($exclude_order_id) {
-        $stmt->bind_param("ii", $user_id, $exclude_order_id);
-    } else {
-        $stmt->bind_param("i", $user_id);
-    }
-    
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    while ($row = $result->fetch_assoc()) {
-        $table_orders[$row['table_number']] = $row;
-    }
-    
-    $stmt->close();
-    return $table_orders;
-}
-
-// Get active table orders (exclude the current order if editing)
-$active_table_orders = getActiveTableOrders($conn, $user_id, $existing_order_id);
 
 // ==================== FETCH PRODUCTS ====================
 $products = [];
@@ -404,6 +275,7 @@ if ($table_check && $table_check->num_rows > 0) {
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -430,13 +302,8 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         :root{--primary-color:#fb5b29;--secondary-color:#28a745;--light-bg:#f8f9fa;--border-color:#e0e0e0}
-        .fullscreen-active{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:white;overflow:auto;margin:0;padding:0}
-        .fullscreen-active .container-fluid{max-width:100%;padding:15px;height:calc(100vh - 60px);overflow-y:auto}
-        .fullscreen-active .row{height:100%;margin:0}
-        .fullscreen-active .col-md-3,.fullscreen-active .col-md-5,.fullscreen-active .col-md-4{height:100%;display:flex;flex-direction:column}
-        .fullscreen-active .products-grid{max-height:calc(100vh - 400px);flex-grow:1}
-        .fullscreen-active .cart-scroll{max-height:calc(50vh - 150px);flex-grow:1}
-        .fullscreen-active .bill-summary-card{margin-top:auto}
+        .fullscreen-active{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:white;overflow:auto}
+        .fullscreen-active .container-fluid{max-width:100%;padding:20px}
         .bill-container{background:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:20px}
         .bill-header{background:linear-gradient(135deg,var(--primary-color),#ff7b54);color:white;padding:15px 20px;border-radius:10px 10px 0 0}
         .order-type-btn{padding:8px 15px;border:2px solid var(--primary-color);background:white;color:var(--primary-color);border-radius:5px;transition:all 0.3s;cursor:pointer;margin-right:5px;font-weight:500}
@@ -458,15 +325,10 @@ $conn->close();
         .bill-summary-card{background:var(--light-bg);border-radius:8px;padding:15px}
         .summary-row{display:flex;justify-content:space-between;padding:5px 0}
         .total-row{border-top:2px solid var(--primary-color);margin-top:10px;padding-top:10px;font-size:1.1em;font-weight:bold}
-        .table-number-box{display:flex;flex-wrap:wrap;gap:5px;max-height:165px;overflow-y:auto;padding:5px;}
+        .table-number-box{display:flex;flex-wrap:wrap;gap:5px;max-height:150px;overflow-y:auto;padding:5px;}
         .table-box{width:45px;height:45px;display:flex;align-items:center;justify-content:center;background:white;border:2px solid var(--border-color);border-radius:5px;cursor:pointer;font-weight:bold;transition:all 0.3s}
         .table-box:hover{border-color:var(--primary-color);background:#fff5f0}
         .table-box.selected{background:var(--primary-color);color:white;border-color:var(--primary-color)}
-        .table-box.occupied{background:#ffebee;color:#c62828;border-color:#c62828}
-        .table-box.occupied:hover{background:#ffcdd2}
-        .table-box.occupied.selected{background:#c62828;color:white;border-color:#c62828}
-        .table-box.editing{background:#e3f2fd;color:#1565c0;border-color:#1565c0}
-        .table-box.editing.selected{background:#1565c0;color:white;border-color:#1565c0}
         .field-error{border-color:#dc3545!important}
         .error-message{color:#dc3545;font-size:12px;margin-top:5px;display:none}
         .required-field::after{content:" *";color:#dc3545}
@@ -479,9 +341,6 @@ $conn->close();
         .fullscreen-toggle-btn:hover{transform:scale(1.1)}
         .auto-hide-alert{position:relative;}
         .auto-hide-alert .btn-close{position:absolute;right:10px;top:10px;}
-        .modal-header.bg-warning{background-color:#ffc107!important;color:#212529;}
-        .table-order-info{font-size:12px;color:#666;margin-top:5px;}
-        .info-message{background:#e3f2fd;border-left:4px solid #2196f3;padding:10px;margin-bottom:15px;border-radius:4px;}
         @media (max-width:768px){.products-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}.table-box{width:40px;height:40px}.table-number-box{max-height:120px}}
     </style>
 </head>
@@ -495,45 +354,12 @@ $conn->close();
         <div class="page-content">
             <div class="container-fluid">
                 
-                <!-- Success Message -->
-                <?php if (!empty($message)): ?>
-                <div class="alert alert-success auto-hide-alert alert-dismissible fade show" role="alert" id="successAlert" data-auto-hide="5000">
-                    <i class="fas fa-check-circle me-2"></i> <?php echo $message; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <!-- Toast Notification -->
+                <div class="toast-notification alert alert-info" id="cartToast" style="display: none;">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    <span id="toastMessage"></span>
                 </div>
-                <?php endif; ?>
                 
-                <!-- Information Message for Editing -->
-                <?php if ($existing_order_id): ?>
-                <div class="info-message">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Updating Order #<?php echo $existing_order_id; ?></strong> - You are adding new items to this existing order. The cart below is empty - add only the NEW items you want to add to this order.
-                </div>
-                <?php endif; ?>
-                
-                <!-- Table Conflict Modal -->
-                <div class="modal fade" id="tableConflictModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-warning">
-                                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i> Table Occupied</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Table <span id="conflictTableNumber" class="fw-bold"></span> already has an active order.</p>
-                                <p>What would you like to do?</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" id="createNewOrderBtn" data-bs-dismiss="modal">
-                                    <i class="fas fa-plus-circle me-2"></i> Create New Bill
-                                </button>
-                                <button type="button" class="btn btn-primary" id="updateExistingOrderBtn">
-                                    <i class="fas fa-edit me-2"></i> Update Existing Order
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <!-- Main Billing Interface -->
                 <div class="row">
@@ -542,29 +368,15 @@ $conn->close();
                             <div class="card-body">
                                 <!-- Header -->
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="card-title mb-0">
-                                        <i class="fas fa-receipt me-2"></i> 
-                                        <?php echo $existing_order_id ? 'Add Items to Order #' . $existing_order_id : 'Create New Bill'; ?>
-                                    </h5>
+                                    <h5 class="card-title mb-0"><i class="fas fa-receipt me-2"></i> Create New Bill</h5>
                                     <div class="d-flex">
-                                        <?php
-                                        $dining_active = 'active';
-                                        $delivery_active = '';
-                                        $takeaway_active = '';
-                                        
-                                        if ($existing_order_data) {
-                                            $dining_active = ($existing_order_data['order_type'] == 'dining') ? 'active' : '';
-                                            $delivery_active = ($existing_order_data['order_type'] == 'delivery') ? 'active' : '';
-                                            $takeaway_active = ($existing_order_data['order_type'] == 'takeaway') ? 'active' : '';
-                                        }
-                                        ?>
-                                        <button type="button" class="order-type-btn <?php echo $dining_active; ?>" data-type="dining">
+                                        <button type="button" class="order-type-btn active" data-type="dining">
                                             <i class="fas fa-utensils me-2"></i> Dining
                                         </button>
-                                        <button type="button" class="order-type-btn <?php echo $delivery_active; ?>" data-type="delivery">
+                                        <button type="button" class="order-type-btn" data-type="delivery">
                                             <i class="fas fa-motorcycle me-2"></i> Delivery
                                         </button>
-                                        <button type="button" class="order-type-btn <?php echo $takeaway_active; ?>" data-type="takeaway">
+                                        <button type="button" class="order-type-btn" data-type="takeaway">
                                             <i class="fas fa-shopping-bag me-2"></i> Takeaway
                                         </button>
                                     </div>
@@ -581,72 +393,38 @@ $conn->close();
                                             <div class="mb-2 dining-info" id="tableField">
                                                 <label class="form-label required-field">Table Number</label>
                                                 <div class="table-number-box" id="tableNumberBox">
-                                                    <?php 
-                                                    for($i = 1; $i <= $table_count; $i++): 
-                                                        $isOccupied = isset($active_table_orders[$i]);
-                                                        $isCurrentEditingTable = ($existing_order_data && $existing_order_data['table_number'] == $i);
-                                                        
-                                                        $tableClass = '';
-                                                        if ($isCurrentEditingTable) {
-                                                            $tableClass = 'editing selected';
-                                                        } elseif ($isOccupied) {
-                                                            $tableClass = 'occupied';
-                                                        }
-                                                        
-                                                        $orderInfo = $isOccupied ? $active_table_orders[$i] : null;
-                                                    ?>
-                                                    <div class="table-box <?php echo $tableClass; ?>" 
-                                                         data-table="<?php echo $i; ?>" 
-                                                         data-order-id="<?php echo $isOccupied ? $orderInfo['order_id'] : ''; ?>"
-                                                         title="<?php 
-                                                            if ($isCurrentEditingTable) {
-                                                                echo 'Currently Editing Order #' . $existing_order_id;
-                                                            } elseif ($isOccupied) {
-                                                                echo 'Order #' . $orderInfo['order_id'] . ' - ' . $orderInfo['status'];
-                                                            } else {
-                                                                echo 'Available';
-                                                            }
-                                                         ?>">
-                                                        <?php echo $i; ?>
-                                                    </div>
+                                                    <?php for($i = 1; $i <= $table_count; $i++): ?>
+                                                    <div class="table-box" data-table="<?php echo $i; ?>"><?php echo $i; ?></div>
                                                     <?php endfor; ?>
                                                 </div>
                                                 <div class="error-message" id="tableNumberError">Please select a table number</div>
-                                                <div id="tableOrderInfo" class="table-order-info" style="<?php echo $existing_order_data && $existing_order_data['table_number'] ? '' : 'display: none;'; ?>">
-                                                    <i class="fas fa-info-circle me-1"></i>
-                                                    <span id="tableOrderText">
-                                                        <?php if ($existing_order_data && $existing_order_data['table_number']): ?>
-                                                        Currently editing order #<?php echo $existing_order_id; ?> for table <?php echo $existing_order_data['table_number']; ?>
-                                                        <?php endif; ?>
-                                                    </span>
-                                                </div>
                                             </div>
                                             
                                             <!-- Customer Name -->
                                             <div class="mb-2">
                                                 <label class="form-label" id="customerNameLabel">Customer Name</label>
-                                                <input type="text" class="form-control" id="customer_name" placeholder="Enter customer name" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_name']) : ''; ?>">
+                                                <input type="text" class="form-control" id="customer_name" placeholder="Enter customer name">
                                                 <div class="error-message" id="customerNameError"></div>
                                             </div>
                                             
                                             <!-- Phone Number -->
                                             <div class="mb-2">
                                                 <label class="form-label" id="customerPhoneLabel">Phone Number</label>
-                                                <input type="text" class="form-control" id="customer_phone" placeholder="Enter phone number" maxlength="10" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_phone']) : ''; ?>">
+                                                <input type="text" class="form-control" id="customer_phone" placeholder="Enter phone number" maxlength="10">
                                                 <div class="error-message" id="customerPhoneError"></div>
                                             </div>
                                             
                                             <!-- Delivery Address -->
                                             <div class="mb-2 delivery-info" id="deliveryAddressField">
                                                 <label class="form-label required-field">Delivery Address</label>
-                                                <textarea class="form-control" id="delivery_address" rows="2" placeholder="Enter delivery address"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['delivery_address']) : ''; ?></textarea>
+                                                <textarea class="form-control" id="delivery_address" rows="2" placeholder="Enter delivery address"></textarea>
                                                 <div class="error-message" id="deliveryAddressError">Delivery address is required</div>
                                             </div>
                                             
                                             <!-- Special Instructions -->
                                             <div class="mb-2">
                                                 <label class="form-label">Special Instructions</label>
-                                                <textarea class="form-control" id="order_notes" rows="2" placeholder="Any special requests or notes"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['order_notes']) : ''; ?></textarea>
+                                                <textarea class="form-control" id="order_notes" rows="2" placeholder="Any special requests or notes"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -700,7 +478,7 @@ $conn->close();
                                     <div class="col-md-4 mb-2">
                                         <!-- Order Cart -->
                                         <div class="mb-2">
-                                            <h6 class="mb-2"><i class="fas fa-shopping-cart me-2"></i> New Items to Add</h6>
+                                            <h6 class="mb-2"><i class="fas fa-shopping-cart me-2"></i> Order Items</h6>
                                             <div class="cart-scroll" id="orderCart">
                                                 <div class="empty-cart-message" id="emptyCart">
                                                     <i class="fas fa-shopping-cart fa-3x mb-2"></i>
@@ -711,13 +489,13 @@ $conn->close();
 
                                         <!-- Bill Summary -->
                                         <div class="bill-summary-card">
-                                            <h6 class="mb-2"><i class="fas fa-file-invoice-dollar me-2"></i> Additional Amount</h6>
+                                            <h6 class="mb-2"><i class="fas fa-file-invoice-dollar me-2"></i> Bill Summary</h6>
                                             <div class="summary-row">
-                                                <span>Additional Subtotal:</span>
+                                                <span>Subtotal:</span>
                                                 <span><?php echo $currencySymbol; ?><span id="subtotal">0</span></span>
                                             </div>
                                             <div class="summary-row">
-                                                <span>Additional <?php echo $taxLabel; ?> (<?php echo $gst_rate; ?>%):</span>
+                                                <span><?php echo $taxLabel; ?> (<?php echo $gst_rate; ?>%):</span>
                                                 <span><?php echo $currencySymbol; ?><span id="gstAmount">0</span></span>
                                             </div>
                                             <div class="summary-row" id="deliveryChargeRow" style="display: none;">
@@ -725,20 +503,19 @@ $conn->close();
                                                 <span><?php echo $currencySymbol; ?><span id="deliveryChargeAmount">0</span></span>
                                             </div>
                                             <div class="summary-row total-row">
-                                                <span>Additional Total:</span>
+                                                <span>Total Amount:</span>
                                                 <span><?php echo $currencySymbol; ?><span id="totalAmount">0</span></span>
                                             </div>
                                             
                                             <!-- Bill Form -->
                                             <form id="billForm" method="POST">
                                                 <input type="hidden" name="create_bill" value="1">
-                                                <input type="hidden" id="existing_order_id" name="existing_order_id" value="<?php echo $existing_order_id ? $existing_order_id : ''; ?>">
-                                                <input type="hidden" id="order_type_input" name="order_type" value="<?php echo $existing_order_data ? $existing_order_data['order_type'] : 'dining'; ?>">
-                                                <input type="hidden" id="customer_name_input" name="customer_name" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_name']) : ''; ?>">
-                                                <input type="hidden" id="customer_phone_input" name="customer_phone" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_phone']) : ''; ?>">
-                                                <input type="hidden" id="table_number_input" name="table_number" value="<?php echo $existing_order_data ? $existing_order_data['table_number'] : ''; ?>">
-                                                <input type="hidden" id="delivery_address_input" name="delivery_address" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['delivery_address']) : ''; ?>">
-                                                <input type="hidden" id="order_notes_input" name="order_notes" value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['order_notes']) : ''; ?>">
+                                                <input type="hidden" id="order_type_input" name="order_type" value="dining">
+                                                <input type="hidden" id="customer_name_input" name="customer_name">
+                                                <input type="hidden" id="customer_phone_input" name="customer_phone">
+                                                <input type="hidden" id="table_number_input" name="table_number">
+                                                <input type="hidden" id="delivery_address_input" name="delivery_address">
+                                                <input type="hidden" id="order_notes_input" name="order_notes">
                                                 <div id="orderItemsInputs"></div>
                                                 
                                                 <!-- Action Buttons -->
@@ -747,8 +524,7 @@ $conn->close();
                                                         <i class="fas fa-trash me-2"></i> Clear
                                                     </button>
                                                     <button type="submit" class="btn btn-primary flex-grow-1" id="saveBillBtn">
-                                                        <i class="fas fa-save me-2"></i> 
-                                                        <?php echo $existing_order_id ? 'Add Items to Order' : 'Save Bill'; ?>
+                                                        <i class="fas fa-save me-2"></i> Save Bill
                                                     </button>
                                                 </div>
                                             </form>
@@ -792,15 +568,9 @@ $conn->close();
             businessAddress: '<?php echo addslashes($business_address); ?>'
         };
         
-        console.log('Delivery charge config:', {
-            deliveryCharge: config.deliveryCharge,
-            freeDeliveryMinimum: config.freeDeliveryMinimum
-        });
-        
         let cartItems = [];
         let isFullscreen = false;
         let lastCreatedOrderId = null;
-        let currentTableOrderId = null;
         
         // Helper Functions
         function formatPrice(price) {
@@ -813,19 +583,18 @@ $conn->close();
         }
         
         function showToast(message, type = 'info') {
-            // Remove existing toasts
-            $('.custom-toast').remove();
+            const toast = $('#cartToast');
+            const toastMessage = $('#toastMessage');
             
-            const toast = $('<div class="alert alert-' + type + ' alert-dismissible fade show custom-toast" role="alert" style="position: fixed; top: 80px; right: 20px; z-index: 1050; min-width: 250px;">' + 
-                           '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'exclamation-circle' : 'info-circle') + ' me-2"></i>' +
-                           message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            toastMessage.text(message);
+            toast.removeClass('alert-info alert-success alert-warning alert-danger')
+                 .addClass('alert-' + type)
+                 .fadeIn(300)
+                 .addClass('show');
             
-            $('body').append(toast);
-            
-            setTimeout(() => {
-                toast.alert('close');
-            }, 5000);
+            setTimeout(() => toast.fadeOut(300).removeClass('show'), 3000);
         }
+        
         
         // Field Management
         function updateFieldVisibility(orderType) {
@@ -904,7 +673,7 @@ $conn->close();
                 cartHtml += `
                     <div class="cart-item">
                         <div>
-                            <strong>${escapeHtml(item.name)}</strong><br>
+                            <strong>${item.name}</strong><br>
                             <small>${config.currencySymbol}${formatPrice(item.price)} × ${item.quantity}</small>
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -974,23 +743,10 @@ $conn->close();
             let showDeliveryRow = (orderType === 'delivery');
             
             if (showDeliveryRow) {
-                // Check if we're updating an existing order
-                const isUpdatingOrder = $('#existing_order_id').val() ? true : false;
-                
-                if (isUpdatingOrder) {
-                    // For updating existing orders, delivery charge should already be included
-                    // in the original order, so we don't add it to the new items
+                if (config.freeDeliveryMinimum > 0 && subtotal >= config.freeDeliveryMinimum) {
                     delivery = 0;
-                    console.log('Updating existing order - delivery charge not added to new items');
                 } else {
-                    // For new delivery orders, calculate delivery charge
-                    if (config.freeDeliveryMinimum > 0 && subtotal >= config.freeDeliveryMinimum) {
-                        delivery = 0;
-                        console.log('New order qualifies for free delivery');
-                    } else {
-                        delivery = config.deliveryCharge;
-                        console.log('New order delivery charge:', delivery);
-                    }
+                    delivery = config.deliveryCharge;
                 }
             }
             
@@ -1006,8 +762,6 @@ $conn->close();
             } else {
                 $('#deliveryChargeRow').hide();
             }
-            
-            console.log('Totals calculated:', { subtotal, gstAmount, delivery, totalAmount, orderType });
         }
         
         // Form Validation
@@ -1025,8 +779,7 @@ $conn->close();
             }
             
             if (orderType === 'dining') {
-                const tableNumber = $('#table_number_input').val();
-                if (!tableNumber) {
+                if (!$('#table_number_input').val()) {
                     $('#tableNumberError').show();
                     $('.table-box').addClass('field-error');
                     isValid = false;
@@ -1077,64 +830,11 @@ $conn->close();
             $('#orderItemsInputs').empty();
             cartItems.forEach((item, index) => {
                 $('#orderItemsInputs').append(`
-                    <input type="hidden" name="order_items[${index}][product_name]" value="${escapeHtml(item.name)}">
+                    <input type="hidden" name="order_items[${index}][product_name]" value="${item.name.replace(/"/g, '&quot;')}">
                     <input type="hidden" name="order_items[${index}][price]" value="${item.price}">
                     <input type="hidden" name="order_items[${index}][quantity]" value="${item.quantity}">
                 `);
             });
-        }
-        
-        // Check if table has existing order
-        function checkTableOrder(tableNumber) {
-            $.ajax({
-                url: 'check_table_order.php',
-                type: 'POST',
-                data: {
-                    table_number: tableNumber,
-                    user_id: <?php echo $user_id; ?>,
-                    exclude_order_id: $('#existing_order_id').val() || 0
-                },
-                success: function(response) {
-                    try {
-                        const data = JSON.parse(response);
-                        if (data.exists) {
-                            // Show conflict modal
-                            $('#conflictTableNumber').text(tableNumber);
-                            currentTableOrderId = data.order_id;
-                            
-                            // Update table order info display
-                            $('#tableOrderInfo').show();
-                            $('#tableOrderText').html('Active order #' + data.order_id + ' - ' + data.status + ' - Total: ' + config.currencySymbol + data.total_amount);
-                            
-                            $('#tableConflictModal').modal('show');
-                        } else {
-                            // No existing order, proceed normally
-                            selectTable(tableNumber);
-                        }
-                    } catch (e) {
-                        console.error('Error parsing response:', e);
-                    }
-                },
-                error: function() {
-                    showToast('Error checking table status', 'danger');
-                }
-            });
-        }
-        
-        function selectTable(tableNumber) {
-            // Remove selected class from all tables
-            $('.table-box').removeClass('selected');
-            
-            // Add selected class to the clicked table
-            $(`.table-box[data-table="${tableNumber}"]`).addClass('selected');
-            $('#table_number_input').val(tableNumber);
-            $('#tableNumberError').hide();
-            $('.table-box').removeClass('field-error');
-            
-            // Clear any existing order ID unless we're editing
-            if (!$('#existing_order_id').val()) {
-                $('#existing_order_id').val('');
-            }
         }
         
         // Event Handlers
@@ -1152,38 +852,12 @@ $conn->close();
         
         $('.table-box').click(function() {
             const tableNumber = $(this).data('table');
-            const orderId = $(this).data('order-id');
             
-            // Don't allow changing table if we're editing an existing order
-            if ($('#existing_order_id').val()) {
-                showToast('Cannot change table number when updating an existing order.', 'warning');
-                return;
-            }
-            
-            // If table is occupied and we're not already editing that order
-            if ($(this).hasClass('occupied') && orderId != $('#existing_order_id').val()) {
-                checkTableOrder(tableNumber);
-            } else {
-                selectTable(tableNumber);
-                currentTableOrderId = null;
-                
-                // Clear table order info
-                $('#tableOrderInfo').hide();
-            }
-        });
-        
-        $('#updateExistingOrderBtn').click(function() {
-            if (currentTableOrderId) {
-                // Redirect to edit mode with the existing order ID
-                window.location.href = 'billing.php?edit_order=' + currentTableOrderId;
-            }
-            $('#tableConflictModal').modal('hide');
-        });
-        
-        $('#createNewOrderBtn').click(function() {
-            const tableNumber = $('#conflictTableNumber').text();
-            selectTable(tableNumber);
-            $('#tableConflictModal').modal('hide');
+            $('.table-box').removeClass('selected');
+            $(this).addClass('selected');
+            $('#table_number_input').val(tableNumber);
+            $('#tableNumberError').hide();
+            $('.table-box').removeClass('field-error');
         });
         
         $('#productSearch').on('input', function() {
@@ -1219,8 +893,7 @@ $conn->close();
             
             const saveBtn = $('#saveBillBtn');
             const originalHtml = saveBtn.html();
-            const isUpdating = $('#existing_order_id').val() ? true : false;
-            saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> ' + (isUpdating ? 'Adding Items...' : 'Saving...'));
+            saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Saving...');
             
             const formData = new FormData(this);
             
@@ -1235,33 +908,19 @@ $conn->close();
                         const data = JSON.parse(response);
                         if (data.success) {
                             lastCreatedOrderId = data.order_id;
-                            const actionText = data.action === 'updated' ? 'updated' : 'created';
-                            showToast(`Items added successfully to order #${data.order_id}`, 'success');
-                            
-                            // Reset form
+                            showToast(`Bill created successfully! Bill #${data.order_id}`, 'success');
                             cartItems = [];
                             updateCart();
+                            $('#customer_name').val('');
+                            $('#customer_phone').val('');
+                            $('#delivery_address').val('');
+                            $('#order_notes').val('');
+                            $('.table-box').removeClass('selected');
+                            $('#table_number_input').val('');
                             
-                            // For editing, don't reset customer details
-                            if (data.action === 'created') {
-                                $('#customer_name').val('');
-                                $('#customer_phone').val('');
-                                $('#delivery_address').val('');
-                                $('#order_notes').val('');
-                                $('.table-box').removeClass('selected');
-                                $('#table_number_input').val('');
-                                $('#existing_order_id').val('');
-                                $('#tableOrderInfo').hide();
-                                $('#saveBillBtn').html('<i class="fas fa-save me-2"></i> Save Bill');
-                            } else {
-                                // For updates, just clear the cart
-                                cartItems = [];
-                                updateCart();
-                            }
-                            
-                            // Redirect to orders.php page
+                            // Redirect to show success message
                             setTimeout(() => {
-                                window.location.href = 'orders.php?success=1&order_id=' + data.order_id + '&action=' + data.action;
+                                window.location.href = 'billing.php?success=1&order_id=' + data.order_id;
                             }, 1500);
                         } else {
                             showToast(data.error, 'danger');
@@ -1281,22 +940,7 @@ $conn->close();
         
         // Initialize
         initializeProducts();
-        
-        // Set initial order type based on existing order or default
-        const initialOrderType = $('#order_type_input').val();
-        updateFieldVisibility(initialOrderType);
-        
-        // When editing an existing order, disable table selection
-        if ($('#existing_order_id').val()) {
-            $('.table-box').css('cursor', 'not-allowed').off('click');
-            showToast('You are adding items to an existing order. Table number cannot be changed.', 'info');
-            
-            // Update header text to show we're adding items
-            $('#saveBillBtn').html('<i class="fas fa-plus-circle me-2"></i> Add Items to Order');
-            
-            // Update cart title
-            $('h6:contains("Order Items")').html('<i class="fas fa-plus-circle me-2"></i> New Items to Add');
-        }
+        updateFieldVisibility('dining');
         
         console.log('Billing page initialized successfully');
     });
@@ -1305,6 +949,21 @@ $conn->close();
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        $('.custom-toast').remove();
+        
+        const toast = $('<div class="alert alert-' + type + ' alert-dismissible fade show custom-toast" role="alert" style="position: fixed; top: 80px; right: 20px; z-index: 1050; min-width: 250px;">' + 
+                       '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'exclamation-circle' : 'info-circle') + ' me-2"></i>' +
+                       message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        
+        $('body').append(toast);
+        
+        setTimeout(() => {
+            toast.alert('close');
+        }, 5000);
     }
     </script>
 </body>
