@@ -58,13 +58,29 @@ if (empty($business_name)) {
 }
 
 // Get user's country for currency and tax label
-$user_sql = "SELECT country FROM users WHERE id = ?";
-$user_stmt = $conn->prepare($user_sql);
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user_stmt->bind_result($user_country);
-$user_stmt->fetch();
-$user_stmt->close();
+// First check if send_whatsapp_on_bill column exists
+$column_check = $conn->query("SHOW COLUMNS FROM users LIKE 'send_whatsapp_on_bill'");
+$send_whatsapp_on_bill = 1; // Default to ON
+
+if ($column_check && $column_check->num_rows > 0) {
+    // Column exists, use the actual query
+    $user_sql = "SELECT country, send_whatsapp_on_bill FROM users WHERE id = ?";
+    $user_stmt = $conn->prepare($user_sql);
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_stmt->bind_result($user_country, $send_whatsapp_on_bill);
+    $user_stmt->fetch();
+    $user_stmt->close();
+} else {
+    // Column doesn't exist, just get country
+    $user_sql = "SELECT country FROM users WHERE id = ?";
+    $user_stmt = $conn->prepare($user_sql);
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_stmt->bind_result($user_country);
+    $user_stmt->fetch();
+    $user_stmt->close();
+}
 
 // Set tax label based on country (GST for India, VAT for UAE)
 $taxLabel = ($user_country == 'UAE') ? 'VAT' : 'GST';
@@ -82,6 +98,11 @@ function getCurrencySymbol($country) {
 }
 
 $currencySymbol = getCurrencySymbol($user_country);
+
+// Set default for send_whatsapp_on_bill if not set
+if (!isset($send_whatsapp_on_bill)) {
+    $send_whatsapp_on_bill = 1; // Default to ON
+}
 
 // ==================== FETCH BUSINESS CONFIG ====================
 // GST Rate
@@ -289,7 +310,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $conn->commit();
             
-            echo json_encode(['success' => true, 'order_id' => $order_id, 'action' => $action]);
+            echo json_encode([
+                'success' => true, 
+                'order_id' => $order_id, 
+                'action' => $action,
+                'send_whatsapp' => $send_whatsapp_on_bill
+            ]);
             exit;
             
         } catch (Exception $e) {
@@ -397,6 +423,17 @@ if ($table_check && $table_check->num_rows > 0) {
             $row['price'] = (float)$row['price'];
             $row['image_url'] = getImageUrl($row['image_path'], $base_url);
             $row['formatted_price'] = formatPriceWithoutZero($row['price']);
+            
+            // Generate first letters of each word for search
+            $words = explode(' ', $row['product_name']);
+            $firstLetters = '';
+            foreach ($words as $word) {
+                if (!empty($word)) {
+                    $firstLetters .= strtoupper($word[0]);
+                }
+            }
+            $row['first_letters'] = $firstLetters;
+            
             $products[] = $row;
         }
     }
@@ -429,7 +466,101 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        :root{--primary-color:#fb5b29;--secondary-color:#28a745;--light-bg:#f8f9fa;--border-color:#e0e0e0;--safe-area-top:env(safe-area-inset-top);--safe-area-bottom:env(safe-area-inset-bottom)}.wrapper{padding-top:var(--safe-area-top);padding-bottom:var(--safe-area-bottom)}.page-content{padding:0;min-height:calc(100vh - var(--safe-area-top) - var(--safe-area-bottom))}.container-fluid{padding:0;height:100%}.mobile-app-layout{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:white}.main-content-area{flex:1;overflow:hidden;display:flex;flex-direction:column}.top-action-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:white;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100;flex-shrink:0}.page-title{font-size:18px;font-weight:600;margin:0;color:#333}.action-buttons{display:flex;gap:10px}.action-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--border-color);background:white;display:flex;align-items:center;justify-content:center;color:var(--primary-color);font-size:16px;transition:all .2s}.action-btn:active{background:#f0f0f0;transform:scale(.95)}.tab-navigation{display:flex;background:white;border-bottom:1px solid var(--border-color);padding:0 15px;flex-shrink:0}.tab-btn{flex:1;padding:12px 0;text-align:center;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:500;color:#666;transition:all .2s}.tab-btn.active{color:var(--primary-color);border-bottom-color:var(--primary-color)}.scrollable-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:15px;padding-bottom:180px}.mobile-section{margin-bottom:20px}.section-title{font-size:14px;font-weight:600;color:#555;margin-bottom:12px;display:flex;align-items:center;gap:8px}.section-title i{color:var(--primary-color)}.customer-info-mobile{background:white;border-radius:12px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:15px}.customer-field{margin-bottom:12px}.customer-field:last-child{margin-bottom:0}.customer-field label{font-size:12px;color:#666;margin-bottom:5px;display:block}.form-input-mobile{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:14px;transition:border-color .2s}.form-input-mobile:focus{border-color:var(--primary-color);outline:none}.tables-grid-mobile{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;max-height:200px;overflow-y:auto;padding:5px}.table-box-mobile{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:white;border:2px solid var(--border-color);border-radius:10px;font-weight:600;font-size:16px;transition:all .2s;cursor:pointer}.table-box-mobile:active{transform:scale(.95)}.table-box-mobile.selected{background:var(--primary-color);color:white;border-color:var(--primary-color)}.table-box-mobile.occupied{background:#ffebee;color:#c62828;border-color:#c62828}.table-box-mobile.editing{background:#e3f2fd;color:#1565c0;border-color:#1565c0}.products-grid-mobile{display:grid;grid-template-columns:repeat(auto-fill,minmax(45vw,1fr));gap:10px}@media (min-width:768px){.products-grid-mobile{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}.product-card-mobile{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.08);transition:all .2s;cursor:pointer;border:1px solid var(--border-color)}.product-card-mobile:active{transform:scale(.98);box-shadow:0 1px 3px rgba(0,0,0,.1)}.product-image-mobile{width:100%;height:100px;object-fit:cover;background:var(--light-bg)}.product-info-mobile{padding:10px}.product-name-mobile{font-size:13px;font-weight:500;margin-bottom:5px;line-height:1.3;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.product-price-mobile{font-size:14px;font-weight:600;color:var(--secondary-color)}.search-container-mobile{position:sticky;top:0;z-index:50;background:white;padding:10px 0;margin-bottom:15px}.search-input-mobile{width:100%;padding:10px 40px 10px 15px;border:1px solid var(--border-color);border-radius:25px;font-size:14px;background:var(--light-bg)}.search-input-mobile:focus{border-color:var(--primary-color);outline:none}.bottom-cart-mobile{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border-color);box-shadow:0 -2px 10px rgba(0,0,0,.1);z-index:1000;padding:15px;padding-bottom:max(15px,var(--safe-area-bottom));transform:translateY(0);transition:transform .3s ease}.bottom-cart-mobile.collapsed{transform:translateY(100%)}.cart-header-mobile{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;cursor:pointer}.cart-title-mobile{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}.cart-items-count{background:var(--primary-color);color:white;width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}.cart-toggle-btn{background:none;border:none;color:#666;font-size:20px;padding:5px}.cart-items-mobile{max-height:200px;overflow-y:auto;margin-bottom:15px}.cart-item-mobile{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-color)}.cart-item-mobile:last-child{border-bottom:none}.cart-item-info{flex:1}.cart-item-name{font-size:14px;font-weight:500;margin-bottom:3px}.cart-item-price{font-size:12px;color:#666}.cart-item-controls-mobile{display:flex;align-items:center;gap:10px}.quantity-btn-mobile{width:30px;height:30px;border-radius:15px;border:1px solid var(--primary-color);background:white;color:var(--primary-color);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold}.quantity-btn-mobile:active{background:var(--primary-color);color:white}.quantity-display-mobile{width:40px;text-align:center;font-weight:500}.cart-summary-mobile{background:var(--light-bg);border-radius:10px;padding:15px;margin-bottom:15px}.summary-row-mobile{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}.summary-total-mobile{border-top:2px solid var(--primary-color);margin-top:10px;padding-top:10px;font-weight:600;font-size:16px}.cart-actions-mobile{display:flex;gap:10px}.cart-action-btn{flex:1;padding:12px;border-radius:10px;border:none;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}.cart-action-btn:active{transform:scale(.98)}.btn-clear{background:#f8f9fa;color:#666;border:1px solid var(--border-color)}.btn-save{background:var(--primary-color);color:white}.empty-state{text-align:center;padding:40px 20px;color:#999}.empty-state i{font-size:48px;margin-bottom:15px;opacity:.5}.modal-dialog{margin:10px}.toast-mobile{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:80%;max-width:400px;opacity:0;transition:opacity .3s}.toast-mobile.show{opacity:1}@media (min-width:992px){.mobile-app-layout{max-width:1200px;margin:0 auto;border-left:1px solid var(--border-color);border-right:1px solid var(--border-color)}.scrollable-content{padding-bottom:20px}.bottom-cart-mobile{position:relative;border-top:none;box-shadow:none;transform:none!important;padding-bottom:15px}.products-grid-mobile{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}.field-error{border-color:#dc3545!important}.error-message{color:#dc3545;font-size:11px;margin-top:3px;display:none}@media (max-width:767px){.desktop-only{display:none!important}.container-fluid{padding-left:0;padding-right:0}.card-body{padding:0}.wrapper{background:white}.page-content{background:white}}.mobile-only{display:block}@media (min-width:768px){.mobile-only{display:none!important}}.info-message-mobile{background:#e3f2fd;border-left:4px solid #2196f3;padding:12px;margin-bottom:15px;border-radius:8px;font-size:13px}.alert-success-mobile{position:sticky;top:0;z-index:1000;margin:0;border-radius:0;border:none;text-align:center}.table-order-info-mobile{font-size:11px;color:#666;margin-top:5px;padding:5px 10px;background:var(--light-bg);border-radius:6px}
+        :root{--primary-color:#fb5b29;--secondary-color:#28a745;--light-bg:#f8f9fa;--border-color:#e0e0e0;--safe-area-top:env(safe-area-inset-top);--safe-area-bottom:env(safe-area-inset-bottom)}.wrapper{padding-top:var(--safe-area-top);padding-bottom:var(--safe-area-bottom)}.page-content{padding:0;min-height:calc(100vh - var(--safe-area-top) - var(--safe-area-bottom))}.container-fluid{padding:0;height:100%}.mobile-app-layout{display:flex;flex-direction:column;height:100vh;overflow:hidden;background:white}.main-content-area{flex:1;overflow:hidden;display:flex;flex-direction:column}.top-action-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:white;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100;flex-shrink:0}.page-title{font-size:18px;font-weight:600;margin:0;color:#333}.action-buttons{display:flex;gap:10px}.action-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--border-color);background:white;display:flex;align-items:center;justify-content:center;color:var(--primary-color);font-size:16px;transition:all .2s}.action-btn:active{background:#f0f0f0;transform:scale(.95)}.tab-navigation{display:flex;background:white;border-bottom:1px solid var(--border-color);padding:0 15px;flex-shrink:0}.tab-btn{flex:1;padding:12px 0;text-align:center;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:500;color:#666;transition:all .2s}.tab-btn.active{color:var(--primary-color);border-bottom-color:var(--primary-color)}.scrollable-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:15px;padding-bottom:180px}.mobile-section{margin-bottom:20px}.section-title{font-size:14px;font-weight:600;color:#555;margin-bottom:12px;display:flex;align-items:center;gap:8px}.section-title i{color:var(--primary-color)}.customer-info-mobile{background:white;border-radius:12px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:15px}.customer-field{margin-bottom:12px}.customer-field:last-child{margin-bottom:0}.customer-field label{font-size:12px;color:#666;margin-bottom:5px;display:block}.form-input-mobile{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:14px;transition:border-color .2s}.form-input-mobile:focus{border-color:var(--primary-color);outline:none}.tables-grid-mobile{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:8px;max-height:200px;overflow-y:auto;padding:5px}.table-box-mobile{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:white;border:2px solid var(--border-color);border-radius:10px;font-weight:600;font-size:16px;transition:all .2s;cursor:pointer}.table-box-mobile:active{transform:scale(.95)}.table-box-mobile.selected{background:var(--primary-color);color:white;border-color:var(--primary-color)}.table-box-mobile.occupied{background:#ffebee;color:#c62828;border-color:#c62828}.table-box-mobile.editing{background:#e3f2fd;color:#1565c0;border-color:#1565c0}.products-grid-mobile{display:grid;grid-template-columns:repeat(auto-fill,minmax(45vw,1fr));gap:10px}@media (min-width:768px){.products-grid-mobile{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}.product-card-mobile{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.08);transition:all .2s;cursor:pointer;border:1px solid var(--border-color)}
+
+.product-card-mobile {
+    position: relative;
+}
+.product-card-mobile .product-id-mobile {
+    position: absolute;
+  right: 0;
+  top: -3px;
+  background: red;
+  color: #fff !important;
+  z-index: 9;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+.mobile-section.min_height {
+  min-height: 800px;
+}
+
+        .product-card-mobile:active{transform:scale(.98);box-shadow:0 1px 3px rgba(0,0,0,.1)}.product-image-mobile{width:100%;height:100px;object-fit:cover;background:var(--light-bg)}.product-info-mobile{padding:10px}.product-name-mobile{font-size:13px;font-weight:500;margin-bottom:5px;line-height:1.3;height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.product-price-mobile{font-size:14px;font-weight:600;color:var(--secondary-color)}.product-id-mobile{font-size:11px;color:#999;margin-top:3px}
+        
+.search-container-mobile {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: white;
+  padding: 10px 0;
+  width: 90%;
+  margin: 0 5%;}
+
+        .search-input-mobile{width:100%;padding:10px 40px 10px 15px;border:1px solid var(--border-color);border-radius:25px;font-size:14px;background:var(--light-bg)}.search-input-mobile:focus{border-color:var(--primary-color);outline:none}.search-clear-btn{position:absolute;right:15px;top:50%;transform:translateY(-50%);background:none;border:none;color:#999;font-size:16px;padding:5px;display:none}.search-clear-btn.active{display:block}.bottom-cart-mobile{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border-color);box-shadow:0 -2px 10px rgba(0,0,0,.1);z-index:1000;padding:15px;padding-bottom:max(15px,var(--safe-area-bottom));transform:translateY(0);transition:transform .3s ease}.bottom-cart-mobile.collapsed{transform:translateY(100%)}.cart-header-mobile{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;cursor:pointer}.cart-title-mobile{font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px}.cart-items-count{background:var(--primary-color);color:white;width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}.cart-toggle-btn{background:none;border:none;color:#666;font-size:20px;padding:5px}.cart-items-mobile{max-height:120px;overflow-y:auto;margin-bottom:15px}.cart-item-mobile{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border-color)}.cart-item-mobile:last-child{border-bottom:none}.cart-item-info{flex:1}.cart-item-name{font-size:14px;font-weight:500;margin-bottom:3px}.cart-item-price{font-size:12px;color:#666}.cart-item-controls-mobile{display:flex;align-items:center;gap:10px}.quantity-btn-mobile{width:30px;height:30px;border-radius:15px;border:1px solid var(--primary-color);background:white;color:var(--primary-color);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold}.quantity-btn-mobile:active{background:var(--primary-color);color:white}.quantity-display-mobile{width:40px;text-align:center;font-weight:500}.cart-summary-mobile{background:var(--light-bg);border-radius:10px;padding:0 15px;margin-bottom:15px}.summary-row-mobile{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}.summary-total-mobile{border-top:2px solid var(--primary-color);margin-top:10px;padding-top:10px;font-weight:600;font-size:16px}.cart-actions-mobile{display:flex;gap:10px}.cart-action-btn{flex:1;padding:12px;border-radius:10px;border:none;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}.cart-action-btn:active{transform:scale(.98)}.btn-clear{background:#f8f9fa;color:#666;border:1px solid var(--border-color)}.btn-save{background:var(--primary-color);color:white}.empty-state{text-align:center;padding:40px 20px;color:#999}.empty-state i{font-size:48px;margin-bottom:15px;opacity:.5}.modal-dialog{margin:10px}.toast-mobile{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:80%;max-width:400px;opacity:0;transition:opacity .3s}.toast-mobile.show{opacity:1}@media (min-width:992px){.mobile-app-layout{max-width:1200px;margin:0 auto;border-left:1px solid var(--border-color);border-right:1px solid var(--border-color)}.scrollable-content{padding-bottom:20px}.bottom-cart-mobile{position:relative;border-top:none;box-shadow:none;transform:none!important;padding-bottom:15px}.products-grid-mobile{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}.field-error{border-color:#dc3545!important}.error-message{color:#dc3545;font-size:11px;margin-top:3px;display:none}@media (max-width:767px){.desktop-only{display:none!important}.container-fluid{padding-left:0;padding-right:0}.card-body{padding:0}.wrapper{background:white}.page-content{background:white}}.mobile-only{display:block}@media (min-width:768px){.mobile-only{display:none!important}}.info-message-mobile{background:#e3f2fd;border-left:4px solid #2196f3;padding:12px;margin-bottom:15px;border-radius:8px;font-size:13px}.alert-success-mobile{position:sticky;top:0;z-index:1000;margin:0;border-radius:0;border:none;text-align:center}.table-order-info-mobile{font-size:11px;color:#666;margin-top:5px;padding:5px 10px;background:var(--light-bg);border-radius:6px}
+        
+        /* WhatsApp Toggle Styles for Mobile */
+        .whatsapp-toggle-container-mobile {
+            border-radius: 8px;
+            padding: 8px;
+            margin-left: 50px;
+        }
+        .fab.fa-whatsapp.me-2 {
+          font-size: 22px;
+        }
+        .whatsapp-toggle-label-mobile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .whatsapp-toggle-switch-mobile {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .whatsapp-toggle-switch-mobile input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .whatsapp-toggle-slider-mobile {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .whatsapp-toggle-slider-mobile:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        .whatsapp-toggle-switch-mobile input:checked + .whatsapp-toggle-slider-mobile {
+            background-color: #25d366;
+        }
+        .whatsapp-toggle-switch-mobile input:checked + .whatsapp-toggle-slider-mobile:before {
+            transform: translateX(24px);
+        }
+        .whatsapp-toggle-info-mobile {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 
@@ -440,7 +571,7 @@ $conn->close();
         
         <!-- Top Action Bar -->
         <div class="top-action-bar">
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3" style="margin-left: 50px;">
                 <button type="button" class="action-btn" onclick="history.back()">
                     <i class="fas fa-arrow-left"></i>
                 </button>
@@ -448,6 +579,21 @@ $conn->close();
                     <?php echo $existing_order_id ? 'Add Items #' . $existing_order_id : 'New Bill'; ?>
                 </h1>
             </div>
+
+            <!-- WhatsApp Confirmation Toggle for Mobile -->
+            <div class="whatsapp-toggle-container-mobile">
+                <label class="whatsapp-toggle-label-mobile">
+                    <span>
+                        <i class="fab fa-whatsapp me-2" style="color: #25d366;"></i>
+                    </span>
+                    <div class="whatsapp-toggle-switch-mobile">
+                        <input type="checkbox" id="send_whatsapp_toggle_mobile" <?php echo $send_whatsapp_on_bill ? 'checked' : ''; ?>>
+                        <span class="whatsapp-toggle-slider-mobile"></span>
+                    </div>
+                </label>
+            </div>
+
+
             <div class="action-buttons">
                 <button type="button" class="action-btn" id="mobileSearchToggle">
                     <i class="fas fa-search"></i>
@@ -471,6 +617,8 @@ $conn->close();
         </div>
         <?php endif; ?>
         
+
+        
         <!-- Tab Navigation -->
         <div class="tab-navigation">
             <button type="button" class="tab-btn <?php echo ($existing_order_data ? $existing_order_data['order_type'] : 'dining') == 'dining' ? 'active' : ''; ?>" data-type="dining">
@@ -484,10 +632,7 @@ $conn->close();
             </button>
         </div>
         
-        <!-- Search Bar -->
-        <div class="search-container-mobile" id="mobileSearchBar" style="display: none;">
-            <input type="text" class="search-input-mobile" id="mobileProductSearch" placeholder="Search products...">
-        </div>
+        
         
         <!-- Scrollable Content -->
         <div class="scrollable-content" id="mainScrollContent">
@@ -549,7 +694,7 @@ $conn->close();
                         <label id="customerNameLabelMobile">Customer Name</label>
                         <input type="text" class="form-input-mobile" id="customer_name_mobile" 
                                placeholder="Enter name" 
-                               value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_name']) : ''; ?>">
+                               value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_name'] ?? '') : ''; ?>">
                         <div class="error-message" id="customerNameErrorMobile"></div>
                     </div>
                     
@@ -559,7 +704,7 @@ $conn->close();
                         <input type="tel" class="form-input-mobile" id="customer_phone_mobile" 
                                placeholder="10-digit number" 
                                maxlength="10"
-                               value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_phone']) : ''; ?>">
+                               value="<?php echo $existing_order_data ? htmlspecialchars($existing_order_data['customer_phone'] ?? '') : ''; ?>">
                         <div class="error-message" id="customerPhoneErrorMobile"></div>
                     </div>
                     
@@ -568,7 +713,7 @@ $conn->close();
                         <label>Delivery Address</label>
                         <textarea class="form-input-mobile" id="delivery_address_mobile" 
                                   rows="2" 
-                                  placeholder="Enter delivery address"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['delivery_address']) : ''; ?></textarea>
+                                  placeholder="Enter delivery address"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['delivery_address'] ?? '') : ''; ?></textarea>
                         <div class="error-message" id="deliveryAddressErrorMobile">Address required</div>
                     </div>
                     
@@ -577,13 +722,13 @@ $conn->close();
                         <label>Special Instructions</label>
                         <textarea class="form-input-mobile" id="order_notes_mobile" 
                                   rows="2" 
-                                  placeholder="Any special requests"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['order_notes']) : ''; ?></textarea>
+                                  placeholder="Any special requests"><?php echo $existing_order_data ? htmlspecialchars($existing_order_data['order_notes'] ?? '') : ''; ?></textarea>
                     </div>
                 </div>
             </div>
             
             <!-- Products Section -->
-            <div class="mobile-section">
+            <div class="mobile-section min_height">
                 <div class="section-title">
                     <i class="fas fa-utensils"></i>
                     <span>Menu Items</span>
@@ -595,7 +740,8 @@ $conn->close();
                     <div class="product-card-mobile" 
                          data-product-id="<?php echo $product['id']; ?>" 
                          data-product-name="<?php echo htmlspecialchars($product['product_name']); ?>" 
-                         data-product-price="<?php echo $product['price']; ?>">
+                         data-product-price="<?php echo $product['price']; ?>"
+                         data-product-first-letters="<?php echo htmlspecialchars($product['first_letters']); ?>">
                         <?php if (!empty($product['image_url'])): ?>
                         <img src="<?php echo htmlspecialchars($product['image_url']); ?>" 
                              class="product-image-mobile" 
@@ -608,13 +754,14 @@ $conn->close();
                         <div class="product-info-mobile">
                             <div class="product-name-mobile"><?php echo htmlspecialchars($product['product_name']); ?></div>
                             <div class="product-price-mobile"><?php echo $currencySymbol; ?><?php echo $product['formatted_price']; ?></div>
+                            <div class="product-id-mobile">ID: <?php echo $product['id']; ?></div>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
                 <div id="noProductsFoundMobile" class="empty-state" style="display: none;">
                     <i class="fas fa-search"></i>
-                    <p>No products found</p>
+                    <p>No products found matching your search</p>
                 </div>
                 <?php else: ?>
                 <div class="empty-state">
@@ -628,6 +775,18 @@ $conn->close();
         
         <!-- Bottom Cart (Mobile) -->
         <div class="bottom-cart-mobile" id="bottomCartMobile">
+
+            <!-- Search Bar -->
+            <div class="search-container-mobile" id="mobileSearchBar" style="display: none;">
+                <div style="position: relative;">
+                    <input type="text" class="search-input-mobile" id="mobileProductSearch" 
+                           placeholder="Search by name, ID, or first letters (e.g., 'a b k r')...">
+                    <button type="button" class="search-clear-btn" id="mobileSearchClear">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
             <div class="cart-header-mobile" onclick="toggleCart()">
                 <div class="cart-title-mobile">
                     <span>Cart</span>
@@ -709,24 +868,63 @@ $conn->close();
     $(document).ready(function() {
         console.log('Mobile billing page loaded');
         
+        // Set global variables from PHP
+        window.userCountry = '<?php echo $user_country; ?>';
+        window.currencySymbol = '<?php echo $currencySymbol; ?>';
+        window.taxLabel = '<?php echo $taxLabel; ?>';
+        
+        console.log('User country:', window.userCountry);
+        console.log('Currency symbol:', window.currencySymbol);
+        console.log('Tax label:', window.taxLabel);
+        
         // Configuration
         const config = {
             gstRate: <?php echo $gst_rate; ?>,
             deliveryCharge: <?php echo $delivery_charge; ?>,
             freeDeliveryMinimum: <?php echo $free_delivery_minimum; ?>,
             currencySymbol: '<?php echo $currencySymbol; ?>',
-            taxLabel: '<?php echo $taxLabel; ?>'
+            taxLabel: '<?php echo $taxLabel; ?>',
+            businessName: '<?php echo addslashes($business_name); ?>',
+            businessAddress: '<?php echo addslashes($business_address); ?>'
         };
+        
+        console.log('Delivery charge config:', {
+            deliveryCharge: config.deliveryCharge,
+            freeDeliveryMinimum: config.freeDeliveryMinimum
+        });
         
         let cartItems = [];
         let currentOrderType = '<?php echo $existing_order_data ? $existing_order_data['order_type'] : 'dining'; ?>';
         let currentTableOrderId = null;
         let isCartExpanded = true;
+        let searchTimeout = null;
         
         // Initialize
         initializeMobile();
         
         function initializeMobile() {
+            // WhatsApp toggle functionality for mobile
+            $('#send_whatsapp_toggle_mobile').change(function() {
+                const isChecked = $(this).is(':checked');
+                const statusText = isChecked ? 'ON: Customer will receive WhatsApp confirmation' : 'OFF: No WhatsApp will be sent';
+                $('#whatsappStatusTextMobile').text(statusText);
+                
+                // Update setting via AJAX
+                $.ajax({
+                    url: 'update_whatsapp_setting.php',
+                    type: 'POST',
+                    data: {
+                        send_whatsapp_on_bill: isChecked ? 1 : 0
+                    },
+                    success: function(response) {
+                        console.log('WhatsApp setting updated:', response);
+                    },
+                    error: function() {
+                        console.error('Failed to update WhatsApp setting');
+                    }
+                });
+            });
+            
             // Set initial order type
             updateFieldVisibilityMobile(currentOrderType);
             
@@ -790,24 +988,41 @@ $conn->close();
                 $('#mobileProductSearch').focus();
             });
             
+            // Enhanced search with debounce
             $('#mobileProductSearch').on('input', function() {
-                const searchTerm = $(this).val().toLowerCase();
-                let foundCount = 0;
+                const searchTerm = $(this).val().trim();
                 
-                $('.product-card-mobile').each(function() {
-                    const productName = $(this).data('product-name').toLowerCase();
-                    if (productName.includes(searchTerm)) {
-                        $(this).show();
-                        foundCount++;
-                    } else {
-                        $(this).hide();
-                    }
-                });
-                
-                if (foundCount === 0 && searchTerm.length > 0) {
-                    $('#noProductsFoundMobile').show();
+                // Show/hide clear button
+                if (searchTerm.length > 0) {
+                    $('#mobileSearchClear').addClass('active');
                 } else {
-                    $('#noProductsFoundMobile').hide();
+                    $('#mobileSearchClear').removeClass('active');
+                }
+                
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                // Debounce search to improve performance
+                searchTimeout = setTimeout(() => {
+                    performSearchMobile(searchTerm);
+                }, 300);
+            });
+            
+            // Clear search
+            $('#mobileSearchClear').on('click', function() {
+                $('#mobileProductSearch').val('').focus();
+                $(this).removeClass('active');
+                performSearchMobile('');
+            });
+            
+            // Clear search on Escape key
+            $('#mobileProductSearch').on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    $(this).val('');
+                    $('#mobileSearchClear').removeClass('active');
+                    performSearchMobile('');
                 }
             });
             
@@ -850,6 +1065,60 @@ $conn->close();
             }, 3000);
             
             console.log('Mobile billing initialized');
+        }
+        
+        // Enhanced Mobile Search Function
+        function performSearchMobile(searchTerm) {
+            let foundCount = 0;
+            
+            $('.product-card-mobile').each(function() {
+                const productId = $(this).data('product-id').toString();
+                const productName = $(this).data('product-name').toLowerCase();
+                const firstLetters = $(this).data('product-first-letters').toLowerCase();
+                
+                // Remove spaces from search term for first letter matching
+                const searchWithoutSpaces = searchTerm.replace(/\s+/g, '').toLowerCase();
+                
+                // Check multiple search criteria
+                const matchesId = productId.includes(searchTerm);
+                const matchesName = productName.includes(searchTerm.toLowerCase());
+                const matchesFirstLetters = firstLetters.includes(searchWithoutSpaces);
+                
+                // Special case: search by first letters with spaces (e.g., "a b k r")
+                let matchesFirstLettersWithSpaces = false;
+                if (searchTerm.includes(' ')) {
+                    // Extract first letters from product name
+                    const productWords = productName.split(' ');
+                    let productFirstLetters = '';
+                    productWords.forEach(word => {
+                        if (word.length > 0) {
+                            productFirstLetters += word[0];
+                        }
+                    });
+                    
+                    // Get search letters without spaces
+                    const searchLetters = searchTerm.toLowerCase().replace(/\s+/g, '');
+                    
+                    // Check if product first letters contain the search letters
+                    matchesFirstLettersWithSpaces = productFirstLetters.includes(searchLetters);
+                }
+                
+                // Also check if the search term matches the beginning of first letters
+                const matchesFirstLettersStart = firstLetters.startsWith(searchWithoutSpaces);
+                
+                if (matchesId || matchesName || matchesFirstLetters || matchesFirstLettersWithSpaces || matchesFirstLettersStart) {
+                    $(this).show();
+                    foundCount++;
+                } else {
+                    $(this).hide();
+                }
+            });
+            
+            if (foundCount === 0 && searchTerm.length > 0) {
+                $('#noProductsFoundMobile').show();
+            } else {
+                $('#noProductsFoundMobile').hide();
+            }
         }
         
         function updateFieldVisibilityMobile(orderType) {
@@ -958,10 +1227,20 @@ $conn->close();
             
             let delivery = 0;
             if (currentOrderType === 'delivery') {
-                if (config.freeDeliveryMinimum > 0 && subtotal >= config.freeDeliveryMinimum) {
+                // Check if we're updating an existing order
+                const isUpdatingOrder = <?php echo $existing_order_id ? 'true' : 'false'; ?>;
+                
+                if (isUpdatingOrder) {
+                    // For updating existing orders, delivery charge should already be included
+                    // in the original order, so we don't add it to the new items
                     delivery = 0;
                 } else {
-                    delivery = config.deliveryCharge;
+                    // For new delivery orders, calculate delivery charge
+                    if (config.freeDeliveryMinimum > 0 && subtotal >= config.freeDeliveryMinimum) {
+                        delivery = 0;
+                    } else {
+                        delivery = config.deliveryCharge;
+                    }
                 }
                 $('#deliveryChargeRowMobile').show();
                 $('#deliveryChargeAmountMobile').text(formatPrice(delivery));
@@ -1082,6 +1361,50 @@ $conn->close();
                         if (data.success) {
                             showToast(`Bill ${data.action} successfully!`, 'success');
                             
+                            // Check if WhatsApp confirmation should be sent
+                            const sendWhatsApp = $('#send_whatsapp_toggle_mobile').is(':checked');
+                            const customerPhone = $('#customer_phone_mobile').val().trim();
+                            const customerName = $('#customer_name_mobile').val().trim();
+                            
+                            console.log('WhatsApp settings:', {
+                                sendWhatsApp,
+                                customerPhone,
+                                customerName,
+                                currentOrderType,
+                                hasPhone: !!customerPhone
+                            });
+                            
+                            // Send WhatsApp confirmation if enabled and customer has phone
+                            if (sendWhatsApp && customerPhone && customerPhone.length >= 10) {
+                                console.log('Attempting to send WhatsApp confirmation...');
+                                
+                                // Fetch business data first
+                                fetchBusinessData().then(businessData => {
+                                    console.log('Business data fetched:', businessData);
+                                    
+                                    // Send WhatsApp confirmation
+                                    const whatsappSent = sendOrderConfirmationMobile(
+                                        data.order_id,
+                                        customerPhone,
+                                        customerName || 'Customer',
+                                        currentOrderType,
+                                        businessData.businessInfo,
+                                        businessData.userPhone,
+                                        businessData.profileUrl
+                                    );
+                                    
+                                    if (whatsappSent) {
+                                        showToast('WhatsApp confirmation sent to customer!', 'success');
+                                    }
+                                }).catch(error => {
+                                    console.error('Error sending WhatsApp:', error);
+                                });
+                            } else if (sendWhatsApp && (!customerPhone || customerPhone.length < 10)) {
+                                console.log('WhatsApp not sent: No valid phone number provided');
+                            } else if (!sendWhatsApp) {
+                                console.log('WhatsApp not sent: Feature is disabled');
+                            }
+                            
                             // Reset for new order
                             if (!<?php echo $existing_order_id ? 'true' : 'false'; ?>) {
                                 setTimeout(() => {
@@ -1176,13 +1499,121 @@ $conn->close();
             }
         });
         
-        // Prevent accidental refresh
-        window.onbeforeunload = function() {
-            if (cartItems.length > 0) {
-                return 'You have unsaved items in cart. Are you sure you want to leave?';
-            }
-        };
     });
+    
+    // Functions needed for WhatsApp confirmation
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Function to fetch business data
+    async function fetchBusinessData() {
+        try {
+            const response = await fetch('get_business_data.php');
+            const data = await response.json();
+            
+            if (data.success) {
+                return {
+                    businessInfo: data.business_info,
+                    userPhone: data.user_phone,
+                    profileUrl: data.profile_url
+                };
+            } else {
+                throw new Error('Failed to fetch business data');
+            }
+        } catch (error) {
+            console.error('Error fetching business data:', error);
+            return {
+                businessInfo: { business_name: 'Our Restaurant' },
+                userPhone: '',
+                profileUrl: ''
+            };
+        }
+    }
+    
+    // WhatsApp confirmation function for mobile
+    function sendOrderConfirmationMobile(orderId, customerPhone, customerName, orderType, businessInfo, businessPhone, profileUrl) {
+        try {
+            // Validate inputs
+            if (!customerPhone || customerPhone.length < 9) {
+                console.warn(`Invalid phone number for order ${orderId}: ${customerPhone}`);
+                return false;
+            }
+
+            // Business details
+            const businessName = businessInfo?.business_name || 'Our Restaurant';
+            const businessAddress = businessInfo?.business_address || '';
+            const phone = businessPhone || '';
+
+            // Format customer phone based on country
+            let formattedCustomerPhone = customerPhone.replace(/\D/g, '');
+            
+            if (window.userCountry === 'UAE') {
+                // For UAE: 9 digits, add 971
+                if (formattedCustomerPhone.length === 9) {
+                    formattedCustomerPhone = '971' + formattedCustomerPhone;
+                }
+            } else {
+                // For other countries: 10 digits, add 91 (India default)
+                if (formattedCustomerPhone.length === 10) {
+                    formattedCustomerPhone = '91' + formattedCustomerPhone;
+                }
+            }
+
+            // URLs
+            const orderStatusUrl = profileUrl 
+                ? `https://deegeecard.com/order_status.php?order_id=${orderId}&profile_url=${encodeURIComponent(profileUrl)}`
+                : `https://deegeecard.com/order_status.php?order_id=${orderId}`;
+                
+            const profileOrderUrl = profileUrl 
+                ? `https://deegeecard.com/${profileUrl}`
+                : 'https://deegeecard.com';
+
+            // Create confirmation message exactly as per sample
+            let message = `🚀 *Next time, order faster!*\n`;
+            message += `Place your order easily here:\n`;
+            message += `🔗 ${profileOrderUrl}\n\n`;
+            
+            message += `🍽 *${businessName.toUpperCase()}*\n`;
+            message += `✅ Order Confirmed #${orderId}\n\n`;
+            
+            message += `👋 Dear ${customerName},\n`;
+            message += `Your order has been confirmed and is now being processed!\n\n`;
+            
+            message += `📋 *Order Details:*\n`;
+            message += `•⁠  ⁠Order Type: ${orderType === 'delivery' ? '🚚 Delivery' : orderType === 'dining' ? '🍽️ Dining' : orderType}\n`;
+            message += `•⁠  ⁠Order ID: #${orderId}\n\n`;
+            
+            message += `🔎 *Track Your Order:*\n`;
+            message += `${orderStatusUrl}\n\n`;
+
+            message += `⚠ *To activate the tracking link above, please reply with 'OK' or save our number.*\n\n`;
+            
+            message += `❤️ *Thank you for choosing ${businessName}!*\n`;
+            message += `We truly appreciate your business.`;
+
+            // Create WhatsApp URL
+            const whatsappUrl = `https://wa.me/${formattedCustomerPhone}?text=${encodeURIComponent(message)}`;
+            
+            // Open WhatsApp in new tab
+            const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            
+            console.log('WhatsApp confirmation sent to:', customerPhone);
+            return true;
+            
+        } catch (error) {
+            console.error('Error sending WhatsApp confirmation:', error);
+            return false;
+        }
+    }
     </script>
+    <!-- WebToNative Script - Disable Pull to Refresh -->
+    <script src="https://unpkg.com/webtonative@1.0.89/webtonative.min.js"></script>
+    <script>
+        // Disable pull-to-refresh for this page
+        WTN.enablePullToRefresh(false);
+    </script>    
 </body>
 </html>

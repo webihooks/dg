@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // WEBTONATIVE ANDROID APP DETECTION
 function isWebToNativeAndroid() {
     return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
@@ -169,35 +172,17 @@ if ($isAndroidApp) {
     }
 }
 
-// PREVENT INFINITE REDIRECT - Check if this is a redirect from dashboard
-$isRedirectFromDashboard = isset($_GET['redirect']) && $_GET['redirect'] === 'true';
-$forceLoginPage = isset($_GET['force_login']) && $_GET['force_login'] === 'true';
+// FIXED: Check if user is already logged in and should be redirected
+// Only redirect if user is logged in AND not already on a dashboard page
+$current_page = basename($_SERVER['PHP_SELF']);
 
-// UNIVERSAL SESSION VALIDATION WITH 365-DAY PERSISTENCE
-if (isset($_SESSION['user_id']) && !$forceLoginPage) {
-    // Update session lifetime
-    $_SESSION['last_activity'] = time();
-    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-    $_SESSION['session_expires'] = time() + 31536000; // 1 year from now
+if (isset($_SESSION['user_id'])) {
+    // Check if we're coming from a dashboard to prevent infinite redirect
+    $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+    $isFromDashboard = strpos($referrer, 'dashboard') !== false;
     
-    // Android-specific session maintenance
-    if ($isAndroidApp) {
-        $androidSessionManager->maintainAndroidSession($_SESSION['user_id']);
-    }
-    
-    // Update session cookie with extended lifetime
-    setcookie(session_name(), session_id(), [
-        'expires' => time() + 31536000,
-        'path' => '/',
-        'domain' => $_SERVER['HTTP_HOST'],
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'httponly' => true,
-        'samesite' => 'None'
-    ]);
-    
-    // Redirect based on user role - ONLY if not already on login page
-    $current_page = basename($_SERVER['PHP_SELF']);
-    if ($current_page === 'login.php') {
+    // If user is on login page and not coming from dashboard, redirect to appropriate dashboard
+    if ($current_page === 'login.php' && !$isFromDashboard) {
         $role = $_SESSION['role'] ?? '';
         switch ($role) {
             case 'admin':
@@ -217,11 +202,18 @@ if (isset($_SESSION['user_id']) && !$forceLoginPage) {
                 exit();
         }
     }
-    // If already on correct dashboard page, don't redirect
+    
+    // Update session activity for logged-in users on login page
+    $_SESSION['last_activity'] = time();
+    
+    // Android-specific session maintenance
+    if ($isAndroidApp) {
+        $androidSessionManager->maintainAndroidSession($_SESSION['user_id']);
+    }
 }
 
 // ENHANCED REMEMBER ME TOKEN AUTO-LOGIN WITH 365-DAY PERSISTENCE
-if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token']) && !$forceLoginPage) {
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
     $remember_token = $_COOKIE['remember_token'];
     
     try {

@@ -1,3 +1,4 @@
+
 <script>
 // Function to check if current time is within any time slot
 function isWithinTimeSlots(time1Start, time1End, time2Start, time2End) {

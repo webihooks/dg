@@ -58,13 +58,29 @@ if (empty($business_name)) {
 }
 
 // Get user's country for currency and tax label
-$user_sql = "SELECT country FROM users WHERE id = ?";
-$user_stmt = $conn->prepare($user_sql);
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user_stmt->bind_result($user_country);
-$user_stmt->fetch();
-$user_stmt->close();
+// First check if send_whatsapp_on_bill column exists
+$column_check = $conn->query("SHOW COLUMNS FROM users LIKE 'send_whatsapp_on_bill'");
+$send_whatsapp_on_bill = 1; // Default to ON
+
+if ($column_check && $column_check->num_rows > 0) {
+    // Column exists, use the actual query
+    $user_sql = "SELECT country, send_whatsapp_on_bill FROM users WHERE id = ?";
+    $user_stmt = $conn->prepare($user_sql);
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_stmt->bind_result($user_country, $send_whatsapp_on_bill);
+    $user_stmt->fetch();
+    $user_stmt->close();
+} else {
+    // Column doesn't exist, just get country
+    $user_sql = "SELECT country FROM users WHERE id = ?";
+    $user_stmt = $conn->prepare($user_sql);
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_stmt->bind_result($user_country);
+    $user_stmt->fetch();
+    $user_stmt->close();
+}
 
 // Set tax label based on country (GST for India, VAT for UAE)
 $taxLabel = ($user_country == 'UAE') ? 'VAT' : 'GST';
@@ -82,6 +98,11 @@ function getCurrencySymbol($country) {
 }
 
 $currencySymbol = getCurrencySymbol($user_country);
+
+// Set default for send_whatsapp_on_bill if not set
+if (!isset($send_whatsapp_on_bill)) {
+    $send_whatsapp_on_bill = 1; // Default to ON
+}
 
 // ==================== FETCH BUSINESS CONFIG ====================
 // GST Rate
@@ -289,7 +310,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $conn->commit();
             
-            echo json_encode(['success' => true, 'order_id' => $order_id, 'action' => $action]);
+            echo json_encode([
+                'success' => true, 
+                'order_id' => $order_id, 
+                'action' => $action,
+                'send_whatsapp' => $send_whatsapp_on_bill,
+                'customer_name' => $customer_name,
+                'customer_phone' => $customer_phone,
+                'order_type' => $order_type
+            ]);
             exit;
             
         } catch (Exception $e) {
@@ -445,6 +474,22 @@ $conn->close();
         .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:calc(100vh - 300px);overflow-y:auto;padding-right:5px}
         .product-card{background:white;border:1px solid var(--border-color);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all 0.3s;display:flex;flex-direction:column;justify-content:space-between;min-height:150px}
         .product-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1);border-color:var(--primary-color)}
+
+
+        .product-card {
+            position: relative;
+        }
+        .product-card .text-muted {
+            position: absolute;
+          right: 0;
+          top: 0px;
+          background: red;
+          color: #fff !important;
+          z-index: 9;
+          padding: 3px 6px;
+          border-radius: 5px;
+        }
+
         .product-image-container{height:80px;width:100%;display:flex;align-items:center;justify-content:center;margin-bottom:8px;overflow:hidden;border-radius:5px;background:#f8f9fa}
         .product-image{object-fit:cover;width:100%;height:100%}
         .product-name{font-size:13px;line-height:1.3;margin-bottom:5px;font-weight:500;height:35px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -482,6 +527,66 @@ $conn->close();
         .modal-header.bg-warning{background-color:#ffc107!important;color:#212529;}
         .table-order-info{font-size:12px;color:#666;margin-top:5px;}
         .info-message{background:#e3f2fd;border-left:4px solid #2196f3;padding:10px;margin-bottom:15px;border-radius:4px;}
+        .whatsapp-toggle-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #25d366;
+        }
+        .whatsapp-toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .whatsapp-toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .whatsapp-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .whatsapp-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .whatsapp-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        .whatsapp-toggle-switch input:checked + .whatsapp-toggle-slider {
+            background-color: #25d366;
+        }
+        .whatsapp-toggle-switch input:checked + .whatsapp-toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .whatsapp-toggle-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
         @media (max-width:768px){.products-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}.table-box{width:40px;height:40px}.table-number-box{max-height:120px}}
     </style>
 </head>
@@ -573,6 +678,26 @@ $conn->close();
                                 <div class="row">
                                     <!-- Left Column: Customer Details -->
                                     <div class="col-md-3 mb-2">
+                                        <!-- WhatsApp Confirmation Toggle -->
+                                        <div class="whatsapp-toggle-container">
+                                            <label class="whatsapp-toggle-label">
+                                                <span>
+                                                    <i class="fab fa-whatsapp me-2" style="color: #25d366;"></i>
+                                                    WhatsApp Confirmation
+                                                </span>
+                                                <div class="whatsapp-toggle-switch">
+                                                    <input type="checkbox" id="send_whatsapp_toggle" <?php echo $send_whatsapp_on_bill ? 'checked' : ''; ?>>
+                                                    <span class="whatsapp-toggle-slider"></span>
+                                                </div>
+                                            </label>
+                                            <div class="whatsapp-toggle-info">
+                                                <i class="fas fa-info-circle"></i>
+                                                <span id="whatsappStatusText">
+                                                    <?php echo $send_whatsapp_on_bill ? 'ON: Customer will receive WhatsApp confirmation' : 'OFF: No WhatsApp will be sent'; ?>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
                                         <!-- Customer Information -->
                                         <div class="customer-info-card mb-2">
                                             <h6 class="mb-2"><i class="fas fa-user me-2"></i> Customer Details</h6>
@@ -655,7 +780,7 @@ $conn->close();
                                     <div class="col-md-5 mb-2">
                                         <!-- Search Bar -->
                                         <div class="mb-2">
-                                            <input type="text" class="form-control" id="productSearch" placeholder="Search products...">
+                                            <input type="text" class="form-control" id="productSearch" placeholder="Search products by name, ID, or first letters (e.g., 'a b k r')...">
                                         </div>
                                         
                                         <!-- Products Grid -->
@@ -666,21 +791,29 @@ $conn->close();
                                                 <div class="product-card" 
                                                      data-product-id="<?php echo $product['id']; ?>" 
                                                      data-product-name="<?php echo htmlspecialchars($product['product_name']); ?>" 
-                                                     data-product-price="<?php echo $product['price']; ?>">
+                                                     data-product-price="<?php echo $product['price']; ?>"
+                                                     data-product-first-letters="<?php 
+                                                        // Generate first letters of each word
+                                                        $words = explode(' ', $product['product_name']);
+                                                        $firstLetters = '';
+                                                        foreach ($words as $word) {
+                                                            if (!empty($word)) {
+                                                                $firstLetters .= strtoupper($word[0]);
+                                                            }
+                                                        }
+                                                        echo htmlspecialchars($firstLetters);
+                                                     ?>">
                                                     <div class="product-image-container">
                                                         <?php if (!empty($product['image_url'])): ?>
                                                         <img src="<?php echo htmlspecialchars($product['image_url']); ?>" 
                                                              class="product-image" 
                                                              alt="<?php echo htmlspecialchars($product['product_name']); ?>" 
                                                              loading="lazy">
-                                                        <?php else: ?>
-                                                        <div class="text-muted">
-                                                            <i class="fas fa-image fa-2x"></i>
-                                                        </div>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="product-name"><?php echo htmlspecialchars($product['product_name']); ?></div>
                                                     <div class="product-price"><?php echo $currencySymbol; ?><?php echo $product['formatted_price']; ?></div>
+                                                    <small class="text-muted"><?php echo $product['id']; ?></small>
                                                 </div>
                                                 <?php endforeach; ?>
                                             </div>
@@ -772,6 +905,15 @@ $conn->close();
     $(document).ready(function() {
         console.log('Billing page loaded');
         
+        // Set global variables from PHP
+        window.userCountry = '<?php echo $user_country; ?>';
+        window.currencySymbol = '<?php echo $currencySymbol; ?>';
+        window.taxLabel = '<?php echo $taxLabel; ?>';
+        
+        console.log('User country:', window.userCountry);
+        console.log('Currency symbol:', window.currencySymbol);
+        console.log('Tax label:', window.taxLabel);
+        
         // Auto-hide success alert after 5 seconds
         const successAlert = $('#successAlert');
         if (successAlert.length && successAlert.data('auto-hide')) {
@@ -826,6 +968,28 @@ $conn->close();
                 toast.alert('close');
             }, 5000);
         }
+        
+        // WhatsApp toggle functionality
+        $('#send_whatsapp_toggle').change(function() {
+            const isChecked = $(this).is(':checked');
+            const statusText = isChecked ? 'ON: Customer will receive WhatsApp confirmation' : 'OFF: No WhatsApp will be sent';
+            $('#whatsappStatusText').text(statusText);
+            
+            // Update setting via AJAX
+            $.ajax({
+                url: 'update_whatsapp_setting.php',
+                type: 'POST',
+                data: {
+                    send_whatsapp_on_bill: isChecked ? 1 : 0
+                },
+                success: function(response) {
+                    console.log('WhatsApp setting updated:', response);
+                },
+                error: function() {
+                    console.error('Failed to update WhatsApp setting');
+                }
+            });
+        });
         
         // Field Management
         function updateFieldVisibility(orderType) {
@@ -1137,6 +1301,60 @@ $conn->close();
             }
         }
         
+        // Enhanced Search Functionality
+        function performSearch(searchTerm) {
+            let foundCount = 0;
+            
+            $('.product-card').each(function() {
+                const productId = $(this).data('product-id').toString();
+                const productName = $(this).data('product-name').toLowerCase();
+                const firstLetters = $(this).data('product-first-letters').toLowerCase();
+                
+                // Remove spaces from search term for first letter matching
+                const searchWithoutSpaces = searchTerm.replace(/\s+/g, '').toLowerCase();
+                
+                // Check multiple search criteria
+                const matchesId = productId.includes(searchTerm);
+                const matchesName = productName.includes(searchTerm.toLowerCase());
+                const matchesFirstLetters = firstLetters.includes(searchWithoutSpaces);
+                
+                // Special case: search by first letters with spaces (e.g., "a b k r")
+                let matchesFirstLettersWithSpaces = false;
+                if (searchTerm.includes(' ')) {
+                    // Extract first letters from product name
+                    const productWords = productName.split(' ');
+                    let productFirstLetters = '';
+                    productWords.forEach(word => {
+                        if (word.length > 0) {
+                            productFirstLetters += word[0];
+                        }
+                    });
+                    
+                    // Get search letters without spaces
+                    const searchLetters = searchTerm.toLowerCase().replace(/\s+/g, '');
+                    
+                    // Check if product first letters contain the search letters
+                    matchesFirstLettersWithSpaces = productFirstLetters.includes(searchLetters);
+                }
+                
+                // Also check if the search term matches the beginning of first letters
+                const matchesFirstLettersStart = firstLetters.startsWith(searchWithoutSpaces);
+                
+                if (matchesId || matchesName || matchesFirstLetters || matchesFirstLettersWithSpaces || matchesFirstLettersStart) {
+                    $(this).show();
+                    foundCount++;
+                } else {
+                    $(this).hide();
+                }
+            });
+            
+            if (foundCount === 0 && searchTerm.length > 0) {
+                $('#noProductsFound').show();
+            } else {
+                $('#noProductsFound').hide();
+            }
+        }
+        
         // Event Handlers
         $('.order-type-btn').click(function() {
             const orderType = $(this).data('type');
@@ -1186,24 +1404,27 @@ $conn->close();
             $('#tableConflictModal').modal('hide');
         });
         
+        // Enhanced Search with Debounce
+        let searchTimeout;
         $('#productSearch').on('input', function() {
-            const searchTerm = $(this).val().toLowerCase();
-            let foundCount = 0;
+            const searchTerm = $(this).val().trim();
             
-            $('.product-card').each(function() {
-                const productName = $(this).data('product-name').toLowerCase();
-                if (productName.includes(searchTerm)) {
-                    $(this).show();
-                    foundCount++;
-                } else {
-                    $(this).hide();
-                }
-            });
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
             
-            if (foundCount === 0 && searchTerm.length > 0) {
-                $('#noProductsFound').show();
-            } else {
-                $('#noProductsFound').hide();
+            // Debounce search to improve performance
+            searchTimeout = setTimeout(() => {
+                performSearch(searchTerm);
+            }, 300);
+        });
+        
+        // Clear search on Escape key
+        $('#productSearch').on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                $(this).val('');
+                performSearch('');
             }
         });
         
@@ -1236,7 +1457,52 @@ $conn->close();
                         if (data.success) {
                             lastCreatedOrderId = data.order_id;
                             const actionText = data.action === 'updated' ? 'updated' : 'created';
-                            showToast(`Items added successfully to order #${data.order_id}`, 'success');
+                            showToast(`Bill ${actionText} successfully! Order #${data.order_id}`, 'success');
+                            
+                            // Check if WhatsApp confirmation should be sent
+                            const sendWhatsApp = $('#send_whatsapp_toggle').is(':checked');
+                            const customerPhone = $('#customer_phone').val().trim();
+                            const customerName = $('#customer_name').val().trim();
+                            const orderType = $('#order_type_input').val();
+                            
+                            console.log('WhatsApp settings:', {
+                                sendWhatsApp,
+                                customerPhone,
+                                customerName,
+                                orderType,
+                                hasPhone: !!customerPhone
+                            });
+                            
+                            // Send WhatsApp confirmation if enabled and customer has phone
+                            if (sendWhatsApp && customerPhone && customerPhone.length >= 10) {
+                                console.log('Attempting to send WhatsApp confirmation...');
+                                
+                                // Fetch business data first
+                                fetchBusinessData().then(businessData => {
+                                    console.log('Business data fetched:', businessData);
+                                    
+                                    // Send WhatsApp confirmation
+                                    const whatsappSent = sendOrderConfirmation(
+                                        data.order_id,
+                                        customerPhone,
+                                        customerName || 'Customer',
+                                        orderType,
+                                        businessData.businessInfo,
+                                        businessData.userPhone,
+                                        businessData.profileUrl
+                                    );
+                                    
+                                    if (whatsappSent) {
+                                        showToast('WhatsApp confirmation sent to customer!', 'success');
+                                    }
+                                }).catch(error => {
+                                    console.error('Error sending WhatsApp:', error);
+                                });
+                            } else if (sendWhatsApp && (!customerPhone || customerPhone.length < 10)) {
+                                console.log('WhatsApp not sent: No valid phone number provided');
+                            } else if (!sendWhatsApp) {
+                                console.log('WhatsApp not sent: Feature is disabled');
+                            }
                             
                             // Reset form
                             cartItems = [];
@@ -1259,10 +1525,10 @@ $conn->close();
                                 updateCart();
                             }
                             
-                            // Redirect to orders.php page
+                            // Redirect to orders.php page after delay
                             setTimeout(() => {
                                 window.location.href = 'orders.php?success=1&order_id=' + data.order_id + '&action=' + data.action;
-                            }, 1500);
+                            }, 2000);
                         } else {
                             showToast(data.error, 'danger');
                             saveBtn.prop('disabled', false).html(originalHtml);
@@ -1301,10 +1567,139 @@ $conn->close();
         console.log('Billing page initialized successfully');
     });
     
+    // Functions from menu.php that are needed
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    // Function to adjust time for UAE users
+    function adjustTimeForCountry(dateTimeString) {
+        if (!dateTimeString) return new Date();
+        
+        const date = new Date(dateTimeString);
+        
+        if (window.userCountry === 'UAE') {
+            // Subtract 1 hour 30 minutes for UAE
+            date.setMinutes(date.getMinutes() - 90);
+        }
+        
+        return date;
+    }
+    
+    // Function to format date for display with country adjustment
+    function formatDateTimeForCountry(dateTimeString) {
+        const date = adjustTimeForCountry(dateTimeString);
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+    
+    // Function to fetch business data
+    async function fetchBusinessData() {
+        try {
+            const response = await fetch('get_business_data.php');
+            const data = await response.json();
+            
+            if (data.success) {
+                return {
+                    businessInfo: data.business_info,
+                    userPhone: data.user_phone,
+                    profileUrl: data.profile_url
+                };
+            } else {
+                throw new Error('Failed to fetch business data');
+            }
+        } catch (error) {
+            console.error('Error fetching business data:', error);
+            return {
+                businessInfo: { business_name: 'Our Restaurant' },
+                userPhone: '',
+                profileUrl: ''
+            };
+        }
+    }
+    
+    // WhatsApp confirmation function (from menu.php)
+    function sendOrderConfirmation(orderId, customerPhone, customerName, orderType, businessInfo, businessPhone, profileUrl) {
+        try {
+            // Validate inputs
+            if (!customerPhone || customerPhone.length < 9) {
+                console.warn(`Invalid phone number for order ${orderId}: ${customerPhone}`);
+                return false;
+            }
+
+            // Business details
+            const businessName = businessInfo?.business_name || 'Our Restaurant';
+            const businessAddress = businessInfo?.business_address || '';
+            const phone = businessPhone || '';
+
+            // Format customer phone based on country
+            let formattedCustomerPhone = customerPhone.replace(/\D/g, '');
+            
+            if (window.userCountry === 'UAE') {
+                // For UAE: 9 digits, add 971
+                if (formattedCustomerPhone.length === 9) {
+                    formattedCustomerPhone = '971' + formattedCustomerPhone;
+                }
+            } else {
+                // For other countries: 10 digits, add 91 (India default)
+                if (formattedCustomerPhone.length === 10) {
+                    formattedCustomerPhone = '91' + formattedCustomerPhone;
+                }
+            }
+
+            // URLs
+            const orderStatusUrl = profileUrl 
+                ? `https://deegeecard.com/order_status.php?order_id=${orderId}&profile_url=${encodeURIComponent(profileUrl)}`
+                : `https://deegeecard.com/order_status.php?order_id=${orderId}`;
+                
+            const profileOrderUrl = profileUrl 
+                ? `https://deegeecard.com/${profileUrl}`
+                : 'https://deegeecard.com';
+
+            // Create confirmation message exactly as per sample
+            let message = `🚀 *Next time, order faster!*\n`;
+            message += `Place your order easily here:\n`;
+            message += `🔗 ${profileOrderUrl}\n\n`;
+            
+            message += `🍽 *${businessName.toUpperCase()}*\n`;
+            message += `✅ Order Confirmed #${orderId}\n\n`;
+            
+            message += `👋 Dear ${customerName},\n`;
+            message += `Your order has been confirmed and is now being processed!\n\n`;
+            
+            message += `📋 *Order Details:*\n`;
+            message += `•⁠  ⁠Order Type: ${orderType === 'delivery' ? '🚚 Delivery' : orderType === 'dining' ? '🍽️ Dining' : orderType}\n`;
+            message += `•⁠  ⁠Order ID: #${orderId}\n\n`;
+            
+            message += `🔎 *Track Your Order:*\n`;
+            message += `${orderStatusUrl}\n\n`;
+
+            message += `⚠ *To activate the tracking link above, please reply with 'OK' or save our number.*\n\n`;
+            
+            message += `❤️ *Thank you for choosing ${businessName}!*\n`;
+            message += `We truly appreciate your business.`;
+
+            // Create WhatsApp URL
+            const whatsappUrl = `https://wa.me/${formattedCustomerPhone}?text=${encodeURIComponent(message)}`;
+            
+            // Open WhatsApp in new tab
+            const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            
+            console.log('WhatsApp confirmation sent to:', customerPhone);
+            return true;
+            
+        } catch (error) {
+            console.error('Error sending WhatsApp confirmation:', error);
+            return false;
+        }
     }
     </script>
 </body>

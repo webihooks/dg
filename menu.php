@@ -273,6 +273,42 @@ if (isAndroidWebView()) {
 </script>
 
 <style>
+/* Default: Show mobile menu, hide desktop menu */
+.mobile-only {
+    display: block;
+}
+
+.desktop-only {
+    display: none;
+}
+
+/* For tablets and desktops */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Show mobile menu on tablets */
+    .mobile-only {
+        display: block;
+    }
+    
+    .desktop-only {
+        display: none;
+    }
+}
+
+/* For desktops (large screens) */
+@media (min-width: 1025px) {
+    /* Hide mobile menu, show desktop menu */
+    .mobile-only {
+        display: none;
+    }
+    
+    .desktop-only {
+        display: block;
+    }
+}
+
+
+
+
 /* Rejection dialog styles */
 .rejection-dialog {
     animation: slideInUp 0.3s ease-out;
@@ -389,6 +425,7 @@ if (isAndroidWebView()) {
         min-width: 140px !important;
     }
 }
+
 </style>
 
 <script>
@@ -1717,6 +1754,30 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
             </a>
          </li>
          <li class="menu-title">Orders</li>
+
+
+         <li class="nav-item mobile-only">
+            <a class="nav-link" href="mobile_billing.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="medical-icon:billing"></iconify-icon>
+               </span>
+               <span class="nav-text">Billing Desk</span>
+            </a>
+        </li>
+
+        <li class="nav-item desktop-only">
+            <a class="nav-link" href="billing.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="medical-icon:billing"></iconify-icon>
+               </span>
+               <span class="nav-text">Billing Desk</span>
+            </a>
+        </li>
+
+
+
+
+
          <li class="nav-item">
             <a class="nav-link" href="orders.php">
                <span class="nav-icon">

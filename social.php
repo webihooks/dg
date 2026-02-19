@@ -22,6 +22,220 @@ $stmt->bind_result($user_name, $user_role, $user_country);
 $stmt->fetch();
 $stmt->close();
 
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Process WhatsApp input
+    $whatsapp = trim($_POST['whatsapp'] ?? '');
+    
+    // Validate WhatsApp URL if provided
+    if (!empty($whatsapp)) {
+        // Validate URL format
+        if (!filter_var($whatsapp, FILTER_VALIDATE_URL)) {
+            $_SESSION['error_message'] = "Invalid WhatsApp URL format. Please enter a valid URL.";
+        } 
+        // Check if it's a WhatsApp URL
+        elseif (strpos($whatsapp, 'wa.me/') === false && strpos($whatsapp, 'whatsapp.com/') === false) {
+            $_SESSION['error_message'] = "Please enter a valid WhatsApp URL (should contain wa.me/ or whatsapp.com/)";
+        }
+        // Extract and validate number based on country
+        else {
+            $numberPart = '';
+            if (strpos($whatsapp, 'wa.me/') !== false) {
+                $numberPart = explode('wa.me/', $whatsapp)[1];
+            } elseif (strpos($whatsapp, 'whatsapp.com/') !== false) {
+                preg_match('/whatsapp\.com\/.*?(\d+)/', $whatsapp, $matches);
+                if (isset($matches[1])) {
+                    $numberPart = $matches[1];
+                }
+            }
+            
+            // Clean the number (remove any non-digit characters)
+            $cleanNumber = preg_replace('/\D/', '', $numberPart);
+            
+            // Validate based on country
+            $isValid = true;
+            $errorMessage = '';
+            
+            switch($user_country) {
+                case 'UAE':
+                    // UAE: Should be 971 followed by 9 digits (without leading 0)
+                    if (!preg_match('/^971[0-9]{9}$/', $cleanNumber)) {
+                        $isValid = false;
+                        $errorMessage = "Invalid UAE WhatsApp format. Should be: https://wa.me/971XXXXXXXX (971 + 9-digit number without leading 0)";
+                    }
+                    break;
+                    
+                case 'India':
+                    // India: Should be 91 followed by 10 digits starting with 1-9
+                    if (!preg_match('/^91[1-9][0-9]{9}$/', $cleanNumber)) {
+                        $isValid = false;
+                        $errorMessage = "Invalid India WhatsApp format. Should be: https://wa.me/91XXXXXXXXXX (91 + 10-digit number starting with 1-9)";
+                    }
+                    break;
+                    
+                case 'USA':
+                    // USA: Should be 1 followed by 10 digits
+                    if (!preg_match('/^1[0-9]{10}$/', $cleanNumber)) {
+                        $isValid = false;
+                        $errorMessage = "Invalid USA WhatsApp format. Should be: https://wa.me/11234567890 (1 + 10-digit number)";
+                    }
+                    break;
+                    
+                case 'UK':
+                    // UK: Should be 44 followed by 10-11 digits
+                    if (!preg_match('/^44[0-9]{10,11}$/', $cleanNumber)) {
+                        $isValid = false;
+                        $errorMessage = "Invalid UK WhatsApp format. Should be: https://wa.me/447XXXXXXXXXX (44 + number without leading 0)";
+                    }
+                    break;
+            }
+            
+            if (!$isValid) {
+                $_SESSION['error_message'] = $errorMessage;
+            } else {
+                // Process other inputs
+                $facebook = trim($_POST['facebook'] ?? '');
+                $instagram = trim($_POST['instagram'] ?? '');
+                $linkedin = trim($_POST['linkedin'] ?? '');
+                $youtube = trim($_POST['youtube'] ?? '');
+                $telegram = trim($_POST['telegram'] ?? '');
+                
+                // Validate other URLs
+                $urls = [
+                    'Facebook' => $facebook,
+                    'Instagram' => $instagram,
+                    'LinkedIn' => $linkedin,
+                    'YouTube' => $youtube,
+                    'Telegram' => $telegram
+                ];
+                
+                $allValid = true;
+                foreach ($urls as $platform => $url) {
+                    if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL)) {
+                        $_SESSION['error_message'] = "Invalid $platform URL format. Please enter a valid URL.";
+                        $allValid = false;
+                        break;
+                    }
+                }
+                
+                if ($allValid) {
+                    // Check if social links already exist for this user
+                    $check_sql = "SELECT COUNT(*) FROM social_link WHERE user_id = ?";
+                    $check_stmt = $conn->prepare($check_sql);
+                    $check_stmt->bind_param("i", $user_id);
+                    $check_stmt->execute();
+                    $check_stmt->bind_result($count);
+                    $check_stmt->fetch();
+                    $check_stmt->close();
+                    
+                    if ($count > 0) {
+                        // Update existing record
+                        $sql = "UPDATE social_link SET 
+                                facebook = ?, 
+                                instagram = ?, 
+                                whatsapp = ?, 
+                                linkedin = ?, 
+                                youtube = ?, 
+                                telegram = ?, 
+                                updated_at = NOW() 
+                                WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("ssssssi", $facebook, $instagram, $whatsapp, $linkedin, $youtube, $telegram, $user_id);
+                    } else {
+                        // Insert new record
+                        $sql = "INSERT INTO social_link 
+                                (user_id, facebook, instagram, whatsapp, linkedin, youtube, telegram, created_at, updated_at) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("issssss", $user_id, $facebook, $instagram, $whatsapp, $linkedin, $youtube, $telegram);
+                    }
+                    
+                    if ($stmt->execute()) {
+                        $_SESSION['success_message'] = "Social links updated successfully!";
+                    } else {
+                        $_SESSION['error_message'] = "Error updating social links: " . $conn->error;
+                    }
+                    $stmt->close();
+                }
+            }
+        }
+        
+        // Redirect to refresh the page and show messages
+        header("Location: social.php");
+        exit();
+    } else {
+        // WhatsApp is empty, still process other links
+        $facebook = trim($_POST['facebook'] ?? '');
+        $instagram = trim($_POST['instagram'] ?? '');
+        $linkedin = trim($_POST['linkedin'] ?? '');
+        $youtube = trim($_POST['youtube'] ?? '');
+        $telegram = trim($_POST['telegram'] ?? '');
+        $whatsapp = ''; // Empty WhatsApp
+        
+        // Validate other URLs
+        $urls = [
+            'Facebook' => $facebook,
+            'Instagram' => $instagram,
+            'LinkedIn' => $linkedin,
+            'YouTube' => $youtube,
+            'Telegram' => $telegram
+        ];
+        
+        $allValid = true;
+        foreach ($urls as $platform => $url) {
+            if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL)) {
+                $_SESSION['error_message'] = "Invalid $platform URL format. Please enter a valid URL.";
+                $allValid = false;
+                break;
+            }
+        }
+        
+        if ($allValid) {
+            // Check if social links already exist for this user
+            $check_sql = "SELECT COUNT(*) FROM social_link WHERE user_id = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("i", $user_id);
+            $check_stmt->execute();
+            $check_stmt->bind_result($count);
+            $check_stmt->fetch();
+            $check_stmt->close();
+            
+            if ($count > 0) {
+                // Update existing record
+                $sql = "UPDATE social_link SET 
+                        facebook = ?, 
+                        instagram = ?, 
+                        whatsapp = ?, 
+                        linkedin = ?, 
+                        youtube = ?, 
+                        telegram = ?, 
+                        updated_at = NOW() 
+                        WHERE user_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssssssi", $facebook, $instagram, $whatsapp, $linkedin, $youtube, $telegram, $user_id);
+            } else {
+                // Insert new record
+                $sql = "INSERT INTO social_link 
+                        (user_id, facebook, instagram, whatsapp, linkedin, youtube, telegram, created_at, updated_at) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("issssss", $user_id, $facebook, $instagram, $whatsapp, $linkedin, $youtube, $telegram);
+            }
+            
+            if ($stmt->execute()) {
+                $_SESSION['success_message'] = "Social links updated successfully!";
+            } else {
+                $_SESSION['error_message'] = "Error updating social links: " . $conn->error;
+            }
+            $stmt->close();
+        }
+        
+        // Redirect to refresh the page and show messages
+        header("Location: social.php");
+        exit();
+    }
+}
+
 // Initialize social media links with empty values
 $facebook = $instagram = $whatsapp = $linkedin = $youtube = $telegram = '';
 
@@ -80,6 +294,34 @@ $conn->close();
             font-size: 0.75em;
             margin-left: 5px;
         }
+        .example-url {
+            font-size: 0.85em;
+            color: #28a745;
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border-left: 3px solid #28a745;
+        }
+        .example-url i {
+            margin-right: 5px;
+        }
+        .url-validation-message {
+            display: none;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .url-validation-message.valid {
+            color: #28a745;
+        }
+        .url-validation-message.invalid {
+            color: #dc3545;
+        }
+        .phone-format-info {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
     </style>
 </head>
 
@@ -123,7 +365,7 @@ $conn->close();
                                     </div>
                                 <?php endif; ?>
 
-                                <form method="POST" action="update_social_links.php" id="socialForm">
+                                <form method="POST" action="" id="socialForm">
 
                                     <div class="mb-3">
                                         <label for="facebook" class="form-label">Facebook</label>
@@ -149,30 +391,43 @@ $conn->close();
                                         </label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-                                            <input type="text" class="form-control" id="whatsapp" name="whatsapp" 
+                                            <input type="url" class="form-control" id="whatsapp" name="whatsapp" 
                                                    value="<?php echo htmlspecialchars($whatsapp); ?>" 
-                                                   placeholder="Enter WhatsApp number or URL">
+                                                   placeholder="<?php 
+                                                   if ($user_country === 'UAE') {
+                                                       echo 'https://wa.me/9715XXXXXXXX';
+                                                   } elseif ($user_country === 'India') {
+                                                       echo 'https://wa.me/91XXXXXXXXXX';
+                                                   } elseif ($user_country === 'USA') {
+                                                       echo 'https://wa.me/11234567890';
+                                                   } elseif ($user_country === 'UK') {
+                                                       echo 'https://wa.me/447XXXXXXXXXX';
+                                                   } else {
+                                                       echo 'https://wa.me/XXXXXXXXXX';
+                                                   }
+                                                   ?>">
                                         </div>
-                                        <div class="form-text">
+                                        <div class="example-url">
+                                            <i class="fas fa-lightbulb"></i>
+                                            Example: 
                                             <?php if ($user_country === 'UAE'): ?>
-                                                <span class="country-hint text-info">
-                                                    <i class="fas fa-info-circle"></i> For UAE: Enter 9-digit number starting with 0 (e.g., 05XXXXXXXX)
-                                                </span>
+                                                <code>https://wa.me/9715XXXXXXXX</code> (UAE: 971 + 9-digit number without leading 0)
                                             <?php elseif ($user_country === 'India'): ?>
-                                                <span class="country-hint text-info">
-                                                    <i class="fas fa-info-circle"></i> For India: Enter 10-digit number (e.g., 9XXXXXXXXX)
-                                                </span>
+                                                <code>https://wa.me/91XXXXXXXXXX</code> (India: 91 + 10-digit number starting with 1-9)
                                             <?php elseif ($user_country === 'USA'): ?>
-                                                <span class="country-hint text-info">
-                                                    <i class="fas fa-info-circle"></i> For USA: Enter 10-digit number (e.g., 1234567890)
-                                                </span>
+                                                <code>https://wa.me/11234567890</code> (USA: 1 + 10-digit number)
                                             <?php elseif ($user_country === 'UK'): ?>
-                                                <span class="country-hint text-info">
-                                                    <i class="fas fa-info-circle"></i> For UK: Enter 11-digit number starting with 07 (e.g., 07XXXXXXXXX)
-                                                </span>
+                                                <code>https://wa.me/447XXXXXXXXXX</code> (UK: 44 + number without leading 0)
+                                            <?php else: ?>
+                                                <code>https://wa.me/XXXXXXXXXX</code>
                                             <?php endif; ?>
-                                            <div>Note: You can also enter full WhatsApp URL (e.g., https://wa.me/971XXXXXXXX)</div>
                                         </div>
+                                        <?php if ($user_country === 'India'): ?>
+                                            <div class="phone-format-info">
+                                                <i class="fas fa-info-circle"></i> Indian mobile numbers: 10 digits starting with 1-9 (not 0)
+                                            </div>
+                                        <?php endif; ?>
+                                        <div id="whatsappValidation" class="url-validation-message"></div>
                                     </div>
 
                                     <div class="mb-3">
@@ -273,7 +528,7 @@ $conn->close();
                                     <?php endif; ?>
                                     
                                     <?php if (!empty($whatsapp)): ?>
-                                        <a href="<?php echo getWhatsAppUrl($whatsapp, $user_country); ?>" target="_blank" class="btn btn-outline-success btn-sm text-start">
+                                        <a href="<?php echo htmlspecialchars($whatsapp); ?>" target="_blank" class="btn btn-outline-success btn-sm text-start">
                                             <i class="fab fa-whatsapp me-2"></i>WhatsApp
                                         </a>
                                     <?php endif; ?>
@@ -370,19 +625,7 @@ $conn->close();
                         url: "Please enter a valid URL (e.g., https://instagram.com/username)"
                     },
                     whatsapp: {
-                        validateWhatsApp: function() {
-                            if (userCountry === 'UAE') {
-                                return "For UAE: Enter 9-digit number starting with 0 (e.g., 05XXXXXXXX) or full WhatsApp URL";
-                            } else if (userCountry === 'India') {
-                                return "For India: Enter 10-digit number (e.g., 9XXXXXXXXX) or full WhatsApp URL";
-                            } else if (userCountry === 'USA') {
-                                return "For USA: Enter 10-digit number (e.g., 1234567890) or full WhatsApp URL";
-                            } else if (userCountry === 'UK') {
-                                return "For UK: Enter 11-digit number starting with 07 (e.g., 07XXXXXXXXX) or full WhatsApp URL";
-                            } else {
-                                return "Please enter a valid WhatsApp number or URL";
-                            }
-                        }
+                        validateWhatsApp: "Please enter a valid WhatsApp URL for your country"
                     },
                     linkedin: {
                         url: "Please enter a valid URL (e.g., https://linkedin.com/in/username)"
@@ -406,102 +649,135 @@ $conn->close();
                 unhighlight: function(element, errorClass, validClass) {
                     $(element).addClass("is-valid").removeClass("is-invalid");
                     $(element).parent().find('.input-group-text').removeClass('border-danger');
+                },
+                submitHandler: function(form) {
+                    // Show loading state
+                    const submitBtn = $(form).find('button[type="submit"]');
+                    const originalText = submitBtn.html();
+                    submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+                    submitBtn.prop('disabled', true);
+                    
+                    // Submit the form
+                    form.submit();
                 }
             });
 
-            // Custom validation method for WhatsApp
+            // Custom validation method for WhatsApp URLs
             $.validator.addMethod("validateWhatsApp", function(value, element) {
                 // If empty, it's valid (not required)
                 if (value === '') {
                     return true;
                 }
                 
-                // Check if it's a URL
-                if (isValidUrl(value)) {
-                    return true;
+                // Check if it's a valid URL
+                if (!isValidUrl(value)) {
+                    return false;
+                }
+                
+                // Check if it's a WhatsApp URL
+                if (!value.includes('wa.me/') && !value.includes('whatsapp.com/')) {
+                    return false;
+                }
+                
+                // Extract the number part from the URL
+                let numberPart = '';
+                if (value.includes('wa.me/')) {
+                    numberPart = value.split('wa.me/')[1];
+                } else if (value.includes('whatsapp.com/')) {
+                    // Handle whatsapp.com links
+                    const match = value.match(/whatsapp\.com\/.*?(\d+)/);
+                    if (match) {
+                        numberPart = match[1];
+                    }
                 }
                 
                 // Remove any non-digit characters
-                const cleanValue = value.replace(/\D/g, '');
+                const cleanNumber = numberPart.replace(/\D/g, '');
                 
                 // Validate based on country
                 switch(userCountry) {
                     case 'UAE':
-                        // UAE: 9 digits, can start with 0
-                        return /^[0-9]{9}$/.test(cleanValue);
+                        // UAE: Should start with 971 followed by 9 digits (without leading 0)
+                        return /^971[0-9]{9}$/.test(cleanNumber);
                         
                     case 'India':
-                        // India: 10 digits, typically starts with 6-9
-                        return /^[6-9][0-9]{9}$/.test(cleanValue);
+                        // India: Should start with 91 followed by 10 digits starting with 1-9
+                        return /^91[1-9][0-9]{9}$/.test(cleanNumber);
                         
                     case 'USA':
-                        // USA: 10 digits
-                        return /^[0-9]{10}$/.test(cleanValue);
+                        // USA: Should start with 1 followed by 10 digits
+                        return /^1[0-9]{10}$/.test(cleanNumber);
                         
                     case 'UK':
-                        // UK: 11 digits, typically starts with 07
-                        return /^07[0-9]{9}$/.test(cleanValue);
+                        // UK: Should start with 44 followed by 10-11 digits
+                        return /^44[0-9]{10,11}$/.test(cleanNumber);
                         
                     default:
-                        // For other countries, accept any 8-15 digit number
-                        return /^[0-9]{8,15}$/.test(cleanValue);
+                        // For other countries, accept any WhatsApp URL with reasonable length
+                        return cleanNumber.length >= 8 && cleanNumber.length <= 15;
                 }
             });
 
-            // Add real-time validation
-            $('#whatsapp').on('blur', function() {
+            // WhatsApp URL real-time validation
+            $('#whatsapp').on('input blur', function() {
                 const value = $(this).val();
-                if (value && !$(this).valid()) {
-                    $(this).addClass('is-invalid');
-                    $(this).parent().find('.input-group-text').addClass('border-danger');
-                } else if (value) {
-                    $(this).addClass('is-valid');
-                    $(this).parent().find('.input-group-text').removeClass('border-danger');
+                const validationDiv = $('#whatsappValidation');
+                
+                if (value === '') {
+                    validationDiv.hide();
+                    $(this).removeClass('is-valid is-invalid');
+                    $(this).parent().find('.input-group-text').removeClass('border-danger border-success');
+                    return;
+                }
+                
+                // Check if valid
+                if ($(this).valid()) {
+                    $(this).addClass('is-valid').removeClass('is-invalid');
+                    $(this).parent().find('.input-group-text').addClass('border-success').removeClass('border-danger');
                     
-                    // Auto-format as WhatsApp URL if it's just a number
-                    if (!value.startsWith('http')) {
-                        const cleanNumber = value.replace(/\D/g, '');
-                        let countryCode = '';
-                        
-                        // Add appropriate country code
-                        switch(userCountry) {
-                            case 'UAE':
-                                countryCode = '971';
-                                // Remove leading 0 if present
-                                const uaeNumber = cleanNumber.replace(/^0+/, '');
-                                $(this).val(`https://wa.me/${countryCode}${uaeNumber}`);
-                                break;
-                            case 'India':
-                                countryCode = '91';
-                                $(this).val(`https://wa.me/${countryCode}${cleanNumber}`);
-                                break;
-                            case 'USA':
-                                countryCode = '1';
-                                $(this).val(`https://wa.me/${countryCode}${cleanNumber}`);
-                                break;
-                            case 'UK':
-                                countryCode = '44';
-                                // Remove leading 0
-                                const ukNumber = cleanNumber.replace(/^0+/, '');
-                                $(this).val(`https://wa.me/${countryCode}${ukNumber}`);
-                                break;
-                        }
+                    // Show success message
+                    validationDiv.removeClass('invalid').addClass('valid');
+                    validationDiv.html('<i class="fas fa-check-circle"></i> Valid WhatsApp URL for ' + userCountry);
+                    validationDiv.show();
+                } else {
+                    $(this).addClass('is-invalid').removeClass('is-valid');
+                    $(this).parent().find('.input-group-text').addClass('border-danger').removeClass('border-success');
+                    
+                    // Show error message
+                    validationDiv.removeClass('valid').addClass('invalid');
+                    let errorMsg = 'Invalid WhatsApp URL. ';
+                    
+                    switch(userCountry) {
+                        case 'UAE':
+                            errorMsg += 'Format: https://wa.me/9715XXXXXXXX (971 + 9-digit number without leading 0)';
+                            break;
+                        case 'India':
+                            errorMsg += 'Format: https://wa.me/91XXXXXXXXXX (91 + 10-digit number starting with 1-9)';
+                            break;
+                        case 'USA':
+                            errorMsg += 'Format: https://wa.me/11234567890 (1 + 10-digit number)';
+                            break;
+                        case 'UK':
+                            errorMsg += 'Format: https://wa.me/447XXXXXXXXXX (44 + number without leading 0)';
+                            break;
+                        default:
+                            errorMsg += 'Please enter a valid WhatsApp URL';
                     }
+                    
+                    validationDiv.html('<i class="fas fa-exclamation-circle"></i> ' + errorMsg);
+                    validationDiv.show();
                 }
             });
 
-            // Add real-time URL validation for other fields
+            // Auto-add https:// if missing for URL fields
             $('input[type="url"]').on('blur', function() {
-                const url = $(this).val();
-                if (url && !isValidUrl(url)) {
-                    $(this).addClass('is-invalid');
-                    $(this).parent().find('.input-group-text').addClass('border-danger');
-                } else if (url) {
-                    $(this).addClass('is-valid');
-                    $(this).parent().find('.input-group-text').removeClass('border-danger');
+                let value = $(this).val();
+                if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+                    $(this).val('https://' + value);
                 }
             });
 
+            // Helper function to validate URLs
             function isValidUrl(string) {
                 try {
                     new URL(string);
@@ -510,55 +786,8 @@ $conn->close();
                     return false;
                 }
             }
-
-            // Auto-format URLs on input for other fields
-            $('input[type="url"]').on('input', function() {
-                let value = $(this).val();
-                if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-                    $(this).val('https://' + value);
-                }
-            });
         });
     </script>
 
 </body>
 </html>
-
-<?php
-// Helper function to generate proper WhatsApp URL
-function getWhatsAppUrl($whatsappValue, $country) {
-    // If it's already a URL, return it
-    if (filter_var($whatsappValue, FILTER_VALIDATE_URL)) {
-        return $whatsappValue;
-    }
-    
-    // Clean the number
-    $cleanNumber = preg_replace('/\D/', '', $whatsappValue);
-    
-    // Generate WhatsApp URL with country code
-    switch($country) {
-        case 'UAE':
-            $countryCode = '971';
-            // Remove leading 0 for UAE numbers
-            $cleanNumber = ltrim($cleanNumber, '0');
-            return "https://wa.me/{$countryCode}{$cleanNumber}";
-            
-        case 'India':
-            $countryCode = '91';
-            return "https://wa.me/{$countryCode}{$cleanNumber}";
-            
-        case 'USA':
-            $countryCode = '1';
-            return "https://wa.me/{$countryCode}{$cleanNumber}";
-            
-        case 'UK':
-            $countryCode = '44';
-            // Remove leading 0 for UK numbers
-            $cleanNumber = ltrim($cleanNumber, '0');
-            return "https://wa.me/{$countryCode}{$cleanNumber}";
-            
-        default:
-            return "https://wa.me/{$cleanNumber}";
-    }
-}
-?>

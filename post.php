@@ -19,6 +19,7 @@ if (!$profile_data) {
     exit();
 }
 
+
 $user_id = $profile_data['user_id'];
 
 // Get all profile data including role, name, and country
