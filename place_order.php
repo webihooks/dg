@@ -1,22 +1,39 @@
 <?php
-// place_order.php - Fixed Version
+// place_order.php - Fixed Version with New Address Fields
 
 // List of allowed domains
 $allowedDomains = [
     'https://goldcoinrestaurant.in',
-    'https://www.goldcoinrestaurant.in',
+    'www.goldcoinrestaurant.in',
+    'goldcoinrestaurant.in',
     'https://swadishtrasoi.in', 
-    'https://www.swadishtrasoi.in', 
+    'www.swadishtrasoi.in',
+    'swadishtrasoi.in',
     'https://tastespecial.in',
-    'https://www.tastespecial.in',
+    'www.tastespecial.in',
+    'tastespecial.in',
     'http://localhost:3000'
 ];
 
 // Get the origin of the request
 $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
+// Parse the origin to get the domain
+$parsedUrl = parse_url($requestOrigin);
+$originDomain = $parsedUrl['host'] ?? '';
+
 // Check if the request origin is in the allowed list
-if (in_array($requestOrigin, $allowedDomains)) {
+$isAllowed = false;
+foreach ($allowedDomains as $domain) {
+    // Remove https:// or http:// from comparison
+    $cleanDomain = preg_replace('#^https?://#', '', $domain);
+    if ($originDomain === $cleanDomain || strpos($requestOrigin, $domain) !== false) {
+        $isAllowed = true;
+        break;
+    }
+}
+
+if ($isAllowed) {
     header("Access-Control-Allow-Origin: $requestOrigin");
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -44,15 +61,16 @@ $input = json_decode($jsonInput, true);
 // Clear any buffered output
 ob_clean();
 
-// Debug logging (but don't output to response)
+// Debug logging - log the entire input to see what's coming
+error_log("=== ORDER PLACEMENT DEBUG ===");
 error_log("Raw input received: " . $jsonInput);
+error_log("Decoded input: " . print_r($input, true));
 
 if (!$input || json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'Invalid JSON input: ' . json_last_error_msg(),
-        'received_data' => $jsonInput
+        'message' => 'Invalid JSON input: ' . json_last_error_msg()
     ]);
     exit();
 }
@@ -73,29 +91,11 @@ foreach ($requiredFields as $field) {
 try {
     $conn->beginTransaction();
 
-
-    // 1. Insert the order
-    $orderSql = "INSERT INTO orders (
-        user_id, 
-        order_type, 
-        customer_name, 
-        customer_phone, 
-        delivery_address, 
-        table_number, 
-        order_notes, 
-        subtotal, 
-        discount_amount, 
-        discount_type,
-        gst_amount, 
-        delivery_charge, 
-        total_amount,
-        status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
-    
     // Calculate order totals
-    $subtotal = array_reduce($input['items'], function($sum, $item) {
-        return $sum + ($item['price'] * $item['quantity']);
-    }, 0);
+    $subtotal = 0;
+    foreach ($input['items'] as $item) {
+        $subtotal += ($item['price'] * $item['quantity']);
+    }
     
     // Get discount data from request
     $discountAmount = isset($input['discount_amount']) ? floatval($input['discount_amount']) : 0;
@@ -122,14 +122,64 @@ try {
     }
     
     $total = $amountAfterDiscount + $gstAmount + $deliveryCharge;
+
+    // Extract address components - FIXED: Better extraction logic
+    $building = null;
+    $floor = null;
+    $flatUnit = null;
+    $landmark = null;
+    
+    // Check if address_components exists and is an array
+    if (isset($input['address_components']) && is_array($input['address_components'])) {
+        $building = isset($input['address_components']['building']) ? $input['address_components']['building'] : null;
+        $floor = isset($input['address_components']['floor']) ? $input['address_components']['floor'] : null;
+        $flatUnit = isset($input['address_components']['flat_unit']) ? $input['address_components']['flat_unit'] : null;
+        $landmark = isset($input['address_components']['landmark']) ? $input['address_components']['landmark'] : null;
+        
+        // Log the extracted values
+        error_log("Extracted address components:");
+        error_log("building: " . ($building ?? 'null'));
+        error_log("floor: " . ($floor ?? 'null'));
+        error_log("flat_unit: " . ($flatUnit ?? 'null'));
+        error_log("landmark: " . ($landmark ?? 'null'));
+    } else {
+        error_log("No address_components found in input");
+    }
+
+    // 1. Insert the order with new address fields
+    $orderSql = "INSERT INTO orders (
+        user_id, 
+        order_type, 
+        customer_name, 
+        customer_phone, 
+        delivery_address,
+        building,
+        floor,
+        flat_unit,
+        landmark,
+        table_number, 
+        order_notes, 
+        subtotal, 
+        discount_amount, 
+        discount_type,
+        gst_amount, 
+        delivery_charge, 
+        total_amount,
+        status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')";
     
     $orderStmt = $conn->prepare($orderSql);
-    $orderStmt->execute([
+    
+    $params = [
         $input['user_id'],
         $input['order_type'],
         $input['customer_name'],
         $input['customer_phone'],
         isset($input['delivery_address']) ? $input['delivery_address'] : null,
+        $building,
+        $floor,
+        $flatUnit,
+        $landmark,
         isset($input['table_number']) ? $input['table_number'] : null,
         isset($input['order_notes']) ? $input['order_notes'] : null,
         $subtotal,
@@ -138,9 +188,16 @@ try {
         $gstAmount,
         $deliveryCharge,
         $total
-    ]);
+    ];
+    
+    // Log the parameters being sent to database
+    error_log("SQL Parameters: " . print_r($params, true));
+    
+    $orderStmt->execute($params);
     
     $orderId = $conn->lastInsertId();
+    
+    error_log("Order inserted with ID: " . $orderId);
     
     // 2. Insert order items
     $itemSql = "INSERT INTO order_items (order_id, user_id, product_name, price, quantity) VALUES (?, ?, ?, ?, ?)";
@@ -157,7 +214,7 @@ try {
     }
     
     // 3. Record coupon redemption if coupon was used
-    if (!empty($input['coupon_data']) && !empty($input['customer_phone'])) {
+    if (!empty($input['coupon_data']) && !empty($input['customer_phone']) && isset($input['coupon_data']['code'])) {
         try {
             $couponStmt = $conn->prepare("
                 SELECT id, usage_limit, times_used 
@@ -200,6 +257,8 @@ try {
                     $coupon['id'],
                     $input['user_id']
                 ]);
+                
+                error_log("Coupon redemption recorded for order: " . $orderId);
             }
         } catch (PDOException $e) {
             error_log("Coupon redemption error: " . $e->getMessage());
@@ -260,12 +319,12 @@ try {
     }
     
     error_log("Order placement error: " . $e->getMessage());
+    error_log("Error trace: " . $e->getTraceAsString());
     
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Database error: Failed to place order. Please try again.',
-        'error' => $e->getMessage()
+        'message' => 'Database error: Failed to place order. Please try again.'
     ]);
 } catch (Exception $e) {
     if (isset($conn)) {
@@ -273,12 +332,12 @@ try {
     }
     
     error_log("General order placement error: " . $e->getMessage());
+    error_log("Error trace: " . $e->getTraceAsString());
     
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'An unexpected error occurred. Please try again.',
-        'error' => $e->getMessage()
+        'message' => 'An unexpected error occurred. Please try again.'
     ]);
 }
 

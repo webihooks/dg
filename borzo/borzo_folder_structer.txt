@@ -1,0 +1,93 @@
+deegeecard.com/
+│
+├── .env                           # Environment variables (NOT in version control)
+├── .env.example                    # Example environment variables template
+├── .gitignore                      # Git ignore file
+│
+├── config/
+│   ├── database.php                # Database configuration
+│   └── app.php                      # Main application config
+│
+├── borzo/                          # ALL Borzo-related files
+│   │
+│   ├── config/
+│   │   └── borzo.php                # Borzo API configuration
+│   │
+│   ├── classes/
+│   │   ├── BorzoAPI.php             # Core Borzo API wrapper
+│   │   ├── DeliveryManager.php       # Delivery management logic
+│   │   ├── WebhookHandler.php        # Webhook processing
+│   │   ├── OrderSync.php             # Order synchronization
+│   │   └── Exceptions/
+│   │       └── BorzoException.php    # Custom exceptions
+│   │
+│   ├── api/                          # Borzo API endpoints
+│   │   ├── calculate-delivery.php    # AJAX endpoint for delivery calc
+│   │   ├── create-order.php           # AJAX endpoint for order creation
+│   │   ├── track-order.php            # AJAX endpoint for tracking
+│   │   ├── cancel-order.php           # AJAX endpoint for cancellation
+│   │   └── get-courier-location.php   # AJAX endpoint for courier location
+│   │
+│   ├── webhook/
+│   │   └── index.php                  # Borzo webhook handler
+│   │
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── borzo-tracking.css     # Borzo tracking specific styles
+│   │   └── js/
+│   │       ├── borzo-checkout.js       # Borzo checkout integration
+│   │       ├── borzo-tracking.js       # Borzo tracking JavaScript
+│   │       └── borzo-map.js            # Google Maps integration for Borzo
+│   │
+│   ├── templates/                     # Borzo-specific page templates
+│   │   ├── tracking-page.php           # Order tracking template
+│   │   └── courier-info.php            # Courier info partial template
+│   │
+│   ├── logs/
+│   │   ├── borzo-api.log               # Borzo API call logs
+│   │   ├── borzo-webhook.log           # Borzo webhook logs
+│   │   └── borzo-errors.log            # Borzo error logs
+│   │
+│   ├── tests/
+│   │   ├── test-borzo-api.php          # API test script
+│   │   ├── test-webhook.php            # Webhook test script
+│   │   └── test-data/
+│   │       └── sample-orders.json      # Sample order data
+│   │
+│   └── README.md                        # Borzo integration documentation
+│
+├── classes/                          # Your existing classes
+│   ├── Database.php
+│   ├── Logger.php
+│   ├── Validator.php
+│   └── OrderManager.php               # Modified to use Borzo
+│
+├── public/                           # Your existing public pages
+│   ├── checkout.php                   # Modified to include Borzo
+│   ├── order-confirmation.php         # Modified to show Borzo info
+│   ├── order-tracking.php             # Modified to use Borzo template
+│   ├── my-orders.php
+│   └── order-cancel.php
+│
+├── includes/
+│   ├── header.php
+│   ├── footer.php
+│   ├── functions.php
+│   └── session.php
+│
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── main.js
+│
+├── logs/
+│   ├── app.log
+│   └── errors.log
+│
+├── sql/
+│   ├── database.sql
+│   └── migrations/
+│       └── 2024_01_add_borzo_fields.sql  # Borzo DB migrations
+│
+└── README.md

@@ -6,7 +6,6 @@ session_start();
 // Enhanced Android Session Protection
 require_once 'enhanced_android_manager.php';
 
-
 // Force session maintenance for Android
 if (isset($_SESSION['user_id'])) {
     $androidSessionManager->maintainAndroidSession();

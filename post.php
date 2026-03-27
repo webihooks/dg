@@ -4,6 +4,8 @@ header("Pragma: no-cache");
 header("Expires: 0");
 require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
+require_once 'config/google_config.php';
+
 
 if (!isset($_GET['profile_url'])) {
     header("HTTP/1.0 400 Bad Request");
@@ -18,7 +20,6 @@ if (!$profile_data) {
     header("Location: page-not-found.php");
     exit();
 }
-
 
 $user_id = $profile_data['user_id'];
 
@@ -124,7 +125,6 @@ if ($is_restuarant_user) {
     require_once 'includes/share_section.php';
     require_once 'includes/footer.php';
 }
-// Only for Role is User
 
 // Only for Role is Room
 if ($is_room_user) {
@@ -140,7 +140,6 @@ if ($is_room_user) {
     require_once 'includes/room_share_section.php';
     require_once 'includes/room_footer.php';
 }
-// Only for Role is Room
 
 // Close connection
 $conn = null;

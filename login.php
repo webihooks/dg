@@ -9,6 +9,7 @@ function isWebToNativeAndroid() {
            (isset($_SESSION['is_android_app']) && $_SESSION['is_android_app'] === true);
 }
 
+
 // ROBUST UNIVERSAL SESSION CONFIGURATION - 365 DAYS
 session_set_cookie_params([
     'lifetime' => 31536000, // 1 year

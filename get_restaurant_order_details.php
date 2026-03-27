@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+
 $user_id = $_SESSION['user_id'];
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 
@@ -16,6 +17,7 @@ if ($order_id <= 0) {
     echo json_encode(['success' => false, 'error' => 'Invalid order ID']);
     exit;
 }
+
 
 try {
     // Fetch order details from orders table (restaurant orders)

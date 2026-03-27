@@ -1,4 +1,3 @@
-
 <script>
 // Function to check if current time is within any time slot
 function isWithinTimeSlots(time1Start, time1End, time2Start, time2End) {
@@ -177,6 +176,59 @@ function updateProductAvailability() {
         opacity: 0;
     }
 }
+
+/* Address preview styling - Hidden as requested */
+.address-preview {
+    display: none !important;
+}
+
+/* Delivery form row styling */
+.delivery-details .row {
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.delivery-details .row > [class*="col-"] {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* Form field focus styling */
+.delivery-details input:focus,
+.delivery-details textarea:focus {
+    border-color: <?= $primary_color ?>;
+    box-shadow: 0 0 0 0.25rem rgba(<?= hexdec(substr($primary_color,1,2)) ?>, <?= hexdec(substr($primary_color,3,2)) ?>, <?= hexdec(substr($primary_color,5,2)) ?>, 0.25);
+}
+
+/* Style for the location button */
+#getLocationBtn {
+    margin-top: 5px;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+#getLocationBtn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#getLocationBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Optional: Add a pulse animation when location is detected */
+@keyframes locationPulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.location-detected {
+    animation: locationPulse 1s ease;
+}
 </style>
 
 <?php
@@ -222,6 +274,9 @@ if ($table_exists) {
 <?php endif; ?>
 
 <script>
+// Google Maps API configuration - using API key from PHP
+const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '' ?>';
+
 // Get currency symbol from PHP
 const currencySymbol = '<?= $currency_symbol ?>';
 const currencyCode = '<?= $currency_code ?>';
@@ -251,7 +306,184 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update availability every minute
     setInterval(updateProductAvailability, 60000);
+    
+    // Add event listeners for address fields (excluding floor as it's removed)
+    const addressFields = ['building', 'flatUnit', 'landmark'];
+    addressFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updateAddressPreview);
+        }
+    });
 });
+
+// Load Google Maps API dynamically
+function loadGoogleMapsAPI(callback) {
+    // If already loaded, call callback immediately
+    if (window.google && window.google.maps) {
+        callback();
+        return;
+    }
+    
+    // Check if API key is provided
+    if (!GOOGLE_MAPS_API_KEY) {
+        alert('Google Maps API key is not configured. Please contact support.');
+        return;
+    }
+    
+    // Create script element
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGoogleMapsCallback`;
+    script.async = true;
+    script.defer = true;
+    
+    // Store callback globally
+    window.initGoogleMapsCallback = function() {
+        console.log('Google Maps API loaded successfully');
+        callback();
+    };
+    
+    // Handle loading errors
+    script.onerror = function() {
+        alert('Failed to load Google Maps API. Please check your internet connection and try again.');
+    };
+    
+    document.head.appendChild(script);
+}
+
+// Get current location and reverse geocode
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser. Please enter your address manually.');
+        return;
+    }
+
+    // Show loading state on button
+    const btn = document.getElementById('getLocationBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Detecting location...';
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+        // Success callback
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            // Load Google Maps API and reverse geocode
+            loadGoogleMapsAPI(() => {
+                const geocoder = new google.maps.Geocoder();
+                
+                geocoder.geocode(
+                    { location: { lat, lng } },
+                    (results, status) => {
+                        // Reset button state
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+
+                        if (status === 'OK' && results && results.length > 0) {
+                            fillAddressFromGeocode(results[0]);
+                        } else {
+                            console.error('Geocoding failed:', status);
+                            alert('Could not retrieve address from your location. Please enter manually.');
+                        }
+                    }
+                );
+            });
+        },
+        // Error callback
+        (error) => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            let message = 'Unable to retrieve your location. ';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    message += 'Location access was denied. Please enable location permissions and try again, or enter address manually.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message += 'Location information is unavailable. Please enter address manually.';
+                    break;
+                case error.TIMEOUT:
+                    message += 'Location request timed out. Please try again or enter address manually.';
+                    break;
+                default:
+                    message += 'Please enter your address manually.';
+            }
+            alert(message);
+        },
+        // Options
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+// Parse address components and fill form fields
+function fillAddressFromGeocode(geocodeResult) {
+    const addressComponents = geocodeResult.address_components;
+    const formattedAddress = geocodeResult.formatted_address;
+
+    // Helper function to find component by type
+    const findComponent = (types) => {
+        for (let component of addressComponents) {
+            if (types.some(type => component.types.includes(type))) {
+                return component.long_name;
+            }
+        }
+        return '';
+    };
+
+    // Extract various address components
+    const streetNumber = findComponent(['street_number']);
+    const route = findComponent(['route']);
+    const subpremise = findComponent(['subpremise']); // Flat/unit number
+    const premise = findComponent(['premise']);       // Building name
+    const sublocality = findComponent(['sublocality', 'sublocality_level_1', 'neighborhood']);
+    const locality = findComponent(['locality', 'city']);
+    const pointOfInterest = findComponent(['point_of_interest', 'establishment']);
+    
+    // Determine Building Name
+    let building = '';
+    if (premise) {
+        building = premise;
+    } else if (pointOfInterest) {
+        building = pointOfInterest;
+    } else if (route && streetNumber) {
+        building = `${streetNumber} ${route}`;
+    } else if (route) {
+        building = route;
+    } else {
+        // Use first part of formatted address as building name
+        building = formattedAddress.split(',')[0];
+    }
+    
+    // Fill Building field
+    const buildingField = document.getElementById('building');
+    if (buildingField) {
+        buildingField.value = building;
+    }
+    
+    // Fill Flat/Unit if available (subpremise)
+    const flatUnitField = document.getElementById('flatUnit');
+    if (flatUnitField && subpremise) {
+        flatUnitField.value = subpremise;
+    }
+    
+    // Fill Landmark (use point of interest, sublocality, or locality)
+    let landmark = pointOfInterest || sublocality || locality || '';
+    const landmarkField = document.getElementById('landmark');
+    if (landmarkField) {
+        landmarkField.value = landmark;
+    }
+    
+    // Update address preview (function will do nothing as preview is hidden)
+    if (typeof updateAddressPreview === 'function') {
+        updateAddressPreview();
+    }
+}
 
 // Lazy loading with fade-in effect implementation
 function initLazyLoading() {
@@ -384,6 +616,72 @@ function formatNumber(num, withSymbol = false) {
 function formatCurrency(amount) {
     return currencySymbol + formatNumber(amount);
 }
+
+// Function to preview complete address (kept for functionality but UI is hidden)
+function updateAddressPreview() {
+    // This function is kept for any internal calculations
+    // The UI element is hidden via CSS
+    return;
+}
+
+// Function to validate delivery form
+function validateDeliveryForm() {
+    const building = document.getElementById('building')?.value;
+    const flatUnit = document.getElementById('flatUnit')?.value;
+    const customerName = document.getElementById('customerName')?.value;
+    const customerPhone = document.getElementById('customerPhone')?.value;
+    
+    if (!customerName || !customerPhone) {
+        alert('Please provide your name and phone number');
+        return false;
+    }
+    
+    if (!validatePhoneForOrder()) {
+        return false;
+    }
+    
+    if (!building || !flatUnit) {
+        alert('Please provide complete address (Building and Flat/Unit No. are required)');
+        return false;
+    }
+    
+    return true;
+}
+
+// Simple toast notification function
+function showToast(message, type = 'success') {
+    // Create toast element if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
+    toast.show();
+    
+    // Remove toast after it's hidden
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
 </script>
 
 <!-- products.php -->
@@ -491,9 +789,10 @@ function formatCurrency(amount) {
                     </div>
                 <?php endif; ?>
 
+
                 <?php if ($delivery_active): ?>
                     <div class="customer-details delivery-details" id="deliveryDetails" style="display: none;">
-                        <!-- Add this inside the delivery-details div in products.php -->
+                        <!-- Coupon Section -->
                         <div class="mb-1 col-full">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code">
@@ -515,13 +814,37 @@ function formatCurrency(amount) {
                                 <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
                             <?php endif; ?>
                         </div>
+                        
+                        <!-- Address Fields -->
                         <div class="mb-1 col-full">
-                            <label for="customerAddress" class="form-label">Address*</label>
-                            <textarea class="form-control" id="customerAddress" rows="2" placeholder="Delivery address" required></textarea>
+                            <label for="building" class="form-label">Building / Society Name*</label>
+                            <input type="text" class="form-control" id="building" required>
                         </div>
+                        
+                        <!-- Flat/Unit and Landmark on same line -->
+                        <div class="row">
+                            <div class="mb-1 col-6">
+                                <label for="flatUnit" class="form-label">Flat/Unit No.*</label>
+                                <input type="text" class="form-control" id="flatUnit" required>
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label for="landmark" class="form-label">Landmark / Area / City</label>
+                                <input type="text" class="form-control" id="landmark">
+                            </div>
+                        </div>
+                        
+                        <!-- Auto Location Button -->
+                        <div class="mb-1 col-full">
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100" id="getLocationBtn" onclick="getCurrentLocation()">
+                                <i class="bi bi-geo-alt-fill"></i> <strong>Use My Current Location</strong>
+                            </button>
+                        </div>
+                        
+                        <!-- Complete address preview is hidden via CSS -->
+                        
                         <div class="mb-1 col-full">
                             <label for="customerNotes" class="form-label">Order Notes</label>
-                            <textarea class="form-control" id="customerNotes" rows="2" placeholder="Any special instructions"></textarea>
+                            <textarea class="form-control" id="customerNotes" rows="2" placeholder="Any special instructions for delivery"></textarea>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -773,7 +1096,7 @@ function formatCurrency(amount) {
             return;
         }
         
-        if (!customerPhone || customerPhone.length !== 10) {
+        if (!customerPhone || (userCountry === 'UAE' ? customerPhone.length !== 9 : customerPhone.length !== 10)) {
             couponMessage.textContent = 'Please enter a valid phone number first';
             couponMessage.className = 'text-danger';
             return;
@@ -1121,8 +1444,10 @@ function formatCurrency(amount) {
 
     // Enhanced validation for place order
     function validatePhoneForOrder() {
-        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
+        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn") && document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
         const phoneInput = isDelivery ? document.getElementById('customerPhone') : document.getElementById('dinningPhone');
+        
+        if (!phoneInput) return false;
         
         if (!validatePhoneNumber(phoneInput)) {
             return false;
@@ -1187,19 +1512,17 @@ function formatCurrency(amount) {
             if (existingItem) {
                 if (existingItem.quantity < existingItem.max) {
                     existingItem.quantity++;
-                    // showToast(`${product.name} quantity increased to ${existingItem.quantity}`);
                     
-                    // ADDED: Trigger animation even for existing items
+                    // Trigger animation even for existing items
                     if (product.image_path) {
                         animateProductToCart(this, product.image_path);
                     }
                 } else {
-                    // showToast(`Maximum quantity reached for ${product.name}`, true);
+                    alert('Maximum quantity reached for this product');
                     return;
                 }
             } else {
                 cart.push(product);
-                // showToast(`${product.name} added to cart`);
                 
                 // Add image animation if product has an image
                 if (product.image_path) {
@@ -1207,7 +1530,7 @@ function formatCurrency(amount) {
                 }
             }
             
-            // Add pulse animation to cart button (moved outside of if/else)
+            // Add pulse animation to cart button
             const cartButton = document.querySelector('.cart-button');
             if (cartButton) {
                 cartButton.classList.add('cart-item-added');
@@ -1297,7 +1620,6 @@ function formatCurrency(amount) {
         const emptyCartMsg = document.createElement('div');
         const discountMessageElement = document.querySelector('.cart-button .discount-message');
         const discountSection = document.getElementById('discountSection');
-        const removeCouponBtn = document.getElementById('removeCouponBtn');
 
         // Clear existing empty message if any
         const existingEmptyMsg = cartItemsContainer.querySelector('.empty-cart-message');
@@ -1322,7 +1644,6 @@ function formatCurrency(amount) {
             // Clear any existing coupon
             if (cart.coupon) {
                 delete cart.coupon;
-                if (removeCouponBtn) removeCouponBtn.style.display = 'none';
             }
 
             // Create and show empty cart message
@@ -1354,7 +1675,7 @@ function formatCurrency(amount) {
 
         // Cart has items - proceed with normal display
         let subtotal = 0;
-        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
+        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn") && document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
         const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
         const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
         const gstPercent = <?= $gst_percent ?? 0 ?>;
@@ -1735,7 +2056,7 @@ function formatCurrency(amount) {
             return;
         }
 
-        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
+        const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn") && document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
         const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
         const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
         const gstPercent = <?= $gst_percent ?? 0 ?>;
@@ -1752,68 +2073,110 @@ function formatCurrency(amount) {
         
         // Collect customer details based on order type
         let customerName, customerPhone, deliveryAddress, tableNumber, orderNotes;
-        const phoneInput = isDelivery ? document.getElementById('customerPhone') : document.getElementById('dinningPhone');
+        let orderData = {};
         
-        // Validate phone number first
-        if (userCountry === 'UAE') {
-            if (phoneInput.value.length !== 9) {
-                alert('Please enter a valid 9-digit phone number');
-                phoneInput.focus();
-                return;
-            }
-        } else {
-            if (phoneInput.value.length !== 10) {
-                alert('Please enter a valid 10-digit phone number');
-                phoneInput.focus();
-                return;
-            }
-        }
-
         if (isDelivery) {
-            customerName = document.getElementById('customerName').value;
-            customerPhone = phoneInput.value;
-            deliveryAddress = document.getElementById('customerAddress').value;
-            orderNotes = document.getElementById('customerNotes').value;
+            // Get delivery form values
+            const building = document.getElementById('building')?.value;
+            const flatUnit = document.getElementById('flatUnit')?.value;
+            const landmark = document.getElementById('landmark')?.value || '';
+            customerName = document.getElementById('customerName')?.value;
+            customerPhone = document.getElementById('customerPhone')?.value;
             
-            if (!customerName || !deliveryAddress) {
-                alert('Please provide your name and address');
+            // Validate delivery form
+            if (!customerName || !customerPhone) {
+                alert('Please provide your name and phone number');
                 return;
             }
+            
+            if (!validatePhoneForOrder()) {
+                return;
+            }
+            
+            if (!building || !flatUnit) {
+                alert('Please provide complete address (Building and Flat/Unit No. are required)');
+                return;
+            }
+            
+            // Create formatted delivery address
+            const addressParts = [];
+            if (flatUnit) addressParts.push(`Flat/Unit: ${flatUnit}`);
+            if (building) addressParts.push(building);
+            if (landmark) addressParts.push(`Landmark: ${landmark}`);
+            
+            deliveryAddress = addressParts.join(', ');
+            orderNotes = document.getElementById('customerNotes')?.value || '';
+            
+            // Prepare order data for delivery
+            orderData = {
+                user_id: <?= $user_id ?>,
+                currency_symbol: currencySymbol,
+                currency_code: currencyCode,
+                order_type: 'delivery',
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                delivery_address: deliveryAddress,
+                address_components: {
+                    building: building,
+                    floor: '', // Floor field removed
+                    flat_unit: flatUnit,
+                    landmark: landmark
+                },
+                table_number: null,
+                order_notes: orderNotes,
+                items: cart.filter(item => item.id).map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                discount_amount: discountAmount,
+                discount_type: discountType,
+                gst_percent: gstPercent,
+                delivery_charge: deliveryCharge,
+                free_delivery_min: freeDeliveryMin,
+                coupon_data: cart.coupon || null
+            };
         } else {
-            customerName = document.getElementById('dinningName').value;
-            customerPhone = phoneInput.value;
-            tableNumber = document.getElementById('tableNumber').value;
-            orderNotes = document.getElementById('dinningNotes').value;
+            // Get dining form values
+            customerName = document.getElementById('dinningName')?.value;
+            customerPhone = document.getElementById('dinningPhone')?.value;
+            tableNumber = document.getElementById('tableNumber')?.value;
+            orderNotes = document.getElementById('dinningNotes')?.value || '';
             
             if (!customerName || !tableNumber) {
                 alert('Please provide your name and table number');
                 return;
             }
+            
+            if (!validatePhoneForOrder()) {
+                return;
+            }
+            
+            // Prepare order data for dining
+            orderData = {
+                user_id: <?= $user_id ?>,
+                currency_symbol: currencySymbol,
+                currency_code: currencyCode,
+                order_type: 'dining',
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                delivery_address: null,
+                address_components: null,
+                table_number: tableNumber,
+                order_notes: orderNotes,
+                items: cart.filter(item => item.id).map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                discount_amount: discountAmount,
+                discount_type: discountType,
+                gst_percent: gstPercent,
+                delivery_charge: 0,
+                free_delivery_min: 0,
+                coupon_data: cart.coupon || null
+            };
         }
-        
-        // Prepare order data with currency info
-        const orderData = {
-            user_id: <?= $user_id ?>,
-            currency_symbol: currencySymbol,
-            currency_code: currencyCode,
-            order_type: isDelivery ? 'delivery' : 'dining',
-            customer_name: customerName,
-            customer_phone: customerPhone,
-            delivery_address: isDelivery ? deliveryAddress : null,
-            table_number: !isDelivery ? tableNumber : null,
-            order_notes: orderNotes || null,
-            items: cart.filter(item => item.id).map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
-            })),
-            discount_amount: discountAmount,
-            discount_type: discountType,
-            gst_percent: gstPercent,
-            delivery_charge: deliveryCharge,
-            free_delivery_min: freeDeliveryMin,
-            coupon_data: cart.coupon || null
-        };
         
         // Show loading state
         const placeOrderBtn = document.getElementById('placeOrderBtn');
@@ -1835,7 +2198,8 @@ function formatCurrency(amount) {
         .then(response => {
             if (!response.ok) {
                 return response.text().then(text => {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}. Response: ${text}`);
+                    console.error('Server response:', text);
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
                 });
             }
             return response.json();
@@ -1845,6 +2209,19 @@ function formatCurrency(amount) {
                 // Clear the cart
                 cart = [];
                 localStorage.removeItem(cartKey); // Also remove from localStorage
+                
+                // Clear all form fields
+                if (document.getElementById('customerName')) document.getElementById('customerName').value = '';
+                if (document.getElementById('customerPhone')) document.getElementById('customerPhone').value = '';
+                if (document.getElementById('building')) document.getElementById('building').value = '';
+                if (document.getElementById('flatUnit')) document.getElementById('flatUnit').value = '';
+                if (document.getElementById('landmark')) document.getElementById('landmark').value = '';
+                if (document.getElementById('customerNotes')) document.getElementById('customerNotes').value = '';
+                if (document.getElementById('dinningName')) document.getElementById('dinningName').value = '';
+                if (document.getElementById('dinningPhone')) document.getElementById('dinningPhone').value = '';
+                if (document.getElementById('tableNumber')) document.getElementById('tableNumber').value = '';
+                if (document.getElementById('dinningNotes')) document.getElementById('dinningNotes').value = '';
+                
                 updateCartUI(); // Update UI to show empty cart
                 
                 // Close the cart sidebar
@@ -1856,9 +2233,11 @@ function formatCurrency(amount) {
                 // Reset coupon fields
                 if (cart.coupon) {
                     delete cart.coupon;
-                    document.getElementById('couponCode').value = '';
-                    document.getElementById('couponMessage').textContent = '';
-                    document.getElementById('couponMessage').className = 'text-success';
+                    if (document.getElementById('couponCode')) document.getElementById('couponCode').value = '';
+                    if (document.getElementById('couponMessage')) {
+                        document.getElementById('couponMessage').textContent = '';
+                        document.getElementById('couponMessage').className = 'text-success';
+                    }
                 }
 
                 // Reset sticky search container position
@@ -1878,19 +2257,14 @@ function formatCurrency(amount) {
                     cartButtonContainer.style.display = 'none';
                 }
                 
-                // Show success message
-                // showToast('Order placed successfully! Redirecting to order status...', 'success');
-                
-                // Wait 3 seconds, then redirect to order status page
-                setTimeout(() => {
-                    const profileUrl = '<?= $profile_url ?>';
-                    if (orderId) {
-                        window.location.href = `order_status.php?order_id=${orderId}&profile_url=${profileUrl}`;
-                    } else {
-                        // Fallback if no order ID returned
-                        window.location.href = `order_status.php?profile_url=${profileUrl}`;
-                    }
-                }, 300);
+                // Redirect to order status page
+                const profileUrl = '<?= $profile_url ?>';
+                if (orderId) {
+                    window.location.href = `order_status.php?order_id=${orderId}&profile_url=${profileUrl}`;
+                } else {
+                    // Fallback if no order ID returned
+                    window.location.href = `order_status.php?profile_url=${profileUrl}`;
+                }
                 
             } else {
                 throw new Error(data.message || 'Failed to place order');
@@ -1938,7 +2312,7 @@ function formatCurrency(amount) {
     }
 
     // Add click handler to the Place Order button
-    document.querySelector('.cart-footer button').addEventListener('click', placeOrder);
+    document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
 
     // Add this to your existing JavaScript code
     document.getElementById('viewCartBtn').addEventListener('click', function() {
@@ -1973,9 +2347,11 @@ function formatCurrency(amount) {
     });
 
     // Clear coupon when clicking dining button
-    document.getElementById('dinningBtn').addEventListener('click', function() {
-        clearCoupon();
-    });
+    if (document.getElementById('dinningBtn')) {
+        document.getElementById('dinningBtn').addEventListener('click', function() {
+            clearCoupon();
+        });
+    }
 
     // Clear coupon when clicking close button (assuming it has class .btn-close)
     document.querySelectorAll('.btn-close').forEach(closeBtn => {
@@ -2010,6 +2386,8 @@ function formatCurrency(amount) {
 
     function createConfetti() {
       const confettiContainer = document.getElementById('confettiContainer');
+      if (!confettiContainer) return;
+      
       confettiContainer.innerHTML = '';
       confettiContainer.style.display = 'block';
       

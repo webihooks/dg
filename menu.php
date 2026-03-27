@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+
 // Get user's country and set currency symbol
 $user_id = $_SESSION['user_id'] ?? null;
 $user_country = 'India'; // default
