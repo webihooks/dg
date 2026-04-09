@@ -1,5 +1,4 @@
 <?php
-
 ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -84,6 +83,8 @@ $current_package_id = $current_subscription['package_id'] ?? null;
 
 // Check if user has room role and current package is 4
 $is_room_with_package_4 = ($user_role === 'room' && $current_package_id == 4);
+// Check if user has vegetable_seller role and current package is 5
+$is_vegetable_seller_with_package_5 = ($user_role === 'vegetable_seller' && $current_package_id == 5);
 
 if ($is_room_with_package_4) {
     // Only show package ID 4 for room users with current package 4
@@ -93,6 +94,14 @@ if ($is_room_with_package_4) {
         $packages[] = $row;
     }
 } 
+elseif ($is_vegetable_seller_with_package_5) {
+    // Only show package ID 5 for vegetable seller users with current package 5
+    $sql_veg_package = "SELECT id, name, price, description, duration FROM packages WHERE id = 5";
+    $result_veg_package = $conn->query($sql_veg_package);
+    if ($row = $result_veg_package->fetch_assoc()) {
+        $packages[] = $row;
+    }
+}
 // If user has Delivery (1) or Dining (2) package, show their current package and Premium as upgrade
 elseif ($current_package_id == 1 || $current_package_id == 2) {
     // Get current package (show even if inactive)
@@ -273,7 +282,10 @@ $conn->close();
         if ($user_role === 'room') {
             // User has room role - show room management menu
             include 'room_management_menu.php';
-        } else if ($has_active_subscription || $is_active_trial) {
+        } elseif ($user_role === 'vegetable_seller') {
+            // User has vegetable seller role - show vegetable seller menu
+            include 'vegetable_seller_menu.php';
+        } elseif ($has_active_subscription || $is_active_trial) {
             // Regular user with active subscription or trial
             include 'menu.php';
         } else {
@@ -289,9 +301,6 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Subscription Management</h4>
-                                <?php if ($user_role === 'room'): ?>
-                                    <span class="badge bg-info float-end">Room Management Account</span>
-                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <?php if (isset($_SESSION['message'])): ?>
@@ -330,7 +339,7 @@ $conn->close();
 
 
                 
-                <?php if ($current_package_id != 3 && !$is_room_with_package_4): ?>
+                <?php if ($current_package_id != 3 && !$is_room_with_package_4 && !$is_vegetable_seller_with_package_5): ?>
                     <form method="post">
                         <button type="submit" name="cancel_subscription" class="btn btn-danger" style="display:none;">Cancel Subscription</button>
                     </form>

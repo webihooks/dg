@@ -2,7 +2,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
-
 require 'db_connection.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -231,8 +230,11 @@ $conn->close();
         <?php include 'toolbar.php'; ?>
         
         <?php
+        // Updated menu inclusion to support vegetable seller role
         if ($user_role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($user_role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         }

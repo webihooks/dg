@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -15,7 +14,7 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success'; // default message type
 
-// Fetch user details
+// Fetch user details including role
 $sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -96,7 +95,16 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php echo ($role === 'admin') ? include 'admin_menu.php' : include 'menu.php'; ?>
+        <?php
+        // Include appropriate menu based on user role
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">

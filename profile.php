@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -92,11 +91,13 @@ $conn->close();
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         <?php 
-        // Include the appropriate menu based on user role
+        // Include the appropriate menu based on user role (updated to support vegetable seller)
         if ($role === 'admin') {
             include 'admin_menu.php';
         } elseif ($role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         }
@@ -134,9 +135,6 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Profile</h4>
-                                <?php if ($role === 'room'): ?>
-                                    <span class="badge bg-info float-end">Room Management User</span>
-                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <form id="profileForm" method="POST" action="update_profile.php">

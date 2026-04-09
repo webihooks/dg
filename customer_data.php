@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+
 // Set header to UTF-8 to handle special characters
 header('Content-Type: text/html; charset=utf-8');
 
@@ -195,10 +196,13 @@ $conn->close();
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         <?php 
+        // Updated menu inclusion to support vegetable seller role
         if ($role === 'admin') {
             include 'admin_menu.php';
         } elseif ($role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         } 
@@ -297,8 +301,8 @@ $conn->close();
                                                         
                                                         // **UPDATED: Generate WhatsApp message based on user role**
                                                         $whatsapp_message = '';
-                                                        if ($role === 'user') {
-                                                            // For regular users (restaurant owners)
+                                                        if ($role === 'user' || $role === 'vegetable_seller') {
+                                                            // For regular users (restaurant owners) and vegetable sellers
                                                             $greeting = "Hello";
                                                             if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
                                                                 $greeting .= " " . $name;
@@ -421,8 +425,8 @@ $conn->close();
                                             
                                             // **UPDATED: Generate WhatsApp message based on user role**
                                             $whatsapp_message = '';
-                                            if ($role === 'user') {
-                                                // For regular users (restaurant owners)
+                                            if ($role === 'user' || $role === 'vegetable_seller') {
+                                                // For regular users (restaurant owners) and vegetable sellers
                                                 $greeting = "Hello";
                                                 if (!empty($name) && $name !== 'Unknown' && $name !== 'No Name') {
                                                     $greeting .= " " . $name;

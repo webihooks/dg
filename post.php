@@ -2,6 +2,9 @@
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
 require_once 'config/google_config.php';
@@ -72,6 +75,7 @@ $show_subscription_popup = !$active_subscription;
 
 $is_restuarant_user = ($user['role'] === 'user');
 $is_room_user = ($user['role'] === 'room');
+$is_vegetable_seller = ($user['role'] === 'vegetable_seller');
 
 // Set currency configuration
 require_once 'config/currency_helper.php';
@@ -104,6 +108,7 @@ $secondary_color = $theme_data['secondary_color'] ?? '#ffffff';
 $delivery_active = isset($delivery_active) ? $delivery_active : false;
 $dining_active = isset($dining_active) ? $dining_active : false;
 
+
 // Only for Role is User
 if ($is_restuarant_user) {
     // Pass currency info to all included files
@@ -126,6 +131,24 @@ if ($is_restuarant_user) {
     require_once 'includes/footer.php';
 }
 
+// Only for Role is vegetable_seller
+if ($is_vegetable_seller) {
+    // Pass currency info to all included files
+    $GLOBALS['currency_info'] = $currency_info;
+    
+    require_once 'includes/vegetable_seller_functions.php';
+    require_once 'includes/header.php';
+    require_once 'includes/navigation.php';
+    require_once 'includes/profile_header.php';
+    require_once 'includes/download_apk_button.php';
+    require_once 'includes/business_info.php';
+    require_once 'includes/vegetable_products.php';
+    // require_once 'includes/ratings.php';
+    // require_once 'includes/qr_codes.php';
+    // require_once 'includes/share_section.php';
+    // require_once 'includes/footer.php';
+}
+
 // Only for Role is Room
 if ($is_room_user) {
     // Pass currency info to all included files
@@ -140,6 +163,8 @@ if ($is_room_user) {
     require_once 'includes/room_share_section.php';
     require_once 'includes/room_footer.php';
 }
+
+
 
 // Close connection
 $conn = null;

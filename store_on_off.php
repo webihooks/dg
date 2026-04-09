@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'db_connection.php';
-
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -11,7 +10,7 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
 
-// Fetch user details
+// Fetch user details including role
 $sql = "SELECT name, email, phone, address, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -41,7 +40,7 @@ $delivery_active = 0;
 $record_exists = false; // Initialize this variable
 
 // Get table count if not Delivery Package (package_id 1)
-if ($package_id != 1) { // This means package is 2 (Dining) or 3 (Premium)
+if ($package_id != 1) { // This means package is 2 (Dining) or 3 (Premium) or 5 (Vegetable Seller)
     $stmt = $conn->prepare("SELECT id, table_count FROM dining_tables WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -192,7 +191,16 @@ $conn->close();
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include ($role === 'admin') ? 'admin_menu.php' : 'menu.php'; ?>
+        <?php
+        // Include appropriate menu based on user role
+        if ($role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
         
         <div class="page-content">
             <div class="container">
@@ -200,7 +208,7 @@ $conn->close();
                     <div class="col-xl-9">
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Dining Tables</h4>
+                                <h4 class="card-title">Store ON/OFF</h4>
                             </div>
                             <div class="card-body">
                                 <?php if (!empty($message)): ?>
@@ -210,7 +218,7 @@ $conn->close();
                                 <?php endif; ?>
 
                                 <form method="POST" id="serviceSettingsForm">
-                                    <?php if ($package_id != 1): // Show for Dining (2) and Premium (3) packages ?>
+                                    <?php if ($package_id != 1): // Show for Dining (2), Premium (3), and Vegetable Seller (5) packages ?>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="table_count" class="form-label">Number of Tables</label>

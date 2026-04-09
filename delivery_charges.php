@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -15,7 +14,7 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
 
-// Fetch user details including country
+// Fetch user details including country and role
 $sql = "SELECT name, email, phone, address, role, country FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -28,7 +27,7 @@ $stmt->close();
 function getCurrencySymbol($country) {
     $currencySymbols = [
         'India' => '₹',
-        'UAE' => 'AED', // Changed from 'د.إ' to 'AED'
+        'UAE' => 'AED',
         'UK' => '£',
         'USA' => '$'
     ];
@@ -146,10 +145,13 @@ $conn->close();
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         <?php
+        // Include appropriate menu based on user role
         if ($role === 'admin') {
             include 'admin_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
-            include 'menu.php'; // default menu for other roles
+            include 'menu.php';
         }
         ?>
 

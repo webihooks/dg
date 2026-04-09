@@ -2,6 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
 // WEBTONATIVE ANDROID APP DETECTION
 function isWebToNativeAndroid() {
     return strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'WebToNative') !== false || 
@@ -181,7 +182,7 @@ if (isset($_SESSION['user_id'])) {
     // Check if we're coming from a dashboard to prevent infinite redirect
     $referrer = $_SERVER['HTTP_REFERER'] ?? '';
     $isFromDashboard = strpos($referrer, 'dashboard') !== false;
-    
+
     // If user is on login page and not coming from dashboard, redirect to appropriate dashboard
     if ($current_page === 'login.php' && !$isFromDashboard) {
         $role = $_SESSION['role'] ?? '';
@@ -197,6 +198,9 @@ if (isset($_SESSION['user_id'])) {
                 exit();
             case 'room':
                 header("Location: room-dashboard.php");
+                exit();
+            case 'vegetable_seller':
+                header("Location: vegetable_seller_dashboard.php");
                 exit();
             default:
                 header("Location: dashboard.php");
@@ -276,6 +280,9 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
                     break;
                 case 'room':
                     header("Location: room-dashboard.php");
+                    break;
+                case 'vegetable_seller':
+                    header("Location: vegetable_seller_dashboard.php");
                     break;
                 default:
                     header("Location: dashboard.php");
@@ -393,6 +400,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 case 'room':
                     header("Location: room-dashboard.php");
+                    break;
+                case 'vegetable_seller':
+                    header("Location: vegetable_seller_dashboard.php");
                     break;
                 default:
                     header("Location: dashboard.php");

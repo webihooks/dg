@@ -5,7 +5,6 @@ date_default_timezone_set('Asia/Kolkata');
 // Include the database connection file
 require 'db_connection.php';
 
-
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -16,12 +15,12 @@ $user_id = $_SESSION['user_id'];
 $success_message = '';
 $error_message = '';
 
-// Fetch user name
-$sql = "SELECT name FROM users WHERE id = ?";
+// Fetch user name and role
+$sql = "SELECT name, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($user_name);
+$stmt->bind_result($user_name, $user_role);
 $stmt->fetch();
 $stmt->close();
 
@@ -175,7 +174,16 @@ if (empty($timings)) {
 <body>
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
-        <?php include 'menu.php'; ?>
+        <?php
+        // Include appropriate menu based on user role
+        if ($user_role === 'admin') {
+            include 'admin_menu.php';
+        } elseif ($user_role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
+        } else {
+            include 'menu.php';
+        }
+        ?>
 
         <div class="page-content">
             <div class="container">

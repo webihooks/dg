@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -157,7 +156,7 @@ $conn->close();
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Profile</title>
+    <title>Profile & Cover Photo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
     <!-- PWA Meta Tags -->
@@ -186,9 +185,11 @@ $conn->close();
         <?php include 'toolbar.php'; ?>
         
         <?php
-        // Show different menu based on user role
+        // Show different menu based on user role (updated to include vegetable seller)
         if ($user_role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($user_role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         }

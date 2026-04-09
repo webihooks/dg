@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -204,9 +203,11 @@ $conn->close();
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         <?php 
-        // Show different menu based on user role
+        // Updated menu inclusion to support vegetable seller role
         if ($user_role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($user_role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         }

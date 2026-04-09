@@ -2,6 +2,7 @@
 // logout.php - Enhanced with proper error handling and redirects
 error_reporting(0); // Turn off error reporting to prevent output
 
+
 // Start session FIRST before any output
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([

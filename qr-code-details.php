@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+
 $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['role'] ?? 'user'; // Get user role
 $success_message = '';
@@ -179,9 +180,11 @@ $conn->close();
     <div class="wrapper">
         <?php include 'toolbar.php'; ?>
         <?php 
-        // Show room management menu for room role, otherwise show regular menu
+        // Updated menu inclusion to support vegetable seller role
         if ($user_role === 'room') {
             include 'room_management_menu.php';
+        } elseif ($user_role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             include 'menu.php';
         }

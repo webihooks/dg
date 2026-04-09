@@ -1,7 +1,6 @@
 <?php
 // Start the session
 session_start();
-
 // Include the database connection file
 require 'db_connection.php';
 
@@ -152,7 +151,7 @@ $conn->close();
 
 <head>
     <meta charset="utf-8" />
-    <title>Dashboard</title>
+    <title>Profile URL</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
     <!-- PWA Meta Tags -->
@@ -271,12 +270,14 @@ $conn->close();
         <?php include 'toolbar.php'; ?>
         
         <?php
-        // Updated menu inclusion logic
+        // Updated menu inclusion logic to support vegetable seller role
         if ($role === 'admin') {
             include 'admin_menu.php';
         } elseif ($role === 'room') {
             // Show room management menu for room users
             include 'room_management_menu.php';
+        } elseif ($role === 'vegetable_seller') {
+            include 'vegetable_seller_menu.php';
         } else {
             // For regular users, check subscription status
             if ($has_active_subscription || ($is_trial && strtotime($trial_end) > time())) {
@@ -297,9 +298,6 @@ $conn->close();
                         <div class="card">
                             <div class="card-header">
                                 <h4 class="card-title">Profile URL</h4>
-                                <?php if ($role === 'room'): ?>
-                                    <span class="badge bg-info float-end">Room Management</span>
-                                <?php endif; ?>
                             </div>
                             
                             <div class="card-body">
@@ -350,13 +348,6 @@ $conn->close();
                                 </div>
                                 <?php endif; ?>
 
-                                <!-- Room Management Note -->
-                                <?php if ($role === 'room'): ?>
-                                    <div class="mt-4 alert alert-info">
-                                        <h6><i class="fas fa-hotel me-2"></i>Room Management Profile</h6>
-                                        <p class="mb-0">Your profile URL will be used for your room management system. Customers can use this link to view your rooms and make bookings.</p>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

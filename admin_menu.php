@@ -110,11 +110,11 @@
               </li>
 
                <li class="nav-item">
-                    <a class="nav-link" href="master_products.php">
+                    <a class="nav-link" href="master_vegetable_products.php">
                          <span class="nav-icon">
-                              <iconify-icon icon="fluent-mdl2:product-list"></iconify-icon>
+                              <iconify-icon icon="healthicons:vegetables-outline"></iconify-icon>
                          </span>
-                         <span class="nav-text"> Master Products </span>
+                         <span class="nav-text"> Master Vegetable Products </span>
                     </a>
                </li>
 
