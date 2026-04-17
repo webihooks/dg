@@ -4,7 +4,7 @@ session_start();
 require_once 'db_connection.php';
 
 $order_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$google_maps_key = 'AIzaSyCHhTLDYVu7dLYkohIKHiSEU9pi3_1TZl8'; // Replace with your actual key
+$google_maps_key = ''; // Replace with your actual key
 
 if (!$order_id) {
     header("Location: orders.php");
