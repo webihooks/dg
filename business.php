@@ -51,6 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $business_name = trim(htmlspecialchars($_POST['business_name'] ?? ''));
     $business_description = trim(htmlspecialchars($_POST['business_description'] ?? ''));
     $business_address = trim(htmlspecialchars($_POST['business_address'] ?? ''));
+    $building = trim(htmlspecialchars($_POST['building'] ?? ''));
+    $floor = trim(htmlspecialchars($_POST['floor'] ?? ''));
+    $flat_unit = trim(htmlspecialchars($_POST['flat_unit'] ?? ''));
     $google_direction = trim(htmlspecialchars($_POST['google_direction'] ?? ''));
     $designation = trim(htmlspecialchars($_POST['designation'] ?? ''));
     $website = trim(htmlspecialchars($_POST['website'] ?? ''));
@@ -84,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($website)) {
         // Add http:// prefix if missing for validation
         $website_to_validate = $website;
-        if (!preg_match("~^(?:f|ht)tps?://~i", $website)) {
-            $website_to_validate = "http://" . $website;
+        if (!preg_match("~^(?:f|ht)tps?://~i", $website_to_validate)) {
+            $website_to_validate = "http://" . $website_to_validate;
         }
         
         if (!filter_var($website_to_validate, FILTER_VALIDATE_URL)) {
@@ -99,18 +102,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $business_address = str_replace(["\r", "\n"], ' ', $business_address);
         
         if ($is_edit_mode && $business_id) {
-            // Update existing business
+            // Update existing business with new fields
             $sql = "UPDATE business_info SET 
                     business_name = ?, 
                     business_description = ?, 
-                    business_address = ?, 
+                    business_address = ?,
+                    building = ?,
+                    floor = ?,
+                    flat_unit = ?,
                     google_direction = ?,
                     designation = ?,
                     website = ?,
                     updated_at = NOW()
                     WHERE id = ? AND user_id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssssii", $business_name, $business_description, $business_address, $google_direction, $designation, $website, $business_id, $user_id);
+            $stmt->bind_param("sssssssssii", 
+                $business_name, 
+                $business_description, 
+                $business_address,
+                $building,
+                $floor,
+                $flat_unit,
+                $google_direction, 
+                $designation, 
+                $website, 
+                $business_id, 
+                $user_id
+            );
             
             if ($stmt->execute()) {
                 $success_message = "Business information updated successfully!";
@@ -119,6 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'business_name' => $business_name,
                     'business_description' => $business_description,
                     'business_address' => $business_address,
+                    'building' => $building,
+                    'floor' => $floor,
+                    'flat_unit' => $flat_unit,
                     'google_direction' => $google_direction,
                     'designation' => $designation,
                     'website' => $website,
@@ -129,11 +150,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log("Business update error: " . $stmt->error);
             }
         } else {
-            // Insert new business
-            $sql = "INSERT INTO business_info (user_id, business_name, business_description, business_address, google_direction, designation, website) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // Insert new business with new fields
+            $sql = "INSERT INTO business_info (user_id, business_name, business_description, business_address, building, floor, flat_unit, google_direction, designation, website) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issssss", $user_id, $business_name, $business_description, $business_address, $google_direction, $designation, $website);
+            $stmt->bind_param("isssssssss", 
+                $user_id, 
+                $business_name, 
+                $business_description, 
+                $business_address,
+                $building,
+                $floor,
+                $flat_unit,
+                $google_direction, 
+                $designation, 
+                $website
+            );
             
             if ($stmt->execute()) {
                 $success_message = "Business information added successfully!";
@@ -153,9 +185,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all businesses for the current user
+// Fetch all businesses for the current user (including new fields)
 $businesses = [];
-$sql = "SELECT id, business_name, business_address, designation, website FROM business_info WHERE user_id = ? ORDER BY created_at DESC";
+$sql = "SELECT id, business_name, business_address, building, floor, flat_unit, designation, website FROM business_info WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -196,7 +228,24 @@ $conn->close();
     <script src="assets/js/config.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
-    <style>.business-form .form-control:focus{border-color:#007bff;box-shadow:0 0 0 0.2rem rgba(0,123,255,.25)}.business-table tr:hover{background-color:#f8f9fa}.action-btn{margin:2px}.table-responsive{overflow-x:auto}@media (max-width:768px){.action-btn{display:block;width:100%;margin-bottom:5px}}</style>
+    <style>
+        .business-form .form-control:focus{border-color:#007bff;box-shadow:0 0 0 0.2rem rgba(0,123,255,.25)}
+        .business-table tr:hover{background-color:#f8f9fa}
+        .action-btn{margin:2px}
+        .table-responsive{overflow-x:auto}
+        @media (max-width:768px){.action-btn{display:block;width:100%;margin-bottom:5px}}
+        /* New address components row styling */
+        .address-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .address-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+    </style>
 </head>
 <body>
 
@@ -256,11 +305,37 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                                                   rows="3"><?php echo htmlspecialchars($business_data['business_description'] ?? $_POST['business_description'] ?? ''); ?></textarea>
                                     </div>
                                     
+                                    <!-- NEW ADDRESS COMPONENTS ROW -->
                                     <div class="mb-3">
-                                        <label for="business_address" class="form-label">Business Address *</label>
+                                        <label class="form-label fw-bold">Address Details</label>
+                                        <div class="address-row">
+                                            <div class="form-group">
+                                                <label for="building" class="form-label">Building Name</label>
+                                                <input type="text" class="form-control" id="building" name="building" 
+                                                       value="<?php echo htmlspecialchars($business_data['building'] ?? $_POST['building'] ?? ''); ?>"
+                                                       placeholder="e.g., Sunshine Tower">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="floor" class="form-label">Floor</label>
+                                                <input type="text" class="form-control" id="floor" name="floor" 
+                                                       value="<?php echo htmlspecialchars($business_data['floor'] ?? $_POST['floor'] ?? ''); ?>"
+                                                       placeholder="e.g., 3rd Floor">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="flat_unit" class="form-label">Flat / Unit No.</label>
+                                                <input type="text" class="form-control" id="flat_unit" name="flat_unit" 
+                                                       value="<?php echo htmlspecialchars($business_data['flat_unit'] ?? $_POST['flat_unit'] ?? ''); ?>"
+                                                       placeholder="e.g., 304, Shop No.5">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="business_address" class="form-label">Street / Area / Locality *</label>
                                         <textarea class="form-control" id="business_address" name="business_address" 
 onkeydown="if(event.keyCode === 13) { return false; }"
                                                   rows="3" required><?php echo htmlspecialchars($business_data['business_address'] ?? $_POST['business_address'] ?? ''); ?></textarea>
+                                        <small class="text-muted">Enter the street name, area, colony, or landmark (without building/floor/unit).</small>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -306,11 +381,20 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                                             <tr>
                                                 <td><?php echo htmlspecialchars($business['business_name']); ?></td>
                                                 <td><?php echo htmlspecialchars($business['designation']); ?></td>
-                                                <td><?php echo htmlspecialchars($business['business_address']); ?></td>
+                                                <td>
+                                                    <?php 
+                                                    // Build full address for display
+                                                    $full_addr = [];
+                                                    if (!empty($business['building'])) $full_addr[] = $business['building'];
+                                                    if (!empty($business['floor'])) $full_addr[] = $business['floor'];
+                                                    if (!empty($business['flat_unit'])) $full_addr[] = $business['flat_unit'];
+                                                    if (!empty($business['business_address'])) $full_addr[] = $business['business_address'];
+                                                    echo htmlspecialchars(implode(', ', $full_addr));
+                                                    ?>
+                                                </td>
                                                 <td>
                                                     <?php if (!empty($business['website'])): ?>
                                                         <?php
-                                                        // Add http:// if missing to make it a clickable link
                                                         $website_url = $business['website'];
                                                         if (!preg_match("~^(?:f|ht)tps?://~i", $website_url)) {
                                                             $website_url = "http://" . $website_url;
@@ -357,7 +441,6 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                         noLineBreaks: true
                     },
                     website: {
-                        // Custom validation for website with or without http/https
                         pattern: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
                     },
                     google_direction: {
@@ -394,7 +477,6 @@ onkeydown="if(event.keyCode === 13) { return false; }"
                 }
             });
 
-            // Custom validation method to block line breaks
             $.validator.addMethod("noLineBreaks", function(value, element) {
                 return !/[\r\n]/.test(value);
             });

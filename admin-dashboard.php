@@ -1,5 +1,4 @@
 <?php
-
 // Start the session
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -233,14 +232,14 @@ if ($role === 'admin') {
     }
 }
 
-// Recent Transactions
+// Recent Transactions - FIXED: Using COALESCE to handle NULL values
 $recent_transactions_sql = "SELECT 
                               t.amount, 
                               t.type, 
                               t.description, 
                               t.date,
-                              c.name as category,
-                              u.name as user_name
+                              COALESCE(c.name, 'Uncategorized') as category,
+                              COALESCE(u.name, 'System') as user_name
                             FROM dg_transactions t
                             LEFT JOIN dg_categories c ON t.category_id = c.id
                             LEFT JOIN users u ON t.user_id = u.id";
@@ -277,8 +276,10 @@ if ($role === 'admin') {
                   WHERE u.role = 'sales_person'
                   GROUP BY u.id, u.name";
     $sales_result = $conn->query($sales_sql);
-    while ($row = $sales_result->fetch_assoc()) {
-        $sales_performance[] = $row;
+    if ($sales_result) {
+        while ($row = $sales_result->fetch_assoc()) {
+            $sales_performance[] = $row;
+        }
     }
 }
 
@@ -410,7 +411,7 @@ $conn->close();
                         <div class="card mb-3">
                             <div class="card-header">
                                 <h4 class="card-title">Dashboard Overview</h4>
-                                <p class="text-muted mb-0">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 
+                                <p class="text-muted mb-0">Welcome back, <?php echo htmlspecialchars($user_name ?? 'User'); ?>! 
                                 <?php if ($role === 'admin'): ?>(Administrator)<?php endif; ?></p>
                             </div>
                         </div>
@@ -559,16 +560,18 @@ $conn->close();
                                                 <tbody>
                                                     <?php foreach ($sales_performance as $sales): ?>
                                                         <tr>
-                                                            <td><?php echo htmlspecialchars($sales['sales_person']); ?></td>
-                                                            <td><?php echo $sales['leads']; ?></td>
-                                                            <td><?php echo $sales['converted']; ?></td>
+                                                            <td><?php echo htmlspecialchars($sales['sales_person'] ?? 'Unknown'); ?></td>
+                                                            <td><?php echo $sales['leads'] ?? 0; ?></td>
+                                                            <td><?php echo $sales['converted'] ?? 0; ?></td>
                                                             <td>
                                                                 <?php 
-                                                                $conversion_rate = $sales['leads'] > 0 ? ($sales['converted'] / $sales['leads']) * 100 : 0;
+                                                                $leads = $sales['leads'] ?? 0;
+                                                                $converted = $sales['converted'] ?? 0;
+                                                                $conversion_rate = $leads > 0 ? ($converted / $leads) * 100 : 0;
                                                                 echo number_format($conversion_rate, 1) . '%';
                                                                 ?>
                                                             </td>
-                                                            <td>₹<?php echo number_format($sales['revenue'], 2); ?></td>
+                                                            <td>₹<?php echo number_format($sales['revenue'] ?? 0, 2); ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -580,7 +583,7 @@ $conn->close();
                         </div>
                         <?php endif; ?>
 
-                        <!-- Recent Transactions -->
+                        <!-- Recent Transactions - FIXED: Added null coalescing operators -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
@@ -605,19 +608,19 @@ $conn->close();
                                                 <tbody>
                                                     <?php foreach ($recent_transactions as $transaction): ?>
                                                         <tr>
-                                                            <td><?php echo date('M d, Y', strtotime($transaction['date'])); ?></td>
+                                                            <td><?php echo date('M d, Y', strtotime($transaction['date'] ?? 'now')); ?></td>
                                                             <td>
-                                                                <span class="badge bg-<?php echo $transaction['type'] === 'income' ? 'success' : 'danger'; ?>">
-                                                                <?php echo ucfirst($transaction['type']); ?>
+                                                                <span class="badge bg-<?php echo ($transaction['type'] ?? 'expense') === 'income' ? 'success' : 'danger'; ?>">
+                                                                <?php echo ucfirst($transaction['type'] ?? 'expense'); ?>
                                                                 </span>
                                                             </td>
-                                                            <td><?php echo htmlspecialchars($transaction['category']); ?></td>
-                                                            <td><?php echo htmlspecialchars($transaction['description']); ?></td>
-                                                            <td class="<?php echo $transaction['type'] === 'income' ? 'text-success' : 'text-danger'; ?>">
-                                                                <?php echo ($transaction['type'] === 'income' ? '+' : '-') . '₹' . number_format($transaction['amount']); ?>
+                                                            <td><?php echo htmlspecialchars($transaction['category'] ?? 'N/A'); ?></td>
+                                                            <td><?php echo htmlspecialchars($transaction['description'] ?? 'No description'); ?></td>
+                                                            <td class="<?php echo ($transaction['type'] ?? 'expense') === 'income' ? 'text-success' : 'text-danger'; ?>">
+                                                                <?php echo (($transaction['type'] ?? 'expense') === 'income' ? '+' : '-') . '₹' . number_format($transaction['amount'] ?? 0); ?>
                                                             </td>
                                                             <?php if ($role === 'admin'): ?>
-                                                            <td><?php echo htmlspecialchars($transaction['user_name']); ?></td>
+                                                            <td><?php echo htmlspecialchars($transaction['user_name'] ?? 'Unknown'); ?></td>
                                                             <?php endif; ?>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -746,7 +749,7 @@ $conn->close();
 
         // Android-specific session maintenance
         function androidSessionMaintenance() {
-            if (navigator.userAgent.includes('WebToNative') || <?php echo $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>) {
+            if (navigator.userAgent.includes('WebToNative') || <?php echo isset($sessionManager) && $sessionManager->isAndroidApp() ? 'true' : 'false'; ?>) {
                 setInterval(() => {
                     $.ajax({
                         url: 'heartbeat.php',

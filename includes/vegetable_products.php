@@ -1,1315 +1,1192 @@
+<style>
+/* Grayscale effect for unavailable products */
+.product-img.grayscale {
+    filter: grayscale(100%) !important;
+    opacity: 0.7;
+}
+
+/* Overlay for unavailable products */
+.product-card.not-available {
+    position: relative;
+}
+
+.product-card.not-available::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Style for disabled add-to-cart button */
+.add-to-cart.disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* Time slot display styling */
+.tag-time-slot.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold;
+}
+
+.tag-time-slot.text-success {
+    color: #198754 !important;
+}
+
+/* Flying image animation */
+.flying-image {
+    position: fixed;
+    z-index: 9999;
+    border-radius: 8px;
+    object-fit: cover;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: flyToCart 1s forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes flyToCart {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(var(--mid-x), var(--mid-y)) scale(0.7) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(var(--final-x), var(--final-y)) scale(0.2) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Address preview styling - Hidden as requested */
+.address-preview {
+    display: none !important;
+}
+
+/* Delivery form row styling */
+.delivery-details .row {
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.delivery-details .row > [class*="col-"] {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* Form field focus styling */
+.delivery-details input:focus,
+.delivery-details textarea:focus {
+    border-color: <?= $primary_color ?>;
+    box-shadow: 0 0 0 0.25rem rgba(<?= hexdec(substr($primary_color,1,2)) ?>, <?= hexdec(substr($primary_color,3,2)) ?>, <?= hexdec(substr($primary_color,5,2)) ?>, 0.25);
+}
+
+/* Style for the location button */
+#getLocationBtn {
+    margin-top: 5px;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+#getLocationBtn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#getLocationBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Optional: Add a pulse animation when location is detected */
+@keyframes locationPulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.location-detected {
+    animation: locationPulse 1s ease;
+}
+</style>
+
 <?php
-// Check if cart exists in session, if not create it
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
-}
+// Force Indian currency only
+$currency_symbol = '₹';
+$currency_code = 'INR';
 
-// Function to calculate cart totals
-function calculateCartTotals($cart, $products, $delivery_charge, $gst_percent, $discounts) {
-    $subtotal = 0;
-    foreach ($cart as $item) {
-        foreach ($products as $product) {
-            if ($product['id'] == $item['id']) {
-                $subtotal += $product['price'] * $item['quantity'];
-                break;
-            }
-        }
-    }
-    
-    // Calculate discount
-    $discount_amount = 0;
-    $applied_discount = null;
-    foreach ($discounts as $discount) {
-        if ($subtotal >= $discount['min_cart_value']) {
-            if ($discount['discount_in_percent'] && $discount['discount_in_percent'] > 0) {
-                $discount_amount = ($subtotal * $discount['discount_in_percent'] / 100);
-            } else if ($discount['discount_in_flat'] && $discount['discount_in_flat'] > 0) {
-                $discount_amount = $discount['discount_in_flat'];
-            }
-            $applied_discount = $discount;
-        }
-    }
-    
-    // Calculate GST
-    $tax_amount = (($subtotal - $discount_amount) * $gst_percent / 100);
-    
-    // Delivery charge (free if subtotal after discount meets threshold)
-    $final_delivery_charge = $delivery_charge;
-    if (isset($delivery_charges['free_delivery_minimum']) && $delivery_charges['free_delivery_minimum'] > 0) {
-        if (($subtotal - $discount_amount) >= $delivery_charges['free_delivery_minimum']) {
-            $final_delivery_charge = 0;
-        }
-    }
-    
-    $total = $subtotal - $discount_amount + $tax_amount + $final_delivery_charge;
-    
-    return [
-        'subtotal' => $subtotal,
-        'discount_amount' => $discount_amount,
-        'tax_amount' => $tax_amount,
-        'delivery_charge' => $final_delivery_charge,
-        'total' => $total,
-        'applied_discount' => $applied_discount
-    ];
-}
+// Get products from user-specific table based on user_id
+$table_name = "products_" . $user_id;
 
-// Handle AJAX requests for cart operations
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-    header('Content-Type: application/json');
-    
-    $action = $_POST['action'] ?? '';
-    $product_id = $_POST['product_id'] ?? '';
-    $quantity = intval($_POST['quantity'] ?? 1);
-    
-    $response = ['success' => false, 'message' => '', 'cart_count' => 0, 'cart_total' => 0];
-    
-    switch ($action) {
-        case 'add_to_cart':
-            // Check if product exists and has stock
-            $product_found = false;
-            foreach ($products as $product) {
-                if ($product['id'] == $product_id) {
-                    if ($product['quantity'] >= $quantity) {
-                        $product_found = true;
-                    } else {
-                        $response['message'] = 'Insufficient stock available';
-                        echo json_encode($response);
-                        exit();
-                    }
-                    break;
-                }
-            }
-            
-            if ($product_found) {
-                if (isset($_SESSION['cart'][$product_id])) {
-                    $_SESSION['cart'][$product_id]['quantity'] += $quantity;
-                } else {
-                    $_SESSION['cart'][$product_id] = [
-                        'id' => $product_id,
-                        'quantity' => $quantity
-                    ];
-                }
-                $response['success'] = true;
-                $response['message'] = 'Product added to cart';
-            } else {
-                $response['message'] = 'Product not found';
-            }
-            break;
-            
-        case 'update_cart':
-            if ($quantity <= 0) {
-                unset($_SESSION['cart'][$product_id]);
-            } else {
-                // Check stock availability
-                foreach ($products as $product) {
-                    if ($product['id'] == $product_id) {
-                        if ($product['quantity'] >= $quantity) {
-                            $_SESSION['cart'][$product_id]['quantity'] = $quantity;
-                        } else {
-                            $response['message'] = 'Insufficient stock';
-                            echo json_encode($response);
-                            exit();
-                        }
-                        break;
-                    }
-                }
-            }
-            $response['success'] = true;
-            $response['message'] = 'Cart updated';
-            break;
-            
-        case 'remove_from_cart':
-            unset($_SESSION['cart'][$product_id]);
-            $response['success'] = true;
-            $response['message'] = 'Product removed from cart';
-            break;
-            
-        case 'clear_cart':
-            $_SESSION['cart'] = [];
-            $response['success'] = true;
-            $response['message'] = 'Cart cleared';
-            break;
-    }
-    
-    // Calculate cart count and total for response
-    $cart_count = 0;
-    $cart_subtotal = 0;
-    foreach ($_SESSION['cart'] as $item) {
-        $cart_count += $item['quantity'];
-        foreach ($products as $product) {
-            if ($product['id'] == $item['id']) {
-                $cart_subtotal += $product['price'] * $item['quantity'];
-                break;
-            }
-        }
-    }
-    
-    $response['cart_count'] = $cart_count;
-    $response['cart_total'] = $cart_subtotal;
-    
-    echo json_encode($response);
-    exit();
-}
+// Check if the user-specific products table exists
+$check_table = $conn->prepare("SHOW TABLES LIKE ?");
+$check_table->execute([$table_name]);
+$table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
 
-// Handle order submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
-    $customer_name = trim($_POST['customer_name'] ?? '');
-    $customer_phone = trim($_POST['customer_phone'] ?? '');
-    $order_type = $_POST['order_type'] ?? 'delivery';
-    $delivery_address = trim($_POST['delivery_address'] ?? '');
-    $time_slot_id = $_POST['time_slot_id'] ?? null;
-    $is_instant = isset($_POST['is_instant']) ? 1 : 0;
-    $order_notes = trim($_POST['order_notes'] ?? '');
-    $scheduled_date = !empty($_POST['scheduled_date']) ? $_POST['scheduled_date'] : null;
-    $scheduled_time_slot = !empty($_POST['scheduled_time_slot']) ? $_POST['scheduled_time_slot'] : null;
-    
-    $errors = [];
-    
-    if (empty($customer_name)) {
-        $errors[] = "Name is required";
-    }
-    if (empty($customer_phone)) {
-        $errors[] = "Phone number is required";
-    }
-    if ($order_type === 'delivery' && empty($delivery_address)) {
-        $errors[] = "Delivery address is required";
-    }
-    if (empty($_SESSION['cart'])) {
-        $errors[] = "Cart is empty";
-    }
-    
-    // Calculate cart totals
-    $cart_totals = calculateCartTotals($_SESSION['cart'], $products, $delivery_charge, $gst_percent, $discounts);
-    
-    // Prepare order items JSON
-    $order_items = [];
-    foreach ($_SESSION['cart'] as $item) {
-        foreach ($products as $product) {
-            if ($product['id'] == $item['id']) {
-                $order_items[] = [
-                    'id' => $product['id'],
-                    'name' => $product['product_name_en'],
-                    'price' => $product['price'],
-                    'quantity' => $item['quantity'],
-                    'total' => $product['price'] * $item['quantity']
-                ];
-                break;
-            }
-        }
-    }
-    
-    if (empty($errors)) {
-        $order_table = "vegetable_orders_" . $user_id;
-        
-        // Check if order table exists
-        $check_order_table = $conn->prepare("SHOW TABLES LIKE ?");
-        $check_order_table->execute([$order_table]);
-        
-        if (!$check_order_table->fetch(PDO::FETCH_ASSOC)) {
-            // Create order table if not exists (simplified version)
-            $create_table_sql = "CREATE TABLE IF NOT EXISTS `$order_table` (
-                `order_id` int NOT NULL AUTO_INCREMENT,
-                `customer_name` varchar(100) NOT NULL,
-                `customer_phone` varchar(20) NOT NULL,
-                `order_type` enum('delivery','takeaway') NOT NULL DEFAULT 'delivery',
-                `delivery_address` text,
-                `time_slot_id` int DEFAULT NULL,
-                `is_instant` tinyint(1) DEFAULT '0',
-                `instant_charge` decimal(10,2) DEFAULT '0.00',
-                `order_date` date NOT NULL,
-                `order_time` time NOT NULL,
-                `scheduled_date` date DEFAULT NULL,
-                `scheduled_time_slot` varchar(50) DEFAULT NULL,
-                `items` json NOT NULL,
-                `subtotal` decimal(10,2) NOT NULL,
-                `tax_amount` decimal(10,2) DEFAULT '0.00',
-                `total_amount` decimal(10,2) NOT NULL,
-                `status` enum('pending','confirmed','preparing','ready','completed','cancelled') DEFAULT 'pending',
-                `notes` text,
-                `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`order_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3";
-            $conn->exec($create_table_sql);
-        }
-        
-        $instant_charge = ($is_instant && $instant_delivery_enabled) ? $instant_delivery_charge : 0;
-        
-        $sql = "INSERT INTO `$order_table` (
-            customer_name, customer_phone, order_type, delivery_address, time_slot_id,
-            is_instant, instant_charge, order_date, order_time, scheduled_date,
-            scheduled_time_slot, items, subtotal, tax_amount, total_amount, notes, status
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, CURDATE(), CURTIME(), ?, ?, ?, ?, ?, ?, ?, 'pending'
-        )";
-        
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $items_json = json_encode($order_items);
-            $stmt->execute([
-                $customer_name, $customer_phone, $order_type, $delivery_address, $time_slot_id,
-                $is_instant, $instant_charge, $scheduled_date, $scheduled_time_slot,
-                $items_json, $cart_totals['subtotal'], $cart_totals['tax_amount'],
-                $cart_totals['total'] + $instant_charge, $order_notes
-            ]);
-            
-            // Clear cart after successful order
-            $_SESSION['cart'] = [];
-            
-            echo "<script>
-                alert('Order placed successfully!');
-                window.location.href = '?profile_url=" . urlencode($profile_url) . "';
-            </script>";
-            exit();
-        } else {
-            $errors[] = "Failed to place order. Please try again.";
-        }
-    }
-    
-    if (!empty($errors)) {
-        echo "<script>alert('" . implode("\\n", $errors) . "');</script>";
-    }
+if ($table_exists) {
+    // Fetch products from user-specific table
+    $products_sql = "SELECT * FROM $table_name ORDER BY id ASC";
+    $products_stmt = $conn->prepare($products_sql);
+    $products_stmt->execute();
+    $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $products = []; // Empty array if table doesn't exist
 }
 ?>
 
-<style>
-    /* Product Card Styles */
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        padding: 1rem 0;
-    }
-    
-    .product-card {
-        background: #fff;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    }
-    
-    .product-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        background: #f5f5f5;
-    }
-    
-    .product-info {
-        padding: 1rem;
-    }
-    
-    .product-name {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 0.5rem 0;
-        color: #333;
-    }
-    
-    .product-name-hi {
-        font-size: 0.85rem;
-        color: #666;
-        margin-bottom: 0.5rem;
-    }
-    
-    .product-price {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: <?php echo $primary_color; ?>;
-        margin-bottom: 0.5rem;
-    }
-    
-    .product-unit {
-        font-size: 0.8rem;
-        color: #888;
-    }
-    
-    .product-stock {
-        font-size: 0.8rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .stock-available {
-        color: #28a745;
-    }
-    
-    .stock-low {
-        color: #ffc107;
-    }
-    
-    .stock-out {
-        color: #dc3545;
-    }
-    
-    .quantity-control {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-    }
-    
-    .quantity-btn {
-        width: 32px;
-        height: 32px;
-        border: 1px solid #ddd;
-        background: #f8f9fa;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        font-weight: bold;
-        transition: all 0.2s;
-    }
-    
-    .quantity-btn:hover {
-        background: <?php echo $primary_color; ?>;
-        color: #fff;
-        border-color: <?php echo $primary_color; ?>;
-    }
-    
-    .quantity-input {
-        width: 50px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 0.25rem;
-        font-size: 1rem;
-    }
-    
-    .add-to-cart-btn {
-        width: 100%;
-        padding: 0.5rem;
-        background: <?php echo $primary_color; ?>;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: opacity 0.2s;
-    }
-    
-    .add-to-cart-btn:hover {
-        opacity: 0.9;
-    }
-    
-    .add-to-cart-btn:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-    }
-    
-    /* Cart Sidebar Styles */
-    .cart-sidebar {
-        position: fixed;
-        right: -400px;
-        top: 0;
-        width: 380px;
-        height: 100vh;
-        background: #fff;
-        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-        z-index: 1000;
-        transition: right 0.3s ease;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .cart-sidebar.open {
-        right: 0;
-    }
-    
-    .cart-header {
-        padding: 1rem;
-        background: <?php echo $primary_color; ?>;
-        color: #fff;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .cart-header h3 {
-        margin: 0;
-        font-size: 1.2rem;
-    }
-    
-    .close-cart {
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
-    
-    .cart-items {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
-    }
-    
-    .cart-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .cart-item-info {
-        flex: 1;
-    }
-    
-    .cart-item-name {
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-    }
-    
-    .cart-item-price {
-        font-size: 0.85rem;
-        color: #666;
-    }
-    
-    .cart-item-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .cart-qty-btn {
-        width: 28px;
-        height: 28px;
-        border: 1px solid #ddd;
-        background: #f8f9fa;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .cart-item-qty {
-        width: 35px;
-        text-align: center;
-    }
-    
-    .cart-item-total {
-        font-weight: 600;
-        min-width: 60px;
-        text-align: right;
-    }
-    
-    .remove-item {
-        background: none;
-        border: none;
-        color: #dc3545;
-        cursor: pointer;
-        font-size: 1.2rem;
-        padding: 0 0.25rem;
-    }
-    
-    .cart-footer {
-        padding: 1rem;
-        border-top: 1px solid #eee;
-        background: #f9f9f9;
-    }
-    
-    .cart-total-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .cart-grand-total {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-top: 0.5rem;
-        padding-top: 0.5rem;
-        border-top: 2px solid #ddd;
-    }
-    
-    .checkout-btn {
-        width: 100%;
-        padding: 0.75rem;
-        background: <?php echo $primary_color; ?>;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 1rem;
-    }
-    
-    .cart-icon {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        background: <?php echo $primary_color; ?>;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        z-index: 999;
-        transition: transform 0.2s;
-    }
-    
-    .cart-icon:hover {
-        transform: scale(1.05);
-    }
-    
-    .cart-icon i {
-        font-size: 1.5rem;
-        color: #fff;
-    }
-    
-    .cart-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: #ff4444;
-        color: #fff;
-        border-radius: 50%;
-        width: 22px;
-        height: 22px;
-        font-size: 0.7rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-    
-    /* Order Form Modal */
-    .order-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1001;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .order-modal.active {
-        display: flex;
-    }
-    
-    .order-modal-content {
-        background: #fff;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 500px;
-        max-height: 85vh;
-        overflow-y: auto;
-        padding: 1.5rem;
-    }
-    
-    .order-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .close-modal {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
-    
-    .form-group {
-        margin-bottom: 1rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 0.9rem;
-    }
-    
-    .form-row {
-        display: flex;
-        gap: 1rem;
-    }
-    
-    .form-row .form-group {
-        flex: 1;
-    }
-    
-    .order-summary {
-        background: #f5f5f5;
-        padding: 0.75rem;
-        border-radius: 6px;
-        margin: 1rem 0;
-    }
-    
-    .order-summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
-    }
-    
-    .instant-delivery-option {
-        background: #fff3cd;
-        padding: 0.75rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-    
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid <?php echo $primary_color; ?>;
-        display: inline-block;
-    }
-    
-    .empty-cart-message {
-        text-align: center;
-        padding: 2rem;
-        color: #888;
-    }
-    
-    @media (max-width: 768px) {
-        .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1rem;
-        }
-        
-        .cart-sidebar {
-            width: 100%;
-            right: -100%;
-        }
-    }
-</style>
-
-<div class="container mt-4">
-    <!-- Products Section -->
-    <div class="products-section">
-        <h2 class="section-title">
-            <i class="fas fa-leaf"></i> Our Fresh Products
-        </h2>
-        
-        <?php if (empty($products)): ?>
-            <div class="alert alert-info text-center">
-                <i class="fas fa-info-circle"></i> No products available at the moment. Please check back later.
-            </div>
-        <?php else: ?>
-            <div class="product-grid">
-                <?php foreach ($products as $product): 
-                    $stock_status = '';
-                    $stock_text = '';
-                    if ($product['quantity'] <= 0) {
-                        $stock_status = 'stock-out';
-                        $stock_text = 'Out of Stock';
-                        $disabled = true;
-                    } elseif ($product['quantity'] <= 5) {
-                        $stock_status = 'stock-low';
-                        $stock_text = 'Only ' . $product['quantity'] . ' left';
-                        $disabled = false;
-                    } else {
-                        $stock_status = 'stock-available';
-                        $stock_text = 'In Stock';
-                        $disabled = false;
-                    }
-                ?>
-                    <div class="product-card" data-product-id="<?php echo $product['id']; ?>">
-                        <img src="<?php echo !empty($product['image_path']) ? htmlspecialchars($product['image_path']) : (!empty($product['master_image']) ? htmlspecialchars($product['master_image']) : 'assets/images/default-product.png'); ?>" 
-                             alt="<?php echo htmlspecialchars($product['product_name_en']); ?>" 
-                             class="product-image"
-                             onerror="this.src='assets/images/default-product.png'">
-                        <div class="product-info">
-                            <h3 class="product-name"><?php echo htmlspecialchars($product['product_name_en']); ?></h3>
-                            <?php if (!empty($product['product_name_hi'])): ?>
-                                <div class="product-name-hi"><?php echo htmlspecialchars($product['product_name_hi']); ?></div>
-                            <?php endif; ?>
-                            <div class="product-price">
-                                <?php echo $currency_symbol; ?> <?php echo number_format($product['price'], 2); ?>
-                                <span class="product-unit">/ <?php echo htmlspecialchars($product['unit']); ?></span>
-                            </div>
-                            <div class="product-stock <?php echo $stock_status; ?>">
-                                <i class="fas <?php echo $stock_status == 'stock-out' ? 'fa-times-circle' : ($stock_status == 'stock-low' ? 'fa-exclamation-triangle' : 'fa-check-circle'); ?>"></i>
-                                <?php echo $stock_text; ?>
-                            </div>
-                            
-                            <?php if (!$disabled): ?>
-                                <div class="quantity-control">
-                                    <button class="quantity-btn" data-action="decrease">-</button>
-                                    <input type="number" class="quantity-input" value="1" min="1" max="<?php echo $product['quantity']; ?>">
-                                    <button class="quantity-btn" data-action="increase">+</button>
-                                </div>
-                                <button class="add-to-cart-btn" data-product-id="<?php echo $product['id']; ?>">
-                                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                                </button>
-                            <?php else: ?>
-                                <button class="add-to-cart-btn" disabled>
-                                    <i class="fas fa-times-circle"></i> Out of Stock
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Cart Icon -->
-<div class="cart-icon" id="cartIcon">
-    <i class="fas fa-shopping-cart"></i>
-    <span class="cart-badge" id="cartBadge">0</span>
-</div>
-
-<!-- Cart Sidebar -->
-<div class="cart-sidebar" id="cartSidebar">
-    <div class="cart-header">
-        <h3><i class="fas fa-shopping-cart"></i> Your Cart</h3>
-        <button class="close-cart" id="closeCart">&times;</button>
-    </div>
-    <div class="cart-items" id="cartItems">
-        <div class="empty-cart-message">
-            <i class="fas fa-shopping-basket"></i>
-            <p>Your cart is empty</p>
-        </div>
-    </div>
-    <div class="cart-footer" id="cartFooter" style="display: none;">
-        <div class="cart-total-row">
-            <span>Subtotal:</span>
-            <span id="cartSubtotal"><?php echo $currency_symbol; ?> 0.00</span>
-        </div>
-        <div class="cart-total-row" id="discountRow" style="display: none;">
-            <span>Discount:</span>
-            <span id="cartDiscount" class="text-success">- <?php echo $currency_symbol; ?> 0.00</span>
-        </div>
-        <div class="cart-total-row">
-            <span>Delivery Charge:</span>
-            <span id="cartDeliveryCharge"><?php echo $currency_symbol; ?> <?php echo number_format($delivery_charge, 2); ?></span>
-        </div>
-        <div class="cart-total-row">
-            <span>Tax (<?php echo $gst_percent; ?>%):</span>
-            <span id="cartTax"><?php echo $currency_symbol; ?> 0.00</span>
-        </div>
-        <div class="cart-total-row cart-grand-total">
-            <span>Total:</span>
-            <span id="cartTotal"><?php echo $currency_symbol; ?> 0.00</span>
-        </div>
-        <button class="checkout-btn" id="checkoutBtn">
-            <i class="fas fa-credit-card"></i> Proceed to Checkout
-        </button>
-    </div>
-</div>
-
-<!-- Order Modal -->
-<div class="order-modal" id="orderModal">
-    <div class="order-modal-content">
-        <div class="order-modal-header">
-            <h3><i class="fas fa-clipboard-list"></i> Place Order</h3>
-            <button class="close-modal" id="closeModal">&times;</button>
-        </div>
-        
-        <form method="POST" id="orderForm">
-            <div class="form-group">
-                <label>Name *</label>
-                <input type="text" name="customer_name" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Phone Number *</label>
-                <input type="tel" name="customer_phone" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Order Type *</label>
-                <select name="order_type" id="orderTypeSelect" required>
-                    <option value="delivery">Delivery</option>
-                    <option value="takeaway">Takeaway</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="deliveryAddressGroup">
-                <label>Delivery Address *</label>
-                <textarea name="delivery_address" rows="3"></textarea>
-            </div>
-            
-            <?php if ($instant_delivery_enabled): ?>
-                <div class="instant-delivery-option">
-                    <label>
-                        <input type="checkbox" name="is_instant" id="instantDeliveryCheckbox">
-                        <i class="fas fa-bolt"></i> Instant Delivery (Extra <?php echo $currency_symbol; ?> <?php echo number_format($instant_delivery_charge, 2); ?>)
-                    </label>
-                </div>
-            <?php endif; ?>
-            
-            <div class="form-group" id="scheduledDateTimeGroup" style="display: none;">
-                <label>Scheduled Date</label>
-                <input type="date" name="scheduled_date" id="scheduledDate">
-            </div>
-            
-            <?php if (!empty($time_slots)): ?>
-                <div class="form-group" id="timeSlotGroup">
-                    <label>Time Slot</label>
-                    <select name="time_slot_id">
-                        <option value="">Select time slot</option>
-                        <?php foreach ($time_slots as $slot): ?>
-                            <option value="<?php echo $slot['id']; ?>">
-                                <?php echo htmlspecialchars($slot['slot_name']); ?> 
-                                (<?php echo date('g:i A', strtotime($slot['start_time'])); ?> - 
-                                <?php echo date('g:i A', strtotime($slot['end_time'])); ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            <?php endif; ?>
-            
-            <div class="form-group">
-                <label>Notes (Optional)</label>
-                <textarea name="order_notes" rows="2"></textarea>
-            </div>
-            
-            <div class="order-summary" id="orderSummary">
-                <div class="order-summary-row">
-                    <span>Items:</span>
-                    <span id="orderItemsCount">0</span>
-                </div>
-                <div class="order-summary-row">
-                    <span>Subtotal:</span>
-                    <span id="orderSubtotal"><?php echo $currency_symbol; ?> 0.00</span>
-                </div>
-                <div class="order-summary-row" id="orderDiscountRow" style="display: none;">
-                    <span>Discount:</span>
-                    <span id="orderDiscount" class="text-success">- <?php echo $currency_symbol; ?> 0.00</span>
-                </div>
-                <div class="order-summary-row">
-                    <span>Delivery:</span>
-                    <span id="orderDelivery"><?php echo $currency_symbol; ?> <?php echo number_format($delivery_charge, 2); ?></span>
-                </div>
-                <div class="order-summary-row">
-                    <span>Tax (<?php echo $gst_percent; ?>%):</span>
-                    <span id="orderTax"><?php echo $currency_symbol; ?> 0.00</span>
-                </div>
-                <div class="order-summary-row" style="font-weight: 700; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #ddd;">
-                    <span>Total:</span>
-                    <span id="orderTotal"><?php echo $currency_symbol; ?> 0.00</span>
-                </div>
-            </div>
-            
-            <button type="submit" name="place_order" class="checkout-btn" style="margin-top: 1rem;">
-                <i class="fas fa-check-circle"></i> Place Order
-            </button>
-        </form>
-    </div>
-</div>
+<?php if ($active_subscription): ?>
+    <?php if ($active_subscription['package_id'] == 1): ?>
+        <style>
+            #deliveryBtn { width: 100% !important; margin: 0 !important; }
+        </style>
+    <?php endif; ?>
+<?php endif; ?>
 
 <script>
-// Product data for JavaScript
-const productsData = <?php echo json_encode($products); ?>;
-const deliveryCharge = <?php echo $delivery_charge; ?>;
-const instantDeliveryCharge = <?php echo $instant_delivery_charge; ?>;
-const instantDeliveryEnabled = <?php echo $instant_delivery_enabled ? 'true' : 'false'; ?>;
-const gstPercent = <?php echo $gst_percent; ?>;
-const discounts = <?php echo json_encode($discounts); ?>;
-const currencySymbol = '<?php echo $currency_symbol; ?>';
+// Google Maps API configuration - using API key from PHP
+const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '' ?>';
 
-// Cart state
-let cart = {};
+// Get currency symbol from PHP - Indian Rupee only
+const currencySymbol = '₹';
+const currencyCode = 'INR';
 
-// Load cart from localStorage
-function loadCart() {
-    const savedCart = localStorage.getItem('vegetableCart_' + <?php echo $user_id; ?>);
-    if (savedCart) {
-        cart = JSON.parse(savedCart);
-    }
-    updateCartUI();
-}
+// WhatsApp integration disabled
+const ENABLE_WHATSAPP_ORDER = false;
 
-// Save cart to localStorage
-function saveCart() {
-    localStorage.setItem('vegetableCart_' + <?php echo $user_id; ?>, JSON.stringify(cart));
-}
-
-// Get product details by ID
-function getProductById(productId) {
-    return productsData.find(p => p.id == productId);
-}
-
-// Calculate cart totals
-function calculateTotals() {
-    let subtotal = 0;
-    let itemCount = 0;
-    
-    for (const [id, item] of Object.entries(cart)) {
-        const product = getProductById(id);
-        if (product) {
-            subtotal += product.price * item.quantity;
-            itemCount += item.quantity;
-        }
-    }
-    
-    // Calculate discount
-    let discountAmount = 0;
-    let appliedDiscount = null;
-    
-    for (const discount of discounts) {
-        if (subtotal >= discount.min_cart_value) {
-            if (discount.discount_in_percent && discount.discount_in_percent > 0) {
-                discountAmount = subtotal * discount.discount_in_percent / 100;
-            } else if (discount.discount_in_flat && discount.discount_in_flat > 0) {
-                discountAmount = discount.discount_in_flat;
-            }
-            appliedDiscount = discount;
-        }
-    }
-    
-    // Calculate tax
-    const taxAmount = (subtotal - discountAmount) * gstPercent / 100;
-    
-    // Delivery charge (free if subtotal after discount >= 500 - adjust as needed)
-    let finalDeliveryCharge = deliveryCharge;
-    // You can add free delivery threshold logic here
-    
-    const total = subtotal - discountAmount + taxAmount + finalDeliveryCharge;
-    
-    return {
-        subtotal,
-        discountAmount,
-        taxAmount,
-        deliveryCharge: finalDeliveryCharge,
-        total,
-        itemCount,
-        appliedDiscount
-    };
-}
-
-// Update cart UI
-function updateCartUI() {
-    const totals = calculateTotals();
-    
-    // Update cart badge
-    document.getElementById('cartBadge').textContent = totals.itemCount;
-    
-    // Update cart items display
-    const cartItemsContainer = document.getElementById('cartItems');
-    const cartFooter = document.getElementById('cartFooter');
-    
-    if (totals.itemCount === 0) {
-        cartItemsContainer.innerHTML = `
-            <div class="empty-cart-message">
-                <i class="fas fa-shopping-basket"></i>
-                <p>Your cart is empty</p>
-            </div>
-        `;
-        cartFooter.style.display = 'none';
-        return;
-    }
-    
-    cartFooter.style.display = 'block';
-    
-    let itemsHtml = '';
-    for (const [id, item] of Object.entries(cart)) {
-        const product = getProductById(id);
-        if (product) {
-            itemsHtml += `
-                <div class="cart-item" data-product-id="${id}">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${escapeHtml(product.product_name_en)}</div>
-                        <div class="cart-item-price">${currencySymbol} ${product.price.toFixed(2)} / ${product.unit}</div>
-                    </div>
-                    <div class="cart-item-actions">
-                        <button class="cart-qty-btn" data-action="decrease" data-id="${id}">-</button>
-                        <span class="cart-item-qty">${item.quantity}</span>
-                        <button class="cart-qty-btn" data-action="increase" data-id="${id}">+</button>
-                        <button class="remove-item" data-id="${id}">&times;</button>
-                    </div>
-                    <div class="cart-item-total">${currencySymbol} ${(product.price * item.quantity).toFixed(2)}</div>
-                </div>
-            `;
-        }
-    }
-    cartItemsContainer.innerHTML = itemsHtml;
-    
-    // Update totals
-    document.getElementById('cartSubtotal').textContent = `${currencySymbol} ${totals.subtotal.toFixed(2)}`;
-    document.getElementById('cartTax').textContent = `${currencySymbol} ${totals.taxAmount.toFixed(2)}`;
-    document.getElementById('cartDeliveryCharge').textContent = `${currencySymbol} ${totals.deliveryCharge.toFixed(2)}`;
-    document.getElementById('cartTotal').textContent = `${currencySymbol} ${totals.total.toFixed(2)}`;
-    
-    const discountRow = document.getElementById('discountRow');
-    const cartDiscount = document.getElementById('cartDiscount');
-    if (totals.discountAmount > 0) {
-        discountRow.style.display = 'flex';
-        cartDiscount.textContent = `- ${currencySymbol} ${totals.discountAmount.toFixed(2)}`;
-    } else {
-        discountRow.style.display = 'none';
-    }
-    
-    saveCart();
-}
-
-// Add to cart
-function addToCart(productId, quantity) {
-    const product = getProductById(productId);
-    if (!product) return false;
-    
-    if (product.quantity < quantity) {
-        alert('Insufficient stock available');
-        return false;
-    }
-    
-    if (cart[productId]) {
-        const newQuantity = cart[productId].quantity + quantity;
-        if (product.quantity < newQuantity) {
-            alert('Insufficient stock available');
-            return false;
-        }
-        cart[productId].quantity = newQuantity;
-    } else {
-        cart[productId] = {
-            id: productId,
-            quantity: quantity
-        };
-    }
-    
-    updateCartUI();
-    return true;
-}
-
-// Update cart item quantity
-function updateCartItem(productId, quantity) {
-    const product = getProductById(productId);
-    if (!product) return;
-    
-    if (quantity <= 0) {
-        delete cart[productId];
-    } else {
-        if (product.quantity < quantity) {
-            alert('Insufficient stock available');
-            return;
-        }
-        cart[productId].quantity = quantity;
-    }
-    
-    updateCartUI();
-}
-
-// Remove from cart
-function removeFromCart(productId) {
-    delete cart[productId];
-    updateCartUI();
-}
-
-// Clear cart
-function clearCart() {
-    cart = {};
-    updateCartUI();
-}
-
-// Escape HTML to prevent XSS
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
-
-// Update order summary in modal
-function updateOrderSummary() {
-    const totals = calculateTotals();
-    const orderType = document.getElementById('orderTypeSelect').value;
-    const isInstant = document.getElementById('instantDeliveryCheckbox')?.checked || false;
-    
-    let deliveryFee = deliveryCharge;
-    if (orderType === 'takeaway') {
-        deliveryFee = 0;
-    } else if (isInstant && instantDeliveryEnabled) {
-        deliveryFee = instantDeliveryCharge;
-    }
-    
-    // Recalculate total with selected delivery fee
-    const finalTotal = totals.subtotal - totals.discountAmount + totals.taxAmount + deliveryFee;
-    
-    document.getElementById('orderItemsCount').textContent = totals.itemCount;
-    document.getElementById('orderSubtotal').textContent = `${currencySymbol} ${totals.subtotal.toFixed(2)}`;
-    document.getElementById('orderDelivery').textContent = `${currencySymbol} ${deliveryFee.toFixed(2)}`;
-    document.getElementById('orderTax').textContent = `${currencySymbol} ${totals.taxAmount.toFixed(2)}`;
-    document.getElementById('orderTotal').textContent = `${currencySymbol} ${finalTotal.toFixed(2)}`;
-    
-    const orderDiscountRow = document.getElementById('orderDiscountRow');
-    const orderDiscount = document.getElementById('orderDiscount');
-    if (totals.discountAmount > 0) {
-        orderDiscountRow.style.display = 'flex';
-        orderDiscount.textContent = `- ${currencySymbol} ${totals.discountAmount.toFixed(2)}`;
-    } else {
-        orderDiscountRow.style.display = 'none';
-    }
-}
-
-// Event Listeners
+// Phone validation for India only
 document.addEventListener('DOMContentLoaded', function() {
-    loadCart();
+    // Initialize lazy loading with fade-in effect
+    initLazyLoading();
     
-    // Cart icon click
-    document.getElementById('cartIcon').addEventListener('click', function() {
-        document.getElementById('cartSidebar').classList.add('open');
-    });
-    
-    // Close cart
-    document.getElementById('closeCart').addEventListener('click', function() {
-        document.getElementById('cartSidebar').classList.remove('open');
-    });
-    
-    // Close modal
-    document.getElementById('closeModal').addEventListener('click', function() {
-        document.getElementById('orderModal').classList.remove('active');
-    });
-    
-    // Checkout button
-    document.getElementById('checkoutBtn').addEventListener('click', function() {
-        const totals = calculateTotals();
-        if (totals.itemCount === 0) {
-            alert('Your cart is empty');
-            return;
-        }
-        updateOrderSummary();
-        document.getElementById('orderModal').classList.add('active');
-    });
-    
-    // Order type change
-    document.getElementById('orderTypeSelect').addEventListener('change', function() {
-        const deliveryAddressGroup = document.getElementById('deliveryAddressGroup');
-        const scheduledDateTimeGroup = document.getElementById('scheduledDateTimeGroup');
-        
-        if (this.value === 'delivery') {
-            deliveryAddressGroup.style.display = 'block';
-            document.querySelector('textarea[name="delivery_address"]').required = true;
-        } else {
-            deliveryAddressGroup.style.display = 'none';
-            document.querySelector('textarea[name="delivery_address"]').required = false;
-        }
-        
-        updateOrderSummary();
-    });
-    
-    // Instant delivery checkbox
-    const instantCheckbox = document.getElementById('instantDeliveryCheckbox');
-    if (instantCheckbox) {
-        instantCheckbox.addEventListener('change', function() {
-            const scheduledDateTimeGroup = document.getElementById('scheduledDateTimeGroup');
-            if (this.checked) {
-                scheduledDateTimeGroup.style.display = 'none';
-                document.getElementById('scheduledDate').required = false;
-            } else {
-                scheduledDateTimeGroup.style.display = 'block';
-            }
-            updateOrderSummary();
-        });
-    }
-    
-    // Set minimum date for scheduled date
-    const today = new Date().toISOString().split('T')[0];
-    const scheduledDateInput = document.getElementById('scheduledDate');
-    if (scheduledDateInput) {
-        scheduledDateInput.min = today;
-    }
-    
-    // Product card quantity controls
-    document.querySelectorAll('.product-card').forEach(card => {
-        const productId = card.dataset.productId;
-        const decreaseBtn = card.querySelector('[data-action="decrease"]');
-        const increaseBtn = card.querySelector('[data-action="increase"]');
-        const quantityInput = card.querySelector('.quantity-input');
-        const addToCartBtn = card.querySelector('.add-to-cart-btn');
-        
-        if (decreaseBtn) {
-            decreaseBtn.addEventListener('click', function() {
-                let currentVal = parseInt(quantityInput.value);
-                if (currentVal > 1) {
-                    quantityInput.value = currentVal - 1;
-                }
-            });
-        }
-        
-        if (increaseBtn) {
-            increaseBtn.addEventListener('click', function() {
-                let currentVal = parseInt(quantityInput.value);
-                const maxStock = parseInt(quantityInput.max);
-                if (currentVal < maxStock) {
-                    quantityInput.value = currentVal + 1;
-                }
-            });
-        }
-        
-        if (addToCartBtn) {
-            addToCartBtn.addEventListener('click', function() {
-                const quantity = parseInt(quantityInput.value);
-                addToCart(productId, quantity);
-                
-                // Show feedback
-                const originalText = addToCartBtn.innerHTML;
-                addToCartBtn.innerHTML = '<i class="fas fa-check"></i> Added!';
-                setTimeout(() => {
-                    addToCartBtn.innerHTML = originalText;
-                }, 1500);
-            });
-        }
-    });
-    
-    // Cart item actions (delegation)
-    document.getElementById('cartItems').addEventListener('click', function(e) {
-        const target = e.target;
-        const productId = target.dataset.id;
-        
-        if (target.classList.contains('cart-qty-btn')) {
-            const action = target.dataset.action;
-            const cartItem = cart[productId];
-            if (cartItem) {
-                let newQuantity = cartItem.quantity;
-                if (action === 'increase') {
-                    newQuantity++;
-                } else if (action === 'decrease') {
-                    newQuantity--;
-                }
-                updateCartItem(productId, newQuantity);
-            }
-        } else if (target.classList.contains('remove-item')) {
-            removeFromCart(productId);
-        }
-    });
-    
-    // Close sidebar when clicking outside
-    document.addEventListener('click', function(e) {
-        const sidebar = document.getElementById('cartSidebar');
-        const cartIcon = document.getElementById('cartIcon');
-        
-        if (sidebar.classList.contains('open') && 
-            !sidebar.contains(e.target) && 
-            !cartIcon.contains(e.target)) {
-            sidebar.classList.remove('open');
+    // Add event listeners for address fields
+    const addressFields = ['building', 'flatUnit', 'landmark'];
+    addressFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updateAddressPreview);
         }
     });
 });
+
+// Load Google Maps API dynamically
+function loadGoogleMapsAPI(callback) {
+    if (window.google && window.google.maps) {
+        callback();
+        return;
+    }
+    
+    if (!GOOGLE_MAPS_API_KEY) {
+        alert('Google Maps API key is not configured. Please contact support.');
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGoogleMapsCallback`;
+    script.async = true;
+    script.defer = true;
+    
+    window.initGoogleMapsCallback = function() {
+        console.log('Google Maps API loaded successfully');
+        callback();
+    };
+    
+    script.onerror = function() {
+        alert('Failed to load Google Maps API. Please check your internet connection and try again.');
+    };
+    
+    document.head.appendChild(script);
+}
+
+// Get current location and reverse geocode
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser. Please enter your address manually.');
+        return;
+    }
+
+    const btn = document.getElementById('getLocationBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Detecting location...';
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            loadGoogleMapsAPI(() => {
+                const geocoder = new google.maps.Geocoder();
+                
+                geocoder.geocode(
+                    { location: { lat, lng } },
+                    (results, status) => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+
+                        if (status === 'OK' && results && results.length > 0) {
+                            fillAddressFromGeocode(results[0]);
+                        } else {
+                            console.error('Geocoding failed:', status);
+                            alert('Could not retrieve address from your location. Please enter manually.');
+                        }
+                    }
+                );
+            });
+        },
+        (error) => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            let message = 'Unable to retrieve your location. ';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    message += 'Location access was denied. Please enable location permissions and try again, or enter address manually.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message += 'Location information is unavailable. Please enter address manually.';
+                    break;
+                case error.TIMEOUT:
+                    message += 'Location request timed out. Please try again or enter address manually.';
+                    break;
+                default:
+                    message += 'Please enter your address manually.';
+            }
+            alert(message);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+// Parse address components and fill form fields
+function fillAddressFromGeocode(geocodeResult) {
+    const addressComponents = geocodeResult.address_components;
+    const formattedAddress = geocodeResult.formatted_address;
+
+    const findComponent = (types) => {
+        for (let component of addressComponents) {
+            if (types.some(type => component.types.includes(type))) {
+                return component.long_name;
+            }
+        }
+        return '';
+    };
+
+    const streetNumber = findComponent(['street_number']);
+    const route = findComponent(['route']);
+    const subpremise = findComponent(['subpremise']);
+    const premise = findComponent(['premise']);
+    const sublocality = findComponent(['sublocality', 'sublocality_level_1', 'neighborhood']);
+    const locality = findComponent(['locality', 'city']);
+    const pointOfInterest = findComponent(['point_of_interest', 'establishment']);
+    
+    let building = '';
+    if (premise) {
+        building = premise;
+    } else if (pointOfInterest) {
+        building = pointOfInterest;
+    } else if (route && streetNumber) {
+        building = `${streetNumber} ${route}`;
+    } else if (route) {
+        building = route;
+    } else {
+        building = formattedAddress.split(',')[0];
+    }
+    
+    const buildingField = document.getElementById('building');
+    if (buildingField) buildingField.value = building;
+    
+    const flatUnitField = document.getElementById('flatUnit');
+    if (flatUnitField && subpremise) flatUnitField.value = subpremise;
+    
+    let landmark = pointOfInterest || sublocality || locality || '';
+    const landmarkField = document.getElementById('landmark');
+    if (landmarkField) landmarkField.value = landmark;
+    
+    if (typeof updateAddressPreview === 'function') updateAddressPreview();
+}
+
+// Lazy loading with fade-in effect
+function initLazyLoading() {
+    const lazyImages = document.querySelectorAll('img.product-img-lazy');
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    preloadImage(img);
+                    imageObserver.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '0px 0px 200px 0px',
+            threshold: 0.01
+        });
+
+        lazyImages.forEach(img => imageObserver.observe(img));
+    } else {
+        lazyImages.forEach(img => preloadImage(img));
+    }
+}
+
+function preloadImage(img) {
+    const spinner = img.parentElement.querySelector('.img-loading-spinner');
+    if (spinner) spinner.style.display = 'block';
+    
+    const newImg = new Image();
+    
+    newImg.onload = function() {
+        img.src = img.dataset.src;
+        img.classList.remove('product-img-lazy');
+        img.classList.add('product-img-loaded');
+        if (spinner) spinner.style.display = 'none';
+        if (img.classList.contains('product-img-placeholder')) {
+            setTimeout(() => img.classList.remove('product-img-placeholder'), 500);
+        }
+    };
+    
+    newImg.onerror = function() {
+        img.style.display = 'none';
+        if (spinner) spinner.style.display = 'none';
+        const productCard = img.closest('.product-card');
+        if (productCard) {
+            const cartBtnGroup = productCard.querySelector('.card-body .cart_btn_group');
+            if (cartBtnGroup) cartBtnGroup.classList.add('top');
+        }
+    };
+    
+    newImg.src = img.dataset.src;
+}
+
+// Format number function with currency support
+function formatNumber(num, withSymbol = false) {
+    num = typeof num === 'string' ? parseFloat(num) : num;
+    if (isNaN(num)) num = 0;
+    
+    const formatted = num % 1 === 0 ? num.toString() : num.toFixed(2).replace(/\.?0+$/, '');
+    
+    if (withSymbol) {
+        return currencySymbol + formatted;
+    }
+    return formatted;
+}
+
+function formatCurrency(amount) {
+    return currencySymbol + formatNumber(amount);
+}
+
+// Address preview (kept for functionality but UI hidden)
+function updateAddressPreview() {
+    return;
+}
+
+// Phone number validation - India only (10 digits, cannot start with 0)
+function validatePhoneNumber(input) {
+    input.value = input.value.replace(/\D/g, '');
+    
+    if (input.value.length > 10) input.value = input.value.substring(0, 10);
+    if (input.value.length > 0 && input.value.startsWith('0')) {
+        input.setCustomValidity('Phone number cannot start with 0');
+        input.reportValidity();
+        return false;
+    }
+    if (input.value.length !== 10 && input.value.length > 0) {
+        input.setCustomValidity('Phone number must be exactly 10 digits');
+        input.reportValidity();
+        return false;
+    }
+    
+    input.setCustomValidity('');
+    return true;
+}
+
+function validatePhoneForOrder() {
+    const phoneInput = document.getElementById('customerPhone');
+    if (!phoneInput) return false;
+    
+    if (!validatePhoneNumber(phoneInput)) return false;
+    
+    if (phoneInput.value.length !== 10) {
+        alert('Please enter a valid 10-digit phone number');
+        phoneInput.focus();
+        return false;
+    }
+    return true;
+}
+
+// Initialize cart
+let cart = [];
+let discountAmount = 0;
+let discountType = '';
+
+const storeName = window.location.pathname.split('/')[1] || 'default';
+const cartKey = `cart_${storeName}`;
+
+if (localStorage.getItem(cartKey)) {
+    const savedCart = JSON.parse(localStorage.getItem(cartKey));
+    cart = savedCart.items || [];
+}
+
+// Add to cart button click handler with image animation
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const product = {
+            id: this.dataset.id,
+            name: this.dataset.name,
+            price: parseFloat(this.dataset.price),
+            max: parseInt(this.dataset.max),
+            quantity: 1,
+            image_path: this.dataset.image
+        };
+
+        const existingItem = cart.find(item => item.id === product.id);
+
+        if (existingItem) {
+            if (existingItem.quantity < existingItem.max) {
+                existingItem.quantity++;
+                if (product.image_path) animateProductToCart(this, product.image_path);
+            } else {
+                alert('Maximum quantity reached for this product');
+                return;
+            }
+        } else {
+            cart.push(product);
+            if (product.image_path) animateProductToCart(this, product.image_path);
+        }
+        
+        const cartButton = document.querySelector('.cart-button');
+        if (cartButton) {
+            cartButton.classList.add('cart-item-added');
+            setTimeout(() => cartButton.classList.remove('cart-item-added'), 500);
+        }
+
+        saveCart();
+        updateCartUI();
+        
+        const cartButtonContainer = document.querySelector('.cart-button-container');
+        if (cartButtonContainer && cartButtonContainer.style.display === 'none') {
+            cartButtonContainer.style.display = 'block';
+        }
+    });
+});
+
+function animateProductToCart(buttonElement, imageSrc) {
+    const productCard = buttonElement.closest('.product-card');
+    const productImage = productCard ? productCard.querySelector('.product-img') : null;
+    if (!productImage) return;
+    
+    const cartButtonContainer = document.querySelector('.cart-button-container');
+    if (!cartButtonContainer) return;
+    
+    const cartButtonRect = cartButtonContainer.getBoundingClientRect();
+    const flyingImage = document.createElement('img');
+    flyingImage.src = imageSrc;
+    flyingImage.className = 'flying-image';
+    
+    const imageRect = productImage.getBoundingClientRect();
+    flyingImage.style.width = `${imageRect.width}px`;
+    flyingImage.style.height = `${imageRect.height}px`;
+    flyingImage.style.left = `${imageRect.left}px`;
+    flyingImage.style.top = `${imageRect.top}px`;
+    
+    const finalX = (cartButtonRect.left + (cartButtonRect.width / 2)) - (imageRect.width / 2);
+    const finalY = (cartButtonRect.top + (cartButtonRect.height / 2)) - (imageRect.height / 2);
+    const midX = (finalX + imageRect.left) / 2 - 50;
+    const midY = (finalY + imageRect.top) / 2 - 100;
+    
+    flyingImage.style.setProperty('--final-x', `${finalX - imageRect.left}px`);
+    flyingImage.style.setProperty('--final-y', `${finalY - imageRect.top}px`);
+    flyingImage.style.setProperty('--mid-x', `${midX - imageRect.left}px`);
+    flyingImage.style.setProperty('--mid-y', `${midY - imageRect.top}px`);
+    
+    document.body.appendChild(flyingImage);
+    setTimeout(() => {
+        if (flyingImage.parentNode) flyingImage.parentNode.removeChild(flyingImage);
+    }, 1000);
+}
+
+function saveCart() {
+    localStorage.setItem(cartKey, JSON.stringify({
+        items: cart.filter(item => item.id)
+    }));
+}
+
+function updateCartUI() {
+    const cartItemsContainer = document.getElementById('cartItems');
+    const cartTotalDetails = document.querySelector('.cart-total-details');
+    const orderTypeButtons = document.querySelector('.order-type-buttons');
+    const cartFooter = document.querySelector('.cart-footer');
+    const cartButtonContainer = document.querySelector('.cart-button-container');
+    const emptyCartMsg = document.createElement('div');
+
+    const existingEmptyMsg = cartItemsContainer.querySelector('.empty-cart-message');
+    if (existingEmptyMsg) existingEmptyMsg.remove();
+
+    cartItemsContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+        emptyCartMsg.className = 'empty-cart-message text-center py-4';
+        emptyCartMsg.innerHTML = `
+            <i class="bi bi-cart-x fs-1 text-muted"></i>
+            <p class="mt-2">Your cart is empty</p>
+            <button class="btn btn-sm btn-outline-primary" onclick="closeCart()">
+                Continue Shopping
+            </button>
+        `;
+        cartItemsContainer.appendChild(emptyCartMsg);
+        
+        if (cartTotalDetails) cartTotalDetails.style.display = 'none';
+        if (orderTypeButtons) orderTypeButtons.style.display = 'none';
+        if (cartFooter) cartFooter.style.display = 'none';
+        
+        document.querySelector('.cart-count').textContent = '0 items added';
+        if (cartButtonContainer) cartButtonContainer.style.display = 'none';
+        return;
+    }
+
+    let subtotal = 0;
+    const gstPercent = <?= $gst_percent ?? 0 ?>;
+
+    if (orderTypeButtons) orderTypeButtons.style.display = 'block';
+    if (cartFooter) cartFooter.style.display = 'block';
+    if (cartButtonContainer) cartButtonContainer.style.display = 'block';
+
+    cart.forEach((item, index) => {
+        if (!item.id) return;
+        subtotal += item.price * item.quantity;
+
+        const itemElement = document.createElement('div');
+        itemElement.className = 'cart-item';
+        itemElement.innerHTML = `
+            <div class="cart-item-info d-flex">
+                <div class="ms-1">
+                    <h6>${item.name}</h6>
+                    <div>${currencySymbol}${formatNumber(item.price)} x ${item.quantity}</div>
+                </div>
+            </div>
+            <div class="cart-item-controls">
+                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, -1)">
+                    <i class="bi bi-dash"></i>
+                </button>
+                <input type="number" value="${item.quantity}" min="1" max="${item.max}"
+                        onchange="updateQuantityInput(${index}, this.value)">
+                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, 1)">
+                    <i class="bi bi-plus"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart(${index})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        cartItemsContainer.appendChild(itemElement);
+    });
+
+    if (cartTotalDetails) cartTotalDetails.style.display = 'block';
+
+    document.getElementById('cartSubtotal').textContent = formatNumber(subtotal);
+
+    let amountAfterDiscount = subtotal; // No discount
+    let total = amountAfterDiscount;
+    if (gstPercent > 0) {
+        const gstAmount = (amountAfterDiscount * gstPercent) / 100;
+        document.getElementById('gstCharges').textContent = formatNumber(gstAmount);
+        total += gstAmount;
+    }
+
+    // Delivery charges (always delivery)
+    let actualDeliveryCharge = 0;
+    const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
+    const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
+    const cartDeliveryChargesRow = document.querySelector('.cart-delivery-charges');
+    
+    if (deliveryCharge !== undefined) {
+        if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
+            actualDeliveryCharge = 0;
+            document.getElementById('deliveryChargeText').textContent = 'FREE (Order above ' + currencySymbol + formatNumber(freeDeliveryMin) + ')';
+            if (cartDeliveryChargesRow) cartDeliveryChargesRow.classList.add('free');
+        } else {
+            actualDeliveryCharge = parseFloat(deliveryCharge);
+            if (freeDeliveryMin > 0) {
+                const neededForFree = freeDeliveryMin - amountAfterDiscount;
+                document.getElementById('deliveryChargeText').innerHTML =
+                    `${currencySymbol}${formatNumber(deliveryCharge)} <span class="free-delivery-text"> (Add ${currencySymbol}${formatNumber(neededForFree)} more for FREE delivery)</span>`;
+            } else {
+                document.getElementById('deliveryChargeText').textContent = `${currencySymbol}${formatNumber(deliveryCharge)}`;
+            }
+            if (cartDeliveryChargesRow) cartDeliveryChargesRow.classList.remove('free');
+        }
+        if (cartDeliveryChargesRow) cartDeliveryChargesRow.style.display = 'block';
+        total += actualDeliveryCharge;
+    } else {
+        if (cartDeliveryChargesRow) cartDeliveryChargesRow.style.display = 'none';
+    }
+
+    document.getElementById('cartTotal').textContent = formatNumber(total);
+    const itemCount = cart.filter(item => item.id).reduce((sum, item) => sum + item.quantity, 0);
+    document.querySelector('.cart-count').textContent = itemCount + (itemCount === 1 ? ' item added' : ' items added in cart');
+}
+
+function updateQuantity(index, change) {
+    const item = cart[index];
+    const newQuantity = item.quantity + change;
+    if (newQuantity < 1) {
+        removeFromCart(index);
+        return;
+    }
+    if (newQuantity > item.max) {
+        alert('Maximum quantity reached for this product');
+        return;
+    }
+    item.quantity = newQuantity;
+    saveCart();
+    updateCartUI();
+}
+
+function updateQuantityInput(index, value) {
+    const item = cart[index];
+    let newQuantity = parseInt(value);
+    if (isNaN(newQuantity) || newQuantity < 1) newQuantity = 1;
+    else if (newQuantity > item.max) {
+        alert('Maximum quantity reached for this product');
+        newQuantity = item.max;
+    }
+    item.quantity = newQuantity;
+    saveCart();
+    updateCartUI();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveCart();
+    updateCartUI();
+    if (cart.length === 0) {
+        const cartButtonContainer = document.querySelector('.cart-button-container');
+        if (cartButtonContainer) cartButtonContainer.style.display = 'none';
+    }
+}
+
+function toggleCart() {
+    document.querySelector('.cart-sidebar').classList.toggle('open');
+}
+
+function showCart() {
+    document.querySelector('.cart-sidebar').classList.add('open');
+}
+
+function closeCart() {
+    document.querySelector('.cart-sidebar').classList.remove('open');
+}
+
+function calculateSubtotal() {
+    return cart.filter(item => item.id).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
+
+function placeOrder() {
+    if (cart.length === 0) {
+        alert('Your cart is empty');
+        return;
+    }
+
+    if (!validatePhoneForOrder()) return;
+
+    const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
+    const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
+    const gstPercent = <?= $gst_percent ?? 0 ?>;
+    
+    // No discount
+    let discountAmount = 0;
+    let discountType = '';
+    
+    const building = document.getElementById('building')?.value;
+    const flatUnit = document.getElementById('flatUnit')?.value;
+    const landmark = document.getElementById('landmark')?.value || '';
+    const customerName = document.getElementById('customerName')?.value;
+    const customerPhone = document.getElementById('customerPhone')?.value;
+    const orderNotes = document.getElementById('customerNotes')?.value || '';
+    
+    if (!customerName || !customerPhone) {
+        alert('Please provide your name and phone number');
+        return;
+    }
+    if (!validatePhoneForOrder()) return;
+    if (!building || !flatUnit) {
+        alert('Please provide complete address (Building and Flat/Unit No. are required)');
+        return;
+    }
+    
+    const addressParts = [];
+    if (flatUnit) addressParts.push(`Flat/Unit: ${flatUnit}`);
+    if (building) addressParts.push(building);
+    if (landmark) addressParts.push(`Landmark: ${landmark}`);
+    const deliveryAddress = addressParts.join(', ');
+    
+    const orderData = {
+        user_id: <?= $user_id ?>,
+        currency_symbol: currencySymbol,
+        currency_code: currencyCode,
+        order_type: 'delivery',
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        delivery_address: deliveryAddress,
+        address_components: {
+            building: building,
+            floor: '',
+            flat_unit: flatUnit,
+            landmark: landmark
+        },
+        table_number: null,
+        order_notes: orderNotes,
+        items: cart.filter(item => item.id).map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+        })),
+        discount_amount: discountAmount,
+        discount_type: discountType,
+        gst_percent: gstPercent,
+        delivery_charge: deliveryCharge,
+        free_delivery_min: freeDeliveryMin,
+        coupon_data: null
+    };
+    
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const originalBtnText = placeOrderBtn.innerHTML;
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Order Processing...';
+    
+    fetch('place_order.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error('Server response:', text);
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            cart = [];
+            localStorage.removeItem(cartKey);
+            
+            // Clear form fields
+            if (document.getElementById('customerName')) document.getElementById('customerName').value = '';
+            if (document.getElementById('customerPhone')) document.getElementById('customerPhone').value = '';
+            if (document.getElementById('building')) document.getElementById('building').value = '';
+            if (document.getElementById('flatUnit')) document.getElementById('flatUnit').value = '';
+            if (document.getElementById('landmark')) document.getElementById('landmark').value = '';
+            if (document.getElementById('customerNotes')) document.getElementById('customerNotes').value = '';
+            
+            updateCartUI();
+            closeCart();
+            
+            const orderId = data.order_id;
+            
+            const profileUrl = '<?= $profile_url ?>';
+            if (orderId) {
+                window.location.href = `order_status.php?order_id=${orderId}&profile_url=${profileUrl}`;
+            } else {
+                window.location.href = `order_status.php?profile_url=${profileUrl}`;
+            }
+        } else {
+            throw new Error(data.message || 'Failed to place order');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        let errorMessage = 'Failed to place order. ';
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage += 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('CORS')) {
+            errorMessage += 'Cross-origin request blocked. Please contact support.';
+        } else {
+            errorMessage += error.message || 'Please try again.';
+        }
+        alert(errorMessage);
+        placeOrderBtn.innerHTML = originalBtnText;
+        placeOrderBtn.disabled = false;
+    });
+}
+
+document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
+
+function createConfetti() {
+    const confettiContainer = document.getElementById('confettiContainer');
+    if (!confettiContainer) return;
+    confettiContainer.innerHTML = '';
+    confettiContainer.style.display = 'block';
+    const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+    for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const size = Math.random() * 10 + 5;
+        const left = Math.random() * 100;
+        const animationDelay = Math.random() * 5;
+        const animationDuration = Math.random() * 3 + 3;
+        confetti.style.backgroundColor = color;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.left = `${left}%`;
+        confetti.style.animationDelay = `${animationDelay}s`;
+        confetti.style.animationDuration = `${animationDuration}s`;
+        if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+        confettiContainer.appendChild(confetti);
+    }
+    setTimeout(() => {
+        confettiContainer.style.display = 'none';
+    }, 60000);
+}
+</script>
+
+<!-- products.php -->
+<div class="products">
+    <h6>Products</h6>
+
+    <?php if ($delivery_active): ?>
+        <!-- Shopping Cart Sidebar -->
+        <div class="cart-sidebar">
+            <div class="cart-header">
+                <h5>Your Cart</h5>
+                <button class="btn-close" onclick="closeCart()"></button>
+            </div>
+
+            <div class="cart_group" id="cartGroup">
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-total-details">
+                    <div class="cart-subtotal">
+                        Subtotal: <span id="cartSubtotal">0.00</span>
+                    </div>
+
+                    <?php if ($gst_percent > 0): ?>
+                        <div class="cart-gst-charges">
+                            GST (<?= $gst_percent ?>%): <span id="gstCharges">0.00</span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($delivery_active && isset($delivery_charges)): ?>
+                        <div class="cart-delivery-charges">
+                            Delivery: <span id="deliveryChargeText">0.00</span>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="cart-total">
+                        Total: <span id="cartTotal">0.00</span>
+                    </div>
+                </div>
+                <button class="btn btn-outline-secondary mb-3 w-100" id="viewCartBtn" style="display: none;">
+                    <i class="bi bi-cart blink"></i> View Cart
+                </button>
+            </div>
+
+            <!-- Order Type Buttons - Only Delivery -->
+            <div class="order-type-buttons mb-3">
+                <div class="choose_order_type">Delivery Order</div>
+                <button class="btn btn-outline-primary w-100 active" id="deliveryBtn">
+                    <i class="bi bi-truck blink"></i> Delivery
+                </button>
+            </div>
+
+            <div style="clear: both;"></div>
+
+            <!-- Customer Details Section (delivery only) -->
+            <div id="customerDetailsSection" style="display: none;">
+                <div class="customer-details delivery-details" id="deliveryDetails">
+                    <h6>Delivery Information</h6>
+                    <div class="mb-1 col-half">
+                        <label for="customerName" class="form-label">Name*</label>
+                        <input type="text" class="form-control" id="customerName" placeholder="Your name" required>
+                    </div>
+                    <div class="mb-1 col-half">
+                        <label for="customerPhone" class="form-label">Phone*</label>
+                        <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
+                    </div>
+                    
+                    <div class="mb-1 col-full">
+                        <label for="building" class="form-label">Building / Society Name*</label>
+                        <input type="text" class="form-control" id="building" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="mb-1 col-6">
+                            <label for="flatUnit" class="form-label">Flat/Unit No.*</label>
+                            <input type="text" class="form-control" id="flatUnit" required>
+                        </div>
+                        <div class="mb-1 col-6">
+                            <label for="landmark" class="form-label">Landmark / Area / City</label>
+                            <input type="text" class="form-control" id="landmark">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-1 col-full">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100" id="getLocationBtn" onclick="getCurrentLocation()">
+                            <i class="bi bi-geo-alt-fill"></i> <strong>Use My Current Location</strong>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-1 col-full">
+                        <label for="customerNotes" class="form-label">Order Notes</label>
+                        <textarea class="form-control" id="customerNotes" rows="2" placeholder="Any special instructions for delivery"></textarea>
+                    </div>
+                </div>
+
+                <div class="cart-footer">
+                    <button class="btn btn-success w-100" id="placeOrderBtn">Place Order</button>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div class="row" id="productsContainer">
+        <?php
+        // Get products from user-specific table based on user_id
+        $table_name = "products_" . $user_id;
+        $check_table = $conn->prepare("SHOW TABLES LIKE ?");
+        $check_table->execute([$table_name]);
+        $table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
+
+        if ($table_exists) {
+            $products_sql = "SELECT * FROM $table_name ORDER BY id ASC";
+            $products_stmt = $conn->prepare($products_sql);
+            $products_stmt->execute();
+            $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $products = [];
+        }
+        ?>
+
+        <?php if (!empty($products)): ?>
+            <?php foreach ($products as $product): ?>
+                <div class="col-sm-12 product-item" 
+                     data-name="<?= htmlspecialchars(strtolower($product['product_name'])) ?>" 
+                     data-desc="<?= htmlspecialchars(strtolower($product['description'])) ?>">
+                    <div class="card product-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
+                            <p class="card-text"><?= htmlspecialchars($product['description']) ?></p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">₹<?= number_format($product['price']) ?></span>
+                                <span class="badge bg-<?= ($product['quantity'] > 0) ? 'success' : 'danger' ?>" style="display: none;">
+                                    <?= ($product['quantity'] > 0) ? 'In Stock' : 'Out of Stock' ?>
+                                </span>
+                            </div>
+                            <?php if ($product['quantity'] > 0): ?>
+                                <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
+                            <?php endif; ?>
+                            
+                            <?php if ($product['quantity'] > 0 && $delivery_active && $is_store_open): ?>
+                                <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
+                                    <button class="btn btn-primary w-100 add-to-cart" 
+                                            data-id="<?= htmlspecialchars($product['product_name']) ?>" 
+                                            data-name="<?= htmlspecialchars($product['product_name']) ?>" 
+                                            data-price="<?= $product['price'] ?>" 
+                                            data-max="<?= $product['quantity'] ?>" 
+                                            data-image="<?= htmlspecialchars($product['image_path']) ?>">
+                                        <i class="bi bi-cart-plus"></i> Add
+                                    </button>
+                                </div>
+                            <?php elseif ($product['quantity'] > 0 && !$is_store_open): ?>
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> Currently unavailable (Store closed)
+                                    </small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($product['image_path'])): ?>
+                            <div class="img-group">
+                                <div class="aspect-ratio-box">
+                                    <img 
+                                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" 
+                                        data-src="<?= htmlspecialchars($product['image_path']) ?>" 
+                                        class="card-img-top product-img product-img-lazy product-img-placeholder" 
+                                        alt="<?= htmlspecialchars($product['product_name']) ?>" 
+                                        onerror="handleImageError(this)">
+                                    <div class="img-loading-spinner"></div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col-12">
+                <div class="alert alert-info">No products available yet.</div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Search (no tags) -->
+    <div class="sticky-search-container">
+        <div class="input-group sticky-search">
+            <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
+            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <?php if ($delivery_active): ?>
+        <div class="cart-button-container" style="display: none;">
+            <button class="btn btn-primary cart-button" onclick="toggleCart()">
+                <span class="cart-count">0 item added</span>
+                <i class="bi bi-cart blink"></i>
+            </button>
+        </div>
+    <?php endif; ?>
+
+<script>
+    // Product search (no tag filtering)
+    document.getElementById('productSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const productItems = document.querySelectorAll('.product-item');
+        productItems.forEach(item => {
+            const productName = item.dataset.name;
+            const productDesc = item.dataset.desc;
+            if (productName.includes(searchTerm) || productDesc.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('clearSearch').addEventListener('click', function() {
+        document.getElementById('productSearch').value = '';
+        document.querySelectorAll('.product-item').forEach(item => {
+            item.style.display = 'block';
+        });
+        document.getElementById('productSearch').focus();
+    });
+
+    // View Cart button logic
+    const viewCartBtn = document.getElementById('viewCartBtn');
+    const customerDetailsSection = document.getElementById('customerDetailsSection');
+    const cartItemsDiv = document.getElementById('cartItems');
+    
+    if (viewCartBtn) {
+        viewCartBtn.addEventListener('click', function() {
+            if (customerDetailsSection) customerDetailsSection.style.display = 'none';
+            if (cartItemsDiv) cartItemsDiv.style.display = 'block';
+            this.style.display = 'none';
+        });
+    }
+    
+    // Delivery button always active
+    const deliveryBtn = document.getElementById('deliveryBtn');
+    if (deliveryBtn) {
+        deliveryBtn.classList.add('active');
+    }
+    
+    // Show customer details after cart has items
+    function checkAndShowDetails() {
+        if (cart.length > 0 && customerDetailsSection) {
+            customerDetailsSection.style.display = 'block';
+            if (cartItemsDiv) cartItemsDiv.style.display = 'none';
+            if (viewCartBtn) viewCartBtn.style.display = 'block';
+        }
+    }
+    
+    // Override updateCartUI to call checkAndShowDetails
+    const originalUpdateCartUI = updateCartUI;
+    updateCartUI = function() {
+        originalUpdateCartUI.apply(this, arguments);
+        checkAndShowDetails();
+    };
+    checkAndShowDetails();
+    
+    // Handle image error
+    function handleImageError(img) {
+        img.style.display = 'none';
+        const cartBtnGroup = img.closest('.product-card')?.querySelector('.cart_btn_group');
+        if (cartBtnGroup) cartBtnGroup.classList.add('top');
+    }
+</script>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- View Order Button -->
+<?php
+$lastOrderId = null;
+if (isset($_COOKIE['lastOrderId']) && isset($_COOKIE['lastOrderUserId']) && $_COOKIE['lastOrderUserId'] == $user_id) {
+    $lastOrderId = $_COOKIE['lastOrderId'];
+}
+?>
+
+<div id="viewOrderBtnContainer" class="view-order-container" style="display: none;">
+    <button class="btn btn-success view-order-btn enhanced-blink" onclick="viewLastOrder()">
+        <i class="bi bi-eye-fill"></i> View Order
+    </button>
+</div>
+</div>
+
+<script>
+function checkAndShowViewOrderButton() {
+    const lastOrderId = localStorage.getItem('lastOrderId');
+    const lastOrderUserId = localStorage.getItem('lastOrderUserId');
+    const currentUserId = <?= $user_id ?>;
+    const viewOrderContainer = document.getElementById('viewOrderBtnContainer');
+    
+    if (lastOrderId && lastOrderUserId && lastOrderUserId == currentUserId) {
+        viewOrderContainer.style.display = 'block';
+    } else {
+        viewOrderContainer.style.display = 'none';
+    }
+}
+
+function viewLastOrder() {
+    const lastOrderId = localStorage.getItem('lastOrderId');
+    const profileUrl = '<?= $profile_url ?>';
+    if (lastOrderId) {
+        window.location.href = `order_status.php?order_id=${lastOrderId}&profile_url=${profileUrl}`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAndShowViewOrderButton();
+    
+    const originalUpdateCartUI = updateCartUI;
+    updateCartUI = function() {
+        originalUpdateCartUI.apply(this, arguments);
+        checkAndShowViewOrderButton();
+    };
+});
+
+const originalPlaceOrder = placeOrder;
+placeOrder = function() {
+    localStorage.removeItem('lastOrderId');
+    localStorage.removeItem('lastOrderUserId');
+    checkAndShowViewOrderButton();
+    originalPlaceOrder.apply(this, arguments);
+};
+
+function goBackToMenu(orderId) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000));
+    document.cookie = `lastOrderId=${orderId}; expires=${expires.toUTCString()}; path=/`;
+    document.cookie = `lastOrderUserId=<?= $user_id ?>; expires=${expires.toUTCString()}; path=/`;
+    localStorage.setItem('lastOrderId', orderId);
+    localStorage.setItem('lastOrderUserId', '<?= $user_id ?>');
+    window.location.href = 'https://deegeecard.com/<?= htmlspecialchars($back_url) ?>';
+}
 </script>

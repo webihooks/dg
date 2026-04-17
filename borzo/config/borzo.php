@@ -1,17 +1,18 @@
 <?php
-// borzo/config/borzo.php
+// borzo/config/borzo.php - Production configuration with per-user API keys
 
 return [
-    'environment' => 'test', // Change to 'production' when live
+    // Environment: 'test' or 'production'
+    'environment' => 'production',   // ← Changed from 'test' to 'production'
     
     'api' => [
         'test' => [
             'url' => 'https://robotapitest-in.borzodelivery.com/api/business/1.6',
-            'token' => '6CDDE6B80E8DAF4E99B05DEA3F0E80E812E9DF54'
+            'token' => '6CDDE6B80E8DAF4E99B05DEA3F0E80E812E9DF54'  // Test token (not used in production)
         ],
         'production' => [
             'url' => 'https://robot-in.borzodelivery.com/api/business/1.6',
-            'token' => '' // Fill when you get production token
+            'token' => ''   // ← No global token; each user's key is loaded from `borzo_api` table
         ]
     ],
     
@@ -21,7 +22,7 @@ return [
     ],
     
     'store' => [
-        'pickup_address' => 'Saket, New Delhi, Delhi, India', // Default fallback
+        'pickup_address' => 'Saket, New Delhi, Delhi, India', // Fallback (used only if business_info missing)
         'phone' => '918880000001',
         'name' => 'DeeGeeCard Store'
     ],

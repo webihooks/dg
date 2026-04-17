@@ -421,12 +421,13 @@ function getCurrentLocation() {
     );
 }
 
-// Parse address components and fill form fields
+
+// Geo Location
 function fillAddressFromGeocode(geocodeResult) {
     const addressComponents = geocodeResult.address_components;
     const formattedAddress = geocodeResult.formatted_address;
 
-    // Helper function to find component by type
+    // Helper: find component by type(s)
     const findComponent = (types) => {
         for (let component of addressComponents) {
             if (types.some(type => component.types.includes(type))) {
@@ -436,16 +437,20 @@ function fillAddressFromGeocode(geocodeResult) {
         return '';
     };
 
-    // Extract various address components
+    // Extract all useful components
     const streetNumber = findComponent(['street_number']);
     const route = findComponent(['route']);
-    const subpremise = findComponent(['subpremise']); // Flat/unit number
-    const premise = findComponent(['premise']);       // Building name
-    const sublocality = findComponent(['sublocality', 'sublocality_level_1', 'neighborhood']);
+    const subpremise = findComponent(['subpremise']);          // Flat/Unit
+    const premise = findComponent(['premise']);                // Building name
+    const sublocality = findComponent(['sublocality', 'sublocality_level_1', 'sublocality_level_2', 'neighborhood']);
     const locality = findComponent(['locality', 'city']);
+    const postalCode = findComponent(['postal_code']);
     const pointOfInterest = findComponent(['point_of_interest', 'establishment']);
-    
-    // Determine Building Name
+    const administrativeArea2 = findComponent(['administrative_area_level_2']); // District
+    const administrativeArea1 = findComponent(['administrative_area_level_1']); // State
+    const country = findComponent(['country']);
+
+    // ----- BUILDING NAME -----
     let building = '';
     if (premise) {
         building = premise;
@@ -456,34 +461,85 @@ function fillAddressFromGeocode(geocodeResult) {
     } else if (route) {
         building = route;
     } else {
-        // Use first part of formatted address as building name
         building = formattedAddress.split(',')[0];
     }
-    
-    // Fill Building field
     const buildingField = document.getElementById('building');
-    if (buildingField) {
-        buildingField.value = building;
-    }
-    
-    // Fill Flat/Unit if available (subpremise)
+    if (buildingField) buildingField.value = building;
+
+    // ----- FLAT / UNIT -----
     const flatUnitField = document.getElementById('flatUnit');
     if (flatUnitField && subpremise) {
         flatUnitField.value = subpremise;
     }
+
+    // ----- COMPLETE LANDMARK / AREA / CITY (detailed address) -----
+    let landmarkParts = [];
+
+    // Add street address if available (e.g., "MG Road" or "12 MG Road")
+    let street = '';
+    if (streetNumber && route) {
+        street = `${streetNumber} ${route}`;
+    } else if (route) {
+        street = route;
+    }
+    if (street) landmarkParts.push(street);
+
+    // Add area (sublocality)
+    if (sublocality) landmarkParts.push(sublocality);
+
+    // Add city (locality)
+    if (locality && (!sublocality || sublocality !== locality)) {
+        landmarkParts.push(locality);
+    }
+
+    // Add district (if available and different from city)
+    if (administrativeArea2 && administrativeArea2 !== locality && administrativeArea2 !== sublocality) {
+        landmarkParts.push(administrativeArea2);
+    }
+
+    // Add pincode
+    if (postalCode) landmarkParts.push(postalCode);
+
+    // Add state
+    if (administrativeArea1) landmarkParts.push(administrativeArea1);
+
+    // Add country (optional, but good for clarity)
+    if (country && country !== 'India') landmarkParts.push(country); // only add if not India
+
+    let landmark = landmarkParts.join(', ');
     
-    // Fill Landmark (use point of interest, sublocality, or locality)
-    let landmark = pointOfInterest || sublocality || locality || '';
+    // If we still have an empty string, fallback to the full formatted address
+    if (!landmark || landmark.trim() === '') {
+        landmark = formattedAddress;
+    }
+
     const landmarkField = document.getElementById('landmark');
     if (landmarkField) {
         landmarkField.value = landmark;
     }
-    
-    // Update address preview (function will do nothing as preview is hidden)
+
+    // (Optional) Store extra data in hidden fields – uncomment if needed
+    /*
+    const stateField = document.getElementById('hiddenState');
+    if (stateField) stateField.value = administrativeArea1;
+    const pincodeField = document.getElementById('hiddenPincode');
+    if (pincodeField) pincodeField.value = postalCode;
+    const countryField = document.getElementById('hiddenCountry');
+    if (countryField) countryField.value = country;
+    */
+
+    // Update address preview (hidden by CSS)
     if (typeof updateAddressPreview === 'function') {
         updateAddressPreview();
     }
+
+    // Optional: log for debugging (remove in production)
+    console.log('Landmark set to:', landmark);
 }
+
+
+
+
 
 // Lazy loading with fade-in effect implementation
 function initLazyLoading() {
@@ -815,11 +871,7 @@ function showToast(message, type = 'success') {
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Address Fields -->
-                        <div class="mb-1 col-full">
-                            <label for="building" class="form-label">Building / Society Name*</label>
-                            <input type="text" class="form-control" id="building" required>
-                        </div>
+                        
                         
                         <!-- Flat/Unit and Landmark on same line -->
                         <div class="row">
@@ -827,11 +879,25 @@ function showToast(message, type = 'success') {
                                 <label for="flatUnit" class="form-label">Flat/Unit No.*</label>
                                 <input type="text" class="form-control" id="flatUnit" required>
                             </div>
+
                             <div class="mb-1 col-6">
-                                <label for="landmark" class="form-label">Landmark / Area / City</label>
-                                <input type="text" class="form-control" id="landmark">
+                                <label for="building" class="form-label">Building / Society Name*</label>
+                                <input type="text" class="form-control" id="building" required>
                             </div>
+                            
                         </div>
+
+
+                        <!-- Address Fields -->
+                        <div class="mb-1 col-full">
+                            <label for="landmark" class="form-label">Landmark / Area / City</label>
+                            <input type="text" class="form-control" id="landmark">
+                        </div>
+
+
+
+
+
                         
                         <!-- Auto Location Button -->
                         <div class="mb-1 col-full">
@@ -1399,44 +1465,41 @@ function showToast(message, type = 'success') {
         document.getElementById('productSearch').focus();
     });
 
-    // Phone number validation - Updated for UAE support
+    // Phone number validation – auto‑remove leading zero for India
     function validatePhoneNumber(input) {
         // Remove any non-digit characters
         input.value = input.value.replace(/\D/g, '');
-        
+
         if (userCountry === 'UAE') {
-            // For UAE: 9 digits, can start with 0
+            // UAE: 9 digits, can start with 0
             if (input.value.length > 9) {
                 input.value = input.value.substring(0, 9);
             }
-            
-            // Check if exactly 9 digits
             if (input.value.length !== 9 && input.value.length > 0) {
                 input.setCustomValidity('Phone number must be exactly 9 digits');
                 input.reportValidity();
                 return false;
             }
         } else {
-            // For other countries (like India): 10 digits, cannot start with 0
+            // For India (and other 10‑digit countries)
+            // *** Auto‑remove leading zero for India only ***
+            if (userCountry === 'India' && input.value.startsWith('0')) {
+                input.value = input.value.substring(1); // strip first '0'
+            }
+
+            // Limit to 10 digits
             if (input.value.length > 10) {
                 input.value = input.value.substring(0, 10);
             }
-            
-            // Check if number starts with 0
-            if (input.value.length > 0 && input.value.startsWith('0')) {
-                input.setCustomValidity('Phone number cannot start with 0');
-                input.reportValidity();
-                return false;
-            }
-            
-            // Check if exactly 10 digits
+
+            // Validate length (exactly 10 digits if not empty)
             if (input.value.length !== 10 && input.value.length > 0) {
                 input.setCustomValidity('Phone number must be exactly 10 digits');
                 input.reportValidity();
                 return false;
             }
         }
-        
+
         // Valid phone number
         input.setCustomValidity('');
         return true;

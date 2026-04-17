@@ -5,6 +5,7 @@ header("Expires: 0");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
 require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
 require_once 'config/google_config.php';
@@ -143,6 +144,7 @@ if ($is_vegetable_seller) {
     require_once 'includes/download_apk_button.php';
     require_once 'includes/business_info.php';
     require_once 'includes/vegetable_products.php';
+    
     // require_once 'includes/ratings.php';
     // require_once 'includes/qr_codes.php';
     // require_once 'includes/share_section.php';

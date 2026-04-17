@@ -1,5 +1,5 @@
 <?php
-// borzo/classes/DeliveryManager.php
+// borzo/classes/DeliveryManager.php - COMPLETE with pickup + dropoff address components
 
 require_once __DIR__ . '/BorzoAPI.php';
 
@@ -35,91 +35,225 @@ class DeliveryManager {
     }
     
 
-
-
-
-/**
- * Calculate delivery cost with caching
- */
-public function calculateDelivery($deliveryAddress, $orderDetails) {
-    $this->logger->log('calculateDelivery - Starting', ['address' => $deliveryAddress]);
-    
-    // Check cache first if enabled
-    if ($this->config['options']['cache_delivery_rates']) {
-        $cached = $this->getCachedRate($deliveryAddress, $orderDetails);
-        if ($cached) {
-            return $cached;
+    /**
+     * Build individual address fields for Borzo API from order data (for dropoff)
+     * Maps: building -> building_number
+     *        floor -> floor_number
+     *        flat_unit -> apartment_number
+     *        landmark -> invisible_mile_navigation_instructions
+     * 
+     * @param array $orderData
+     * @return array
+     */
+    private function buildAddressFields($orderData) {
+        $fields = [];
+        
+        $this->logger->log('buildAddressFields - Input orderData', [
+            'delivery_address_components' => $orderData['delivery_address_components'] ?? null,
+            'direct_building' => $orderData['building'] ?? null,
+            'direct_floor' => $orderData['floor'] ?? null,
+            'direct_flat_unit' => $orderData['flat_unit'] ?? null,
+            'direct_landmark' => $orderData['landmark'] ?? null
+        ]);
+        
+        // Get components from delivery_address_components (preferred)
+        $components = $orderData['delivery_address_components'] ?? [];
+        
+        // Fallback to direct fields if components not set
+        if (empty($components['building']) && !empty($orderData['building'])) {
+            $components['building'] = $orderData['building'];
+            $this->logger->log('Using fallback building from direct field', ['building' => $orderData['building']]);
         }
-    }
-    
-    // Clean the delivery address - remove any duplicate parts
-    $cleanAddress = preg_replace('/\s+/', ' ', trim($deliveryAddress));
-    
-    $points = [
-        [
-            'address' => $this->config['store']['pickup_address'],
-            'contact_person' => [
-                'phone' => $this->config['store']['phone']
-            ]
-        ],
-        [
-            'address' => $cleanAddress,
-            'contact_person' => [
-                'phone' => $orderDetails['customer_phone']
-            ]
-        ]
-    ];
-    
-    // Add COD if applicable
-    if ($orderDetails['payment_method'] === 'cod' && $orderDetails['order_total'] > 0) {
-        $points[1]['is_cod_cash_voucher_required'] = true;
-        $points[1]['taking_amount'] = (string)$orderDetails['order_total'];
-    }
-    
-    $requestData = [
-        'matter' => $orderDetails['description'] ?? 'Food Delivery',
-        'points' => $points,
-        'total_weight_kg' => (int)($orderDetails['total_weight'] ?? 1),
-        'is_client_notification_enabled' => $this->config['options']['enable_notifications'] ?? false,
-        'is_contact_person_notification_enabled' => $this->config['options']['enable_notifications'] ?? false
-    ];
-    
-    $this->logger->log('calculateDelivery - Request Data', $requestData);
-    
-    $result = $this->borzoAPI->request('/calculate-order', $requestData);
-    
-    $this->logger->log('calculateDelivery - Response', $result);
-    
-    if ($result['http_code'] == 200) {
-        if (isset($result['response']['is_successful']) && $result['response']['is_successful']) {
-            $response = [
-                'success' => true,
-                'delivery_fee' => $result['response']['order']['delivery_fee_amount'] ?? '0.00',
-                'total_cost' => $result['response']['order']['payment_amount'] ?? '0.00',
-                'warnings' => $result['response']['warnings'] ?? []
-            ];
-            
-            // Cache the result
-            $this->cacheRate($deliveryAddress, $orderDetails, $response, $result['response']);
-            
-            return $response;
-        } else {
-            // API returned error but with 200 status
-            return [
-                'success' => false,
-                'errors' => $result['response']['errors'] ?? ['Unknown error'],
-                'parameter_errors' => $result['response']['parameter_errors'] ?? null,
-                'warnings' => $result['response']['warnings'] ?? []
-            ];
+        if (empty($components['floor']) && !empty($orderData['floor'])) {
+            $components['floor'] = $orderData['floor'];
+            $this->logger->log('Using fallback floor from direct field', ['floor' => $orderData['floor']]);
         }
+        if (empty($components['flat_unit']) && !empty($orderData['flat_unit'])) {
+            $components['flat_unit'] = $orderData['flat_unit'];
+            $this->logger->log('Using fallback flat_unit from direct field', ['flat_unit' => $orderData['flat_unit']]);
+        }
+        if (empty($components['landmark']) && !empty($orderData['landmark'])) {
+            $components['landmark'] = $orderData['landmark'];
+            $this->logger->log('Using fallback landmark from direct field', ['landmark' => $orderData['landmark']]);
+        }
+        if (empty($components['street']) && !empty($orderData['delivery_address'])) {
+            $components['street'] = $orderData['delivery_address'];
+        }
+        
+        // Map to Borzo API field names
+        if (!empty($components['building'])) {
+            $fields['building_number'] = trim($components['building']);
+            $this->logger->log('Mapped building -> building_number', ['value' => $components['building']]);
+        }
+        if (!empty($components['floor'])) {
+            $fields['floor_number'] = trim($components['floor']);
+            $this->logger->log('Mapped floor -> floor_number', ['value' => $components['floor']]);
+        }
+        if (!empty($components['flat_unit'])) {
+            $fields['apartment_number'] = trim($components['flat_unit']);
+            $this->logger->log('Mapped flat_unit -> apartment_number', ['value' => $components['flat_unit']]);
+        }
+        // Use landmark as navigation instruction (courier sees this)
+        if (!empty($components['landmark'])) {
+            $fields['invisible_mile_navigation_instructions'] = trim($components['landmark']);
+            $this->logger->log('Mapped landmark -> invisible_mile_navigation_instructions', ['value' => $components['landmark']]);
+        }
+        
+        $this->logger->log('buildAddressFields - Output fields', $fields);
+        return $fields;
     }
-    
-    return [
-        'success' => false,
-        'errors' => ['API request failed with status: ' . $result['http_code']]
-    ];
-}
 
+
+    /**
+     * Build individual address fields for pickup point
+     * Maps pickup components to Borzo API fields
+     * 
+     * @param array $orderData
+     * @return array
+     */
+    private function buildPickupAddressFields($orderData) {
+        $fields = [];
+        
+        $components = $orderData['pickup_address_components'] ?? [];
+        
+        $this->logger->log('buildPickupAddressFields - Input components', $components);
+        
+        if (!empty($components['building'])) {
+            $fields['building_number'] = trim($components['building']);
+            $this->logger->log('Pickup - Mapped building -> building_number', ['value' => $components['building']]);
+        }
+        if (!empty($components['floor'])) {
+            $fields['floor_number'] = trim($components['floor']);
+            $this->logger->log('Pickup - Mapped floor -> floor_number', ['value' => $components['floor']]);
+        }
+        if (!empty($components['flat_unit'])) {
+            $fields['apartment_number'] = trim($components['flat_unit']);
+            $this->logger->log('Pickup - Mapped flat_unit -> apartment_number', ['value' => $components['flat_unit']]);
+        }
+        
+        $this->logger->log('buildPickupAddressFields - Output fields', $fields);
+        return $fields;
+    }
+
+
+    /**
+     * Calculate delivery cost with caching
+     */
+    public function calculateDelivery($deliveryAddress, $orderDetails) {
+        $this->logger->log('calculateDelivery - Starting', ['address' => $deliveryAddress]);
+        
+        // Check cache first if enabled
+        if ($this->config['options']['cache_delivery_rates']) {
+            $cached = $this->getCachedRate($deliveryAddress, $orderDetails);
+            if ($cached) {
+                return $cached;
+            }
+        }
+        
+        // Clean the delivery address - remove any duplicate parts
+        $cleanAddress = preg_replace('/\s+/', ' ', trim($deliveryAddress));
+        
+        $points = [
+            [
+                'address' => $this->config['store']['pickup_address'],
+                'contact_person' => [
+                    'phone' => $this->config['store']['phone']
+                ]
+            ],
+            [
+                'address' => $cleanAddress,
+                'contact_person' => [
+                    'phone' => $orderDetails['customer_phone']
+                ]
+            ]
+        ];
+        
+        // Add individual address fields for estimation if components are provided
+        if (!empty($orderDetails['delivery_address_components']) || !empty($orderDetails['building'])) {
+            $addressFields = [];
+            $components = $orderDetails['delivery_address_components'] ?? [];
+            
+            if (empty($components['building']) && !empty($orderDetails['building'])) {
+                $components['building'] = $orderDetails['building'];
+            }
+            if (empty($components['floor']) && !empty($orderDetails['floor'])) {
+                $components['floor'] = $orderDetails['floor'];
+            }
+            if (empty($components['flat_unit']) && !empty($orderDetails['flat_unit'])) {
+                $components['flat_unit'] = $orderDetails['flat_unit'];
+            }
+            if (empty($components['landmark']) && !empty($orderDetails['landmark'])) {
+                $components['landmark'] = $orderDetails['landmark'];
+            }
+            
+            if (!empty($components['building'])) {
+                $addressFields['building_number'] = $components['building'];
+            }
+            if (!empty($components['floor'])) {
+                $addressFields['floor_number'] = $components['floor'];
+            }
+            if (!empty($components['flat_unit'])) {
+                $addressFields['apartment_number'] = $components['flat_unit'];
+            }
+            if (!empty($components['landmark'])) {
+                $addressFields['invisible_mile_navigation_instructions'] = $components['landmark'];
+            }
+            
+            if (!empty($addressFields)) {
+                $points[1] = array_merge($points[1], $addressFields);
+                $this->logger->log('calculateDelivery - Added individual address fields', $addressFields);
+            }
+        }
+        
+        // Add COD if applicable
+        if ($orderDetails['payment_method'] === 'cod' && $orderDetails['order_total'] > 0) {
+            $points[1]['is_cod_cash_voucher_required'] = true;
+            $points[1]['taking_amount'] = (string)$orderDetails['order_total'];
+        }
+        
+        $requestData = [
+            'matter' => $orderDetails['description'] ?? 'Food Delivery',
+            'points' => $points,
+            'total_weight_kg' => (int)($orderDetails['total_weight'] ?? 1),
+            'is_client_notification_enabled' => $this->config['options']['enable_notifications'] ?? false,
+            'is_contact_person_notification_enabled' => $this->config['options']['enable_notifications'] ?? false
+        ];
+        
+        $this->logger->log('calculateDelivery - Request Data', $requestData);
+        
+        $result = $this->borzoAPI->request('/calculate-order', $requestData);
+        
+        $this->logger->log('calculateDelivery - Response', $result);
+        
+        if ($result['http_code'] == 200) {
+            if (isset($result['response']['is_successful']) && $result['response']['is_successful']) {
+                $response = [
+                    'success' => true,
+                    'delivery_fee' => $result['response']['order']['delivery_fee_amount'] ?? '0.00',
+                    'total_cost' => $result['response']['order']['payment_amount'] ?? '0.00',
+                    'warnings' => $result['response']['warnings'] ?? []
+                ];
+                
+                // Cache the result
+                $this->cacheRate($deliveryAddress, $orderDetails, $response, $result['response']);
+                
+                return $response;
+            } else {
+                // API returned error but with 200 status
+                return [
+                    'success' => false,
+                    'errors' => $result['response']['errors'] ?? ['Unknown error'],
+                    'parameter_errors' => $result['response']['parameter_errors'] ?? null,
+                    'warnings' => $result['response']['warnings'] ?? []
+                ];
+            }
+        }
+        
+        return [
+            'success' => false,
+            'errors' => ['API request failed with status: ' . $result['http_code']]
+        ];
+    }
 
 
     
@@ -141,27 +275,48 @@ public function calculateDelivery($deliveryAddress, $orderDetails) {
         
         $this->logger->log('Using pickup address', ['address' => $orderData['pickup_address']]);
         
-        $points = [
-            [
-                'address' => $orderData['pickup_address'],
-                'contact_person' => [
-                    'phone' => $orderData['store_phone'],
-                    'name' => $orderData['store_name']
-                ],
-                'client_order_id' => (string)$orderData['order_id'],
-                'note' => 'Ready for pickup'
+        // ----- BUILD PICKUP POINT WITH ADDRESS FIELDS -----
+        $pickupPoint = [
+            'address' => $orderData['pickup_full_address'] ?? $orderData['pickup_address'],
+            'contact_person' => [
+                'phone' => $orderData['store_phone'],
+                'name' => $orderData['store_name']
             ],
-            [
-                'address' => $orderData['delivery_address'],
-                'contact_person' => [
-                    'phone' => $orderData['customer_phone'],
-                    'name' => $orderData['customer_name']
-                ],
-                'note' => $orderData['delivery_instructions'] ?? ''
-            ]
+            'client_order_id' => (string)$orderData['order_id'],
+            'note' => 'Ready for pickup'
         ];
         
-        $this->logger->log('Points array built', $points);
+        // Add individual address fields for pickup if components exist
+        $pickupFields = $this->buildPickupAddressFields($orderData);
+        if (!empty($pickupFields)) {
+            $pickupPoint = array_merge($pickupPoint, $pickupFields);
+            $this->logger->log('Added individual address fields to pickup point', $pickupFields);
+        }
+        
+        // ----- BUILD DROPOFF POINT WITH ADDRESS FIELDS -----
+        $dropoffPoint = [
+            'address' => $orderData['delivery_address'],
+            'contact_person' => [
+                'phone' => $orderData['customer_phone'],
+                'name' => $orderData['customer_name']
+            ],
+            'note' => $orderData['delivery_instructions'] ?? ''
+        ];
+        
+        // Add individual address fields for dropoff if components exist
+        $dropoffFields = $this->buildAddressFields($orderData);
+        if (!empty($dropoffFields)) {
+            $dropoffPoint = array_merge($dropoffPoint, $dropoffFields);
+            $this->logger->log('Added individual address fields to dropoff point', $dropoffFields);
+        } else {
+            $this->logger->log('No individual address fields found for dropoff - using only full address', [
+                'delivery_address' => $orderData['delivery_address']
+            ]);
+        }
+        
+        $points = [$pickupPoint, $dropoffPoint];
+        $this->logger->log('Points array built - Pickup point:', $points[0]);
+        $this->logger->log('Points array built - Dropoff point:', $points[1]);
         
         // Validate points
         foreach ($points as $index => $point) {
@@ -324,7 +479,6 @@ public function calculateDelivery($deliveryAddress, $orderDetails) {
     
 
 
-
     /**
      * Cancel Borzo delivery order
      */
@@ -384,99 +538,99 @@ public function calculateDelivery($deliveryAddress, $orderDetails) {
 
 
 
-/**
- * Update order with Borzo details after creation
- */
-private function updateOrderWithBorzoDetails($orderId, $borzoOrder) {
-    global $conn;
-    
-    $this->logger->log('Updating order with Borzo details', ['order_id' => $orderId, 'borzo_order_id' => $borzoOrder['order_id']]);
-    
-    // Extract tracking URLs from points
-    $pickupTrackingUrl = null;
-    $deliveryTrackingUrl = null;
-    $trackingUrl = null;
-    $geocodedAddress = null;
-    
-    if (isset($borzoOrder['points']) && is_array($borzoOrder['points'])) {
-        foreach ($borzoOrder['points'] as $index => $point) {
-            if (isset($point['tracking_url'])) {
-                if ($index === 0) {
-                    $pickupTrackingUrl = $point['tracking_url'];
-                } else {
-                    $deliveryTrackingUrl = $point['tracking_url'];
+    /**
+     * Update order with Borzo details after creation
+     */
+    private function updateOrderWithBorzoDetails($orderId, $borzoOrder) {
+        global $conn;
+        
+        $this->logger->log('Updating order with Borzo details', ['order_id' => $orderId, 'borzo_order_id' => $borzoOrder['order_id']]);
+        
+        // Extract tracking URLs from points
+        $pickupTrackingUrl = null;
+        $deliveryTrackingUrl = null;
+        $trackingUrl = null;
+        $geocodedAddress = null;
+        
+        if (isset($borzoOrder['points']) && is_array($borzoOrder['points'])) {
+            foreach ($borzoOrder['points'] as $index => $point) {
+                if (isset($point['tracking_url'])) {
+                    if ($index === 0) {
+                        $pickupTrackingUrl = $point['tracking_url'];
+                    } else {
+                        $deliveryTrackingUrl = $point['tracking_url'];
+                    }
+                }
+                // Get the geocoded address for delivery point
+                if ($index === 1 && isset($point['address'])) {
+                    $geocodedAddress = $point['address'];
                 }
             }
-            // Get the geocoded address for delivery point
-            if ($index === 1 && isset($point['address'])) {
-                $geocodedAddress = $point['address'];
-            }
         }
+        
+        $trackingUrl = $deliveryTrackingUrl ?: $pickupTrackingUrl;
+        
+        $this->logger->log('Tracking URL extracted', [
+            'pickup_url' => $pickupTrackingUrl,
+            'delivery_url' => $deliveryTrackingUrl,
+            'final_url' => $trackingUrl,
+            'geocoded_address' => $geocodedAddress
+        ]);
+        
+        $sql = "UPDATE orders SET 
+                borzo_order_id = ?,
+                borzo_order_name = ?,
+                borzo_status = ?,
+                borzo_status_description = ?,
+                delivery_fee = ?,
+                delivery_tracking_url = ?,
+                borzo_geocoded_address = ?,
+                estimated_pickup_time = ?,
+                estimated_delivery_time = ?,
+                borzo_last_sync = NOW()
+                WHERE order_id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            $this->logger->log('Database prepare error', ['error' => $conn->error]);
+            return false;
+        }
+        
+        $borzoOrderId = (int)$borzoOrder['order_id'];
+        $borzoOrderName = (string)$borzoOrder['order_name'];
+        $borzoStatus = (string)$borzoOrder['status'];
+        $borzoStatusDesc = (string)($borzoOrder['status_description'] ?? $borzoOrder['status']);
+        $deliveryFee = (float)$borzoOrder['delivery_fee_amount'];
+        $pickupTime = isset($borzoOrder['points'][0]['required_start_datetime']) ? (string)$borzoOrder['points'][0]['required_start_datetime'] : null;
+        $deliveryTime = isset($borzoOrder['points'][1]['required_start_datetime']) ? (string)$borzoOrder['points'][1]['required_start_datetime'] : null;
+        
+        $stmt->bind_param(
+            'isssdssssi',
+            $borzoOrderId,
+            $borzoOrderName,
+            $borzoStatus,
+            $borzoStatusDesc,
+            $deliveryFee,
+            $trackingUrl,
+            $geocodedAddress,
+            $pickupTime,
+            $deliveryTime,
+            $orderId
+        );
+        
+        $result = $stmt->execute();
+        if (!$result) {
+            $this->logger->log('Execute error', ['error' => $stmt->error]);
+        }
+        $stmt->close();
+        
+        $this->logger->log('Order update executed', ['result' => $result]);
+        
+        // Add initial tracking record
+        $this->addTrackingRecord($orderId, $borzoOrder, $trackingUrl);
+        
+        return $result;
     }
-    
-    $trackingUrl = $deliveryTrackingUrl ?: $pickupTrackingUrl;
-    
-    $this->logger->log('Tracking URL extracted', [
-        'pickup_url' => $pickupTrackingUrl,
-        'delivery_url' => $deliveryTrackingUrl,
-        'final_url' => $trackingUrl,
-        'geocoded_address' => $geocodedAddress
-    ]);
-    
-    $sql = "UPDATE orders SET 
-            borzo_order_id = ?,
-            borzo_order_name = ?,
-            borzo_status = ?,
-            borzo_status_description = ?,
-            delivery_fee = ?,
-            delivery_tracking_url = ?,
-            borzo_geocoded_address = ?,
-            estimated_pickup_time = ?,
-            estimated_delivery_time = ?,
-            borzo_last_sync = NOW()
-            WHERE order_id = ?";
-    
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        $this->logger->log('Database prepare error', ['error' => $conn->error]);
-        return false;
-    }
-    
-    $borzoOrderId = (int)$borzoOrder['order_id'];
-    $borzoOrderName = (string)$borzoOrder['order_name'];
-    $borzoStatus = (string)$borzoOrder['status'];
-    $borzoStatusDesc = (string)($borzoOrder['status_description'] ?? $borzoOrder['status']);
-    $deliveryFee = (float)$borzoOrder['delivery_fee_amount'];
-    $pickupTime = isset($borzoOrder['points'][0]['required_start_datetime']) ? (string)$borzoOrder['points'][0]['required_start_datetime'] : null;
-    $deliveryTime = isset($borzoOrder['points'][1]['required_start_datetime']) ? (string)$borzoOrder['points'][1]['required_start_datetime'] : null;
-    
-    $stmt->bind_param(
-        'isssdssssi',
-        $borzoOrderId,
-        $borzoOrderName,
-        $borzoStatus,
-        $borzoStatusDesc,
-        $deliveryFee,
-        $trackingUrl,
-        $geocodedAddress,
-        $pickupTime,
-        $deliveryTime,
-        $orderId
-    );
-    
-    $result = $stmt->execute();
-    if (!$result) {
-        $this->logger->log('Execute error', ['error' => $stmt->error]);
-    }
-    $stmt->close();
-    
-    $this->logger->log('Order update executed', ['result' => $result]);
-    
-    // Add initial tracking record
-    $this->addTrackingRecord($orderId, $borzoOrder, $trackingUrl);
-    
-    return $result;
-}
 
 
 
@@ -527,86 +681,86 @@ private function updateOrderWithBorzoDetails($orderId, $borzoOrder) {
         return $result;
     }
     
-/**
- * Update tracking information
- */
-private function updateTrackingInfo($orderId, $borzoOrder) {
-    global $conn;
-    
-    // If no database connection, return
-    if (!$conn) {
-        $this->logger->log('No database connection in updateTrackingInfo');
-        return false;
-    }
-    
-    $trackingUrl = null;
-    if (isset($borzoOrder['points']) && is_array($borzoOrder['points'])) {
-        foreach ($borzoOrder['points'] as $point) {
-            if (isset($point['tracking_url'])) {
-                $trackingUrl = $point['tracking_url'];
-                break;
+    /**
+     * Update tracking information
+     */
+    private function updateTrackingInfo($orderId, $borzoOrder) {
+        global $conn;
+        
+        // If no database connection, return
+        if (!$conn) {
+            $this->logger->log('No database connection in updateTrackingInfo');
+            return false;
+        }
+        
+        $trackingUrl = null;
+        if (isset($borzoOrder['points']) && is_array($borzoOrder['points'])) {
+            foreach ($borzoOrder['points'] as $point) {
+                if (isset($point['tracking_url'])) {
+                    $trackingUrl = $point['tracking_url'];
+                    break;
+                }
             }
         }
-    }
-    
-    // Update orders table
-    $sql = "UPDATE orders SET 
-            borzo_status = ?,
-            borzo_status_description = ?,
-            delivery_tracking_url = COALESCE(?, delivery_tracking_url),
-            borzo_last_sync = NOW()
-            WHERE order_id = ?";
-    
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        $this->logger->log('Prepare failed in updateTrackingInfo', ['error' => $conn->error]);
-        return false;
-    }
-    
-    // FIX: Use variables, not direct values in bind_param
-    $status = $borzoOrder['status'] ?? '';
-    $statusDesc = $borzoOrder['status_description'] ?? ($borzoOrder['status'] ?? '');
-    
-    $stmt->bind_param('sssi', 
-        $status,
-        $statusDesc,
-        $trackingUrl,
-        $orderId
-    );
-    
-    $result = $stmt->execute();
-    if (!$result) {
-        $this->logger->log('Execute failed in updateTrackingInfo', ['error' => $stmt->error]);
-    }
-    $stmt->close();
-    
-    // Add to tracking history if status changed
-    $sql = "INSERT INTO order_delivery_tracking 
-            (order_id, borzo_order_id, status, status_description, tracking_url, created_at) 
-            SELECT ?, ?, ?, ?, ?, NOW()
-            WHERE NOT EXISTS (
-                SELECT 1 FROM order_delivery_tracking 
-                WHERE order_id = ? AND status = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
-            )";
-    
-    $stmt = $conn->prepare($sql);
-    if ($stmt) {
-        $borzoOrderId = $borzoOrder['order_id'] ?? 0;
-        $stmt->bind_param('iisssis',
-            $orderId,
-            $borzoOrderId,
+        
+        // Update orders table
+        $sql = "UPDATE orders SET 
+                borzo_status = ?,
+                borzo_status_description = ?,
+                delivery_tracking_url = COALESCE(?, delivery_tracking_url),
+                borzo_last_sync = NOW()
+                WHERE order_id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            $this->logger->log('Prepare failed in updateTrackingInfo', ['error' => $conn->error]);
+            return false;
+        }
+        
+        // FIX: Use variables, not direct values in bind_param
+        $status = $borzoOrder['status'] ?? '';
+        $statusDesc = $borzoOrder['status_description'] ?? ($borzoOrder['status'] ?? '');
+        
+        $stmt->bind_param('sssi', 
             $status,
             $statusDesc,
             $trackingUrl,
-            $orderId,
-            $status
+            $orderId
         );
-        $stmt->execute();
+        
+        $result = $stmt->execute();
+        if (!$result) {
+            $this->logger->log('Execute failed in updateTrackingInfo', ['error' => $stmt->error]);
+        }
         $stmt->close();
+        
+        // Add to tracking history if status changed
+        $sql = "INSERT INTO order_delivery_tracking 
+                (order_id, borzo_order_id, status, status_description, tracking_url, created_at) 
+                SELECT ?, ?, ?, ?, ?, NOW()
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM order_delivery_tracking 
+                    WHERE order_id = ? AND status = ? AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+                )";
+        
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $borzoOrderId = $borzoOrder['order_id'] ?? 0;
+            $stmt->bind_param('iisssis',
+                $orderId,
+                $borzoOrderId,
+                $status,
+                $statusDesc,
+                $trackingUrl,
+                $orderId,
+                $status
+            );
+            $stmt->execute();
+            $stmt->close();
+        }
+        
+        return true;
     }
-    
-    return true;
-}
     
     /**
      * Update courier information

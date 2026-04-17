@@ -606,7 +606,7 @@ try {
                         <i class="fab fa-whatsapp text-2xl text-white"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-4">Bulk WhatsApp Marketing</h3>
-                    <p class="text-white">FREE 10,000 WhatsApp marketing credits to send offers directly to customers.</p>
+                    <p class="text-white">FREE 1 month Bulk WhatsApp Marketing App to send offers directly to customers.</p>
                 </div>
                 
                 <!-- Feature 6 -->

@@ -130,190 +130,7 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>
-        .api-key-container {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .api-key-header {
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .api-key-header h3 {
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .api-key-header p {
-            color: #6c757d;
-            margin-bottom: 0;
-        }
-        
-        .api-key-form {
-            margin-top: 20px;
-        }
-        
-        .api-key-input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        .api-key-input-group label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        .api-key-input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .api-key-input-group input:focus {
-            border-color: #0066CC;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-        
-        .api-key-input-group input[readonly] {
-            background-color: #f1f3f5;
-            border-color: #dee2e6;
-            color: #495057;
-        }
-        
-        .toggle-visibility {
-            position: absolute;
-            right: 15px;
-            top: 45px;
-            cursor: pointer;
-            color: #6c757d;
-        }
-        
-        .toggle-visibility:hover {
-            color: #0066CC;
-        }
-        
-        .api-key-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 30px;
-        }
-        
-        .btn-borzo {
-            background-color: #0066CC;
-            border-color: #0066CC;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-borzo:hover {
-            background-color: #0052a3;
-            border-color: #0052a3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,102,204,0.3);
-        }
-        
-        .btn-outline-borzo {
-            background-color: transparent;
-            border: 2px solid #0066CC;
-            color: #0066CC;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline-borzo:hover {
-            background-color: #0066CC;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,102,204,0.2);
-        }
-        
-        .btn-danger-outline {
-            background-color: transparent;
-            border: 2px solid #dc3545;
-            color: #dc3545;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-danger-outline:hover {
-            background-color: #dc3545;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(220,53,69,0.3);
-        }
-        
-        .info-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .info-card h5 {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .info-card ul {
-            padding-left: 20px;
-            color: #6c757d;
-        }
-        
-        .info-card li {
-            margin-bottom: 8px;
-        }
-        
-        .api-key-masked {
-            font-family: monospace;
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .badge-role {
-            background: #6c757d;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .api-key-container {
-                padding: 15px;
-            }
-            
-            .api-key-actions {
-                flex-direction: column;
-            }
-            
-            .api-key-actions .btn {
-                width: 100%;
-            }
-        }
+.api-key-container{background:#f8f9fa;border-radius:10px;padding:25px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.api-key-header{border-bottom:2px solid #e9ecef;padding-bottom:15px;margin-bottom:20px}.api-key-header h3{color:#333;font-weight:600}.api-key-header p{color:#6c757d;margin-bottom:0}.api-key-form{margin-top:20px}.api-key-input-group{position:relative;margin-bottom:20px}.api-key-input-group label{font-weight:600;color:#495057;margin-bottom:8px;display:block}.api-key-input-group input{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:8px;font-family:monospace;font-size:14px;transition:.3s}.api-key-input-group input:focus{border-color:#06c;outline:0;box-shadow:0 0 0 3px rgba(0,102,204,.1)}.api-key-input-group input[readonly]{background-color:#f1f3f5;border-color:#dee2e6;color:#495057}.toggle-visibility{position:absolute;right:15px;top:45px;cursor:pointer;color:#6c757d}.toggle-visibility:hover{color:#06c}.api-key-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}.btn-borzo{background-color:#06c;border-color:#06c;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;transition:.3s}.btn-danger-outline,.btn-outline-borzo{background-color:transparent;padding:10px 20px;transition:.3s;font-weight:600}.btn-borzo:hover{background-color:#0052a3;border-color:#0052a3;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.3)}.btn-outline-borzo{border:2px solid #06c;color:#06c;border-radius:8px}.btn-outline-borzo:hover{background-color:#06c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.2)}.btn-danger-outline{border:2px solid #dc3545;color:#dc3545;border-radius:8px}.btn-danger-outline:hover{background-color:#dc3545;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(220,53,69,.3)}.badge-role{background:#6c757d;color:#fff;padding:5px 12px;border-radius:50px;font-size:.8rem;font-weight:600}@media (max-width:768px){.api-key-container{padding:15px}.api-key-actions{flex-direction:column}.api-key-actions .btn{width:100%}}
     </style>
 </head>
 <body>
@@ -339,7 +156,7 @@ $conn->close();
                                 <?php endif; ?>
 
                                 <div class="row">
-                                    <div class="col-lg-8">
+                                    <div class="col-lg-12">
                                         <div class="api-key-container">
                                             <div class="api-key-header">
                                                 <h3><i class="bi bi-key"></i> Your Borzo API Key</h3>
@@ -384,47 +201,12 @@ $conn->close();
                                                     </button>
                                                     
                                                     <?php if (!empty($api_key)): ?>
-                                                        <button type="button" class="btn btn-outline-borzo" onclick="testApiKey()">
-                                                            <i class="bi bi-play-circle"></i> Test Connection
-                                                        </button>
                                                         <button type="submit" name="delete_api_key" class="btn btn-danger-outline" onclick="return confirm('Are you sure you want to delete your API key? This will disable Borzo delivery integration.')">
                                                             <i class="bi bi-trash"></i> Delete Key
                                                         </button>
                                                     <?php endif; ?>
                                                 </div>
                                             </form>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-4">
-                                        <div class="info-card">
-                                            <h5><i class="bi bi-info-circle"></i> API Key Information</h5>
-                                            <ul>
-                                                <li><i class="bi bi-dot"></i> Your Borzo API key is used for delivery integrations</li>
-                                                <li><i class="bi bi-dot"></i> Get your API key from your <a href="https://apitest.borzodelivery.com/in/cabinet" target="_blank">Borzo Dashboard</a></li>
-                                                <li><i class="bi bi-dot"></i> Keys are encrypted and stored securely</li>
-                                                <li><i class="bi bi-dot"></i> Never share your API key with anyone</li>
-                                                <li><i class="bi bi-dot"></i> If compromised, regenerate in Borzo dashboard and update here</li>
-                                            </ul>
-                                        </div>
-                                        
-                                        <div class="info-card mt-3">
-                                            <h5><i class="bi bi-question-circle"></i> Need Help?</h5>
-                                            <ul>
-                                                <li><i class="bi bi-dot"></i> <a href="https://docs.borzodelivery.com" target="_blank">Borzo API Documentation</a></li>
-                                                <li><i class="bi bi-dot"></i> Contact support: api.in@borzodelivery.com</li>
-                                                <li><i class="bi bi-dot"></i> Test environment: apitest.borzodelivery.com</li>
-                                            </ul>
-                                        </div>
-                                        
-                                        <div class="info-card mt-3">
-                                            <h5><i class="bi bi-shield-check"></i> Security Tips</h5>
-                                            <ul>
-                                                <li><i class="bi bi-dot"></i> Use different keys for test and production</li>
-                                                <li><i class="bi bi-dot"></i> Rotate keys periodically</li>
-                                                <li><i class="bi bi-dot"></i> Monitor usage in Borzo dashboard</li>
-                                                <li><i class="bi bi-dot"></i> Set IP restrictions if possible</li>
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -434,27 +216,6 @@ $conn->close();
                 </div>
             </div>
             <?php include 'footer.php'; ?>
-        </div>
-    </div>
-
-    <!-- Test API Key Modal -->
-    <div class="modal fade" id="testApiModal" tabindex="-1" aria-labelledby="testApiModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="testApiModalLabel">Testing API Connection</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center" id="testResult">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Testing...</span>
-                    </div>
-                    <p class="mt-3">Testing connection to Borzo API...</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -477,98 +238,6 @@ $conn->close();
                 icon.classList.add('bi-eye');
             }
         });
-
-        // Test API Key function - FIXED VERSION
-        function testApiKey() {
-            const apiKey = document.getElementById('borzo_api_key').value;
-            
-            if (!apiKey) {
-                alert('Please enter an API key first');
-                return;
-            }
-            
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('testApiModal'));
-            modal.show();
-            
-            // Test connection with correct endpoint and method
-            $.ajax({
-                url: 'https://robotapitest-in.borzodelivery.com/api/business/1.6/calculate-order',
-                type: 'POST',
-                headers: {
-                    'X-DV-Auth-Token': apiKey,
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify({
-                    matter: 'API Test',
-                    points: [
-                        {
-                            address: 'Saket, New Delhi, Delhi',
-                            contact_person: { phone: '918880000001' }
-                        },
-                        {
-                            address: 'Janakpuri, New Delhi, Delhi',
-                            contact_person: { phone: '918880000001' }
-                        }
-                    ]
-                }),
-                success: function(response) {
-                    if (response.is_successful) {
-                        $('#testResult').html(`
-                            <div class="text-success">
-                                <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
-                                <h4 class="mt-3">✅ API Key Valid!</h4>
-                                <p>Your API key is working correctly.</p>
-                                <p class="small text-muted">Delivery fee: ₹${response.order.delivery_fee_amount}</p>
-                            </div>
-                        `);
-                    } else {
-                        $('#testResult').html(`
-                            <div class="text-warning">
-                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem;"></i>
-                                <h4 class="mt-3">⚠️ API Error</h4>
-                                <p>${response.errors ? response.errors.join(', ') : 'Unknown error'}</p>
-                            </div>
-                        `);
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Test error:', xhr);
-                    let errorMsg = 'Connection failed';
-                    let statusCode = xhr.status;
-                    
-                    try {
-                        if (xhr.responseText) {
-                            const res = JSON.parse(xhr.responseText);
-                            if (res.errors) {
-                                errorMsg = res.errors.join(', ');
-                            } else if (res.error) {
-                                errorMsg = res.error;
-                            }
-                        }
-                    } catch(e) {
-                        // If not JSON, use status text
-                        if (statusCode === 401) {
-                            errorMsg = 'Invalid API key (Unauthorized)';
-                        } else if (statusCode === 0) {
-                            errorMsg = 'Network error - cannot reach Borzo servers';
-                        } else {
-                            errorMsg = xhr.statusText || 'Unknown error';
-                        }
-                    }
-                    
-                    $('#testResult').html(`
-                        <div class="text-danger">
-                            <i class="bi bi-x-circle-fill" style="font-size: 3rem;"></i>
-                            <h4 class="mt-3">❌ Connection Failed</h4>
-                            <p>${errorMsg}</p>
-                            <p class="small text-muted">Status: ${statusCode || 'No response'}</p>
-                            <p class="small text-muted">Please check your API key and try again.</p>
-                        </div>
-                    `);
-                }
-            });
-        }
 
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {

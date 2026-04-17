@@ -431,265 +431,7 @@ function formatFullAddress($order) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}.table tbody tr:last-child td{border-bottom:1px solid #dee2e6!important}.btn{padding:20px 5px;min-width:85px}.table>:not(caption)>*>*{padding:5px}.status-badge{padding:5px 10px;border-radius:20px;font-weight:700;font-size:.8em}.status-Pending{background-color:#ffc107;color:#000}.status-Confirmed{background-color:#17a2b8;color:#fff}.status-Preparing{background-color:#fd7e14;color:#fff}.status-Ready{background-color:#28a745;color:#fff}.status-Completed{background-color:orange;color:#fff}.status-Cancelled{background-color:#dc3545;color:#fff}.borzo-status-badge{font-size:.7em;padding:2px 5px;border-radius:10px;background-color:#6c757d;color:#fff;margin-left:5px}.borzo-status-active{background-color:#28a745}.borzo-status-pending{background-color:#ffc107;color:#000}.borzo-status-delivered{background-color:#17a2b8}.bi-arrow-repeat.spin{animation:spin 1s linear infinite}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}.timer{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;background-color:#000;font-weight:700;color:#fff}.timer.warning{background-color:orange;color:#000}.timer.danger{background-color:red;color:#fff;animation:blink 1s infinite}@keyframes blink{0%,50%{opacity:1}100%,51%{opacity:.5}}.timer-column{min-width:120px}.btn-info.update-status-btn,.btn-info.update-status-btn.wave-pulse,.btn-success.update-status-btn{position:relative;overflow:hidden}.btn-success.update-status-btn{border:2px solid #198754}.btn-success.update-status-btn.pulse-border{animation:borderPulse 2s infinite}@keyframes borderPulse{0%{box-shadow:0 0 0 0 rgba(25,135,84,.7);border-color:#198754}70%{box-shadow:0 0 0 10px rgba(25,135,84,0);border-color:#20c997}100%{box-shadow:0 0 0 0 rgba(25,135,84,0);border-color:#198754}}.btn-info.update-status-btn{border:2px solid #ff6c2f}.btn-info.update-status-btn.pulse-border{animation:borderPulseOrange 2s infinite}@keyframes borderPulseOrange{0%{box-shadow:0 0 0 0 rgba(255,108,47,.7);border-color:#ff6c2f}70%{box-shadow:0 0 0 10px rgba(255,108,47,0);border-color:#ff8c5a}100%{box-shadow:0 0 0 0 rgba(255,108,47,0);border-color:#ff6c2f}}@media (max-width:768px){.mobile_table .update-status-btn[data-new-status=Completed],.mobile_table .update-status-btn[data-new-status=Ready]{width:100%;margin:5px 0;display:block;padding:10px 20px;font-size:15px;text-align:left}.mobile_table td[data-label=Actions]{text-align:center}.timer-column{min-width:100px}.mobile_table tr{position:relative}.mobile_table .table td.timer-column:before{display:none}.mobile_table .table td.timer-column{border-bottom:0!important}.clountdown_group{position:absolute;top:193px;z-index:99;right:28px}.mobile_table td[data-label="Actions"]{min-height:80px}.btn.btn-sm.btn-primary.view-order{margin-top:0}.copy-btn{padding:5px 0}#statusUpdateForm{width:70%}.btn.btn-secondary{padding:20px 10px;min-width:0}#modalStatusSelect{padding:8px}.mobile_table .print-bill{width:100%;margin:5px 0;display:block;padding:10px 20px;font-size:15px;text-align:left}}.btn-warning{background-color:#ffc107;border-color:#ffc107;color:#000}.btn-warning:hover{background-color:#e0a800;border-color:#e0a800;color:#000}.bill-container{width:65mm;max-width:65mm;font-family:'Arial';font-size:12px;line-height:1.2;background:#fff;padding:0;margin:0 auto;color:#000!important}.bill-header{text-align:center;margin-bottom:5px;color:#000!important}.bill-header .business-name{font-weight:700;font-size:14px;margin-bottom:2px;color:#000!important}.bill-header .business-address{font-size:10px;margin-bottom:2px;color:#000!important}.bill-header .business-phone{font-size:10px;margin-bottom:3px;color:#000!important}.bill-divider{border-bottom:1px solid #000;margin:3px 0}.bill-double-divider{border-bottom:2px solid #000;margin:3px 0}.bill-row{display:flex;justify-content:space-between;margin:1px 0;color:#000!important}.bill-item-name{flex:2;text-align:left;font-size:11px;color:#000!important}.bill-item-qty{flex:1;text-align:center;color:#000!important}.bill-item-price{flex:1;text-align:right;color:#000!important}.bill-item-total{flex:1;text-align:right;color:#000!important}.bill-summary-row{display:flex;justify-content:space-between;margin:1px 0;color:#000!important}.bill-summary-label{flex:2;text-align:left;color:#000!important}.bill-summary-value{flex:1;text-align:right;color:#000!important}.bill-footer{margin-top:5px;font-size:10px;text-align:center;color:#000!important}@media print{body *{visibility:hidden}.bill-container,.bill-container *{visibility:visible;color:#000!important}.bill-container{position:absolute;left:0;top:0;width:65mm;max-width:65mm;color:#000!important}.modal-footer,.modal-header{display:none!important}}@media (min-width:576px){.modal-sm{--bs-modal-width:330px!important}}#billPreviewModal .modal-dialog{max-width:100%;margin:0 auto}#billPreviewModal .modal-content{border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.3)}#billPreviewModal .modal-header{background:#f8f9fa;border-bottom:1px solid #dee2e6;padding:12px 15px}#billPreviewModal .modal-title{font-size:16px;font-weight:600;color:#333}#billPreviewModal .modal-body{padding:15px;max-height:70vh;overflow-y:auto;background:#fff}#billPreviewModal .modal-footer{background:#f8f9fa;border-top:1px solid #dee2e6;padding:12px 15px;display:flex;flex-wrap:wrap;gap:8px}#billPreviewModal .btn{flex:1;min-width:120px;padding:10px 15px;font-size:14px;border-radius:6px}@media (min-width:601px){#billPreviewModal{width:500px;left:50%;top:50px;margin:0 0 0 -250px;padding:0}}@media (max-width:600px){#billPreviewModal{width:300px;left:50%;top:150px;margin:0 0 0 -150px;padding:0}#billPreviewModal .modal-dialog{margin:0 auto;padding:0}}@media (max-width:400px){#billPreviewModal .modal-dialog{max-width:calc(100% - 20px)}#billPreviewModal .modal-content{border-radius:6px}#billPreviewModal .modal-header{padding:10px 12px}#billPreviewModal .modal-title{font-size:14px;text-align:center}#billPreviewModal .btn-close{width:25px;height:25px;padding:0;margin:0;position:absolute;right:10px;top:10px}#billPreviewModal .modal-body{padding:10px 8px;max-height:60vh}#billPreviewModal .bill-container{width:100%!important;max-width:100%!important;padding:8px!important;transform:scale(.85);transform-origin:top center}#billPreviewModal .bill-header .business-name{font-size:13px!important}#billPreviewModal .bill-header .business-address,#billPreviewModal .bill-header .business-phone{font-size:9px!important}#billPreviewModal .bill-row,#billPreviewModal .bill-summary-row{font-size:10px!important}#billPreviewModal .bill-item-name{font-size:9px!important}#billPreviewModal .modal-footer{padding:10px 12px;flex-direction:column}#billPreviewModal .modal-footer .btn{flex:none;width:100%;margin:2px 0;padding:12px 15px;font-size:14px}#billPreviewModal .modal-footer .btn-secondary{order:2}#billPreviewModal .modal-footer .btn-primary{order:1}}@media (max-width:320px){#billPreviewModal .modal-dialog{margin:5px;max-width:calc(100% - 10px)}#billPreviewModal .modal-header{padding:8px 10px}#billPreviewModal .modal-title{font-size:13px;padding-right:25px}#billPreviewModal .modal-body{padding:8px 5px;max-height:55vh}#billPreviewModal .bill-container{transform:scale(.8);padding:5px!important}#billPreviewModal .bill-header .business-name{font-size:12px!important}#billPreviewModal .bill-row,#billPreviewModal .bill-summary-row{font-size:9px!important;margin:.5px 0!important}#billPreviewModal .modal-footer{padding:8px 10px}#billPreviewModal .modal-footer .btn{padding:10px 12px;font-size:13px}}@media (max-width:400px) and (orientation:landscape){#billPreviewModal .modal-body{max-height:50vh}#billPreviewModal .bill-container{transform:scale(.75)}#billPreviewModal .modal-footer{flex-direction:row;padding:8px 10px}#billPreviewModal .modal-footer .btn{flex:1;min-width:auto;padding:8px 10px}}@media (max-width:400px) and (hover:none) and (pointer:coarse){#billPreviewModal .btn{min-height:44px}#billPreviewModal .modal-body{-webkit-overflow-scrolling:touch}}@media (max-width:400px) and (-webkit-min-device-pixel-ratio:2),(max-width:400px) and (min-resolution:192dpi){#billPreviewModal .modal-content{border:.5px solid #ccc}#billPreviewModal .bill-divider,#billPreviewModal .bill-double-divider{border-width:.5px}}@media (max-width:400px) and (prefers-color-scheme:dark){#billPreviewModal .modal-content{background:#2d3748;color:#e2e8f0}#billPreviewModal .modal-header{background:#4a5568;border-bottom-color:#718096}#billPreviewModal .modal-footer{background:#4a5568;border-top-color:#718096}#billPreviewModal .modal-title{color:#e2e8f0}#billPreviewModal .bill-container{background:#2d3748!important;color:#e2e8f0!important}}@media (max-width:400px){#billPreviewModal .btn-primary{border:none;font-weight:600;box-shadow:0 2px 4px rgba(0,123,255,.3)}#billPreviewModal .btn-primary:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(0,123,255,.3)}}@media (max-width:400px){#billPreviewModal .modal-body::-webkit-scrollbar{width:4px}#billPreviewModal .modal-body::-webkit-scrollbar-track{background:#f1f1f1;border-radius:2px}#billPreviewModal .modal-body::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:2px}#billPreviewModal .modal-body::-webkit-scrollbar-thumb:hover{background:#a8a8a8}}.kot-container{width:65mm;max-width:65mm;font-family:'Arial';font-size:12px;line-height:1.2;background:#fff;padding:0;margin:0 auto;color:#000!important}.kot-header{text-align:center;margin-bottom:5px;color:#000!important}.kot-header .business-name{font-weight:700;font-size:14px;margin-bottom:2px;color:#000!important}.kot-header .kot-title{font-weight:700;font-size:16px;margin-bottom:3px;color:#000!important;text-transform:uppercase}.kot-divider{border-bottom:1px solid #000;margin:3px 0}.kot-double-divider{border-bottom:2px solid #000;margin:3px 0}.kot-row{display:flex;justify-content:space-between;margin:1px 0;color:#000!important}.kot-item-name{flex:2;text-align:left;font-size:11px;color:#000!important}.kot-item-qty{flex:1;text-align:center;color:#000!important;font-weight:700}.kot-item-special{flex:3;text-align:left;font-size:10px;font-style:italic;color:#000!important;margin-top:-2px}.kot-footer{margin-top:5px;font-size:10px;text-align:center;color:#000!important}.btn-dark{background-color:#343a40;border-color:#343a40;color:#fff}.btn-dark:hover{background-color:#23272b;border-color:#23272b;color:#fff}#kotPreviewModal .modal-dialog{max-width:100%;margin:0 auto}#kotPreviewModal .modal-content{border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.3)}#kotPreviewModal .modal-header{background:#f8f9fa;border-bottom:1px solid #dee2e6;padding:12px 15px}#kotPreviewModal .modal-title{font-size:16px;font-weight:600;color:#333}#kotPreviewModal .modal-body{padding:15px;max-height:70vh;overflow-y:auto;background:#fff}#kotPreviewModal .modal-footer{background:#f8f9fa;border-top:1px solid #dee2e6;padding:12px 15px;display:flex;flex-wrap:wrap;gap:8px}#kotPreviewModal .btn{flex:1;min-width:120px;padding:10px 15px;font-size:14px;border-radius:6px}@media (min-width:601px){#kotPreviewModal{width:500px;left:50%;top:50px;margin:0 0 0 -250px;padding:0}}@media (max-width:600px){#kotPreviewModal{width:300px;left:50%;top:150px;margin:0 0 0 -150px;padding:0}#kotPreviewModal .modal-dialog{margin:0 auto;padding:0}}@media (max-width:400px){#kotPreviewModal .modal-dialog{max-width:calc(100% - 20px)}#kotPreviewModal .modal-content{border-radius:6px}#kotPreviewModal .modal-header{padding:10px 12px}#kotPreviewModal .modal-title{font-size:14px;text-align:center}#kotPreviewModal .btn-close{width:25px;height:25px;padding:0;margin:0;position:absolute;right:10px;top:10px}#kotPreviewModal .modal-body{padding:10px 8px;max-height:60vh}#kotPreviewModal .kot-container{width:100%!important;max-width:100%!important;padding:8px!important;transform:scale(.85);transform-origin:top center}#kotPreviewModal .kot-header .business-name{font-size:13px!important}#kotPreviewModal .kot-header .kot-title{font-size:14px!important}#kotPreviewModal .kot-row,#kotPreviewModal .kot-item-name,#kotPreviewModal .kot-item-qty{font-size:10px!important}#kotPreviewModal .kot-item-special{font-size:9px!important}#kotPreviewModal .modal-footer{padding:10px 12px;flex-direction:column}#kotPreviewModal .modal-footer .btn{flex:none;width:100%;margin:2px 0;padding:12px 15px;font-size:14px}#kotPreviewModal .modal-footer .btn-secondary{order:2}#kotPreviewModal .modal-footer .btn-success{order:1;border:none;font-weight:600}}@media (max-width:320px){#kotPreviewModal .modal-dialog{margin:5px;max-width:calc(100% - 10px)}#kotPreviewModal .modal-header{padding:8px 10px}#kotPreviewModal .modal-title{font-size:13px;padding-right:25px}#kotPreviewModal .modal-body{padding:8px 5px;max-height:55vh}#kotPreviewModal .kot-container{transform:scale(.8);padding:5px!important}#kotPreviewModal .kot-header .business-name{font-size:12px!important}#kotPreviewModal .kot-header .kot-title{font-size:13px!important}#kotPreviewModal .kot-row,#kotPreviewModal .kot-item-name,#kotPreviewModal .kot-item-qty{font-size:9px!important;margin:.5px 0!important}#kotPreviewModal .kot-item-special{font-size:8px!important}#kotPreviewModal .modal-footer{padding:8px 10px}#kotPreviewModal .modal-footer .btn{padding:10px 12px;font-size:13px}}@media (max-width:400px) and (orientation:landscape){#kotPreviewModal .modal-body{max-height:50vh}#kotPreviewModal .kot-container{transform:scale(.75)}#kotPreviewModal .modal-footer{flex-direction:row;padding:8px 10px}#kotPreviewModal .modal-footer .btn{flex:1;min-width:auto;padding:8px 10px}}@media (max-width:400px) and (hover:none) and (pointer:coarse){#kotPreviewModal .btn{min-height:44px}#kotPreviewModal .btn-close{min-width:25px;min-height:25px}#kotPreviewModal .modal-body{-webkit-overflow-scrolling:touch}}@media (max-width:400px) and (-webkit-min-device-pixel-ratio:2),(max-width:400px) and (min-resolution:192dpi){#kotPreviewModal .modal-content{border:.5px solid #ccc}#kotPreviewModal .kot-divider,#kotPreviewModal .kot-double-divider{border-width:.5px}}@media (max-width:400px) and (prefers-color-scheme:dark){#kotPreviewModal .modal-content{background:#2d3748;color:#e2e8f0}#kotPreviewModal .modal-header{background:#4a5568;border-bottom-color:#718096}#kotPreviewModal .modal-footer{background:#4a5568;border-top-color:#718096}#kotPreviewModal .modal-title{color:#e2e8f0}#kotPreviewModal .kot-container{background:#2d3748!important;color:#e2e8f0!important}#kotPreviewModal .kot-divider,#kotPreviewModal .kot-double-divider{border-bottom-color:#e2e8f0}}@media (max-width:400px){#kotPreviewModal .btn-success{background:linear-gradient(135deg,#198754,#13653f);border:none;font-weight:600;box-shadow:0 2px 4px rgba(25,135,84,.3)}#kotPreviewModal .btn-success:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(25,135,84,.3)}}@media (max-width:400px){#kotPreviewModal .modal-body::-webkit-scrollbar{width:4px}#kotPreviewModal .modal-body::-webkit-scrollbar-track{background:#f1f1f1;border-radius:2px}#kotPreviewModal .modal-body::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:2px}#kotPreviewModal .modal-body::-webkit-scrollbar-thumb:hover{background:#a8a8a8}}#kotPreviewModal .modal-content{animation:kotSlideIn .3s ease-out}@keyframes kotSlideIn{from{opacity:0;transform:translateY(-50px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}#kotPreviewModal .btn:focus{box-shadow:0 0 0 3px rgba(25,135,84,.25);outline:none}#kotPreviewModal .kot-container.loading{opacity:.6;pointer-events:none}@media print{#kotPreviewModal .modal-header,#kotPreviewModal .modal-footer{display:none!important}#kotPreviewModal .modal-body{max-height:none;overflow:visible;padding:0}#kotPreviewModal .kot-container{transform:none!important;width:65mm!important;max-width:65mm!important;padding:5px!important}}th{text-align:center}th:last-child,th:nth-last-child(2){width:100px}.scroll-to-top{bottom:15px}.borzo-fare{font-weight:600;color:#28a745}.borzo-status{font-size:.8em;padding:3px 6px;border-radius:12px}.borzo-tracking-link{font-size:.9em;color:#007bff;text-decoration:none;display:inline-flex;align-items:center;gap:3px}.borzo-tracking-link:hover{text-decoration:underline;color:#0056b3}
-
-.borzo-details {
-  background: #f8f9fa;
-  padding: 12px;
-  border-radius: 6px;
-  margin-top: 5px;
-  border: 1px solid #c9c9c9;
-}
-
-.borzo-id-badge{ margin:3px;background:#17a2b8;color:white;padding:3px 8px;border-radius:12px;font-size:.75em;font-weight:600}.action-buttons{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}.action-buttons .btn{margin:2px}.btn-cancel-borzo{background:#dc3545;color:white;border:none}.btn-cancel-borzo:hover{background:#c82333}.btn-book-borzo{background:#28a745;color:white;border:none}.btn-book-borzo:hover{background:#218838}.print-section{background:#f1f1f1;padding:5px;border-radius:6px;margin:5px 0}.print-buttons{display:flex;gap:5px;justify-content:center}.date-time-cell .date-display{font-weight:600;color:#333}.date-time-cell .time-display{font-size:.85em;color:#666}
-
-.borzo-status-badge.borzo-status-canceled {
-    background: red;
-}
-.borzo-status-badge.borzo-status-new {
-    background: green;
-}
-
-.clountdown_group {
-  float: right;
-}
-
-/* Borzo Book Delivery Button - Brand Blue */
-.btn-success.book-borzo-delivery {
-    background-color: #0066CC !important; /* Borzo primary blue */
-    border-color: #0052a3 !important;
-    color: white !important;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
-}
-
-.btn-success.book-borzo-delivery:hover {
-    background-color: #0052a3 !important; /* Darker blue on hover */
-    border-color: #003d7a !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
-}
-
-.btn-success.book-borzo-delivery:active {
-    background-color: #003d7a !important;
-    border-color: #002856 !important;
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 102, 204, 0.2);
-}
-
-.btn-success.book-borzo-delivery:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.4);
-}
-
-.btn-success.book-borzo-delivery:disabled {
-    background-color: #99c2ff !important;
-    border-color: #80b3ff !important;
-    cursor: not-allowed;
-    opacity: 0.65;
-    transform: none;
-    box-shadow: none;
-}
-
-/* Loading state for the button */
-.btn-success.book-borzo-delivery .spinner-border,
-.btn-success.book-borzo-delivery .spinner-grow {
-    width: 1rem;
-    height: 1rem;
-    margin-right: 5px;
-}
-
-/* Pulse animation for attention */
-@keyframes borzo-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(0, 102, 204, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0, 102, 204, 0);
-    }
-}
-
-.btn-success.book-borzo-delivery.pulse {
-    animation: borzo-pulse 2s infinite;
-}
-
-/* Icon styling */
-.btn-success.book-borzo-delivery i,
-.btn-success.book-borzo-delivery svg {
-    margin-right: 4px;
-    font-size: 1rem;
-}
-
-.btn-sm.btn-success.book-borzo-delivery i,
-.btn-sm.btn-success.book-borzo-delivery svg {
-    font-size: 0.875rem;
-    margin-right: 3px;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .btn-success.book-borzo-delivery {
-        background-color: #1a75ff !important;
-        border-color: #0066cc !important;
-    }
-    
-    .btn-success.book-borzo-delivery:hover {
-        background-color: #0066cc !important;
-        border-color: #0052a3 !important;
-    }
-}
-
-/* Alternative gradient version for more modern look */
-.btn-success.book-borzo-delivery.gradient {
-    background: linear-gradient(135deg, #0066CC, #0052a3) !important;
-    border: none !important;
-}
-
-.btn-success.book-borzo-delivery.gradient:hover {
-    background: linear-gradient(135deg, #0052a3, #003d7a) !important;
-}
-@media(min-width: 768px) {
-    .table th, .table td {
-      vertical-align: middle;
-      min-height: 150px;
-    }
-}
-
-@media(max-width: 600px) {
-    .borzo-details {
-      margin-left: 110px;
-    }
-}
-
-/* New styles for enhanced Borzo features */
-.borzo-courier-info {
-    background: #e8f4fd;
-    border-left: 3px solid #0066CC;
-    padding: 8px;
-    margin-top: 8px;
-    border-radius: 4px;
-    font-size: 0.9em;
-}
-
-.borzo-courier-info i {
-    color: #0066CC;
-    margin-right: 5px;
-}
-
-.borzo-estimate {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 8px;
-    border-radius: 4px;
-    margin-top: 8px;
-    font-size: 0.9em;
-}
-
-.borzo-estimate .btn-sm {
-    margin-top: 5px;
-}
-
-.sync-borzo-btn {
-    padding: 2px 6px;
-    font-size: 0.8em;
-    margin-left: 5px;
-}
-
-.track-live-btn {
-    background: #0066CC;
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 5px;
-}
-
-.track-live-btn:hover {
-    background: #0052a3;
-    color: white;
-}
-
-.calculate-delivery-btn {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    margin-right: 5px;
-}
-
-.calculate-delivery-btn:hover {
-    background: #5a6268;
-    color: white;
-}
-
-.delivery-fee-estimate {
-    font-weight: bold;
-    color: #28a745;
-}
-
-/* Loading overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 9999;
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.loading-spinner {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-}
-
-.loading-spinner i {
-    font-size: 40px;
-    color: #0066CC;
-    margin-bottom: 10px;
-}
-
-/* Courier refresh button */
-.refresh-courier-btn {
-    padding: 2px 6px;
-    font-size: 0.8em;
-    margin-left: 5px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-}
-
-.refresh-courier-btn:hover {
-    background: #218838;
-}
-
-/* Estimated delivery time */
-.est-time-badge {
-    background: #e7f3ff;
-    color: #0066CC;
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 0.8em;
-    display: inline-block;
-    margin-top: 5px;
-}
-
+*{margin:0;padding:0;box-sizing:border-box}.table tbody tr:last-child td{border-bottom:1px solid #dee2e6!important}.btn{padding:20px 5px;min-width:85px}.table>:not(caption)>*>*{padding:5px}.status-badge{padding:5px 10px;border-radius:20px;font-weight:700;font-size:.8em}.borzo-status-pending,.status-Pending{background-color:#ffc107;color:#000}.status-Confirmed{background-color:#17a2b8;color:#fff}.status-Preparing{background-color:#fd7e14;color:#fff}.status-Ready{background-color:#28a745;color:#fff}.status-Completed{background-color:orange;color:#fff}.status-Cancelled{background-color:#dc3545;color:#fff}.borzo-status-badge{font-size:.7em;padding:2px 5px;border-radius:10px;background-color:#6c757d;color:#fff;margin-left:5px}.borzo-status-active{background-color:#28a745}.borzo-status-delivered{background-color:#17a2b8}.bi-arrow-repeat.spin{animation:1s linear infinite spin}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}.timer{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;background-color:#000;font-weight:700;color:#fff}.timer.warning{background-color:orange;color:#000}.timer.danger{background-color:red;color:#fff;animation:1s infinite blink}@keyframes blink{0%,50%{opacity:1}100%,51%{opacity:.5}}.timer-column{min-width:120px}.btn-info.update-status-btn,.btn-info.update-status-btn.wave-pulse,.btn-success.update-status-btn{position:relative;overflow:hidden}.btn-success.update-status-btn{border:2px solid #198754}.btn-success.update-status-btn.pulse-border{animation:2s infinite borderPulse}@keyframes borderPulse{0%{box-shadow:0 0 0 0 rgba(25,135,84,.7);border-color:#198754}70%{box-shadow:0 0 0 10px rgba(25,135,84,0);border-color:#20c997}100%{box-shadow:0 0 0 0 rgba(25,135,84,0);border-color:#198754}}.btn-info.update-status-btn{border:2px solid #ff6c2f}.btn-info.update-status-btn.pulse-border{animation:2s infinite borderPulseOrange}@keyframes borderPulseOrange{0%{box-shadow:0 0 0 0 rgba(255,108,47,.7);border-color:#ff6c2f}70%{box-shadow:0 0 0 10px rgba(255,108,47,0);border-color:#ff8c5a}100%{box-shadow:0 0 0 0 rgba(255,108,47,0);border-color:#ff6c2f}}@media (max-width:768px){.mobile_table .print-bill,.mobile_table .update-status-btn[data-new-status=Completed],.mobile_table .update-status-btn[data-new-status=Ready]{width:100%;margin:5px 0;display:block;padding:10px 20px;font-size:15px;text-align:left}.mobile_table td[data-label=Actions]{text-align:center;min-height:80px}.timer-column{min-width:100px}.mobile_table tr{position:relative}.mobile_table .table td.timer-column:before{display:none}.mobile_table .table td.timer-column{border-bottom:0!important}.clountdown_group{position:absolute;top:193px;z-index:99;right:28px}.btn.btn-sm.btn-primary.view-order{margin-top:0}.copy-btn{padding:5px 0}#statusUpdateForm{width:70%}.btn.btn-secondary{padding:20px 10px;min-width:0}#modalStatusSelect{padding:8px}}.btn-warning{background-color:#ffc107;border-color:#ffc107;color:#000}.btn-warning:hover{background-color:#e0a800;border-color:#e0a800;color:#000}.bill-container,.kot-container{width:65mm;max-width:65mm;font-family:Arial;font-size:12px;line-height:1.2;background:#fff;padding:0;margin:0 auto;color:#000!important}.bill-header,.kot-header{text-align:center;margin-bottom:5px;color:#000!important}.bill-header .business-name,.kot-header .business-name{font-weight:700;font-size:14px;margin-bottom:2px;color:#000!important}.bill-header .business-address{font-size:10px;margin-bottom:2px;color:#000!important}.bill-header .business-phone{font-size:10px;margin-bottom:3px;color:#000!important}.bill-divider,.kot-divider{border-bottom:1px solid #000;margin:3px 0}.bill-double-divider,.kot-double-divider{border-bottom:2px solid #000;margin:3px 0}.bill-row,.bill-summary-row,.kot-row{display:flex;justify-content:space-between;margin:1px 0;color:#000!important}.bill-item-name,.kot-item-name{flex:2;text-align:left;font-size:11px;color:#000!important}.bill-item-qty{flex:1;text-align:center;color:#000!important}.bill-item-price,.bill-item-total,.bill-summary-value{flex:1;text-align:right;color:#000!important}.bill-summary-label{flex:2;text-align:left;color:#000!important}.bill-footer,.kot-footer,.kot-item-qty{text-align:center;color:#000!important}.bill-footer,.kot-footer{margin-top:5px;font-size:10px}@media (min-width:576px){.modal-sm{--bs-modal-width:330px!important}}#billPreviewModal .modal-dialog,#kotPreviewModal .modal-dialog{max-width:100%;margin:0 auto}#billPreviewModal .modal-content{border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.3)}#billPreviewModal .modal-header,#kotPreviewModal .modal-header{background:#f8f9fa;border-bottom:1px solid #dee2e6;padding:12px 15px}#billPreviewModal .modal-title,#kotPreviewModal .modal-title{font-size:16px;font-weight:600;color:#333}#billPreviewModal .modal-body,#kotPreviewModal .modal-body{padding:15px;max-height:70vh;overflow-y:auto;background:#fff}#billPreviewModal .modal-footer,#kotPreviewModal .modal-footer{background:#f8f9fa;border-top:1px solid #dee2e6;padding:12px 15px;display:flex;flex-wrap:wrap;gap:8px}#billPreviewModal .btn,#kotPreviewModal .btn{flex:1;min-width:120px;padding:10px 15px;font-size:14px;border-radius:6px}@media (max-width:400px){#billPreviewModal .modal-dialog{max-width:calc(100% - 20px)}#billPreviewModal .modal-content{border-radius:6px}#billPreviewModal .modal-header{padding:10px 12px}#billPreviewModal .modal-title{font-size:14px;text-align:center}#billPreviewModal .btn-close{width:25px;height:25px;padding:0;margin:0;position:absolute;right:10px;top:10px}#billPreviewModal .modal-body{padding:10px 8px;max-height:60vh}#billPreviewModal .bill-container{width:100%!important;max-width:100%!important;padding:8px!important;transform:scale(.85);transform-origin:top center}#billPreviewModal .bill-header .business-name{font-size:13px!important}#billPreviewModal .bill-header .business-address,#billPreviewModal .bill-header .business-phone,#billPreviewModal .bill-item-name{font-size:9px!important}#billPreviewModal .bill-row,#billPreviewModal .bill-summary-row{font-size:10px!important}#billPreviewModal .modal-footer{padding:10px 12px;flex-direction:column}#billPreviewModal .modal-footer .btn{flex:none;width:100%;margin:2px 0;padding:12px 15px;font-size:14px}#billPreviewModal .modal-footer .btn-secondary{order:2}#billPreviewModal .modal-footer .btn-primary{order:1}#billPreviewModal .btn-primary{border:none;font-weight:600;box-shadow:0 2px 4px rgba(0,123,255,.3)}#billPreviewModal .btn-primary:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(0,123,255,.3)}}.kot-header .kot-title{font-weight:700;font-size:16px;margin-bottom:3px;color:#000!important;text-transform:uppercase}.kot-item-qty{flex:1;font-weight:700}.kot-item-special{flex:3;text-align:left;font-size:10px;font-style:italic;color:#000!important;margin-top:-2px}.loading-spinner,th{text-align:center}.btn-dark{background-color:#343a40;border-color:#343a40;color:#fff}.btn-dark:hover{background-color:#23272b;border-color:#23272b;color:#fff}#kotPreviewModal .modal-content{border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:.3s ease-out kotSlideIn}@media (min-width:601px){#billPreviewModal,#kotPreviewModal{width:500px;left:50%;top:50px;margin:0 0 0 -250px;padding:0}}@media (max-width:600px){#billPreviewModal,#kotPreviewModal{width:300px;left:50%;top:150px;margin:0 0 0 -150px;padding:0}#billPreviewModal .modal-dialog,#kotPreviewModal .modal-dialog{margin:0 auto;padding:0}}@media (max-width:400px){#billPreviewModal .modal-body::-webkit-scrollbar{width:4px}#billPreviewModal .modal-body::-webkit-scrollbar-track{background:#f1f1f1;border-radius:2px}#billPreviewModal .modal-body::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:2px}#billPreviewModal .modal-body::-webkit-scrollbar-thumb:hover{background:#a8a8a8}#kotPreviewModal .modal-dialog{max-width:calc(100% - 20px)}#kotPreviewModal .modal-content{border-radius:6px}#kotPreviewModal .modal-header{padding:10px 12px}#kotPreviewModal .modal-title{font-size:14px;text-align:center}#kotPreviewModal .btn-close{width:25px;height:25px;padding:0;margin:0;position:absolute;right:10px;top:10px}#kotPreviewModal .modal-body{padding:10px 8px;max-height:60vh}#kotPreviewModal .kot-container{width:100%!important;max-width:100%!important;padding:8px!important;transform:scale(.85);transform-origin:top center}#kotPreviewModal .kot-header .business-name{font-size:13px!important}#kotPreviewModal .kot-header .kot-title{font-size:14px!important}#kotPreviewModal .kot-item-name,#kotPreviewModal .kot-item-qty,#kotPreviewModal .kot-row{font-size:10px!important}#kotPreviewModal .kot-item-special{font-size:9px!important}#kotPreviewModal .modal-footer{padding:10px 12px;flex-direction:column}#kotPreviewModal .modal-footer .btn{flex:none;width:100%;margin:2px 0;padding:12px 15px;font-size:14px}#kotPreviewModal .modal-footer .btn-secondary{order:2}#kotPreviewModal .modal-footer .btn-success{order:1;border:none;font-weight:600}#kotPreviewModal .btn-success{background:linear-gradient(135deg,#198754,#13653f);border:none;font-weight:600;box-shadow:0 2px 4px rgba(25,135,84,.3)}#kotPreviewModal .btn-success:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(25,135,84,.3)}}@media (max-width:320px){#billPreviewModal .modal-dialog,#kotPreviewModal .modal-dialog{margin:5px;max-width:calc(100% - 10px)}#billPreviewModal .modal-footer,#billPreviewModal .modal-header,#kotPreviewModal .modal-footer,#kotPreviewModal .modal-header{padding:8px 10px}#billPreviewModal .modal-title,#kotPreviewModal .modal-title{font-size:13px;padding-right:25px}#billPreviewModal .modal-body,#kotPreviewModal .modal-body{padding:8px 5px;max-height:55vh}#billPreviewModal .bill-container,#kotPreviewModal .kot-container{transform:scale(.8);padding:5px!important}#billPreviewModal .bill-header .business-name,#kotPreviewModal .kot-header .business-name{font-size:12px!important}#billPreviewModal .bill-row,#billPreviewModal .bill-summary-row,#kotPreviewModal .kot-item-name,#kotPreviewModal .kot-item-qty,#kotPreviewModal .kot-row{font-size:9px!important;margin:.5px 0!important}#billPreviewModal .modal-footer .btn,#kotPreviewModal .modal-footer .btn{padding:10px 12px;font-size:13px}#kotPreviewModal .kot-header .kot-title{font-size:13px!important}#kotPreviewModal .kot-item-special{font-size:8px!important}}@media (max-width:400px) and (orientation:landscape){#billPreviewModal .modal-body,#kotPreviewModal .modal-body{max-height:50vh}#billPreviewModal .bill-container,#kotPreviewModal .kot-container{transform:scale(.75)}#billPreviewModal .modal-footer,#kotPreviewModal .modal-footer{flex-direction:row;padding:8px 10px}#billPreviewModal .modal-footer .btn,#kotPreviewModal .modal-footer .btn{flex:1;min-width:auto;padding:8px 10px}}@media (max-width:400px) and (hover:none) and (pointer:coarse){#billPreviewModal .btn,#kotPreviewModal .btn{min-height:44px}#billPreviewModal .modal-body,#kotPreviewModal .modal-body{-webkit-overflow-scrolling:touch}#kotPreviewModal .btn-close{min-width:25px;min-height:25px}}@media (max-width:400px) and (-webkit-min-device-pixel-ratio:2),(max-width:400px) and (min-resolution:192dpi){#billPreviewModal .modal-content,#kotPreviewModal .modal-content{border:.5px solid #ccc}#billPreviewModal .bill-divider,#billPreviewModal .bill-double-divider,#kotPreviewModal .kot-divider,#kotPreviewModal .kot-double-divider{border-width:.5px}}@media (max-width:400px) and (prefers-color-scheme:dark){#billPreviewModal .modal-content,#kotPreviewModal .modal-content{background:#2d3748;color:#e2e8f0}#billPreviewModal .modal-header,#kotPreviewModal .modal-header{background:#4a5568;border-bottom-color:#718096}#billPreviewModal .modal-footer,#kotPreviewModal .modal-footer{background:#4a5568;border-top-color:#718096}#billPreviewModal .modal-title,#kotPreviewModal .modal-title{color:#e2e8f0}#billPreviewModal .bill-container,#kotPreviewModal .kot-container{background:#2d3748!important;color:#e2e8f0!important}#kotPreviewModal .kot-divider,#kotPreviewModal .kot-double-divider{border-bottom-color:#e2e8f0}}@media (max-width:400px){#kotPreviewModal .modal-body::-webkit-scrollbar{width:4px}#kotPreviewModal .modal-body::-webkit-scrollbar-track{background:#f1f1f1;border-radius:2px}#kotPreviewModal .modal-body::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:2px}#kotPreviewModal .modal-body::-webkit-scrollbar-thumb:hover{background:#a8a8a8}}@keyframes kotSlideIn{from{opacity:0;transform:translateY(-50px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}#kotPreviewModal .btn:focus{box-shadow:0 0 0 3px rgba(25,135,84,.25);outline:0}#kotPreviewModal .kot-container.loading{opacity:.6;pointer-events:none}@media print{body *{visibility:hidden}.bill-container,.bill-container *{visibility:visible;color:#000!important}.bill-container{position:absolute;left:0;top:0;width:65mm;max-width:65mm;color:#000!important}#kotPreviewModal .modal-footer,#kotPreviewModal .modal-header,.modal-footer,.modal-header{display:none!important}#kotPreviewModal .modal-body{max-height:none;overflow:visible;padding:0}#kotPreviewModal .kot-container{transform:none!important;width:65mm!important;max-width:65mm!important;padding:5px!important}}th:last-child,th:nth-last-child(2){width:100px}.scroll-to-top{bottom:15px}.borzo-fare{font-weight:600;color:#28a745}.borzo-status{font-size:.8em;padding:3px 6px;border-radius:12px}.borzo-details {background: #f8f9fa;padding: 2px 5px;border-radius: 6px;border: 1px solid #c9c9c9;}.borzo-id-badge{margin:3px;background:#17a2b8;color:#fff;padding:3px 8px;border-radius:12px;font-size:.75em;font-weight:600}.action-buttons{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}.action-buttons .btn{margin:2px}.btn-cancel-borzo{background:#dc3545;color:#fff;border:none}.btn-cancel-borzo:hover{background:#c82333}.btn-book-borzo{background:#28a745;color:#fff;border:none}.btn-book-borzo:hover,.refresh-courier-btn:hover{background:#218838}.print-section{background:#f1f1f1;padding:5px;border-radius:6px;margin:5px 0}.borzo-courier-info{padding:8px;margin-top:8px;font-size:.9em}.print-buttons{display:flex;gap:5px;justify-content:center}.date-time-cell .date-display{font-weight:600;color:#333}.date-time-cell .time-display{font-size:.85em;color:#666}.borzo-status-badge.borzo-status-canceled{background:red}.borzo-status-badge.borzo-status-new{background:green}.clountdown_group{float:right}.btn-success.book-borzo-delivery{background-color:#06c!important;border-color:#0052a3!important;color:#fff!important;transition:.3s;box-shadow:0 2px 4px rgba(0,102,204,.2)}.btn-success.book-borzo-delivery:hover{background-color:#0052a3!important;border-color:#003d7a!important;transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,102,204,.3)}.btn-success.book-borzo-delivery:active{background-color:#003d7a!important;border-color:#002856!important;transform:translateY(0);box-shadow:0 1px 2px rgba(0,102,204,.2)}.btn-success.book-borzo-delivery:focus{outline:0;box-shadow:0 0 0 3px rgba(0,102,204,.4)}.btn-success.book-borzo-delivery:disabled{background-color:#99c2ff!important;border-color:#80b3ff!important;cursor:not-allowed;opacity:.65;transform:none;box-shadow:none}.btn-success.book-borzo-delivery .spinner-border,.btn-success.book-borzo-delivery .spinner-grow{width:1rem;height:1rem;margin-right:5px}@keyframes borzo-pulse{0%{box-shadow:0 0 0 0 rgba(0,102,204,.7)}70%{box-shadow:0 0 0 10px rgba(0,102,204,0)}100%{box-shadow:0 0 0 0 rgba(0,102,204,0)}}.btn-success.book-borzo-delivery.pulse{animation:2s infinite borzo-pulse}.btn-success.book-borzo-delivery i,.btn-success.book-borzo-delivery svg{margin-right:4px;font-size:1rem}.btn-sm.btn-success.book-borzo-delivery i,.btn-sm.btn-success.book-borzo-delivery svg{font-size:.875rem;margin-right:3px}@media (prefers-color-scheme:dark){.btn-success.book-borzo-delivery{background-color:#1a75ff!important;border-color:#06c!important}.btn-success.book-borzo-delivery:hover{background-color:#06c!important;border-color:#0052a3!important}}.btn-success.book-borzo-delivery.gradient{background:linear-gradient(135deg,#06c,#0052a3)!important;border:none!important}.btn-success.book-borzo-delivery.gradient:hover{background:linear-gradient(135deg,#0052a3,#003d7a)!important}@media(min-width:768px){.table td,.table th{vertical-align:middle;min-height:150px}}@media(max-width:600px){.borzo-details{margin-left:110px}}.borzo-courier-info{background:#e8f4fd;border-left:3px solid #06c;border-radius:4px}.borzo-courier-info i{color:#06c;margin-right:5px}.sync-borzo-btn{padding:2px 6px;font-size:.8em;margin-left:5px}.track-live-btn{padding:4px 10px;font-size:.85em;color:#fff}.track-live-btn{background:#06c;border:none;border-radius:4px;text-decoration:none;display:inline-block;margin-top:5px}.track-live-btn:hover{background:#0052a3;color:#fff}.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:none;justify-content:center;align-items:center}.loading-spinner{background:#fff;padding:20px;border-radius:10px;box-shadow:0 0 20px rgba(0,0,0,.2)}.loading-spinner i{font-size:40px;color:#06c;margin-bottom:10px}.refresh-courier-btn{padding:2px 6px;font-size:.8em;margin-left:5px;background:#28a745;color:#fff;border:none;border-radius:4px}
     </style>
 
 </head>
@@ -835,21 +577,8 @@ function formatFullAddress($order) {
                                                                     <div class="small">
                                                                         <div class="d-flex align-items-center flex-wrap">
                                                                             <span class="borzo-fare me-2"><?php echo $currencySymbol; ?> <?php echo number_format($order['delivery_fee'] ?? $order['delivery_charge']); ?></span>
-                                                                            <?php if (!empty($order['delivery_tracking_url'])): ?>
-                                                                                <a href="<?php echo $order['delivery_tracking_url']; ?>" target="_blank" class="borzo-tracking-link" title="Track Order">
-                                                                                    <i class="bi bi-box-arrow-up-right"></i> Tracking Link
-                                                                                </a>
-                                                                            <?php else: ?>
-                                                                                <span class="text-muted small">No tracking yet</span>
-                                                                            <?php endif; ?>
                                                                         </div>
                                                                     </div>
-                                                                    
-                                                                    <?php if (!empty($order['estimated_delivery_time'])): ?>
-                                                                        <div class="small text-muted mt-1">
-                                                                            <i class="bi bi-clock"></i> Est: <?php echo date('d/m H:i', strtotime($order['estimated_delivery_time'])); ?>
-                                                                        </div>
-                                                                    <?php endif; ?>
                                                                     
                                                                     <?php if (!empty($order['courier_name'])): ?>
                                                                         <div class="borzo-courier-info">
@@ -879,10 +608,6 @@ function formatFullAddress($order) {
                                                                             <i class="bi bi-truck"></i> Delivery available
                                                                         </div>
                                                                         <div class="d-flex gap-1">
-                                                                            <button class="btn btn-sm btn-secondary calculate-delivery-btn" 
-                                                                                    data-order-id="<?php echo $order['order_id']; ?>">
-                                                                                <i class="bi bi-calculator"></i> Estimate
-                                                                            </button>
                                                                             <button class="btn btn-sm btn-success book-borzo-delivery" 
                                                                                     data-order-id="<?php echo $order['order_id']; ?>">
                                                                                 <i class="bi bi-truck"></i> Book
@@ -970,8 +695,8 @@ function formatFullAddress($order) {
                                                                     <i class="bi bi-x-lg"></i> Order
                                                                 </button>
                                                             <?php endif; ?>
-                                                        </td>
-                                                    </tr>
+                                                         </td>
+                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                         </table>
@@ -1112,25 +837,13 @@ function formatFullAddress($order) {
                                             <strong>Fare:</strong>
                                             <div><span class="borzo-fare"><?php echo $currencySymbol; ?> <span id="modalBorzoFare"></span></span></div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <strong>Tracking:</strong>
-                                            <div>
-                                                <a href="#" id="modalTrackingUrl" target="_blank" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-box-arrow-up-right"></i> Track
-                                                </a>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="row mt-2">
-                                        <div class="col-md-4">
-                                            <strong>Estimated Delivery:</strong>
-                                            <span id="modalEstDelivery"></span>
-                                        </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <strong>Courier:</strong>
                                             <span id="modalCourierName"></span>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <strong>Phone:</strong>
                                             <span id="modalCourierPhone"></span>
                                         </div>
@@ -1290,32 +1003,6 @@ function formatFullAddress($order) {
         </div>
     </div>
 
-    <!-- Delivery Estimate Modal -->
-    <div class="modal fade" id="estimateModal" tabindex="-1" aria-labelledby="estimateModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="estimateModalLabel">Delivery Estimate</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="estimateModalBody">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary mb-3" role="status">
-                            <span class="visually-hidden">Calculating...</span>
-                        </div>
-                        <p>Calculating delivery estimate...</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success book-after-estimate" style="display: none;">
-                        <i class="bi bi-truck"></i> Book Delivery
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="assets/js/vendor.js"></script>
     <script src="assets/js/app.js"></script>
     
@@ -1332,19 +1019,6 @@ function formatFullAddress($order) {
     const userCountry = '<?php echo $user_country; ?>';
     const taxLabel = '<?php echo $taxLabel; ?>';
     const hasBorzoApi = <?php echo $hasBorzoApi ? 'true' : 'false'; ?>;
-
-    // Function to estimate delivery time (30-45 minutes from now)
-    function getEstimatedDeliveryTime() {
-        const now = new Date();
-        const estimatedMin = new Date(now.getTime() + 30 * 60000);
-        const estimatedMax = new Date(now.getTime() + 45 * 60000);
-        
-        const formatTime = (date) => {
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        };
-        
-        return `${formatTime(estimatedMin)} - ${formatTime(estimatedMax)}`;
-    }
 
     // Function to refresh courier location
     function refreshCourierLocation(orderId) {
@@ -1902,20 +1576,6 @@ function formatFullAddress($order) {
             $('#modalBorzoFareDetail').text(parseFloat(order.delivery_fee || order.delivery_charge || 0).toFixed(2));
             $('#modalBorzoFareRow').show();
             
-            // Set tracking URL if available
-            if (order.delivery_tracking_url) {
-                $('#modalTrackingUrl').attr('href', order.delivery_tracking_url).show();
-            } else {
-                $('#modalTrackingUrl').hide();
-            }
-            
-            // Set estimated delivery
-            if (order.estimated_delivery_time) {
-                $('#modalEstDelivery').text(formatDisplayDate(order.estimated_delivery_time));
-            } else {
-                $('#modalEstDelivery').text('Not available');
-            }
-            
             if (order.courier_name) {
                 $('#modalCourierName').text(order.courier_name);
                 $('#modalCourierPhone').text(order.courier_phone || '');
@@ -2018,7 +1678,6 @@ function formatFullAddress($order) {
         initializeBorzoBookingHandler();
         initializeBorzoCancelHandler();
         initializeSyncHandler();
-        initializeCalculateDeliveryHandler();
         initializeModalSyncHandler();
     }
 
@@ -2298,184 +1957,6 @@ function formatFullAddress($order) {
             });
         });
     }
-
-// CALCULATE DELIVERY HANDLER - CORRECTED with NO hardcoded values
-function initializeCalculateDeliveryHandler() {
-    $('.calculate-delivery-btn').off('click').on('click', function(e) {
-        e.preventDefault();
-        const button = $(this);
-        const orderId = button.data('order-id');
-        
-        // Get order details
-        const order = window.ordersData.find(o => o.order_id == orderId);
-        if (!order) {
-            showToast('Order not found', 'danger');
-            return;
-        }
-        
-        // Build COMPLETE address with all components
-        let addressParts = [];
-        if (order.building) addressParts.push(order.building);
-        if (order.floor) addressParts.push('Floor ' + order.floor);
-        if (order.flat_unit) addressParts.push('Unit ' + order.flat_unit);
-        if (order.landmark) addressParts.push('Near ' + order.landmark);
-        if (order.delivery_address) addressParts.push(order.delivery_address);
-        
-        const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : order.delivery_address;
-        
-        // Format phone number
-        let phone = order.customer_phone;
-        if (phone && !phone.startsWith('91') && phone.length === 10) {
-            phone = '91' + phone;
-        } else if (phone && phone.startsWith('0')) {
-            phone = '91' + phone.substring(1);
-        }
-        
-        debugLog('Estimate - Order ID:', orderId);
-        debugLog('Estimate - Full Address:', fullAddress);
-        debugLog('Estimate - Phone:', phone);
-        
-        // Show estimate modal with loading
-        $('#estimateModal').modal('show');
-        const $modalBody = $('#estimateModalBody');
-        $modalBody.html(`
-            <div class="text-center">
-                <div class="spinner-border text-primary mb-3" role="status">
-                    <span class="visually-hidden">Calculating...</span>
-                </div>
-                <p>Calculating delivery estimate...</p>
-            </div>
-        `);
-        
-        $.ajax({
-            url: '/borzo/api/calculate-delivery.php',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                delivery_address: fullAddress,
-                customer_phone: phone,
-                order_total: order.total_amount,
-                payment_method: order.payment_method || 'cash',
-                total_weight: order.items ? order.items.length : 1
-            }),
-            success: function(response) {
-                debugLog('Estimate Response:', response);
-                
-                if (typeof response === 'string') {
-                    try {
-                        response = JSON.parse(response);
-                    } catch (e) {
-                        console.error('Parse error:', e);
-                    }
-                }
-                
-                // Check if API call was successful
-                if (response && response.success === true) {
-                    
-                    // CASE 1: API returned a valid delivery fee (> 0)
-                    if (response.delivery_fee && parseFloat(response.delivery_fee) > 0) {
-                        const deliveryFee = parseFloat(response.delivery_fee);
-                        const totalWithDelivery = parseFloat(order.total_amount) + deliveryFee;
-                        const estTime = getEstimatedDeliveryTime();
-                        
-                        let warningHtml = '';
-                        if (response.warnings && response.warnings.length) {
-                            warningHtml = '<div class="small text-warning mt-2">⚠️ ' + 
-                                response.warnings.join('<br>⚠️ ') + '</div>';
-                        }
-                        
-                        $modalBody.html(`
-                            <div class="text-center">
-                                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
-                                <h4 class="mt-3">Delivery Estimate</h4>
-                                <div class="alert alert-info mt-3">
-                                    <p class="mb-1"><strong>Delivery Fee:</strong> ${currencySymbol} ${deliveryFee.toFixed(2)}</p>
-                                    <p class="mb-1"><strong>Est. Delivery Time:</strong> ${estTime}</p>
-                                    <p class="mb-0"><strong>Total with Delivery:</strong> ${currencySymbol} ${totalWithDelivery.toFixed(2)}</p>
-                                </div>
-                                ${warningHtml}
-                            </div>
-                        `);
-                        
-                        $('.book-after-estimate')
-                            .show()
-                            .data('order-id', orderId)
-                            .off('click')
-                            .on('click', function() {
-                                $('#estimateModal').modal('hide');
-                                $(`.book-borzo-delivery[data-order-id="${orderId}"]`).click();
-                            });
-                    
-                    // CASE 2: API returned success but with zero fee (address not found)
-                    } else {
-                        // Show error message - don't use fallback
-                        $modalBody.html(`
-                            <div class="text-center">
-                                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
-                                <h4 class="mt-3">Address Not Recognized</h4>
-                                <div class="alert alert-warning mt-3">
-                                    <p>We couldn't calculate delivery for this address.</p>
-                                    <p class="small">Please check if the address is complete and try again.</p>
-                                </div>
-                                <p class="small text-muted mt-2">Address sent: ${escapeHtml(fullAddress.substring(0, 100))}${fullAddress.length > 100 ? '...' : ''}</p>
-                            </div>
-                        `);
-                        $('.book-after-estimate').hide();
-                    }
-                
-                // CASE 3: API returned an error
-                } else {
-                    let errorMsg = 'Failed to calculate delivery';
-                    if (response && response.errors) {
-                        errorMsg = response.errors.join(', ');
-                    } else if (response && response.error) {
-                        errorMsg = response.error;
-                    }
-                    
-                    // Show parameter errors if available
-                    let paramErrorsHtml = '';
-                    if (response && response.parameter_errors) {
-                        paramErrorsHtml = '<div class="small text-danger mt-2"><strong>Parameter Errors:</strong><br>' + 
-                            JSON.stringify(response.parameter_errors, null, 2).replace(/\\n/g, '<br>') + '</div>';
-                    }
-                    
-                    $modalBody.html(`
-                        <div class="text-center">
-                            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
-                            <h4 class="mt-3">Calculation Failed</h4>
-                            <p class="text-danger">${errorMsg}</p>
-                            ${paramErrorsHtml}
-                            <p class="small text-muted mt-3">Please try again or contact support.</p>
-                        </div>
-                    `);
-                    $('.book-after-estimate').hide();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Estimate AJAX Error:', {
-                    status: status,
-                    error: error,
-                    response: xhr.responseText,
-                    statusCode: xhr.status
-                });
-                
-                // Show connection error - don't use fallback
-                $modalBody.html(`
-                    <div class="text-center">
-                        <i class="bi bi-wifi-off text-danger" style="font-size: 3rem;"></i>
-                        <h4 class="mt-3">Connection Error</h4>
-                        <div class="alert alert-danger mt-3">
-                            <p>Could not connect to delivery service.</p>
-                            <p class="small">Please check your internet connection and try again.</p>
-                        </div>
-                        <p class="small text-muted">Status: ${xhr.status}</p>
-                    </div>
-                `);
-                $('.book-after-estimate').hide();
-            }
-        });
-    });
-}
 
     // Helper function for escaping HTML
     function escapeHtml(text) {

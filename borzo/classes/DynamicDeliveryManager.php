@@ -1,6 +1,5 @@
 <?php
 // borzo/classes/DynamicDeliveryManager.php
-
 require_once __DIR__ . '/DeliveryManager.php';
 require_once __DIR__ . '/DynamicBorzoAPI.php';
 
