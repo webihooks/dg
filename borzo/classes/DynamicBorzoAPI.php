@@ -1,5 +1,5 @@
 <?php
-// borzo/classes/DynamicBorzoAPI.php - FIXED VERSION
+// borzo/classes/DynamicBorzoAPI.php - COMPLETE with per-user environment support
 
 require_once __DIR__ . '/BorzoAPI.php';
 
@@ -9,10 +9,12 @@ class DynamicBorzoAPI {
     private $config;
     private $borzoAPI;
     private $logger;
+    private $userEnvironment;
+    private $userApiKey;
     
     /**
      * Constructor
-     * @param int $user_id The user ID to load API key for
+     * @param int $user_id The user ID to load API credentials for
      * @param array $baseConfig Base configuration from borzo.php
      * @param object $logger Optional logger
      */
@@ -26,10 +28,6 @@ class DynamicBorzoAPI {
             throw new Exception("DynamicBorzoAPI: baseConfig must be an array");
         }
         
-        if (!isset($baseConfig['environment'])) {
-            throw new Exception("DynamicBorzoAPI: environment not set in config");
-        }
-        
         // Get database connection
         global $conn;
         if (!$conn) {
@@ -41,30 +39,33 @@ class DynamicBorzoAPI {
             throw new Exception("Database connection failed in DynamicBorzoAPI");
         }
         
-        // Load user's API key
-        $apiKey = $this->loadUserApiKey();
+        // Load user's API credentials (key + environment)
+        $credentials = $this->loadUserApiCredentials();
         
-        if (!$apiKey) {
-            throw new Exception("No Borzo API key found for user ID: " . $user_id);
+        if (!$credentials) {
+            throw new Exception("No Borzo API credentials found for user ID: " . $user_id);
         }
         
-        // Create dynamic config with user's API key
-        $dynamicConfig = $this->createDynamicConfig($apiKey);
+        $this->userApiKey = $credentials['api_key'];
+        $this->userEnvironment = $credentials['environment'];
+        
+        // Create dynamic config with user's environment and API key
+        $dynamicConfig = $this->createDynamicConfig($this->userApiKey, $this->userEnvironment);
         
         // Initialize BorzoAPI with dynamic config
         $this->borzoAPI = new BorzoAPI($dynamicConfig, $this->logger);
     }
     
     /**
-     * Load user's API key from database
-     * @return string|null
+     * Load user's API key and environment from database
+     * @return array|null Associative array with 'api_key' and 'environment'
      */
-    private function loadUserApiKey() {
+    private function loadUserApiCredentials() {
         if (!$this->db) {
             throw new Exception("Database connection not available");
         }
         
-        $sql = "SELECT borzo_api_key FROM borzo_api WHERE user_id = ?";
+        $sql = "SELECT borzo_api_key, api_environment FROM borzo_api WHERE user_id = ?";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
             throw new Exception("Failed to prepare SQL: " . $this->db->error);
@@ -76,7 +77,10 @@ class DynamicBorzoAPI {
         
         if ($row = $result->fetch_assoc()) {
             $stmt->close();
-            return $row['borzo_api_key'];
+            return [
+                'api_key' => $row['borzo_api_key'],
+                'environment' => $row['api_environment']
+            ];
         }
         
         $stmt->close();
@@ -84,26 +88,37 @@ class DynamicBorzoAPI {
     }
     
     /**
-     * Create dynamic config with user's API key
+     * Create dynamic config with user's API key and environment
      * @param string $apiKey
+     * @param string $environment 'test' or 'production'
      * @return array
      */
-    private function createDynamicConfig($apiKey) {
+    private function createDynamicConfig($apiKey, $environment) {
         // Start with a copy of the base config
         $dynamicConfig = $this->config;
+        
+        // Override the environment
+        $dynamicConfig['environment'] = $environment;
         
         // Ensure the api array exists
         if (!isset($dynamicConfig['api'])) {
             $dynamicConfig['api'] = [];
         }
         
-        // Override the API token with user's key
-        $environment = $this->config['environment'];
-        
         // Ensure the environment array exists
         if (!isset($dynamicConfig['api'][$environment])) {
+            // Get the base URL from the appropriate environment config
+            $baseUrl = '';
+            if (isset($this->config['api'][$environment]['url'])) {
+                $baseUrl = $this->config['api'][$environment]['url'];
+            } elseif ($environment === 'test' && isset($this->config['api']['test']['url'])) {
+                $baseUrl = $this->config['api']['test']['url'];
+            } elseif ($environment === 'production' && isset($this->config['api']['production']['url'])) {
+                $baseUrl = $this->config['api']['production']['url'];
+            }
+            
             $dynamicConfig['api'][$environment] = [
-                'url' => '',
+                'url' => $baseUrl,
                 'token' => ''
             ];
         }
@@ -158,6 +173,29 @@ class DynamicBorzoAPI {
     }
     
     /**
+     * Get user's current environment
+     * @return string|null
+     */
+    public function getUserEnvironment() {
+        return $this->userEnvironment;
+    }
+    
+    /**
+     * Get masked API key for display
+     * @return string
+     */
+    public function getMaskedApiKey() {
+        if (empty($this->userApiKey)) {
+            return '';
+        }
+        $length = strlen($this->userApiKey);
+        if ($length > 14) {
+            return substr($this->userApiKey, 0, 10) . '...' . substr($this->userApiKey, -4);
+        }
+        return str_repeat('•', $length);
+    }
+    
+    /**
      * Validate user's API key with Borzo
      * @return array
      */
@@ -168,14 +206,15 @@ class DynamicBorzoAPI {
                 'matter' => 'API Key Validation',
                 'points' => [
                     [
-                        'address' => 'Saket, New Delhi, Delhi',
+                        'address' => 'Saket, New Delhi, Delhi, India',
                         'contact_person' => ['phone' => '918880000001']
                     ],
                     [
-                        'address' => 'Janakpuri, New Delhi, Delhi',
+                        'address' => 'Connaught Place, New Delhi, Delhi, India',
                         'contact_person' => ['phone' => '918880000001']
                     ]
-                ]
+                ],
+                'total_weight_kg' => 1
             ];
             
             $result = $this->borzoAPI->request('/calculate-order', $testData);
@@ -184,19 +223,24 @@ class DynamicBorzoAPI {
                 return [
                     'success' => true,
                     'message' => 'API key is valid',
+                    'environment' => $this->userEnvironment,
+                    'api_url' => $this->borzoAPI->getApiUrl(),
                     'data' => $result['response']
                 ];
             } else {
+                $errors = $result['response']['errors'] ?? ['Unknown error'];
                 return [
                     'success' => false,
                     'message' => 'API key validation failed',
-                    'errors' => $result['response']['errors'] ?? ['Unknown error']
+                    'environment' => $this->userEnvironment,
+                    'errors' => $errors
                 ];
             }
         } catch (Exception $e) {
             return [
                 'success' => false,
                 'message' => 'Error validating API key',
+                'environment' => $this->userEnvironment,
                 'error' => $e->getMessage()
             ];
         }

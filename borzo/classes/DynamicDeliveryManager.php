@@ -1,5 +1,6 @@
 <?php
-// borzo/classes/DynamicDeliveryManager.php
+// borzo/classes/DynamicDeliveryManager.php - COMPLETE with per-user environment support
+
 require_once __DIR__ . '/DeliveryManager.php';
 require_once __DIR__ . '/DynamicBorzoAPI.php';
 
@@ -22,10 +23,10 @@ class DynamicDeliveryManager {
         $this->logger = $logger;
         
         try {
-            // Initialize dynamic API
+            // Initialize dynamic API (this loads user's credentials and environment)
             $this->dynamicAPI = new DynamicBorzoAPI($user_id, $baseConfig, $logger);
             
-            // Get the dynamic config with user's API key
+            // Get the dynamic config with user's API key and environment
             $dynamicConfig = $this->getDynamicConfig();
             
             // Initialize DeliveryManager with dynamic config
@@ -38,31 +39,46 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Get dynamic config with user's API key
+     * Get dynamic config with user's API key and environment
      * @return array
      */
     private function getDynamicConfig() {
-        $dynamicConfig = $this->config;
-        
-        // Load user's API key from database
         global $conn;
         if (!$conn) {
             require_once dirname(__DIR__, 2) . '/db_connection.php';
         }
         
-        $sql = "SELECT borzo_api_key FROM borzo_api WHERE user_id = ?";
+        $sql = "SELECT borzo_api_key, api_environment FROM borzo_api WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $this->user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($row = $result->fetch_assoc()) {
-            $environment = $this->config['environment'];
-            $dynamicConfig['api'][$environment]['token'] = $row['borzo_api_key'];
+            $userEnvironment = $row['api_environment'];
+            $userApiKey = $row['borzo_api_key'];
+            
+            // Override the global environment with user's choice
+            $dynamicConfig = $this->config;
+            $dynamicConfig['environment'] = $userEnvironment;
+            
+            // Ensure the api array for this environment exists
+            if (!isset($dynamicConfig['api'][$userEnvironment])) {
+                $dynamicConfig['api'][$userEnvironment] = [
+                    'url' => '',
+                    'token' => ''
+                ];
+            }
+            
+            // Set the token for that environment
+            $dynamicConfig['api'][$userEnvironment]['token'] = $userApiKey;
+            
+            $stmt->close();
+            return $dynamicConfig;
         }
         
         $stmt->close();
-        return $dynamicConfig;
+        return $this->config; // fallback to global config (should not happen)
     }
     
     /**
@@ -78,7 +94,32 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Create order with user's API key
+     * Get user's current environment
+     * @return string|null 'test' or 'production'
+     */
+    public function getUserEnvironment() {
+        global $conn;
+        if (!$conn) {
+            require_once dirname(__DIR__, 2) . '/db_connection.php';
+        }
+        
+        $sql = "SELECT api_environment FROM borzo_api WHERE user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $this->user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($row = $result->fetch_assoc()) {
+            $stmt->close();
+            return $row['api_environment'];
+        }
+        
+        $stmt->close();
+        return null;
+    }
+    
+    /**
+     * Create order with user's API key and environment
      * @param array $orderData
      * @return array
      */
@@ -94,7 +135,7 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Calculate delivery with user's API key
+     * Calculate delivery with user's API key and environment
      * @param string $deliveryAddress
      * @param array $orderDetails
      * @return array
@@ -111,7 +152,7 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Track order with user's API key
+     * Track order with user's API key and environment
      * @param int $orderId
      * @return array
      */
@@ -127,7 +168,7 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Cancel order with user's API key
+     * Cancel order with user's API key and environment
      * @param int $orderId
      * @return array
      */
@@ -143,7 +184,7 @@ class DynamicDeliveryManager {
     }
     
     /**
-     * Get user's API key info
+     * Get user's API key info (masked)
      * @return array
      */
     public function getApiKeyInfo() {
@@ -152,19 +193,23 @@ class DynamicDeliveryManager {
             require_once dirname(__DIR__, 2) . '/db_connection.php';
         }
         
-        $sql = "SELECT * FROM borzo_api WHERE user_id = ?";
+        $sql = "SELECT borzo_api_key, api_environment, created_at, updated_at FROM borzo_api WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $this->user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($row = $result->fetch_assoc()) {
+            $apiKey = $row['borzo_api_key'];
+            $maskedKey = substr($apiKey, 0, 10) . '...' . substr($apiKey, -4);
+            
             $stmt->close();
             return [
                 'exists' => true,
+                'environment' => $row['api_environment'],
+                'key_masked' => $maskedKey,
                 'created_at' => $row['created_at'],
-                'updated_at' => $row['updated_at'],
-                'key_masked' => substr($row['borzo_api_key'], 0, 10) . '...' . substr($row['borzo_api_key'], -4)
+                'updated_at' => $row['updated_at']
             ];
         }
         

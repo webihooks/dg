@@ -1,5 +1,5 @@
 <?php
-// borzo_api.php - Borzo API Key Management
+// borzo_api.php - Borzo API Key Management with Environment Selection
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
@@ -11,7 +11,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
 
 $user_id = $_SESSION['user_id'];
 $message = '';
@@ -29,6 +28,7 @@ $stmt->close();
 // Handle API Key Save/Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_api_key'])) {
     $borzo_api_key = trim($_POST['borzo_api_key']);
+    $api_environment = $_POST['api_environment'] ?? 'production';
     
     if (empty($borzo_api_key)) {
         $message = "API Key cannot be empty";
@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_api_key'])) {
         
         if ($check_result->num_rows > 0) {
             // Update existing key
-            $update_sql = "UPDATE borzo_api SET borzo_api_key = ?, updated_at = NOW() WHERE user_id = ?";
+            $update_sql = "UPDATE borzo_api SET borzo_api_key = ?, api_environment = ?, updated_at = NOW() WHERE user_id = ?";
             $update_stmt = $conn->prepare($update_sql);
-            $update_stmt->bind_param("si", $borzo_api_key, $user_id);
+            $update_stmt->bind_param("ssi", $borzo_api_key, $api_environment, $user_id);
             
             if ($update_stmt->execute()) {
                 $message = "API Key updated successfully!";
@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_api_key'])) {
             $update_stmt->close();
         } else {
             // Insert new key
-            $insert_sql = "INSERT INTO borzo_api (user_id, borzo_api_key) VALUES (?, ?)";
+            $insert_sql = "INSERT INTO borzo_api (user_id, borzo_api_key, api_environment) VALUES (?, ?, ?)";
             $insert_stmt = $conn->prepare($insert_sql);
-            $insert_stmt->bind_param("is", $user_id, $borzo_api_key);
+            $insert_stmt->bind_param("iss", $user_id, $borzo_api_key, $api_environment);
             
             if ($insert_stmt->execute()) {
                 $message = "API Key saved successfully!";
@@ -90,13 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_api_key'])) {
     $delete_stmt->close();
 }
 
-// Fetch existing API key for this user
+// Fetch existing API key and environment for this user
 $api_key = '';
-$sql = "SELECT borzo_api_key FROM borzo_api WHERE user_id = ?";
+$api_environment = 'production';
+$sql = "SELECT borzo_api_key, api_environment FROM borzo_api WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($api_key);
+$stmt->bind_result($api_key, $api_environment);
 $stmt->fetch();
 $stmt->close();
 
@@ -130,7 +131,7 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <style>
-.api-key-container{background:#f8f9fa;border-radius:10px;padding:25px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.api-key-header{border-bottom:2px solid #e9ecef;padding-bottom:15px;margin-bottom:20px}.api-key-header h3{color:#333;font-weight:600}.api-key-header p{color:#6c757d;margin-bottom:0}.api-key-form{margin-top:20px}.api-key-input-group{position:relative;margin-bottom:20px}.api-key-input-group label{font-weight:600;color:#495057;margin-bottom:8px;display:block}.api-key-input-group input{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:8px;font-family:monospace;font-size:14px;transition:.3s}.api-key-input-group input:focus{border-color:#06c;outline:0;box-shadow:0 0 0 3px rgba(0,102,204,.1)}.api-key-input-group input[readonly]{background-color:#f1f3f5;border-color:#dee2e6;color:#495057}.toggle-visibility{position:absolute;right:15px;top:45px;cursor:pointer;color:#6c757d}.toggle-visibility:hover{color:#06c}.api-key-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}.btn-borzo{background-color:#06c;border-color:#06c;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;transition:.3s}.btn-danger-outline,.btn-outline-borzo{background-color:transparent;padding:10px 20px;transition:.3s;font-weight:600}.btn-borzo:hover{background-color:#0052a3;border-color:#0052a3;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.3)}.btn-outline-borzo{border:2px solid #06c;color:#06c;border-radius:8px}.btn-outline-borzo:hover{background-color:#06c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.2)}.btn-danger-outline{border:2px solid #dc3545;color:#dc3545;border-radius:8px}.btn-danger-outline:hover{background-color:#dc3545;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(220,53,69,.3)}.badge-role{background:#6c757d;color:#fff;padding:5px 12px;border-radius:50px;font-size:.8rem;font-weight:600}@media (max-width:768px){.api-key-container{padding:15px}.api-key-actions{flex-direction:column}.api-key-actions .btn{width:100%}}
+        .api-key-container{background:#f8f9fa;border-radius:10px;padding:25px;box-shadow:0 2px 10px rgba(0,0,0,.05)}.api-key-header{border-bottom:2px solid #e9ecef;padding-bottom:15px;margin-bottom:20px}.api-key-header h3{color:#333;font-weight:600}.api-key-header p{color:#6c757d;margin-bottom:0}.api-key-form{margin-top:20px}.api-key-input-group{position:relative;margin-bottom:20px}.api-key-input-group label{font-weight:600;color:#495057;margin-bottom:8px;display:block}.api-key-input-group input,.api-key-input-group select{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:8px;font-family:monospace;font-size:14px;transition:.3s}.api-key-input-group input:focus,.api-key-input-group select:focus{border-color:#06c;outline:0;box-shadow:0 0 0 3px rgba(0,102,204,.1)}.api-key-input-group input[readonly]{background-color:#f1f3f5;border-color:#dee2e6;color:#495057}.toggle-visibility{position:absolute;right:15px;top:45px;cursor:pointer;color:#6c757d}.toggle-visibility:hover{color:#06c}.api-key-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}.btn-borzo{background-color:#06c;border-color:#06c;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;transition:.3s}.btn-danger-outline,.btn-outline-borzo{background-color:transparent;padding:10px 20px;transition:.3s;font-weight:600}.btn-borzo:hover{background-color:#0052a3;border-color:#0052a3;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.3)}.btn-outline-borzo{border:2px solid #06c;color:#06c;border-radius:8px}.btn-outline-borzo:hover{background-color:#06c;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,102,204,.2)}.btn-danger-outline{border:2px solid #dc3545;color:#dc3545;border-radius:8px}.btn-danger-outline:hover{background-color:#dc3545;color:#fff;transform:translateY(-2px);box-shadow:0 5px 15px rgba(220,53,69,.3)}.badge-role{background:#6c757d;color:#fff;padding:5px 12px;border-radius:50px;font-size:.8rem;font-weight:600}.env-badge{padding:5px 12px;border-radius:50px;font-size:.8rem;font-weight:600}.env-test{background:#ffc107;color:#000}.env-production{background:#28a745;color:#fff}@media (max-width:768px){.api-key-container{padding:15px}.api-key-actions{flex-direction:column}.api-key-actions .btn{width:100%}}
     </style>
 </head>
 <body>
@@ -163,6 +164,23 @@ $conn->close();
                                                 <p>Manage your Borzo API key for delivery integrations</p>
                                             </div>
                                             
+                                            <?php if (!empty($api_key)): ?>
+                                                <div class="alert alert-info mb-3">
+                                                    <strong>Current Environment:</strong>
+                                                    <span class="env-badge env-<?php echo $api_environment; ?> ms-2">
+                                                        <?php echo strtoupper($api_environment); ?>
+                                                    </span>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <?php if ($api_environment === 'test'): ?>
+                                                            <i class="bi bi-info-circle"></i> Test environment uses Borzo's sandbox API. No real deliveries will be made.
+                                                        <?php else: ?>
+                                                            <i class="bi bi-info-circle"></i> Production environment uses live Borzo API. Real deliveries will be created.
+                                                        <?php endif; ?>
+                                                    </small>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <form method="POST" action="" class="api-key-form">
                                                 <div class="api-key-input-group">
                                                     <label for="borzo_api_key">Borzo API Key</label>
@@ -177,6 +195,18 @@ $conn->close();
                                                         <i class="bi bi-eye toggle-visibility" id="togglePassword" title="Toggle visibility"></i>
                                                     </div>
                                                     <small class="text-muted">Your API key is stored securely and never displayed in full</small>
+                                                </div>
+                                                
+                                                <div class="api-key-input-group">
+                                                    <label for="api_environment">Environment</label>
+                                                    <select class="form-control" id="api_environment" name="api_environment" required>
+                                                        <option value="test" <?php echo ($api_environment == 'test') ? 'selected' : ''; ?>>Test Environment (Sandbox)</option>
+                                                        <option value="production" <?php echo ($api_environment == 'production') ? 'selected' : ''; ?>>Production Environment (Live)</option>
+                                                    </select>
+                                                    <small class="text-muted">
+                                                        <strong>Test:</strong> Use for testing - no real deliveries. API URL: robotapitest-in.borzodelivery.com<br>
+                                                        <strong>Production:</strong> Use for live deliveries. API URL: robot-in.borzodelivery.com
+                                                    </small>
                                                 </div>
                                                 
                                                 <?php if (!empty($api_key)): ?>
