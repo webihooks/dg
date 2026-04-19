@@ -1,4 +1,7 @@
 <?php
+// Start session for Google Login
+session_start();
+
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -9,6 +12,15 @@ require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
 require_once 'config/google_config.php';
 
+// Include Google Authentication
+require_once 'includes/google_login_authentication.php';
+
+// Handle logout
+if (isset($_GET['logout']) && $_GET['logout'] == 1) {
+    logoutCustomer();
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
+    exit;
+}
 
 if (!isset($_GET['profile_url'])) {
     header("HTTP/1.0 400 Bad Request");
@@ -108,9 +120,20 @@ $secondary_color = $theme_data['secondary_color'] ?? '#ffffff';
 $delivery_active = isset($delivery_active) ? $delivery_active : false;
 $dining_active = isset($dining_active) ? $dining_active : false;
 
-
 // Only for Role is User
 if ($is_restuarant_user) {
+    // Get customer data for logged-in user
+    $customer_data = null;
+    if (isCustomerLoggedIn($user_id)) {
+        $customer_data = getCustomerData($conn, $user_id);
+    }
+    // Make it available in included files
+    $GLOBALS['customer_data'] = $customer_data;
+    $GLOBALS['user_id'] = $user_id;
+    $GLOBALS['profile_url'] = $profile_url;
+
+
+    
     // Pass currency info to all included files
     $GLOBALS['currency_info'] = $currency_info;
     
@@ -164,8 +187,6 @@ if ($is_room_user) {
     require_once 'includes/room_share_section.php';
     require_once 'includes/room_footer.php';
 }
-
-
 
 // Close connection
 $conn = null;

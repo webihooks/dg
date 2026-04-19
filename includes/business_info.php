@@ -1,4 +1,34 @@
 <?php 
+
+// Show login popup only if not logged in
+if (!$customer_data) {
+    showLoginPopup($user_id, $profile_url, $customer_data);
+} else {
+    // Get profile picture from customer data
+    $profile_picture = $customer_data['picture'] ?? '';
+    ?>
+    <div class="container mt-3" style="padding:0px;">
+        <div class="alert alert-success fade show d-flex justify-content-between align-items-center" role="alert">
+            <div class="d-flex align-items-center">
+                <?php if (!empty($profile_picture)): ?>
+                    <img src="<?= htmlspecialchars($profile_picture) ?>" alt="Profile" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                <?php else: ?>
+                    <i class="bi bi-person-circle me-2"></i>
+                <?php endif; ?>
+                <div>
+                    Logged in as <strong><?= htmlspecialchars($customer_data['name']) ?></strong> 
+                    (<?= htmlspecialchars($customer_data['email']) ?>)
+                </div>
+            </div>
+            <div>
+                <a href="?profile_url=<?= urlencode($profile_url) ?>&logout=1" class="btn btn-sm btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+// Show login popup only if not logged in
+
 $show_subscription_popup = !$active_subscription;
 $package_id = $active_subscription ? $active_subscription['package_id'] : null;
 ?>    

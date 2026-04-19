@@ -1,5 +1,7 @@
 <?php
-// place_order.php - Fixed Version with New Address Fields
+// place_order.php - With Google Customer Update
+
+session_start(); // Start session for Google login
 
 // List of allowed domains
 $allowedDomains = [
@@ -53,6 +55,9 @@ ob_start(); // Start output buffering to catch any unexpected output
 
 // Now include your database connection
 require_once 'config/db_connection.php';
+
+// Include Google authentication functions (for updateCustomerDetails)
+require_once 'includes/google_login_authentication.php';
 
 // Get JSON input
 $jsonInput = file_get_contents('php://input');
@@ -270,6 +275,43 @@ try {
     
     error_log("Order placed successfully. Order ID: " . $orderId . ", Total: " . $total);
     
+    // ==================== FORCE UPDATE CUSTOMER GOOGLE ACCOUNT ====================
+    // Check if customer is logged in via Google session
+    if (isset($_SESSION['customer_logged_in']) && $_SESSION['customer_logged_in'] === true && 
+        isset($_SESSION['customer_restaurant_id']) && $_SESSION['customer_restaurant_id'] == $input['user_id'] &&
+        isset($_SESSION['customer_id'])) {
+        
+        $customer_id = $_SESSION['customer_id'];
+        $customer_phone = $input['customer_phone'];
+        
+        // Prepare address data from order
+        $address_data = [
+            'building' => $building ?? '',
+            'flat_unit' => $flatUnit ?? '',
+            'landmark' => $landmark ?? ''
+        ];
+        
+        // Also include floor if needed (optional)
+        if (!empty($floor)) {
+            $address_data['floor'] = $floor;
+        }
+        
+        error_log("Updating customer_google_accounts: customer_id=$customer_id, phone=$customer_phone, address=" . json_encode($address_data));
+        
+        // Call the update function (already included via google_login_authentication.php)
+        $updateResult = updateCustomerDetails($conn, $input['user_id'], $customer_id, $customer_phone, $address_data);
+        
+        if ($updateResult) {
+            error_log("✅ Customer Google account updated successfully for customer_id: $customer_id");
+        } else {
+            error_log("❌ Failed to update customer Google account for customer_id: $customer_id");
+        }
+    } else {
+        error_log("Customer not logged in via Google - skipping customer_google_accounts update");
+        error_log("Session data: " . print_r($_SESSION, true));
+    }
+    // ==================== END UPDATE ====================
+    
     // Send notification (non-blocking)
     if ($orderId) {
         $notificationUrl = 'https://deegeecard.com/send_onesignal_notification.php';
@@ -344,3 +386,4 @@ try {
 // Ensure no extra output
 ob_end_flush();
 exit();
+?>

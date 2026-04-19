@@ -236,6 +236,10 @@ $currency_symbol = $GLOBALS['currency_info']['symbol'] ?? '₹';
 $currency_code = $GLOBALS['currency_info']['code'] ?? 'INR';
 $user_country = $GLOBALS['currency_info']['country'] ?? 'India';
 
+// Get customer data from global
+$customer_data = $GLOBALS['customer_data'] ?? null;
+$is_customer_logged_in = ($customer_data !== null);
+
 // Get products from user-specific table with tags
 $table_name = "products_" . $user_id;
 
@@ -285,6 +289,9 @@ const ENABLE_WHATSAPP_ORDER = false;
 
 // Get user country for phone validation
 const userCountry = '<?= $user_country ?>';
+
+// Customer login status
+const isCustomerLoggedIn = <?= json_encode($is_customer_logged_in) ?>;
 
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryBtn = document.getElementById('deliveryBtn');
@@ -420,7 +427,6 @@ function getCurrentLocation() {
     );
 }
 
-
 // Geo Location
 function fillAddressFromGeocode(geocodeResult) {
     const addressComponents = geocodeResult.address_components;
@@ -535,10 +541,6 @@ function fillAddressFromGeocode(geocodeResult) {
     // Optional: log for debugging (remove in production)
     console.log('Landmark set to:', landmark);
 }
-
-
-
-
 
 // Lazy loading with fade-in effect implementation
 function initLazyLoading() {
@@ -743,6 +745,9 @@ function showToast(message, type = 'success') {
 <div class="products">
     <h6>Products</h6>
 
+
+
+
     <?php if ($delivery_active || $dining_active): ?>
         <!-- Shopping Cart Sidebar -->
         <div class="cart-sidebar">
@@ -826,14 +831,20 @@ function showToast(message, type = 'success') {
                         </div>
                         <div class="mb-1 col-half">
                             <label for="dinningName" class="form-label">Name*</label>
-                            <input type="text" class="form-control" id="dinningName" placeholder="Your name" required>
+                            <input type="text" class="form-control" id="dinningName" 
+                                   value="<?= htmlspecialchars($customer_data['name'] ?? '') ?>" 
+                                   placeholder="Your name" required>
                         </div>
                         <div class="mb-1 col-half">
                             <label for="dinningPhone" class="form-label">Phone*</label>
                             <?php if ($user_country === 'UAE'): ?>
-                                <input type="tel" class="form-control" id="dinningPhone" placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
+                                <input type="tel" class="form-control" id="dinningPhone" 
+                                       value="<?= htmlspecialchars($customer_data['phone'] ?? '') ?>"
+                                       placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
                             <?php else: ?>
-                                <input type="tel" class="form-control" id="dinningPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
+                                <input type="tel" class="form-control" id="dinningPhone" 
+                                       value="<?= htmlspecialchars($customer_data['phone'] ?? '') ?>"
+                                       placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
                             <?php endif; ?>
                         </div>
                         <!-- Add Order Notes for Dining -->
@@ -843,7 +854,6 @@ function showToast(message, type = 'success') {
                         </div>
                     </div>
                 <?php endif; ?>
-
 
                 <?php if ($delivery_active): ?>
                     <div class="customer-details delivery-details" id="deliveryDetails" style="display: none;">
@@ -859,45 +869,54 @@ function showToast(message, type = 'success') {
                         <h6>Delivery Information</h6>
                         <div class="mb-1 col-half">
                             <label for="customerName" class="form-label">Name*</label>
-                            <input type="text" class="form-control" id="customerName" placeholder="Your name" required>
+                            <input type="text" class="form-control" id="customerName" 
+                                   value="<?= htmlspecialchars($customer_data['name'] ?? '') ?>"
+                                   placeholder="Your name" required>
                         </div>
                         <div class="mb-1 col-half">
                             <label for="customerPhone" class="form-label">Phone*</label>
                             <?php if ($user_country === 'UAE'): ?>
-                                <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
+                                <input type="tel" class="form-control" id="customerPhone" 
+                                       value="<?= htmlspecialchars($customer_data['phone'] ?? '') ?>"
+                                       placeholder="Your phone number" pattern="[0-9]{9}" title="Please enter exactly 9 digits" required oninput="validatePhoneNumber(this)">
                             <?php else: ?>
-                                <input type="tel" class="form-control" id="customerPhone" placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
+                                <input type="tel" class="form-control" id="customerPhone" 
+                                       value="<?= htmlspecialchars($customer_data['phone'] ?? '') ?>"
+                                       placeholder="Your phone number" pattern="[0-9]{10}" title="Please enter exactly 10 digits" required oninput="validatePhoneNumber(this)">
                             <?php endif; ?>
                         </div>
                         
-                        
+                        <?php 
+                        $saved_address = [];
+                        if ($customer_data && isset($customer_data['delivery_address'])) {
+                            $saved_address = json_decode($customer_data['delivery_address'], true);
+                        }
+                        ?>
                         
                         <!-- Flat/Unit and Landmark on same line -->
                         <div class="row">
                             <div class="mb-1 col-6">
                                 <label for="flatUnit" class="form-label">Flat/Unit No.*</label>
-                                <input type="text" class="form-control" id="flatUnit" required>
+                                <input type="text" class="form-control" id="flatUnit" 
+                                       value="<?= htmlspecialchars($saved_address['flat_unit'] ?? '') ?>"
+                                       required>
                             </div>
 
                             <div class="mb-1 col-6">
                                 <label for="building" class="form-label">Building / Society Name*</label>
-                                <input type="text" class="form-control" id="building" required>
+                                <input type="text" class="form-control" id="building" 
+                                       value="<?= htmlspecialchars($saved_address['building'] ?? '') ?>"
+                                       required>
                             </div>
-                            
                         </div>
-
 
                         <!-- Address Fields -->
                         <div class="mb-1 col-full">
                             <label for="landmark" class="form-label">Landmark / Area / City</label>
-                            <input type="text" class="form-control" id="landmark">
+                            <input type="text" class="form-control" id="landmark" 
+                                   value="<?= htmlspecialchars($saved_address['landmark'] ?? '') ?>">
                         </div>
 
-
-
-
-
-                        
                         <!-- Auto Location Button -->
                         <div class="mb-1 col-full">
                             <button type="button" class="btn btn-outline-primary btn-sm w-100" id="getLocationBtn" onclick="getCurrentLocation()">
@@ -1028,7 +1047,6 @@ function showToast(message, type = 'success') {
                                 <small class="text-muted">Quantity: <?= $product['quantity'] ?></small>
                             <?php endif; ?>
                             
-
                             <?php if ($product['quantity'] > 0 && ($delivery_active || $dining_active) && $is_store_open): ?>
                                 <div class="mt-3 cart_btn_group <?= empty($product['image_path']) ? 'top' : '' ?>">
                                     <button class="btn btn-primary w-100 add-to-cart <?= ($hasTimeSlots && !$isAvailableNow) ? 'disabled' : '' ?>" 
@@ -1535,6 +1553,18 @@ function showToast(message, type = 'success') {
     // Add to cart button click handler with image animation
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
+            // Check if customer is logged in
+            if (!isCustomerLoggedIn) {
+                // Show login modal
+                const modalElement = document.getElementById('loginStatusModal');
+                if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                } else {
+                    alert('Please login with Google to add items to cart.');
+                }
+                return;
+            }
 
             // Check if product is available based on time slots
             const productItem = this.closest('.product-item');
@@ -2130,6 +2160,12 @@ function showToast(message, type = 'success') {
     }
 
     function placeOrder() {
+        // Check if customer is logged in
+        if (!isCustomerLoggedIn) {
+            alert('Please login with Google before placing an order.');
+            return;
+        }
+
         if (cart.length === 0) {
             alert('Your cart is empty');
             return;
@@ -2300,6 +2336,25 @@ function showToast(message, type = 'success') {
         })
         .then(data => {
             if (data.success) {
+                // After order success, update customer details (if logged in)
+                if (isCustomerLoggedIn) {
+                    const updateData = {
+                        user_id: <?= $user_id ?>,
+                        customer_id: <?= json_encode($customer_data['id'] ?? 0) ?>,
+                        phone: isDelivery ? document.getElementById('customerPhone').value : document.getElementById('dinningPhone').value,
+                        address: {
+                            building: document.getElementById('building')?.value || '',
+                            flat_unit: document.getElementById('flatUnit')?.value || '',
+                            landmark: document.getElementById('landmark')?.value || ''
+                        }
+                    };
+                    fetch('update_customer_details.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    }).catch(err => console.error('Failed to update customer details:', err));
+                }
+                
                 // Clear the cart
                 cart = [];
                 localStorage.removeItem(cartKey); // Also remove from localStorage
