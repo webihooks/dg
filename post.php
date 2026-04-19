@@ -5,7 +5,6 @@ header("Expires: 0");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
 require_once 'config/db_connection.php';
 require_once 'functions/profile_functions.php';
 require_once 'config/google_config.php';

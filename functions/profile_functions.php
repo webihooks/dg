@@ -5,6 +5,7 @@ function getUserByProfileUrl($conn, $profile_url) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+
 function getUserById($conn, $user_id) {
     $stmt = $conn->prepare("SELECT name, email, phone, country FROM users WHERE id = ?");
     $stmt->execute([$user_id]);

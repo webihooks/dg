@@ -22,7 +22,7 @@ if ($business_stmt) {
 }
 
 // Get delivery charges
-$delivery_charges_sql = "SELECT delivery_charge, free_delivery_minimum FROM delivery_charges WHERE user_id = ?";
+$delivery_charges_sql = "SELECT delivery_charge, free_delivery_minimum, minimum_order_amount FROM delivery_charges WHERE user_id = ?";
 $delivery_charges_stmt = $conn->prepare($delivery_charges_sql);
 if ($delivery_charges_stmt) {
     $delivery_charges_stmt->execute([$user_id]);

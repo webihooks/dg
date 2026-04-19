@@ -22,7 +22,6 @@ function isWithinTimeSlots(time1Start, time1End, time2Start, time2End) {
     return checkTimeSlot(time1Start, time1End) || checkTimeSlot(time2Start, time2End);
 }
 
-
 // Function to format time slots for display
 function formatTimeSlots(time1Start, time1End, time2Start, time2End) {
     const timeSlots = [];
@@ -1741,6 +1740,7 @@ function showToast(message, type = 'success') {
         const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn") && document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
         const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
         const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
+        const minimumOrderAmount = <?= isset($delivery_charges['minimum_order_amount']) ? $delivery_charges['minimum_order_amount'] : 0 ?>;
         const gstPercent = <?= $gst_percent ?? 0 ?>;
 
         // Show order type buttons if they were hidden
@@ -1981,6 +1981,27 @@ function showToast(message, type = 'success') {
         <?php elseif ($delivery_active): ?>
             if (deliveryDetails) deliveryDetails.style.display = 'block';
         <?php endif; ?>
+        
+        // Show/hide minimum order amount warning
+        const existingMinOrderMsg = document.getElementById('minimumOrderMsg');
+        if (isDelivery && minimumOrderAmount > 0 && subtotal < minimumOrderAmount) {
+            if (!existingMinOrderMsg) {
+                const minOrderMsg = document.createElement('div');
+                minOrderMsg.id = 'minimumOrderMsg';
+                minOrderMsg.className = 'cart-minimum-order text-warning text-center small py-1';
+                minOrderMsg.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Minimum order amount is ${currencySymbol}${formatNumber(minimumOrderAmount)}`;
+                
+                // Insert after subtotal or before delivery charges
+                const insertAfter = document.querySelector('.cart-subtotal');
+                if (insertAfter && insertAfter.parentNode) {
+                    insertAfter.insertAdjacentElement('afterend', minOrderMsg);
+                }
+            } else {
+                existingMinOrderMsg.style.display = 'block';
+            }
+        } else if (existingMinOrderMsg) {
+            existingMinOrderMsg.style.display = 'none';
+        }
     }
 
     // Update quantity with buttons
@@ -2122,6 +2143,7 @@ function showToast(message, type = 'success') {
         const isDelivery = <?= $delivery_active ? 'document.getElementById("deliveryBtn") && document.getElementById("deliveryBtn").classList.contains("active")' : 'false' ?>;
         const deliveryCharge = <?= isset($delivery_charges['delivery_charge']) ? $delivery_charges['delivery_charge'] : 0 ?>;
         const freeDeliveryMin = <?= isset($delivery_charges['free_delivery_minimum']) ? $delivery_charges['free_delivery_minimum'] : 0 ?>;
+        const minimumOrderAmount = <?= isset($delivery_charges['minimum_order_amount']) ? $delivery_charges['minimum_order_amount'] : 0 ?>;
         const gstPercent = <?= $gst_percent ?? 0 ?>;
         
         // Get discount information from UI
@@ -2160,6 +2182,15 @@ function showToast(message, type = 'success') {
                 alert('Please provide complete address (Building and Flat/Unit No. are required)');
                 return;
             }
+            
+            // ===== MINIMUM ORDER AMOUNT VALIDATION =====
+            const subtotal = calculateSubtotal();
+            if (minimumOrderAmount > 0 && subtotal < minimumOrderAmount) {
+                alert('Minimum order amount is ' + currencySymbol + formatNumber(minimumOrderAmount) + 
+                      '. Your current subtotal is ' + currencySymbol + formatNumber(subtotal));
+                return;
+            }
+            // ==========================================
             
             // Create formatted delivery address
             const addressParts = [];
