@@ -1297,7 +1297,7 @@ Here's what you get:
 🔥 *Stop paying commissions. Start keeping 100% of your profits.*
 *Your restaurant's digital revolution starts TODAY!*
 
-All this for just ₹9,999/year (No Hidden Costs)
+All this for just ₹14,999/year (No Hidden Costs)
 
 📞 Call us NOW:
 ${contactInfo}

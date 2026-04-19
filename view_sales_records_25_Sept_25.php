@@ -1042,7 +1042,7 @@ Your complete restaurant digital revolution is here!
 Ready to take back control?
 We set everything up for you. *Go live the same day!*
 
-*All this for just ₹9,999/year (No Hidden Costs!).*
+*All this for just ₹14,999/year (No Hidden Costs!).*
 
 *📞 Call us NOW to get started and stop sharing your profits:*
 *Inayat Shaikh* : 9819411026
