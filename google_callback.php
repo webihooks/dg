@@ -32,7 +32,10 @@ if (!$user_id) {
 }
 
 // Save or update customer
-$customer_id = saveOrUpdateCustomer($conn, $user_id, $googleUser);
+$result = saveOrUpdateCustomer($conn, $user_id, $googleUser);
+$customer_id = $result['customer_id'];
+$is_new_customer = $result['is_new'];
+$loyalty_points = $result['points'];
 
 // Set session variables
 $_SESSION['customer_logged_in'] = true;
@@ -40,9 +43,14 @@ $_SESSION['customer_id'] = $customer_id;
 $_SESSION['customer_restaurant_id'] = $user_id;
 $_SESSION['customer_email'] = $googleUser['email'];
 $_SESSION['customer_name'] = $googleUser['name'];
+$_SESSION['loyalty_points'] = $loyalty_points;
+$_SESSION['is_new_customer'] = $is_new_customer;
+
+// Set session flag to show confetti on next page load
+$_SESSION['show_confetti'] = true;
 
 // Redirect back to the profile page
-$redirect = 'post.php?profile_url=' . urlencode($profile_url);
+$redirect = urlencode($profile_url);
 header('Location: ' . $redirect);
 exit;
 ?>

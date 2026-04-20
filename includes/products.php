@@ -772,8 +772,7 @@ function showToast(message, type = 'success') {
 
                     <?php if ($gst_percent > 0): ?>
                         <div class="cart-gst-charges">
-                            GST (
-                            <?= $gst_percent ?>%): <span id="gstCharges">0.00</span>
+                            GST (<?= $gst_percent ?>%): <span id="gstCharges">0.00</span>
                         </div>
                     <?php endif; ?>
 
@@ -1139,7 +1138,7 @@ function showToast(message, type = 'success') {
 
     <?php if ($delivery_active || $dining_active): ?>
         <div class="cart-button-container" style="display: none;">
-            <button class="btn btn-primary cart-button" onclick="toggleCart()">
+            <button class="btn btn-primary cart-button" onclick="openCartIfLoggedIn()">
                 <span class="cart-count">0 item added</span>
                 <span class="small discount-message" style="display: none;"></span>
                 <i class="bi bi-cart blink"></i>
@@ -1423,6 +1422,22 @@ function showToast(message, type = 'success') {
         });
     });
 
+    function openCartIfLoggedIn() {
+        if (!isCustomerLoggedIn) {
+            // Show login modal
+            const modalElement = document.getElementById('loginStatusModal');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } else {
+                alert('Please login with Google to view your cart and place orders.');
+            }
+            return;
+        }
+        // If logged in, open the cart sidebar
+        toggleCart();
+    }
+
     function filterProductsByTag(tag) {
         const productItems = document.querySelectorAll('.product-item');
         
@@ -1553,19 +1568,8 @@ function showToast(message, type = 'success') {
     // Add to cart button click handler with image animation
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
-            // Check if customer is logged in
-            if (!isCustomerLoggedIn) {
-                // Show login modal
-                const modalElement = document.getElementById('loginStatusModal');
-                if (modalElement) {
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-                } else {
-                    alert('Please login with Google to add items to cart.');
-                }
-                return;
-            }
-
+            
+            // No login check here – user can add to cart even if not logged in
             // Check if product is available based on time slots
             const productItem = this.closest('.product-item');
             const time1Start = productItem.dataset.time1Start;

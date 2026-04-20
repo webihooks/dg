@@ -77,6 +77,7 @@ function getGoogleUser($code) {
 
 /**
  * Save or update customer data in the database
+ * Returns array with customer_id, is_new, points
  */
 function saveOrUpdateCustomer($conn, $user_id, $googleUser) {
     $google_id = $googleUser['id'];
@@ -85,22 +86,32 @@ function saveOrUpdateCustomer($conn, $user_id, $googleUser) {
     $picture = $googleUser['picture'] ?? '';
 
     // Check if customer already exists for this restaurant
-    $stmt = $conn->prepare("SELECT id FROM customer_google_accounts WHERE restaurant_user_id = ? AND (google_id = ? OR email = ?)");
+    $stmt = $conn->prepare("SELECT id, loyalty_points FROM customer_google_accounts WHERE restaurant_user_id = ? AND (google_id = ? OR email = ?)");
     $stmt->execute([$user_id, $google_id, $email]);
     $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($existing) {
-        // Update last_login
+        // Update last_login only (no new points for existing customers)
         $update = $conn->prepare("UPDATE customer_google_accounts SET last_login = NOW() WHERE id = ?");
         $update->execute([$existing['id']]);
-        return $existing['id'];
+        return [
+            'customer_id' => $existing['id'],
+            'is_new' => false,
+            'points' => $existing['loyalty_points']
+        ];
     } else {
-        // Insert new record
+        // Insert new record with 1000 loyalty points
+        $loyalty_points = 1000;
         $insert = $conn->prepare("INSERT INTO customer_google_accounts 
-            (restaurant_user_id, google_id, email, name, picture, created_at, last_login) 
-            VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
-        $insert->execute([$user_id, $google_id, $email, $name, $picture]);
-        return $conn->lastInsertId();
+            (restaurant_user_id, google_id, email, name, picture, loyalty_points, created_at, last_login) 
+            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+        $insert->execute([$user_id, $google_id, $email, $name, $picture, $loyalty_points]);
+        $new_id = $conn->lastInsertId();
+        return [
+            'customer_id' => $new_id,
+            'is_new' => true,
+            'points' => $loyalty_points
+        ];
     }
 }
 
@@ -170,7 +181,7 @@ function showLoginPopup($user_id, $profile_url, $customer_data = null) {
         <div class="modal-dialog modal-dialog-centered" style="padding: 0 10px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Login Required</h5>
+                    <h5 style="text-transform: capitalize;">Google Login Required</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

@@ -1,11 +1,18 @@
 <?php 
+// Check if we need to show confetti for a fresh login
+$showConfetti = isset($_SESSION['show_confetti']) && $_SESSION['show_confetti'] === true;
+if ($showConfetti) {
+    // Unset the flag so confetti doesn't appear again on page refresh
+    unset($_SESSION['show_confetti']);
+}
 
 // Show login popup only if not logged in
 if (!$customer_data) {
     showLoginPopup($user_id, $profile_url, $customer_data);
 } else {
-    // Get profile picture from customer data
+    // Get profile picture and loyalty points from customer data
     $profile_picture = $customer_data['picture'] ?? '';
+    $loyalty_points = $customer_data['loyalty_points'] ?? 0;
     ?>
     <div class="container mt-3" style="padding:0px;">
         <div class="alert alert-success fade show d-flex justify-content-between align-items-center" role="alert">
@@ -13,11 +20,18 @@ if (!$customer_data) {
                 <?php if (!empty($profile_picture)): ?>
                     <img src="<?= htmlspecialchars($profile_picture) ?>" alt="Profile" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
                 <?php else: ?>
-                    <i class="bi bi-person-circle me-2"></i>
+                    <i class="bi bi-person-circle me-2" style="font-size: 2rem;"></i>
                 <?php endif; ?>
                 <div>
-                    Logged in as <strong><?= htmlspecialchars($customer_data['name']) ?></strong> 
-                    (<?= htmlspecialchars($customer_data['email']) ?>)
+                    <div>
+                        Logged in as <strong><?= htmlspecialchars($customer_data['name']) ?></strong> 
+                        (<?= htmlspecialchars($customer_data['email']) ?>)
+                    </div>
+                    <div class="mt-1">
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-star-fill"></i> <?= number_format($loyalty_points) ?> Loyalty Points
+                        </span>
+                    </div>
                 </div>
             </div>
             <div>
@@ -25,6 +39,70 @@ if (!$customer_data) {
             </div>
         </div>
     </div>
+
+    <?php if ($showConfetti): ?>
+    <!-- Confetti Celebration -->
+    <div class="confetti-container" id="loginConfettiContainer"></div>
+    <style>
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.8;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+    <script>
+        function createLoginConfetti() {
+            const container = document.getElementById('loginConfettiContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            container.style.display = 'block';
+            const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+            const confettiCount = 200;
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 12 + 4;
+                const left = Math.random() * 100;
+                const animationDelay = Math.random() * 3;
+                const animationDuration = Math.random() * 3 + 2;
+                confetti.style.backgroundColor = color;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                confetti.style.left = left + '%';
+                confetti.style.animationDelay = animationDelay + 's';
+                confetti.style.animationDuration = animationDuration + 's';
+                if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+                container.appendChild(confetti);
+            }
+            setTimeout(() => { 
+                container.style.display = 'none'; 
+            }, 6000);
+        }
+        // Show confetti when page loads
+        document.addEventListener('DOMContentLoaded', createLoginConfetti);
+    </script>
+    <?php endif; ?>
+
     <?php
 }
 // Show login popup only if not logged in
