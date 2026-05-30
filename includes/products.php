@@ -60,7 +60,7 @@ if ($table_exists) {
 
 <script>
 // Google Maps API configuration - using API key from PHP
-const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'AIzaSyDGy9Tx79vcKFShExNiPSZZC4O0BjU-TSw' ?>';
+const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '' ?>';
 
 // Get currency symbol from PHP
 const currencySymbol = '<?= $currency_symbol ?>';
