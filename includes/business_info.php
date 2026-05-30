@@ -1,3 +1,36 @@
+<style>
+.alert.alert-success.fade.show.d-flex.justify-content-between.align-items-center {
+background: #fff;
+border: 0;
+box-shadow: 0 0 3px #b5b5b5;
+border-radius: 10px;
+}
+.confetti-container {
+position: fixed;
+top: -100px;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 10000;
+overflow: hidden;
+}
+.confetti {
+position: absolute;
+width: 10px;
+height: 10px;
+background-color: #f00;
+opacity: 0.8;
+animation: fall linear forwards;
+}
+@keyframes fall {
+to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+}
+}
+</style>
+
 <?php 
 // Check if we need to show confetti for a fresh login
 $showConfetti = isset($_SESSION['show_confetti']) && $_SESSION['show_confetti'] === true;
@@ -43,32 +76,6 @@ if (!$customer_data) {
     <?php if ($showConfetti): ?>
     <!-- Confetti Celebration -->
     <div class="confetti-container" id="loginConfettiContainer"></div>
-    <style>
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10000;
-            overflow: hidden;
-        }
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #f00;
-            opacity: 0.8;
-            animation: fall linear forwards;
-        }
-        @keyframes fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-    </style>
     <script>
         function createLoginConfetti() {
             const container = document.getElementById('loginConfettiContainer');

@@ -72,6 +72,9 @@ if (!empty($user_data['website'])) {
 // Set default table text based on user role
 $default_table_text = ($user_role === 'room') ? 'ROOM' : 'TABLE';
 
+// Default loyalty message
+$default_loyalty_message = '🎉 Get 1000 Points on Your First Order!';
+
 // Fetch saved standy designs from user_standy table
 $sql_saved_designs = "SELECT id, design_type, file_path, design_data, created_at 
                       FROM user_standy 
@@ -99,7 +102,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_design'])) {
             'primary_color' => $_POST['primary_color'] ?? '#fb8933',
             'secondary_color' => $_POST['secondary_color'] ?? '#ff0000',
             'text_color' => $_POST['text_color'] ?? '#FFFFFF',
-            'qr_content' => $_POST['qr_content'] ?? $qr_content
+            'qr_content' => $_POST['qr_content'] ?? $qr_content,
+            'loyalty_message' => $_POST['loyalty_message'] ?? $default_loyalty_message,
+            'show_loyalty' => isset($_POST['show_loyalty']) ? 1 : 0
         ]);
 
         // Save design data to user_standy table
@@ -222,7 +227,61 @@ $conn->close();
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         .designer-container{display:grid;grid-template-columns:350px 1fr;gap:30px;margin-top:20px}.controls-panel{background:#f8f9fa;padding:25px;border-radius:15px;border:1px solid #e9ecef;height:fit-content}.design-preview-container{display:flex;flex-direction:column;align-items:center;gap:30px;width:100%}.color-preview,.logo-container{ background: #fff; display:flex;align-items:center}.standy-design{width:400px;height:600px;position:relative;overflow:hidden;transition:.3s;box-shadow:0 8px 30px rgba(0,0,0,.15);background:#fb8933}.standy-design:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,.2)}.color-controls{margin-bottom:25px;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.form-group{margin-bottom:15px}.color-preview{width:100%;height:60px;border:2px solid #ddd;margin-top:15px;border-radius:8px;justify-content:center;font-weight:700;color:#333}.export-controls{margin-top:25px;display:flex;gap:12px;flex-wrap:wrap}.export-controls .btn{transition:.3s;border-radius:8px;font-weight:500;flex:1;min-width:120px}.export-controls .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}.design-element{position:absolute;user-select:none;font-family:Arial,sans-serif}.text-controls{margin:20px 0;padding:15px;background:#fff;border-radius:10px;border:1px solid #ddd}.form-group label{font-weight:500;margin-bottom:5px;display:block}.design-preview-wrapper{position:relative;width:100%;display:flex;justify-content:center;min-height:200px}.design-label{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#007bff;color:#fff;padding:5px 15px;border-radius:20px;font-size:14px;font-weight:700;z-index:10}.front-design{color:#fff}.logo-container{position:absolute;top:20px;left:50%;width:120px;height:120px;justify-content:center;overflow:hidden;z-index:3;margin-left:-60px;border-radius:50%;border:5px solid #fff}.business-name-main,.scan-text{left:0;right:0;text-align:center;z-index:3;position:absolute}.qr-code-container,.table-number-box{background:#fff;align-items:center;display:flex}.logo-container img{width:100%;height:100%;object-fit:cover}.business-name-main{top:140px;font-size:28px;font-weight:700;text-transform:uppercase}.scan-text{top:190px;font-size:16px;font-weight:600;letter-spacing:1px}.qr-code-container{position:absolute;top:220px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:8px;padding:10px;justify-content:center;z-index:3}.table-section,.website-url{position:absolute;left:0;right:0;z-index:3;text-align:center}.qr-code-container img{width:100%;height:100%;object-fit:contain}.website-url{top:400px;font-size:18px;font-weight:500}.table-section{top:430px;font-size:24px;font-weight:700;text-transform:uppercase}.card-logo,.half_circle,.table-number-box{position:absolute;left:50%;transform:translateX(-50%)}.table-number-box{top:460px;width:100px;height:60px;border:2px solid #fff;border-radius:5px;justify-content:center;font-size:18px;font-weight:700;color:#000;z-index:3}.card-logo{bottom:20px;width:140px;height:35px;background:url('images/card_logo.png') center/contain no-repeat;z-index:3}.color-input-group{display:flex;align-items:center;gap:10px;margin-bottom:10px}.better_view,.mobile-menu-toggle{margin-bottom:20px;font-weight:500}.color-input-group .form-control-color{width:50px;height:38px;padding:3px}.color-preview-small{width:30px;height:30px;display:inline-block;border:1px solid #ddd;margin-left:10px;vertical-align:middle;border-radius:4px}.mobile-menu-toggle{display:none;background:#007bff;color:#fff;border:none;padding:12px 15px;border-radius:8px;width:100%;font-size:16px}.saved-designs-section{margin-top:30px;padding:20px;background:#f8f9fa;border-radius:10px;border:1px solid #e9ecef}.design-thumbnail{width:100%;max-width:200px;height:300px;object-fit:cover;border:2px solid #dee2e6;border-radius:8px;transition:.3s}.design-thumbnail:hover{border-color:#007bff;transform:scale(1.05)}.design-action-buttons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.design-action-buttons .btn{flex:1;min-width:80px;font-size:12px;padding:6px 12px}.empty-state{text-align:center;padding:40px 20px;color:#6c757d}.empty-state i{font-size:48px;margin-bottom:15px;color:#dee2e6}.better_view{display:none;background:#fff3cd;border:1px solid #ffeaa7;color:#856404;padding:15px;border-radius:8px;text-align:center}.better_view i{margin-right:8px;color:#f39c12}.half_circle{top:-305px;width:800px;height:800px;border-radius:50%;z-index:1;overflow:hidden;background:red}@media (max-width:1200px){.designer-container{grid-template-columns:320px 1fr;gap:25px}.standy-design{width:350px;height:525px}.half_circle{width:700px;height:700px}}@media (max-width:992px){.designer-container{grid-template-columns:1fr;gap:20px}.controls-panel.active,.mobile-menu-toggle{display:block}.controls-panel{display:none;margin-top:15px}.design-preview-container{order:-1;margin-bottom:20px}.standy-design{width:100%;max-width:400px;height:600px;margin:0 auto}.export-controls{flex-direction:column}.export-controls .btn{width:100%}.half_circle{width:600px;height:600px}}@media (max-width:768px){.better_view{display:flex;align-items:center;justify-content:center}.standy-design{max-width:350px;height:525px}.logo-container{top:25px;width:70px;height:70px;margin-left:-35px}.business-name-main{top:115px;font-size:24px}.scan-text{top:160px;font-size:14px}.qr-code-container{top:195px;width:160px;height:160px}.website-url{top:375px;font-size:13px}.table-section{top:405px;font-size:20px}.table-number-box{top:440px;width:100px;height:50px}.card-logo{bottom:15px}.half_circle{width:500px;height:500px}}@media (max-width:576px){.better_view{padding:12px;font-size:14px;margin-bottom:15px}.standy-design{max-width:300px;height:450px}.logo-container{top:20px;width:60px;height:60px;margin-left:-30px}.business-name-main{top:95px;font-size:20px}.scan-text{top:130px;font-size:13px}.qr-code-container{top:160px;width:140px;height:140px}.website-url{top:315px;font-size:12px}.table-section{top:340px;font-size:18px}.table-number-box{top:370px;width:90px;height:45px;font-size:16px}.card-logo{bottom:10px;width:120px;height:30px}.half_circle{width:400px;height:400px}.color-input-group{flex-direction:column;align-items:stretch}.color-input-group .form-control-color{width:100%;height:45px}.color-preview-small{margin-left:0;margin-top:5px;width:100%;height:30px}}@media print{.better_view,.controls-panel,.design-label,.export-controls,.mobile-menu-toggle{display:none!important}.designer-container{grid-template-columns:1fr!important}.standy-design{box-shadow:none!important;break-inside:avoid}}#standyDesign{position:relative}
-    </style>
+
+        /* Loyalty Banner Styles */
+        .loyalty-banner {
+            position: absolute;
+            bottom: 60px;
+            left: 20px;
+            right: 20px;
+            background: red;
+            border-radius: 30px;
+            padding: 8px 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 5;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 2px dashed #fff;
+        }
+        @media (max-width: 768px) {
+            .loyalty-banner {
+                bottom: 65px;
+                font-size: 11px;
+                padding: 6px 10px;
+                left: 15px;
+                right: 15px;
+            }
+        }
+        @media (max-width: 576px) {
+            .loyalty-banner {
+                bottom: 55px;
+                font-size: 9px;
+                padding: 5px 8px;
+            }
+        }
+        .form-check {
+            margin-top: 10px;
+        }
+        .table-section {
+          top: 420px;
+          font-size: 20px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+        .table-number-box {
+            top: 445px;
+            
+        }
+        .card-logo {
+          bottom: 10px;
+        }
+
+
+
+</style>
 </head>
 
 <body>
@@ -311,6 +370,21 @@ $conn->close();
                                                     <i class="ri-qr-code-line"></i> Generate QR Code
                                                 </button>
                                             </div>
+
+                                            <!-- Loyalty Points Promotion Controls -->
+                                            <div class="form-group mt-3">
+                                                <label>Loyalty Promotion Message</label>
+                                                <input type="text" class="form-control" id="loyalty_message" 
+                                                       value="<?php echo $default_loyalty_message; ?>" 
+                                                       placeholder="e.g., 🎉 Get 1000 Points on Your First Order!">
+                                                <div class="form-check mt-2">
+                                                    <input class="form-check-input" type="checkbox" id="show_loyalty" checked>
+                                                    <label class="form-check-label" for="show_loyalty">
+                                                        Show loyalty banner on standy
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted">Encourage customers to scan & order with a welcome points offer</small>
+                                            </div>
                                         </div>
                                         
                                         <div class="color-controls">
@@ -394,7 +468,6 @@ $conn->close();
                                                     <?php echo safe_htmlspecialchars($user_data['business_name'] ?? 'Company Name'); ?>
                                                 </div>
                                                 
-                                                
                                                 <!-- Scan Text -->
                                                 <div class="scan-text" id="scanTextElement">
                                                     SCAN TO ORDER
@@ -404,7 +477,6 @@ $conn->close();
                                                 <div class="qr-code-container" id="qrCodeContainer">
                                                     <img src="" alt="QR Code" id="designQR" style="display: none;" crossorigin="anonymous">
                                                 </div>
-
 
                                                 <!-- Website URL -->
                                                 <div class="website-url" id="websiteUrl">
@@ -421,8 +493,10 @@ $conn->close();
                                                     
                                                 </div>
 
-
-
+                                                <!-- Loyalty Points Banner (NEW) -->
+                                                <div class="loyalty-banner" id="loyaltyBanner">
+                                                    <?php echo $default_loyalty_message; ?>
+                                                </div>
 
                                                 <!-- Card Logo -->
                                                 <div class="card-logo" id="cardLogo"></div>
@@ -518,6 +592,8 @@ $conn->close();
         <input type="hidden" name="secondary_color" id="save_secondary_color" value="#ff0000">
         <input type="hidden" name="text_color" id="save_text_color" value="#FFFFFF">
         <input type="hidden" name="qr_content" id="save_qr_content" value="<?php echo safe_htmlspecialchars($qr_content); ?>">
+        <input type="hidden" name="loyalty_message" id="save_loyalty_message" value="<?php echo $default_loyalty_message; ?>">
+        <input type="hidden" name="show_loyalty" id="save_show_loyalty" value="1">
     </form>
 
     <!-- Hidden form for saving design images -->
@@ -539,10 +615,12 @@ $conn->close();
                 this.controlsPanel = document.getElementById('controlsPanel');
                 this.generateQRBtn = document.getElementById('generateQRBtn');
                 this.halfCircle = document.getElementById('halfCircle');
+                this.loyaltyBanner = document.getElementById('loyaltyBanner');
                 this.userRole = '<?php echo $user_role; ?>';
                 this.initEventListeners();
                 this.updateColors();
                 this.updateTextElements();
+                this.updateLoyaltyVisibility();
                 this.generateQRCode();
             }
 
@@ -600,11 +678,16 @@ $conn->close();
                     }
                 });
 
-                const textInputs = ['business_name', 'scan_text', 'website_url', 'table_text'];
+                const textInputs = ['business_name', 'scan_text', 'website_url', 'table_text', 'loyalty_message'];
                 textInputs.forEach(inputId => {
                     document.getElementById(inputId).addEventListener('input', () => {
                         this.updateTextElements();
                     });
+                });
+
+                // Loyalty visibility toggle
+                document.getElementById('show_loyalty').addEventListener('change', () => {
+                    this.updateLoyaltyVisibility();
                 });
 
                 // QR content input with debounce
@@ -665,11 +748,11 @@ $conn->close();
                 // Update design background
                 this.design.style.backgroundColor = backgroundColor;
                 
-                // Update half circle with secondary color - REMOVED !important
+                // Update half circle with secondary color
                 this.halfCircle.style.backgroundColor = secondaryColor;
                 
-                // Update text colors
-                const textElements = this.design.querySelectorAll('.business-name-main, .scan-text, .website-url, .table-section');
+                // Update text colors for all text elements including loyalty banner
+                const textElements = this.design.querySelectorAll('.business-name-main, .scan-text, .website-url, .table-section, .loyalty-banner');
                 textElements.forEach(element => {
                     element.style.color = textColor;
                 });
@@ -769,6 +852,15 @@ $conn->close();
                 
                 document.getElementById('tableSection').textContent = 
                     document.getElementById('table_text').value;
+
+                // Update loyalty banner text
+                document.getElementById('loyaltyBanner').textContent = 
+                    document.getElementById('loyalty_message').value;
+            }
+
+            updateLoyaltyVisibility() {
+                const isVisible = document.getElementById('show_loyalty').checked;
+                this.loyaltyBanner.style.display = isVisible ? 'block' : 'none';
             }
 
             prepareSaveData() {
@@ -780,6 +872,8 @@ $conn->close();
                 document.getElementById('save_secondary_color').value = document.getElementById('secondary_color_picker').value;
                 document.getElementById('save_text_color').value = document.getElementById('text_color_picker').value;
                 document.getElementById('save_qr_content').value = document.getElementById('qr_content').value;
+                document.getElementById('save_loyalty_message').value = document.getElementById('loyalty_message').value;
+                document.getElementById('save_show_loyalty').value = document.getElementById('show_loyalty').checked ? '1' : '0';
             }
         }
 

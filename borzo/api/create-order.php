@@ -1,8 +1,11 @@
 <?php
-// borzo/api/create-order.php - UPDATED with pickup address components
+// borzo/api/create-order.php - UPDATED with pickup geocoding and coordinates storage
 header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+// Google Maps API Key (same as used in order_status.php)
+define('GOOGLE_MAPS_API_KEY', 'AIzaSyCHhTLDYVu7dLYkohIKHiSEU9pi3_1TZl8');
 
 function formatPhoneNumber($phone) {
     if (empty($phone)) return '';
@@ -33,6 +36,23 @@ function formatFullAddressFromComponents($components) {
     if (!empty($components['flat_unit'])) $parts[] = 'Unit ' . trim($components['flat_unit']);
     if (!empty($components['street'])) $parts[] = trim($components['street']);
     return implode(', ', $parts);
+}
+
+/**
+ * Geocode an address using Google Maps Geocoding API
+ * @param string $address
+ * @return array|null ['lat' => x, 'lng' => y] or null on failure
+ */
+function geocodeAddress($address) {
+    if (empty($address)) return null;
+    $url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=" . GOOGLE_MAPS_API_KEY;
+    $response = @file_get_contents($url);
+    if ($response === false) return null;
+    $data = json_decode($response, true);
+    if ($data['status'] == 'OK' && isset($data['results'][0]['geometry']['location'])) {
+        return $data['results'][0]['geometry']['location'];
+    }
+    return null;
 }
 
 try {
@@ -160,12 +180,41 @@ try {
     error_log("Pickup address components: " . json_encode($pickupComponents));
     error_log("Delivery address components: " . json_encode($deliveryComponents));
 
+    // ========== GEOCODE PICKUP & DELIVERY ADDRESSES ==========
+    // Geocode pickup address (restaurant)
+    $pickupLocation = geocodeAddress($fullPickupAddress);
+    $pickupLat = $pickupLocation ? $pickupLocation['lat'] : null;
+    $pickupLng = $pickupLocation ? $pickupLocation['lng'] : null;
+    
+    // Geocode delivery address (customer)
+    $deliveryLocation = geocodeAddress($fullDeliveryAddress);
+    $deliveryLat = $deliveryLocation ? $deliveryLocation['lat'] : null;
+    $deliveryLng = $deliveryLocation ? $deliveryLocation['lng'] : null;
+    
+    // Save coordinates to orders table BEFORE creating Borzo order
+    if ($pickupLat && $pickupLng && $deliveryLat && $deliveryLng) {
+        $updateSql = "UPDATE orders SET 
+                      pickup_latitude = ?, pickup_longitude = ?,
+                      delivery_latitude = ?, delivery_longitude = ?
+                      WHERE order_id = ?";
+        $updateStmt = $conn->prepare($updateSql);
+        $updateStmt->bind_param('ssssi', $pickupLat, $pickupLng, $deliveryLat, $deliveryLng, $orderId);
+        $updateStmt->execute();
+        $updateStmt->close();
+        error_log("Coordinates saved for order $orderId: pickup($pickupLat,$pickupLng) delivery($deliveryLat,$deliveryLng)");
+    } else {
+        error_log("Geocoding failed for order $orderId. Pickup: " . ($pickupLocation ? 'ok' : 'fail') . " Delivery: " . ($deliveryLocation ? 'ok' : 'fail'));
+    }
+    // ========================================================
+
     $deliveryManager = new DynamicDeliveryManager($user_id, $borzoConfig);
     if (!$deliveryManager->hasValidApiKey()) {
         throw new Exception('Borzo API key not configured. Please add your API key in Borzo API settings.');
     }
     
     $result = $deliveryManager->createOrder($orderData);
+    
+    // If Borzo order creation succeeded, also store the borzo_order_id and other details (already done inside DeliveryManager)
     echo json_encode($result);
     
 } catch (Exception $e) {
@@ -176,3 +225,4 @@ try {
         'error' => $e->getMessage()
     ]);
 }
+?>

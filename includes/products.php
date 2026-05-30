@@ -1,4 +1,123 @@
+<?php
+
+// Get currency info from global
+$currency_symbol = $GLOBALS['currency_info']['symbol'] ?? '₹';
+$currency_code = $GLOBALS['currency_info']['code'] ?? 'INR';
+$user_country = $GLOBALS['currency_info']['country'] ?? 'India';
+
+
+// Get customer data from global
+$customer_data = $GLOBALS['customer_data'] ?? null;
+$is_customer_logged_in = ($customer_data !== null);
+$customer_loyalty_points = $customer_data['loyalty_points'] ?? 0;
+
+// Get loyalty settings for this restaurant
+require_once __DIR__ . '/loyalty_helper.php';
+$loyalty_settings = getLoyaltySettings($conn, $user_id);
+$redemption_points = $loyalty_settings['redemption_points'];
+$redemption_amount = $loyalty_settings['redemption_currency_amount'];
+$earn_points_per_currency = $loyalty_settings['earn_points_per_currency'];
+
+// Get products from user-specific table with tags
+$table_name = "products_" . $user_id;
+
+// Check if the user-specific products table exists
+$check_table = $conn->prepare("SHOW TABLES LIKE ?");
+$check_table->execute([$table_name]);
+$table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
+
+if ($table_exists) {
+    // Fetch products from user-specific table with tags
+    $products_sql = "SELECT p.*, t.tag 
+                     FROM $table_name p 
+                     LEFT JOIN tags t ON p.tag_id = t.id 
+                     ORDER BY p.id ASC";
+    $products_stmt = $conn->prepare($products_sql);
+    $products_stmt->execute();
+    $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $products = []; // Empty array if table doesn't exist
+}
+?>
+
+<?php if ($active_subscription): ?>
+    <?php if ($active_subscription['package_id'] == 1): ?>
+        <style>
+            #dinningBtn { display: none !important; }
+            #deliveryBtn { width: 100% !important; margin: 0 !important; }
+        </style>
+    <?php elseif ($active_subscription['package_id'] == 2): ?>
+        <style>
+            #deliveryBtn { display: none !important; }
+            #dinningBtn { width: 100% !important; margin: 0 !important; }
+        </style>
+    <?php endif; ?>
+<?php endif; ?>
+
+<style>
+.product-img.grayscale{filter:grayscale(100%)!important;opacity:.7}#getLocationBtn:disabled,.add-to-cart.disabled{opacity:.65;cursor:not-allowed}.product-card.not-available{position:relative}.product-card.not-available::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}.add-to-cart.disabled{background-color:#6c757d!important;border-color:#6c757d!important}.tag-time-slot.text-danger{color:#dc3545!important;font-weight:700}.tag-time-slot.text-success{color:#198754!important}.flying-image{position:fixed;z-index:9999;border-radius:8px;object-fit:cover;pointer-events:none;transition:.8s cubic-bezier(.175, .885, .32, 1.275);animation:1s forwards flyToCart;box-shadow:0 4px 12px rgba(0,0,0,.3)}@keyframes flyToCart{0%{transform:translate(0,0) scale(1) rotate(0);opacity:1}50%{transform:translate(var(--mid-x),var(--mid-y)) scale(.7) rotate(180deg);opacity:.8}100%{transform:translate(var(--final-x),var(--final-y)) scale(.2) rotate(360deg);opacity:0}}.address-preview{display:none!important}.delivery-details .row{margin-left:-5px;margin-right:-5px}.delivery-details .row>[class*=col-]{padding-left:5px;padding-right:5px}.delivery-details input:focus,.delivery-details textarea:focus{border-color:<?= $primary_color ?>;box-shadow:0 0 0 .25rem rgba(<?= hexdec(substr($primary_color,1,2)) ?>,<?= hexdec(substr($primary_color,3,2)) ?>,<?= hexdec(substr($primary_color,5,2)) ?>,.25)}#getLocationBtn{margin-top:5px;background-color:#f8f9fa;border-color:#ced4da;color:#495057;transition:.3s}#getLocationBtn:hover{background-color:#e9ecef;border-color:#adb5bd}@keyframes locationPulse{0%{box-shadow:0 0 0 0 rgba(40,167,69,.4)}70%{box-shadow:0 0 0 10px rgba(40,167,69,0)}100%{box-shadow:0 0 0 0 rgba(40,167,69,0)}}.location-detected{animation:1s locationPulse}.loyalty-card{background:linear-gradient(135deg,#667eea 0,#764ba2 100%);border-radius:12px;padding:15px;margin-bottom:15px;color:#fff}.loyalty-card .points-value{font-size:24px;font-weight:700}.loyalty-card .points-label{font-size:12px;opacity:.9}.loyalty-discount-badge{background:#ffc107;color:#000;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700}.cart-loyalty-discount{color:#28a745;font-weight:700;margin:5px 0;padding:5px;text-align:right}.points-slider-container{background:rgba(0,0,0,.2);border-radius:8px;padding:12px;margin-top:10px}.form-range::-webkit-slider-thumb{background:#667eea}.form-range::-webkit-slider-thumb:hover{background:#764ba2}
+</style>
+
 <script>
+// Google Maps API configuration - using API key from PHP
+const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'AIzaSyDGy9Tx79vcKFShExNiPSZZC4O0BjU-TSw' ?>';
+
+// Get currency symbol from PHP
+const currencySymbol = '<?= $currency_symbol ?>';
+const currencyCode = '<?= $currency_code ?>';
+
+// WhatsApp integration disabled
+const ENABLE_WHATSAPP_ORDER = false;
+
+// Get user country for phone validation
+const userCountry = '<?= $user_country ?>';
+
+// Customer login status
+const isCustomerLoggedIn = <?= json_encode($is_customer_logged_in) ?>;
+
+// Customer loyalty points
+let customerPoints = <?= $customer_loyalty_points ?>;
+let redeemedPoints = 0;
+let redeemedValue = 0;
+
+// Loyalty settings from restaurant
+const loyaltyRedemptionPoints = <?= $redemption_points ?>;
+const loyaltyRedemptionAmount = <?= $redemption_amount ?>;
+const loyaltyEarnPointsPerCurrency = <?= $earn_points_per_currency ?>;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const deliveryBtn = document.getElementById('deliveryBtn');
+    const dinningBtn = document.getElementById('dinningBtn');
+
+    const selectedOrderType = localStorage.getItem('selectedOrderType');
+    if (selectedOrderType === 'delivery' && deliveryBtn) {
+        deliveryBtn.classList.add('active');
+    } else if (selectedOrderType === 'dining' && dinningBtn) {
+        dinningBtn.classList.add('active');
+    }
+    
+    // Initialize lazy loading with fade-in effect
+    initLazyLoading();
+    
+    // Update product availability based on time slots
+    updateProductAvailability();
+    
+    // Update availability every minute
+    setInterval(updateProductAvailability, 60000);
+    
+    // Add event listeners for address fields (excluding floor as it's removed)
+    const addressFields = ['building', 'flatUnit', 'landmark'];
+    addressFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updateAddressPreview);
+        }
+    });
+    
+    // Initialize loyalty points UI
+    updateLoyaltyUI();
+});
+
 // Function to check if current time is within any time slot
 function isWithinTimeSlots(time1Start, time1End, time2Start, time2End) {
     if ((!time1Start || !time1End) && (!time2Start || !time2End)) return true; // No time restriction
@@ -108,220 +227,6 @@ function updateProductAvailability() {
         }
     });
 }
-</script>
-<style>
-/* Grayscale effect for unavailable products */
-.product-img.grayscale {
-    filter: grayscale(100%) !important;
-    opacity: 0.7;
-}
-
-/* Overlay for unavailable products */
-.product-card.not-available {
-    position: relative;
-}
-
-.product-card.not-available::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-/* Style for disabled add-to-cart button */
-.add-to-cart.disabled {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
-/* Time slot display styling */
-.tag-time-slot.text-danger {
-    color: #dc3545 !important;
-    font-weight: bold;
-}
-
-.tag-time-slot.text-success {
-    color: #198754 !important;
-}
-
-/* Flying image animation */
-.flying-image {
-    position: fixed;
-    z-index: 9999;
-    border-radius: 8px;
-    object-fit: cover;
-    pointer-events: none;
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    animation: flyToCart 1s forwards;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-@keyframes flyToCart {
-    0% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
-        opacity: 1;
-    }
-    50% {
-        transform: translate(var(--mid-x), var(--mid-y)) scale(0.7) rotate(180deg);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translate(var(--final-x), var(--final-y)) scale(0.2) rotate(360deg);
-        opacity: 0;
-    }
-}
-
-/* Address preview styling - Hidden as requested */
-.address-preview {
-    display: none !important;
-}
-
-/* Delivery form row styling */
-.delivery-details .row {
-    margin-left: -5px;
-    margin-right: -5px;
-}
-
-.delivery-details .row > [class*="col-"] {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
-/* Form field focus styling */
-.delivery-details input:focus,
-.delivery-details textarea:focus {
-    border-color: <?= $primary_color ?>;
-    box-shadow: 0 0 0 0.25rem rgba(<?= hexdec(substr($primary_color,1,2)) ?>, <?= hexdec(substr($primary_color,3,2)) ?>, <?= hexdec(substr($primary_color,5,2)) ?>, 0.25);
-}
-
-/* Style for the location button */
-#getLocationBtn {
-    margin-top: 5px;
-    background-color: #f8f9fa;
-    border-color: #ced4da;
-    color: #495057;
-    transition: all 0.3s ease;
-}
-
-#getLocationBtn:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-}
-
-#getLocationBtn:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-/* Optional: Add a pulse animation when location is detected */
-@keyframes locationPulse {
-    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-}
-
-.location-detected {
-    animation: locationPulse 1s ease;
-}
-</style>
-
-<?php
-// Get currency info from global
-$currency_symbol = $GLOBALS['currency_info']['symbol'] ?? '₹';
-$currency_code = $GLOBALS['currency_info']['code'] ?? 'INR';
-$user_country = $GLOBALS['currency_info']['country'] ?? 'India';
-
-// Get customer data from global
-$customer_data = $GLOBALS['customer_data'] ?? null;
-$is_customer_logged_in = ($customer_data !== null);
-
-// Get products from user-specific table with tags
-$table_name = "products_" . $user_id;
-
-// Check if the user-specific products table exists
-$check_table = $conn->prepare("SHOW TABLES LIKE ?");
-$check_table->execute([$table_name]);
-$table_exists = $check_table->fetch(PDO::FETCH_ASSOC);
-
-if ($table_exists) {
-    // Fetch products from user-specific table with tags
-    $products_sql = "SELECT p.*, t.tag 
-                     FROM $table_name p 
-                     LEFT JOIN tags t ON p.tag_id = t.id 
-                     ORDER BY p.id ASC";
-    $products_stmt = $conn->prepare($products_sql);
-    $products_stmt->execute();
-    $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    $products = []; // Empty array if table doesn't exist
-}
-?>
-
-<?php if ($active_subscription): ?>
-    <?php if ($active_subscription['package_id'] == 1): ?>
-        <style>
-            #dinningBtn { display: none !important; }
-            #deliveryBtn { width: 100% !important; margin: 0 !important; }
-        </style>
-    <?php elseif ($active_subscription['package_id'] == 2): ?>
-        <style>
-            #deliveryBtn { display: none !important; }
-            #dinningBtn { width: 100% !important; margin: 0 !important; }
-        </style>
-    <?php endif; ?>
-<?php endif; ?>
-
-<script>
-// Google Maps API configuration - using API key from PHP
-const GOOGLE_MAPS_API_KEY = '<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '' ?>';
-
-// Get currency symbol from PHP
-const currencySymbol = '<?= $currency_symbol ?>';
-const currencyCode = '<?= $currency_code ?>';
-
-// WhatsApp integration disabled
-const ENABLE_WHATSAPP_ORDER = false;
-
-// Get user country for phone validation
-const userCountry = '<?= $user_country ?>';
-
-// Customer login status
-const isCustomerLoggedIn = <?= json_encode($is_customer_logged_in) ?>;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const deliveryBtn = document.getElementById('deliveryBtn');
-    const dinningBtn = document.getElementById('dinningBtn');
-
-    const selectedOrderType = localStorage.getItem('selectedOrderType');
-    if (selectedOrderType === 'delivery' && deliveryBtn) {
-        deliveryBtn.classList.add('active');
-    } else if (selectedOrderType === 'dining' && dinningBtn) {
-        dinningBtn.classList.add('active');
-    }
-    
-    // Initialize lazy loading with fade-in effect
-    initLazyLoading();
-    
-    // Update product availability based on time slots
-    updateProductAvailability();
-    
-    // Update availability every minute
-    setInterval(updateProductAvailability, 60000);
-    
-    // Add event listeners for address fields (excluding floor as it's removed)
-    const addressFields = ['building', 'flatUnit', 'landmark'];
-    addressFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('input', updateAddressPreview);
-        }
-    });
-});
 
 // Load Google Maps API dynamically
 function loadGoogleMapsAPI(callback) {
@@ -739,14 +644,87 @@ function showToast(message, type = 'success') {
         this.remove();
     });
 }
+
+// ==================== LOYALTY POINTS FUNCTIONS ====================
+function updateLoyaltyUI() {
+    const loyaltySection = document.getElementById('loyaltySection');
+    
+    // Hide section if not logged in or no points
+    if (!isCustomerLoggedIn || customerPoints <= 0) {
+        if (loyaltySection) loyaltySection.style.display = 'none';
+        return;
+    }
+    
+    if (loyaltySection) loyaltySection.style.display = 'block';
+    
+    // Update points display using dynamic conversion
+    const pointValue = (customerPoints / loyaltyRedemptionPoints * loyaltyRedemptionAmount).toFixed(2);
+    document.getElementById('loyaltyPointsDisplay').innerText = customerPoints;
+    document.getElementById('loyaltyValueDisplay').innerText = currencySymbol + pointValue;
+    
+    const checkbox = document.getElementById('redeemPointsCheckbox');
+    const controlDiv = document.getElementById('redeemPointsControl');
+    const maxPoints = customerPoints;
+    const slider = document.getElementById('pointsSlider');
+    const maxLabel = document.getElementById('maxPointsLabel');
+    const pointsInput = document.getElementById('pointsInput');
+    const discountPreview = document.getElementById('pointsDiscountPreview');
+    
+    if (maxLabel) maxLabel.innerText = maxPoints + ' pts';
+    if (slider) {
+        slider.max = maxPoints;
+        slider.step = loyaltyRedemptionPoints;
+    }
+    
+    function updatePoints(value) {
+        let pts = parseInt(value);
+        if (isNaN(pts)) pts = 0;
+        if (pts > maxPoints) pts = maxPoints;
+        // Round down to nearest redemption points increment
+        pts = Math.floor(pts / loyaltyRedemptionPoints) * loyaltyRedemptionPoints;
+        const discount = (pts / loyaltyRedemptionPoints * loyaltyRedemptionAmount).toFixed(2);
+        if (discountPreview) discountPreview.innerText = `Discount: ${currencySymbol}${discount}`;
+        if (slider) slider.value = pts;
+        if (pointsInput) pointsInput.value = pts;
+        redeemedPoints = pts;
+        redeemedValue = parseFloat(discount);
+        updateCartUI(); // Recalculate total with loyalty discount
+    }
+    
+    if (slider) {
+        slider.oninput = (e) => updatePoints(e.target.value);
+    }
+    if (pointsInput) {
+        pointsInput.oninput = (e) => updatePoints(e.target.value);
+    }
+    if (checkbox) {
+        checkbox.onchange = (e) => {
+            if (controlDiv) controlDiv.style.display = e.target.checked ? 'block' : 'none';
+            if (!e.target.checked) updatePoints(0);
+            else updatePoints(0); // reset to 0 but show controls
+        };
+    }
+}
+
+// Function to reset loyalty points (called after order)
+function resetLoyaltyPoints() {
+    redeemedPoints = 0;
+    redeemedValue = 0;
+    const checkbox = document.getElementById('redeemPointsCheckbox');
+    if (checkbox) checkbox.checked = false;
+    const controlDiv = document.getElementById('redeemPointsControl');
+    if (controlDiv) controlDiv.style.display = 'none';
+    const slider = document.getElementById('pointsSlider');
+    if (slider) slider.value = 0;
+    const pointsInput = document.getElementById('pointsInput');
+    if (pointsInput) pointsInput.value = 0;
+}
+// ==================== END LOYALTY POINTS FUNCTIONS ====================
 </script>
 
 <!-- products.php -->
 <div class="products">
     <h6>Products</h6>
-
-
-
 
     <?php if ($delivery_active || $dining_active): ?>
         <!-- Shopping Cart Sidebar -->
@@ -768,6 +746,11 @@ function showToast(message, type = 'success') {
                     <div class="cart-discount" id="discountSection" style="display: none;">
                         Discount: -<span id="discountAmount">0.00</span> (
                         <span id="discountType"></span>)
+                    </div>
+
+                    <!-- Loyalty Discount Section -->
+                    <div class="cart-loyalty-discount" id="loyaltyDiscountDisplay" style="display: none;">
+                        Loyalty Discount: -<span id="loyaltyDiscountAmount">0.00</span>
                     </div>
 
                     <?php if ($gst_percent > 0): ?>
@@ -863,6 +846,37 @@ function showToast(message, type = 'success') {
                                 <button class="btn btn-outline-secondary" type="button" id="applyCouponBtn">Apply</button>
                             </div>
                             <small id="couponMessage" class="text-success"></small>
+                        </div>
+
+                        <!-- Loyalty Points Redemption Section -->
+                        <div class="mb-1 col-full" id="loyaltySection" style="display: none;">
+                            <div class="loyalty-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-star-fill"></i>
+                                        <strong>Your Loyalty Points</strong>
+                                        <div class="points-value" id="loyaltyPointsDisplay">0</div>
+                                        <div class="points-label">pts (Value: <span id="loyaltyValueDisplay"><?= $currency_symbol ?>0.00</span>)</div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="redeemPointsCheckbox">
+                                        <label class="form-check-label" for="redeemPointsCheckbox">Use points</label>
+                                    </div>
+                                </div>
+                                <div id="redeemPointsControl" style="display: none;">
+                                    <div class="points-slider-container">
+                                        <label class="form-label">Points to redeem:</label>
+                                        <input type="range" id="pointsSlider" class="form-range" min="0" step="<?= $redemption_points ?>" value="0">
+                                        <div class="d-flex justify-content-between">
+                                            <span>0 pts</span>
+                                            <span id="maxPointsLabel">0 pts</span>
+                                        </div>
+                                        <input type="number" id="pointsInput" class="form-control mt-2" placeholder="Enter points" step="<?= $redemption_points ?>">
+                                        <small class="text-muted d-block mt-2">💡 <?= number_format($redemption_points) ?> points = <?= $currency_symbol ?><?= number_format($redemption_amount, 2) ?> discount</small>
+                                        <div id="pointsDiscountPreview" class="text-success mt-2 fw-bold"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <h6>Delivery Information</h6>
@@ -1716,6 +1730,7 @@ function showToast(message, type = 'success') {
         const emptyCartMsg = document.createElement('div');
         const discountMessageElement = document.querySelector('.cart-button .discount-message');
         const discountSection = document.getElementById('discountSection');
+        const loyaltyDiscountElement = document.getElementById('loyaltyDiscountDisplay');
 
         // Clear existing empty message if any
         const existingEmptyMsg = cartItemsContainer.querySelector('.empty-cart-message');
@@ -1741,6 +1756,10 @@ function showToast(message, type = 'success') {
             if (cart.coupon) {
                 delete cart.coupon;
             }
+            
+            // Reset loyalty points
+            redeemedPoints = 0;
+            redeemedValue = 0;
 
             // Create and show empty cart message
             emptyCartMsg.className = 'empty-cart-message text-center py-4';
@@ -1762,6 +1781,7 @@ function showToast(message, type = 'success') {
             if (cartFooter) cartFooter.style.display = 'none';
             if (discountMessageElement) discountMessageElement.style.display = 'none';
             if (discountSection) discountSection.style.display = 'none';
+            if (loyaltyDiscountElement) loyaltyDiscountElement.style.display = 'none';
             
             // Update cart count and hide cart button container
             document.querySelector('.cart-count').textContent = '0 items added';
@@ -1950,18 +1970,40 @@ function showToast(message, type = 'success') {
             }
         }
 
-        // Update subtotal and total
+        // Calculate amount after discount
+        let amountAfterDiscount = subtotal - discountAmount;
+        if (amountAfterDiscount < 0) amountAfterDiscount = 0;
+        
+        // Apply loyalty discount
+        let loyaltyDiscountAmount = 0;
+        if (document.getElementById('redeemPointsCheckbox') && document.getElementById('redeemPointsCheckbox').checked) {
+            loyaltyDiscountAmount = redeemedValue;
+            // Ensure loyalty discount doesn't exceed amount after discount
+            if (loyaltyDiscountAmount > amountAfterDiscount) {
+                loyaltyDiscountAmount = amountAfterDiscount;
+            }
+            
+            // Update loyalty discount display
+            if (loyaltyDiscountElement) {
+                loyaltyDiscountElement.style.display = 'block';
+                document.getElementById('loyaltyDiscountAmount').textContent = formatNumber(loyaltyDiscountAmount);
+            }
+        } else {
+            if (loyaltyDiscountElement) loyaltyDiscountElement.style.display = 'none';
+            loyaltyDiscountAmount = 0;
+        }
+        
+        // Calculate amount after all discounts
+        let amountAfterAllDiscounts = amountAfterDiscount - loyaltyDiscountAmount;
+        if (amountAfterAllDiscounts < 0) amountAfterAllDiscounts = 0;
+        
+        // Update subtotal display
         document.getElementById('cartSubtotal').textContent = formatNumber(subtotal);
 
-        // Calculate GST on amount after discount
-        let amountAfterDiscount = subtotal - discountAmount;
-        if (amountAfterDiscount < 0) {
-            amountAfterDiscount = 0;
-        }
-
-        let total = amountAfterDiscount;
+        // Calculate GST on amount after all discounts
+        let total = amountAfterAllDiscounts;
         if (gstPercent > 0) {
-            const gstAmount = (amountAfterDiscount * gstPercent) / 100;
+            const gstAmount = (amountAfterAllDiscounts * gstPercent) / 100;
             document.getElementById('gstCharges').textContent = formatNumber(gstAmount);
             total += gstAmount;
         }
@@ -1970,7 +2012,7 @@ function showToast(message, type = 'success') {
         let actualDeliveryCharge = 0;
         const cartDeliveryChargesRow = document.querySelector('.cart-delivery-charges');
         if (isDelivery && deliveryCharge !== undefined) {
-            if (freeDeliveryMin > 0 && amountAfterDiscount >= freeDeliveryMin) {
+            if (freeDeliveryMin > 0 && amountAfterAllDiscounts >= freeDeliveryMin) {
                 // Free delivery because subtotal meets minimum
                 actualDeliveryCharge = 0;
                 document.getElementById('deliveryChargeText').textContent = 'FREE (Order above ' + currencySymbol + formatNumber(freeDeliveryMin) + ')';
@@ -1980,7 +2022,7 @@ function showToast(message, type = 'success') {
                 actualDeliveryCharge = parseFloat(deliveryCharge);
                 if (freeDeliveryMin > 0) {
                     // Show message about how much more to spend for free delivery
-                    const neededForFree = freeDeliveryMin - amountAfterDiscount;
+                    const neededForFree = freeDeliveryMin - amountAfterAllDiscounts;
                     document.getElementById('deliveryChargeText').innerHTML =
                         `${currencySymbol}${formatNumber(deliveryCharge)} <span class="free-delivery-text"> (Add ${currencySymbol}${formatNumber(neededForFree)} more for FREE delivery)</span>`;
                 } else {
@@ -2018,7 +2060,7 @@ function showToast(message, type = 'success') {
         
         // Show/hide minimum order amount warning
         const existingMinOrderMsg = document.getElementById('minimumOrderMsg');
-        if (isDelivery && minimumOrderAmount > 0 && subtotal < minimumOrderAmount) {
+        if (isDelivery && minimumOrderAmount > 0 && amountAfterAllDiscounts < minimumOrderAmount) {
             if (!existingMinOrderMsg) {
                 const minOrderMsg = document.createElement('div');
                 minOrderMsg.id = 'minimumOrderMsg';
@@ -2036,6 +2078,9 @@ function showToast(message, type = 'success') {
         } else if (existingMinOrderMsg) {
             existingMinOrderMsg.style.display = 'none';
         }
+        
+        // Update loyalty UI points display if changed
+        updateLoyaltyUI();
     }
 
     // Update quantity with buttons
@@ -2196,6 +2241,13 @@ function showToast(message, type = 'success') {
             discountType = document.getElementById('discountType').textContent || '';
         }
         
+        // Get loyalty points redemption
+        const useLoyalty = document.getElementById('redeemPointsCheckbox') && document.getElementById('redeemPointsCheckbox').checked;
+        let redeemedPointsAmount = 0;
+        if (useLoyalty) {
+            redeemedPointsAmount = redeemedPoints;
+        }
+        
         // Collect customer details based on order type
         let customerName, customerPhone, deliveryAddress, tableNumber, orderNotes;
         let orderData = {};
@@ -2225,9 +2277,15 @@ function showToast(message, type = 'success') {
             
             // ===== MINIMUM ORDER AMOUNT VALIDATION =====
             const subtotal = calculateSubtotal();
-            if (minimumOrderAmount > 0 && subtotal < minimumOrderAmount) {
-                alert('Minimum order amount is ' + currencySymbol + formatNumber(minimumOrderAmount) + 
-                      '. Your current subtotal is ' + currencySymbol + formatNumber(subtotal));
+            // Calculate total after all discounts including loyalty
+            let amountAfterDiscount = subtotal - discountAmount;
+            if (amountAfterDiscount < 0) amountAfterDiscount = 0;
+            let amountAfterLoyalty = amountAfterDiscount - redeemedValue;
+            if (amountAfterLoyalty < 0) amountAfterLoyalty = 0;
+            
+            if (minimumOrderAmount > 0 && amountAfterLoyalty < minimumOrderAmount) {
+                alert('Minimum order amount after all discounts is ' + currencySymbol + formatNumber(minimumOrderAmount) + 
+                      '. Your current amount is ' + currencySymbol + formatNumber(amountAfterLoyalty));
                 return;
             }
             // ==========================================
@@ -2265,6 +2323,8 @@ function showToast(message, type = 'success') {
                 })),
                 discount_amount: discountAmount,
                 discount_type: discountType,
+                loyalty_points_redeemed: redeemedPointsAmount,
+                loyalty_points_value: redeemedValue,
                 gst_percent: gstPercent,
                 delivery_charge: deliveryCharge,
                 free_delivery_min: freeDeliveryMin,
@@ -2305,6 +2365,8 @@ function showToast(message, type = 'success') {
                 })),
                 discount_amount: discountAmount,
                 discount_type: discountType,
+                loyalty_points_redeemed: redeemedPointsAmount,
+                loyalty_points_value: redeemedValue,
                 gst_percent: gstPercent,
                 delivery_charge: 0,
                 free_delivery_min: 0,
@@ -2362,6 +2424,9 @@ function showToast(message, type = 'success') {
                 // Clear the cart
                 cart = [];
                 localStorage.removeItem(cartKey); // Also remove from localStorage
+                
+                // Reset loyalty points redemption
+                resetLoyaltyPoints();
                 
                 // Clear all form fields
                 if (document.getElementById('customerName')) document.getElementById('customerName').value = '';

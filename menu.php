@@ -1918,6 +1918,16 @@ function sendOrderRejection(orderId, customerPhone, customerName, orderType, tot
                </ul>
             </div>
          </li>
+         
+         <li class="nav-item">
+            <a class="nav-link" href="loyalty_points.php">
+               <span class="nav-icon">
+                  <iconify-icon icon="ic:outline-loyalty"></iconify-icon>
+               </span>
+               <span class="nav-text">Loyalty Points</span>
+            </a>
+         </li>
+
          <li class="nav-item">
             <a class="nav-link" href="customer-reviews.php">
                <span class="nav-icon">

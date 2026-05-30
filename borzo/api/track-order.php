@@ -608,18 +608,14 @@ $stmt->close();
         }
         
         function updateCourierLocation() {
-            fetch(`/borzo/api/track-order.php?order_id=${orderId}`)
+            fetch(`/borzo/api/get-courier-location.php?order_id=${orderId}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success && data.courier) {
-                        const courier = data.courier;
-                        if (courier.latitude && courier.longitude) {
-                            addCourierMarker(courier.latitude, courier.longitude);
-                            
-                            // Update route if needed
-                            if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
-                                drawRoute();
-                            }
+                    if (data.success && data.courier && data.courier.latitude && data.courier.longitude) {
+                        addCourierMarker(data.courier.latitude, data.courier.longitude);
+                        // रूट भी दोबारा ड्रॉ करें (pickup से delivery तक)
+                        if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
+                            drawRoute();
                         }
                     }
                 })

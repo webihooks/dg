@@ -121,7 +121,7 @@
                 <!-- row start -->
                 <div class="row">
                   <div class="col-md-4">
-                      <p>DeeGeeCard © Copyrights 2025. All rights reserved.</p>
+                      <p>DEEGEECARD © Copyrights <script>document.write(new Date().getFullYear());</script>. All rights reserved.</p>
                   </div>
 
                   <div class="col-md-4">

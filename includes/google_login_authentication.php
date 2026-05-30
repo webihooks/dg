@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Load Google config
 require_once __DIR__ . '/../config/google_config.php';
+require_once __DIR__ . '/loyalty_helper.php';
 
 /**
  * Generate Google OAuth URL
@@ -100,17 +101,20 @@ function saveOrUpdateCustomer($conn, $user_id, $googleUser) {
             'points' => $existing['loyalty_points']
         ];
     } else {
-        // Insert new record with 1000 loyalty points
-        $loyalty_points = 1000;
+        // Get loyalty settings for this restaurant to determine welcome points
+        $settings = getLoyaltySettings($conn, $user_id);
+        $welcome_points = $settings['welcome_points'];
+        
+        // Insert new record with dynamic welcome points
         $insert = $conn->prepare("INSERT INTO customer_google_accounts 
             (restaurant_user_id, google_id, email, name, picture, loyalty_points, created_at, last_login) 
             VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
-        $insert->execute([$user_id, $google_id, $email, $name, $picture, $loyalty_points]);
+        $insert->execute([$user_id, $google_id, $email, $name, $picture, $welcome_points]);
         $new_id = $conn->lastInsertId();
         return [
             'customer_id' => $new_id,
             'is_new' => true,
-            'points' => $loyalty_points
+            'points' => $welcome_points
         ];
     }
 }
@@ -165,9 +169,6 @@ function updateCustomerDetails($conn, $user_id, $customer_id, $phone, $address_d
     return $success;
 }
 
-
-
-
 /**
  * Display login modal (only for non-logged-in users)
  * @param int $user_id Restaurant user ID
@@ -201,8 +202,4 @@ function showLoginPopup($user_id, $profile_url, $customer_data = null) {
     </div>
     <?php
 }
-
-
-
-
 ?>

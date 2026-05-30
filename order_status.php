@@ -3,10 +3,10 @@
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
+
 // order_status.php
 require_once 'config/db_connection.php';
-
-
+require_once 'includes/loyalty_helper.php';
 date_default_timezone_set('Asia/Kolkata');
 
 // Function to adjust time based on user's country (for display only)
@@ -142,6 +142,12 @@ switch ($country) {
         break;
 }
 
+// Fetch loyalty settings for this restaurant
+$loyalty_settings = getLoyaltySettings($conn, $order['user_id']);
+$redemption_points = $loyalty_settings['redemption_points'];
+$redemption_amount = $loyalty_settings['redemption_currency_amount'];
+$earn_points_per_currency = $loyalty_settings['earn_points_per_currency'];
+
 // --- MODIFICATION START: Simplified status logic ---
 $simplified_statuses = [
     'Placed' => ['icon' => 'bi-check-circle', 'description' => '✅ Your order has been placed successfully!'],
@@ -200,6 +206,12 @@ $show_saved_time = $time_remaining <= 0 && !in_array($order_status_lower, ['comp
 
 // Build the back URL - use relative path to go to the profile URL
 $back_url = '/' . $profile_url;
+
+// ***** FIXED POINTS CELEBRATION CONDITION *****
+// Show confetti & points notification whenever points are earned AND order is NOT cancelled
+// (No restriction on order status - shows immediately after order placement)
+$points_earned = $order['loyalty_points_earned'] ?? 0;
+$show_points_celebration = ($points_earned > 0 && !$is_cancelled);
 ?>
 
 <!DOCTYPE html>
@@ -358,6 +370,85 @@ $back_url = '/' . $profile_url;
             100% {
                 box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.2);
             }
+        }
+
+        /* Confetti styles (from business_info) */
+        .confetti-container {
+            position: fixed;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.8;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Points Earned Toast Notification - Golden Gradient */
+        .points-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #2c1a0e;
+            padding: 16px 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 10001;
+            text-align: center;
+            min-width: 260px;
+            backdrop-filter: blur(8px);
+            border: 3px solid rgba(255,255,255,0.4);
+            transition: opacity 0.5s ease;
+            font-family: inherit;
+        }
+
+        .points-toast h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #2c1a0e;
+        }
+
+        .points-toast p {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+            color: #2c1a0e;
+        }
+
+        .points-toast .points-number {
+            font-size: 1.6rem;
+            font-weight: bold;
+            display: block;
+            margin: 8px 0;
+            color: #2c1a0e;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+        }
+
+        .points-toast .small-text {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            color: #2c1a0e;
+        }
+
+        .points-toast i.bi-gift-fill {
+            font-size: 1.8rem;
+            color: #2c1a0e;
         }
     </style>
 </head>
@@ -707,6 +798,31 @@ $back_url = '/' . $profile_url;
                                 <span class="font-medium">-<?= $currency_symbol ?><?= number_format($order['discount_amount']) ?></span>
                             </div>
                         <?php endif; ?>
+
+                        <!-- ==================== LOYALTY POINTS SECTION START ==================== -->
+                        <?php if ($order['loyalty_points_redeemed'] > 0): ?>
+                            <div class="flex justify-between items-center text-purple-600">
+                                <span>
+                                    Loyalty Points Redeemed 
+                                    <small class="text-gray-500">(<?= number_format($order['loyalty_points_redeemed']) ?> pts)</small>
+                                </span>
+                                <span class="font-medium">-<?= $currency_symbol ?><?= number_format($order['loyalty_points_value'], 2) ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($order['loyalty_points_earned'] > 0): 
+                            // Calculate earned value using dynamic redemption settings
+                            $earned_value = ($order['loyalty_points_earned'] / $redemption_points) * $redemption_amount;
+                        ?>
+                            <div class="flex justify-between items-center text-blue-600">
+                                <span>
+                                    Loyalty Points Earned 
+                                    <small class="text-gray-500">(<?= number_format($order['loyalty_points_earned']) ?> pts)</small>
+                                </span>
+                                <span class="font-medium">+<?= $currency_symbol ?><?= number_format($earned_value, 2) ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <!-- ==================== LOYALTY POINTS SECTION END ==================== -->
 
                         <?php if ($order['gst_amount'] > 0): ?>
                             <div class="flex justify-between items-center">
@@ -1372,5 +1488,76 @@ $back_url = '/' . $profile_url;
         }, 2000);
     }
     </script>
+
+    <?php if ($show_points_celebration): ?>
+<!-- Points Earned Celebration - Golden Gradient, Smaller Fonts, One-time (no repeat on refresh) -->
+<div id="pointsEarnedNotification" class="points-toast" style="display: none;">
+    <div class="points-number" style="color:#fff;">
+        +<?= number_format($points_earned) ?> <br>Loyalty Points
+    </div>
+    <p>Loyalty points earned! <br>
+    Save on your next order.</p>
+</div>
+
+<div class="confetti-container" id="orderConfettiContainer" style="display: none;"></div>
+
+<script>
+    function createOrderConfetti() {
+        const container = document.getElementById('orderConfettiContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        container.style.display = 'block';
+        const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+        const confettiCount = 200;
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const size = Math.random() * 12 + 4;
+            const left = Math.random() * 100;
+            const animationDelay = Math.random() * 3;
+            const animationDuration = Math.random() * 3 + 2;
+            confetti.style.backgroundColor = color;
+            confetti.style.width = size + 'px';
+            confetti.style.height = size + 'px';
+            confetti.style.left = left + '%';
+            confetti.style.animationDelay = animationDelay + 's';
+            confetti.style.animationDuration = animationDuration + 's';
+            if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+            container.appendChild(confetti);
+        }
+        setTimeout(() => { 
+            container.style.display = 'none'; 
+        }, 6000);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationKey = 'pointsNotificationShown_<?= $order_id ?>';
+        // If already shown in this session, do nothing (toast stays hidden)
+        if (sessionStorage.getItem(notificationKey) === 'true') {
+            return;
+        }
+        // Mark as shown for this session
+        sessionStorage.setItem(notificationKey, 'true');
+        
+        // Show the points toast
+        const pointsToast = document.getElementById('pointsEarnedNotification');
+        if (pointsToast) {
+            pointsToast.style.display = 'block';
+            // Show confetti
+            createOrderConfetti();
+            // Fade out and remove after 3 seconds
+            setTimeout(() => {
+                pointsToast.style.opacity = '0';
+                setTimeout(() => {
+                    if (pointsToast && pointsToast.parentNode) {
+                        pointsToast.remove();
+                    }
+                }, 500);
+            }, 5000);
+        }
+    });
+</script>
+<?php endif; ?>
 </body>
 </html>

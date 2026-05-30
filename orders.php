@@ -1,5 +1,4 @@
 <?php
-// orders.php - Order Management System with Bill Printing and Borzo Delivery Integration (Conditional Borzo Column)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
@@ -12,6 +11,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require 'db_connection.php';
+require_once 'includes/loyalty_helper.php';   // Added loyalty helper
 
 // Authentication check - ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -22,6 +22,11 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = 'success';
+
+// Get loyalty settings for this restaurant
+$loyalty_settings = getLoyaltySettings($conn, $user_id);
+$redemption_points = $loyalty_settings['redemption_points'];
+$redemption_amount = $loyalty_settings['redemption_currency_amount'];
 
 // Check if user has Borzo API key configured
 $hasBorzoApi = false;
@@ -300,7 +305,7 @@ $count_stmt->close();
 
 $total_pages = ceil($total_orders / $per_page);
 
-// Fetch orders with all Borzo fields including address components
+// Fetch orders with all Borzo fields including address components AND loyalty points
 $orders_sql = "SELECT 
     o.order_id, 
     o.customer_name, 
@@ -316,6 +321,9 @@ $orders_sql = "SELECT
     o.subtotal, 
     o.discount_amount, 
     o.discount_type, 
+    o.loyalty_points_redeemed,
+    o.loyalty_points_value,
+    o.loyalty_points_earned,
     o.gst_amount, 
     o.delivery_charge, 
     o.total_amount, 
@@ -448,9 +456,24 @@ function formatFullAddress($order) {
     }
 }
 
-
-
-
+/* Loyalty points badge */
+.loyalty-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background: #f0f0f0;
+    color: #333;
+    margin-top: 3px;
+}
+.loyalty-badge.earned {
+    background: #d4edda;
+    color: #155724;
+}
+.loyalty-badge.redeemed {
+    background: #f8d7da;
+    color: #721c24;
+}
     </style>
 
 </head>
@@ -715,8 +738,8 @@ function formatFullAddress($order) {
                                                                     <i class="bi bi-x-lg"></i> Order
                                                                 </button>
                                                             <?php endif; ?>
-                                                          </tr>
-                                                      </tr>
+                                                           </td>
+                                                       </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                         </table>
@@ -921,6 +944,16 @@ function formatFullAddress($order) {
                                                     <td><strong>Discount:</strong></td>
                                                     <td class="text-end text-danger">-<?php echo $currencySymbol; ?> <span id="modalDiscountAmount"></span> <small>(<span id="modalDiscountType"></span>)</small></td>
                                                 </tr>
+                                                <!-- Loyalty Points Redeemed Row -->
+                                                <tr id="modalLoyaltyRedeemedRow" style="display: none;">
+                                                    <td><strong>Loyalty Redeemed:</strong> <span id="modalLoyaltyRedeemedPoints"></span> pts</span></td>
+                                                    <td class="text-end text-success">-<?php echo $currencySymbol; ?> <span id="modalLoyaltyRedeemedValue"></span></td>
+                                                </tr>
+                                                <!-- Loyalty Points Earned Row -->
+                                                <tr id="modalLoyaltyEarnedRow" style="display: none;">
+                                                    <td><strong>Loyalty Earned:</strong> <span id="modalLoyaltyEarnedPoints"></span> pts</span></td>
+                                                    <td class="text-end text-info">+<?php echo $currencySymbol; ?> <span id="modalLoyaltyEarnedValue"></span></span></td>
+                                                </tr>
                                                 <tr id="modalGstRow">
                                                     <td><strong><?php echo $taxLabel; ?>:</strong></td>
                                                     <td class="text-end"><?php echo $currencySymbol; ?> <span id="modalGstAmount"></span></td>
@@ -1039,6 +1072,10 @@ function formatFullAddress($order) {
     const userCountry = '<?php echo $user_country; ?>';
     const taxLabel = '<?php echo $taxLabel; ?>';
     const hasBorzoApi = <?php echo $hasBorzoApi ? 'true' : 'false'; ?>;
+    
+    // Loyalty settings from server
+    const loyaltyRedemptionPoints = <?php echo $redemption_points; ?>;
+    const loyaltyRedemptionAmount = <?php echo $redemption_amount; ?>;
 
     // Function to refresh courier location
     function refreshCourierLocation(orderId) {
@@ -1333,6 +1370,16 @@ function formatFullAddress($order) {
             `;
         }
         
+        // Loyalty Points Redeemed
+        if (parseFloat(order.loyalty_points_redeemed) > 0) {
+            billHtml += `
+                <div class="bill-summary-row">
+                    <div class="bill-summary-label">Loyalty Redeemed (${order.loyalty_points_redeemed} pts):</div>
+                    <div class="bill-summary-value">-${currencySymbol} ${formatCurrency(order.loyalty_points_value)}</div>
+                </div>
+            `;
+        }
+        
         if (parseFloat(order.gst_amount) > 0) {
             billHtml += `
                 <div class="bill-summary-row">
@@ -1347,6 +1394,17 @@ function formatFullAddress($order) {
                 <div class="bill-summary-row">
                     <div class="bill-summary-label">Delivery Charge:</div>
                     <div class="bill-summary-value">${currencySymbol} ${formatCurrency(order.delivery_charge)}</div>
+                </div>
+            `;
+        }
+        
+        // Loyalty Points Earned - using dynamic conversion
+        if (parseFloat(order.loyalty_points_earned) > 0) {
+            const earnedValue = (order.loyalty_points_earned / loyaltyRedemptionPoints * loyaltyRedemptionAmount).toFixed(2);
+            billHtml += `
+                <div class="bill-summary-row">
+                    <div class="bill-summary-label">Loyalty Earned (${order.loyalty_points_earned} pts):</div>
+                    <div class="bill-summary-value">+${currencySymbol} ${formatCurrency(earnedValue)}</div>
                 </div>
             `;
         }
@@ -1632,7 +1690,7 @@ function formatFullAddress($order) {
     function renderOrderItems(items) {
         const $container = $('#modalOrderItems').empty();
         if (!items || items.length === 0) {
-            $container.append('<tr><td colspan="4" class="text-center">No items found</td></tr>');
+            $container.append('<tr><td colspan="4" class="text-center">No items found</span></td></tr>');
             return;
         }
         items.forEach(item => {
@@ -1656,6 +1714,28 @@ function formatFullAddress($order) {
         if (discountAmount > 0) {
             $('#modalDiscountAmount').text(discountAmount.toFixed(2));
             $('#modalDiscountType').text(order.discount_type || 'Discount');
+        }
+        
+        // Loyalty Points Redeemed
+        const redeemedPoints = parseInt(order.loyalty_points_redeemed || 0);
+        const redeemedValue = parseFloat(order.loyalty_points_value || 0);
+        if (redeemedPoints > 0 && redeemedValue > 0) {
+            $('#modalLoyaltyRedeemedRow').show();
+            $('#modalLoyaltyRedeemedPoints').text(redeemedPoints);
+            $('#modalLoyaltyRedeemedValue').text(redeemedValue.toFixed(2));
+        } else {
+            $('#modalLoyaltyRedeemedRow').hide();
+        }
+        
+        // Loyalty Points Earned - using dynamic conversion
+        const earnedPoints = parseInt(order.loyalty_points_earned || 0);
+        if (earnedPoints > 0) {
+            const earnedValue = (earnedPoints / loyaltyRedemptionPoints * loyaltyRedemptionAmount).toFixed(2);
+            $('#modalLoyaltyEarnedRow').show();
+            $('#modalLoyaltyEarnedPoints').text(earnedPoints);
+            $('#modalLoyaltyEarnedValue').text(earnedValue);
+        } else {
+            $('#modalLoyaltyEarnedRow').hide();
         }
         
         const gstAmount = parseFloat(order.gst_amount || 0);
